@@ -1,1 +1,12 @@
+cff-version: 1.0.0
+message: "If you use the AI Anthropology Toolkit, please cite it as shown below."
+title: "AI Anthropology Toolkit"
+version: 1.0.0            
+date-released: 2025-08-02  
+doi: ""                    
+url: "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit"
 
+authors:
+  - family-names: "Artz"
+    given-names: "Matt"
+    orcid: "https://orcid.org/0000-0002-3822-1429"  
