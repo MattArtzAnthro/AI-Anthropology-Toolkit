@@ -8,7 +8,7 @@
 
 ## 🎯 Overview
 
-The **AI Anthropology Toolkit** is a suite of computational tools designed to enhance traditional ethnographic and qualitative research methods. Rather than replacing the interpretive work that defines anthropological inquiry, these tools address the practical challenges of scale in contemporary research contexts while maintaining methodological rigor.
+The **AI Anthropology Toolkit** is a suite of computational anthropology tools designed to enhance qualitative research methods. Rather than replacing the interpretive work that defines anthropological inquiry, these tools address the practical challenges of scale in contemporary research contexts while maintaining methodological rigor.
 
 This toolkit represents a **computational anthropology** approach—using AI to augment rather than automate the nuanced work of qualitative analysis. Each tool preserves the critical thinking and contextual understanding that makes anthropological research valuable while dramatically reducing the time-intensive manual processes that can limit research scope.
 
