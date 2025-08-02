@@ -63,3 +63,35 @@ This toolkit focuses on the second aspect: using AI to enhance traditional anthr
 ## 🔄 Integrated Workflow
 
 The toolkit is designed as an integrated workflow for qualitative analysis:
+
+
+<br>
+
+---
+
+<br>
+
+## License
+
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) license. You may remix, adapt, and build upon the material for non-commercial purposes, provided you credit Matt Artz and link to the repository.
+
+**Full license details**: https://creativecommons.org/licenses/by-nc/4.0/
+
+## Attribution   
+
+If you use or adapt this project in your work, please cite:
+
+
+> Built with the AI Anthropology Toolkit (Matt Artz, 2025) — https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit
+
+
+## Citation
+
+If you use this toolkit in your academic research, please cite:
+
+
+> Artz, Matt. 2025. AI Anthropology Toolkit. Software.
+Zenodo. https://doi.org/10.5281/zenodo.16728812
+
+## References
+Artz, Matt. Forthcoming. "AI Anthropology: The Future of Applied Anthropological Practice." In Routledge Handbook of Applied Anthropology, edited by Christina Wasson, Edward B. Liebow, Karine L. Narahara, Ndukuyakhe Ndlovu, and Alaka Wali. New York: Routledge.
