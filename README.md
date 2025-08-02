@@ -23,7 +23,7 @@ This toolkit focuses on the second aspect: using AI to enhance traditional anthr
 
 ## 🛠️ Current Tools
 
-### 1. Interview Transcript Semantic Chunker
+### 1. [Interview Transcript Semantic Chunker](https://github.com/MattArtzAnthro/Interview_Transcript_Semantic_Chunker)
 **Purpose**: Transform lengthy interview transcripts into semantically coherent chunks for systematic analysis.
 
 **Key Features**:
@@ -35,7 +35,7 @@ This toolkit focuses on the second aspect: using AI to enhance traditional anthr
 
 **Best for**: Preparing interview data for systematic coding and analysis
 
-### 2. Qualitative Codebook Builder
+### 2. [Qualitative Codebook Builder](https://github.com/MattArtzAnthro/Qualitative_Codebook_Builder)
 **Purpose**: AI-assisted development of qualitative coding frameworks.
 
 **Key Features**:
@@ -47,7 +47,7 @@ This toolkit focuses on the second aspect: using AI to enhance traditional anthr
 
 **Best for**: Developing robust deductive coding frameworks before analysis
 
-### 3. Coding and Thematic Analysis
+### 3. [Coding and Thematic Analysis](https://github.com/MattArtzAnthro/Coding_and_Thematic_Analysis)
 **Purpose**: Apply codes to qualitative data and build themes using both deductive and inductive approaches.
 
 **Key Features**:
