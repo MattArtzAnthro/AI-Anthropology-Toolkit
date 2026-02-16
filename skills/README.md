@@ -23,15 +23,29 @@ Skills are organized conceptually by research lifecycle phase. Each row is a sep
 | Research Design | [Research Question Development](research-question/) | `research-question/` | Available |
 | Research Design | [Grant & Proposal Writing](grant-proposal/) | `grant-proposal/` | Available |
 | Research Design | [Dissertation Prospectus](dissertation-prospectus/) | `dissertation-prospectus/` | Available |
-| Research Design | Methodology Selection | `methodology-selection/` | Planned |
+| Research Design | [Methodology Selection](methodology-selection/) | `methodology-selection/` | Available |
 | Research Design | [Research Plan Writing](research-plan/) | `research-plan/` | Available |
-| Ethics | IRB & Ethics Protocols | `ethics-consent/` | Planned |
-| Fieldwork | Fieldwork Instruments & Protocols | `fieldwork-instruments/` | Planned |
-| Writing | Academic Paper Writing & Revision | `academic-paper/` | Planned |
+| Ethics | [IRB & Ethics Protocols](irb-protocol/) | `irb-protocol/` | Available |
+| Ethics | Informed Consent Design | `informed-consent/` | Planned |
+| Fieldwork | Interview & Focus Group Guides | `interview-guides/` | Planned |
+| Fieldwork | Observation Protocols | `observation-protocols/` | Planned |
+| Writing | Literature Review | `literature-review/` | Planned |
+| Writing | Ethnographic Description | `ethnographic-description/` | Planned |
+| Writing | Theoretical Framework | `theoretical-framework/` | Planned |
+| Writing | Methods Section | `methods-section/` | Planned |
+| Writing | Discussion & Conclusion | `discussion-conclusion/` | Planned |
+| Writing | Abstract Writing | `abstract-writing/` | Planned |
+| Writing | Revision & Response to Reviewers | `revision-response/` | Planned |
+| Writing | Thesis/Dissertation Chapter | `thesis-chapter/` | Planned |
 | Review | Peer Review | `peer-review/` | Planned |
-| Dissemination | Conference Abstracts & Presentations | `conference-presentations/` | Planned |
-| Engagement | Public Engagement & Communication | `public-engagement/` | Planned |
-| Career | Academic Career & Teaching | `academic-career/` | Planned |
+| Review | Manuscript Evaluation | `manuscript-evaluation/` | Planned |
+| Dissemination | Conference Abstract | `conference-abstract/` | Planned |
+| Dissemination | Conference Presentation | `conference-presentation/` | Planned |
+| Engagement | Public Writing & Op-Eds | `public-writing/` | Planned |
+| Engagement | Community Reports | `community-reports/` | Planned |
+| Career | Teaching Statements | `teaching-statement/` | Planned |
+| Career | Research Statements | `research-statement/` | Planned |
+| Career | CV & Job Materials | `cv-job-materials/` | Planned |
 
 ## Installation
 
