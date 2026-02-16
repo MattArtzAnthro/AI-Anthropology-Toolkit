@@ -21,25 +21,18 @@ Skills are organized conceptually by research lifecycle phase. Each row is a sep
 | Phase | Skill | Folder | Status |
 |-------|-------|--------|--------|
 | Research Design | [Research Question Development](research-question/) | `research-question/` | Available |
-| Research Design | [Grant & Proposal Writing](grant-proposal/) | `grant-proposal/` | Available |
 | Research Design | [Dissertation Prospectus](dissertation-prospectus/) | `dissertation-prospectus/` | Available |
-| Research Design | [Methodology Selection](methodology-selection/) | `methodology-selection/` | Available |
 | Research Design | [Research Plan Writing](research-plan/) | `research-plan/` | Available |
-| Ethics | [IRB & Ethics Protocols](irb-protocol/) | `irb-protocol/` | Available |
-| Ethics | Informed Consent Design | `informed-consent/` | Planned |
-| Fieldwork | Interview & Focus Group Guides | `interview-guides/` | Planned |
-| Fieldwork | Observation Protocols | `observation-protocols/` | Planned |
-| Writing | Literature Review | `literature-review/` | Planned |
-| Writing | Ethnographic Description | `ethnographic-description/` | Planned |
-| Writing | Theoretical Framework | `theoretical-framework/` | Planned |
-| Writing | Methods Section | `methods-section/` | Planned |
-| Writing | Discussion & Conclusion | `discussion-conclusion/` | Planned |
-| Writing | Abstract Writing | `abstract-writing/` | Planned |
-| Writing | Revision & Response to Reviewers | `revision-response/` | Planned |
-| Writing | Thesis/Dissertation Chapter | `thesis-chapter/` | Planned |
-| Review | [Academic Review & Manuscript Evaluation](academic-review/) | `academic-review/` | Available |
-| Dissemination | [Conference Materials & Presentations](conference-materials/) | `conference-materials/` | Available |
-| Engagement | [Public Engagement & Communication](public-engagement/) | `public-engagement/` | Available |
+| Research Design | [Methodology Selection](methodology-selection/) | `methodology-selection/` | Available |
+| Funding & Proposals | [Grant & Proposal Writing](grant-proposal/) | `grant-proposal/` | Available |
+| Ethics & Compliance | [IRB & Ethics Protocols](irb-protocol/) | `irb-protocol/` | Available |
+| Ethics & Compliance | [Informed Consent Design](informed-consent/) | `informed-consent/` | Available |
+| Data Collection | Interview & Focus Group Guides | `interview-guides/` | Planned |
+| Data Collection | Observation Protocols | `observation-protocols/` | Planned |
+| Writing | [Research Writing](research-writing/) | `research-writing/` | Available |
+| Peer Review | [Academic Review & Manuscript Evaluation](academic-review/) | `academic-review/` | Available |
+| Conferences & Presentations | [Conference Materials & Presentations](conference-materials/) | `conference-materials/` | Available |
+| Public Engagement | [Public Engagement & Communication](public-engagement/) | `public-engagement/` | Available |
 | Teaching | [Teaching Materials](teaching-materials/) | `teaching-materials/` | Available |
 | Career | [Career Statements](career-statements/) | `career-statements/` | Available |
 | Career | [Job Application Materials](job-materials/) | `job-materials/` | Available |
