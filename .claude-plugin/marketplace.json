@@ -1,0 +1,23 @@
+{
+  "name": "ai-anthropology",
+  "owner": {
+    "name": "Matt Artz"
+  },
+  "metadata": {
+    "description": "Skills for anthropological research across the full research lifecycle",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "anthropology-skills",
+      "description": "Anthropological research skills covering research design, ethics, fieldwork, writing, review, presentations, public engagement, and career development",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "skills/research-question",
+        "skills/grant-proposal",
+        "skills/dissertation-prospectus"
+      ]
+    }
+  ]
+}

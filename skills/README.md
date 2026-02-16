@@ -4,19 +4,37 @@ A library of `SKILL.md` files that enable LLMs and agents to support anthropolog
 
 ## Architecture
 
-Each skill is a self-contained folder with a `SKILL.md` router and optional `references/` files for domain-specific depth. Skills use progressive disclosure: only the relevant SKILL.md and its reference files load when triggered, keeping context window costs manageable.
+Each skill is a self-contained folder under `skills/` with a `SKILL.md` file (YAML frontmatter + markdown instructions) and an optional `references/` directory for domain-specific depth. Skills follow the [Agent Skills specification](https://agentskills.io/specification):
+
+- **Metadata** (~100 tokens): `name` and `description` fields loaded at startup for all skills
+- **Instructions** (< 5,000 tokens): Full SKILL.md body loaded when the skill activates
+- **Resources** (as needed): Reference files in `references/` loaded only when required
+
+The directory name of each skill matches its `name` field. Reference files are one level deep from SKILL.md.
 
 For the full architectural rationale and shared parameter framework, see [DESIGN.md](DESIGN.md).
 
 ## Skills
 
-| # | Skill | Folder | Status | Description |
-|---|-------|--------|--------|-------------|
-| 1 | [Research Design & Planning](https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit/tree/main/skills/research-design-planning) | `research-design/` | In Process | Research questions, proposals, grants, methodology selection |
-| 2 | Ethics, Consent & Governance | `ethics-consent/` | In Process | IRB protocols, consent documents, community agreements |
-| 3 | Fieldwork Instruments & Protocols | `fieldwork-instruments/` | In Process | Interview guides, focus groups, surveys, observation protocols, codebooks |
-| 4 | Academic Paper Writing & Revision | `academic-paper/` | In Process | Paper sections, ethnographic voice, reviewer responses, journal conventions |
-| 5 | Peer Review | `peer-review/` | In Process | Constructive peer reviews for anthropology journals |
-| 6 | Conference Abstracts & Presentations | `conference-presentations/` | In Process | Abstracts, slides, posters, speaker notes |
-| 7 | Public Engagement & Communication | `public-engagement/` | In Process | Blog posts, op-eds, media prep, community summaries, policy briefs |
-| 8 | Academic Career & Teaching | `academic-career/` | In Process | Syllabi, teaching materials, tenure portfolios, statements |
+Skills are organized conceptually by research lifecycle phase. Each row is a separate installable skill.
+
+| Phase | Skill | Folder | Status |
+|-------|-------|--------|--------|
+| Research Design | [Research Question Development](research-question/) | `research-question/` | Available |
+| Research Design | [Grant & Proposal Writing](grant-proposal/) | `grant-proposal/` | Available |
+| Research Design | [Dissertation Prospectus](dissertation-prospectus/) | `dissertation-prospectus/` | Available |
+| Research Design | Methodology Selection | `methodology-selection/` | Planned |
+| Research Design | Research Plan Writing | `research-plan/` | Planned |
+| Ethics | IRB & Ethics Protocols | `ethics-consent/` | Planned |
+| Fieldwork | Fieldwork Instruments & Protocols | `fieldwork-instruments/` | Planned |
+| Writing | Academic Paper Writing & Revision | `academic-paper/` | Planned |
+| Review | Peer Review | `peer-review/` | Planned |
+| Dissemination | Conference Abstracts & Presentations | `conference-presentations/` | Planned |
+| Engagement | Public Engagement & Communication | `public-engagement/` | Planned |
+| Career | Academic Career & Teaching | `academic-career/` | Planned |
+
+## Installation
+
+```bash
+/plugin marketplace add MattArtzAnthro/AI-Anthropology-Toolkit
+```
