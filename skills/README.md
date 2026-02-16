@@ -24,7 +24,7 @@ Skills are organized conceptually by research lifecycle phase. Each row is a sep
 | Research Design | [Grant & Proposal Writing](grant-proposal/) | `grant-proposal/` | Available |
 | Research Design | [Dissertation Prospectus](dissertation-prospectus/) | `dissertation-prospectus/` | Available |
 | Research Design | Methodology Selection | `methodology-selection/` | Planned |
-| Research Design | Research Plan Writing | `research-plan/` | Planned |
+| Research Design | [Research Plan Writing](research-plan/) | `research-plan/` | Available |
 | Ethics | IRB & Ethics Protocols | `ethics-consent/` | Planned |
 | Fieldwork | Fieldwork Instruments & Protocols | `fieldwork-instruments/` | Planned |
 | Writing | Academic Paper Writing & Revision | `academic-paper/` | Planned |
