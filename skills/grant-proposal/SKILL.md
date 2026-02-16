@@ -1,5 +1,5 @@
 ---
-name: anthropology-grant-proposal
+name: grant-proposal
 description: >
   Use this skill whenever a user needs help writing, drafting, revising, or
   structuring a grant proposal, funding application, or dissertation prospectus
