@@ -37,15 +37,12 @@ Skills are organized conceptually by research lifecycle phase. Each row is a sep
 | Writing | Abstract Writing | `abstract-writing/` | Planned |
 | Writing | Revision & Response to Reviewers | `revision-response/` | Planned |
 | Writing | Thesis/Dissertation Chapter | `thesis-chapter/` | Planned |
-| Review | Peer Review | `peer-review/` | Planned |
-| Review | Manuscript Evaluation | `manuscript-evaluation/` | Planned |
-| Dissemination | Conference Abstract | `conference-abstract/` | Planned |
-| Dissemination | Conference Presentation | `conference-presentation/` | Planned |
-| Engagement | Public Writing & Op-Eds | `public-writing/` | Planned |
-| Engagement | Community Reports | `community-reports/` | Planned |
-| Career | Teaching Statements | `teaching-statement/` | Planned |
-| Career | Research Statements | `research-statement/` | Planned |
-| Career | CV & Job Materials | `cv-job-materials/` | Planned |
+| Review | [Academic Review & Manuscript Evaluation](academic-review/) | `academic-review/` | Available |
+| Dissemination | [Conference Materials & Presentations](conference-materials/) | `conference-materials/` | Available |
+| Engagement | [Public Engagement & Communication](public-engagement/) | `public-engagement/` | Available |
+| Teaching | [Teaching Materials](teaching-materials/) | `teaching-materials/` | Available |
+| Career | [Career Statements](career-statements/) | `career-statements/` | Available |
+| Career | [Job Application Materials](job-materials/) | `job-materials/` | Available |
 
 ## Installation
 
