@@ -1,0 +1,12 @@
+{
+  "name": "ai-anthropology",
+  "version": "1.0.0",
+  "description": "Skills and agents for anthropological research across the full research lifecycle — from question formulation through publication and career advancement",
+  "author": {
+    "name": "Matt Artz",
+    "url": "https://github.com/MattArtzAnthro"
+  },
+  "repository": "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit",
+  "license": "CC-BY-NC-4.0",
+  "keywords": ["anthropology", "qualitative-research", "ethnography", "academic-writing"]
+}
