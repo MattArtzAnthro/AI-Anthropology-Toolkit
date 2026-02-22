@@ -1,75 +1,150 @@
 # AI Anthropology Toolkit
 
-*Advancing AI Anthropology through computational approaches to qualitative research*
+*A Claude Code plugin for anthropological research across the full research lifecycle*
 
 **Created by [Matt Artz](https://www.mattartz.me/)**
 
 ---
 
-## 🎯 Overview
+## Overview
 
-The **AI Anthropology Toolkit** is a suite of computational anthropology tools designed to enhance qualitative research methods. Rather than replacing the interpretive work that defines anthropological inquiry, these tools address the practical challenges of scale in contemporary research contexts while maintaining methodological rigor.
+The **AI Anthropology Toolkit** is a Claude Code plugin that provides discipline-specific skills, agents, and workflows for anthropological research. It covers the entire research lifecycle — from formulating research questions through publication and career advancement.
 
-This toolkit represents a **computational anthropology** approach—using AI to augment rather than automate the nuanced work of qualitative analysis. Each tool preserves the critical thinking and contextual understanding that makes anthropological research valuable while dramatically reducing the time-intensive manual processes that can limit research scope.
+Rather than offering generic academic advice, every component is grounded in the conventions, debates, and craft knowledge of anthropology and cognate qualitative social sciences. Epistemic stance (interpretivist, critical, STS, feminist, applied, etc.) is treated as a first-class design parameter that shapes methods, writing, and analysis.
 
-## 🧠 What is AI Anthropology?
+## What is AI Anthropology?
 
 AI Anthropology is an emerging field that combines:
-- **Studying AI as cultural artifact** - Understanding how AI systems reflect and shape human culture
-- **Using AI to enhance ethnographic research** - Leveraging computational methods to scale qualitative analysis
-- **Applying anthropological insights to AI development** - Bringing cultural understanding to technology design
+- **Studying AI as cultural artifact** — Understanding how AI systems reflect and shape human culture
+- **Using AI to enhance ethnographic research** — Leveraging computational methods to scale qualitative analysis
+- **Applying anthropological insights to AI development** — Bringing cultural understanding to technology design
 
-This toolkit focuses on the second aspect: using AI to enhance traditional anthropological research methods while preserving the interpretive frameworks that make our discipline unique.
+This toolkit focuses on the second aspect: using AI to enhance traditional anthropological research methods while preserving the interpretive frameworks that make the discipline unique.
 
-## 🛠️ Current Tools
+## Installation
 
-### 1. [Qualitative Codebook Builder](https://github.com/MattArtzAnthro/Qualitative_Codebook_Builder)
-**Purpose**: AI-assisted development of qualitative coding frameworks.
+Install the plugin in Claude Code:
 
-**Key Features**:
-- Theory-driven code generation from research questions and literature
-- Code definitions with inclusion/exclusion criteria
-- Multiple examples per code for consistency
-- Export formats compatible with analysis software
-- Iterative refinement capabilities
+```bash
+claude plugin add /path/to/AI-Anthropology-Toolkit
+```
 
-**Best for**: Developing robust deductive coding frameworks before analysis
+Or test locally:
 
-### 2. [Interview Transcript Semantic Chunker](https://github.com/MattArtzAnthro/Interview_Transcript_Semantic_Chunker)
-**Purpose**: Transform lengthy interview transcripts into semantically coherent chunks for systematic analysis.
+```bash
+claude --plugin-dir /path/to/AI-Anthropology-Toolkit
+```
 
-**Key Features**:
-- Multi-format support (PDF, DOCX, TXT, RTF)
-- Ethnographically-aware chunking that preserves speaker labels and conversation structure
-- AI-powered segmentation using Claude API or local sentence transformers
-- Quality metrics and validation
-- Export ready for qualitative coding software (NVivo, ATLAS.ti)
+## What's Included
 
-**Best for**: Preparing interview data for systematic coding and analysis
+The plugin provides **15 skills**, **7 agents**, and **1 command**, organized across 7 research lifecycle phases.
 
-### 3. [Coding and Thematic Analysis](https://github.com/MattArtzAnthro/Coding_and_Thematic_Analysis)
-**Purpose**: Apply codes to qualitative data and build themes using both deductive and inductive approaches.
+### Phase 1: Research Design
 
-**Key Features**:
-- Deductive coding using predefined codebooks
-- Inductive coding to discover emergent themes
-- Hybrid approaches combining both methods
-- Automated theme building from coded data
-- Visualizations and network analysis
-- Professional export formats (Excel, Word)
+Design a study from the ground up — formulate questions, select methods, build a plan.
 
-**Best for**: Systematic coding of qualitative data and thematic analysis
+| Component | Type | What It Does |
+|---|---|---|
+| research-question | Skill | Five-slot question grammar, evaluation rubric, genre conventions |
+| methodology-selection | Skill | Method-stance compatibility, evidence need decomposition, multi-method design |
+| research-plan | Skill | Ten-section plan architecture covering problem through feasibility |
+| research-design | Agent | Orchestrates all three skills for end-to-end research design |
 
-## 🔄 Integrated Workflow
+### Phase 2: Ethics and Compliance
 
-The toolkit is designed as an integrated workflow for qualitative analysis:
+Navigate IRB requirements and design ethically sound research.
 
+| Component | Type | What It Does |
+|---|---|---|
+| irb-protocol | Skill | 13-section protocol narratives, risk assessment, digital ethnography ethics |
+| informed-consent | Skill | Consent modes (written, verbal, layered, community-based), cultural adaptation |
+| ethics-reviewer | Agent | Reviews research designs for ethics issues, drafts protocols and consent documents |
 
-<br>
+### Phase 3: Funding and Proposals
 
----
+Write grant proposals and dissertation prospectuses.
 
-<br>
+| Component | Type | What It Does |
+|---|---|---|
+| grant-proposal | Skill | NSF CA-DDRIG, Wenner-Gren, Fulbright, ERC, SSHRC, Wellcome — funder-specific guidance |
+| dissertation-prospectus | Skill | Section-by-section prospectus development (8-30 pages) |
+| proposal-advisor | Agent | Translates research designs into persuasive funder-specific narratives |
+
+### Phase 4: Fieldwork
+
+Design data collection instruments and plan fieldwork logistics.
+
+| Component | Type | What It Does |
+|---|---|---|
+| fieldwork-methods | Skill | Interview guides, observation protocols, sampling strategies, data management plans |
+| fieldwork-advisor | Agent | Designs instruments tailored to specific research questions and fieldwork contexts |
+
+### Phase 5: Writing and Review
+
+Write research articles, manage peer review, handle revisions.
+
+| Component | Type | What It Does |
+|---|---|---|
+| research-writing | Skill | Article architecture, ethnographic craft, subfield conventions, journal requirements |
+| academic-review | Skill | Peer review writing, rebuttal letters, revision strategy |
+| writing-advisor | Agent | Guides article/chapter writing and R&R management |
+
+### Phase 6: Dissemination
+
+Prepare conference presentations and public-facing work.
+
+| Component | Type | What It Does |
+|---|---|---|
+| conference-materials | Skill | AAA abstracts, slide decks, posters, speaker notes, oral delivery |
+| public-engagement | Skill | Op-eds, blog posts, policy briefs, community reports, media preparation |
+| dissemination-advisor | Agent | Handles register translation between academic and public audiences |
+
+### Phase 7: Career Development
+
+Build job applications, career statements, and teaching materials.
+
+| Component | Type | What It Does |
+|---|---|---|
+| job-materials | Skill | Academic CVs, cover letters, job talks, application strategy |
+| career-statements | Skill | Research, teaching, and diversity statements; tenure narratives |
+| teaching-materials | Skill | Syllabi, lesson plans, assignments, rubrics, discussion guides |
+| career-advisor | Agent | Coordinates application packages and course design |
+
+### Commands
+
+| Command | What It Does |
+|---|---|
+| `/ai-anthropology:new-project` | Scaffold a new research project through guided phases |
+
+## How It Works
+
+**Skills** activate automatically when Claude detects relevant context in your request. Ask about research questions, and the research-question skill loads. Ask about IRB protocols, and the irb-protocol skill loads.
+
+**Agents** are autonomous subprocesses that handle multi-step tasks. They orchestrate across multiple skills for a given research phase. Claude delegates to them when the task requires coordinated, phase-level guidance.
+
+**Commands** are user-initiated workflows you invoke with a slash command.
+
+## Companion Notebooks
+
+The toolkit is complemented by three standalone Jupyter notebooks for computational qualitative analysis. These are separate repositories that can be used independently or alongside the plugin. They will eventually be integrated into the plugin as an MCP server.
+
+| Notebook | What It Does |
+|---|---|
+| [Qualitative Codebook Builder](https://github.com/MattArtzAnthro/Qualitative_Codebook_Builder) | AI-assisted development of qualitative coding frameworks with theory-driven code generation, inclusion/exclusion criteria, and export for analysis software |
+| [Interview Transcript Semantic Chunker](https://github.com/MattArtzAnthro/Interview_Transcript_Semantic_Chunker) | Segments interview transcripts into semantically coherent chunks with speaker-aware processing, multi-format support (PDF, DOCX, TXT, RTF), and export for NVivo/ATLAS.ti |
+| [Coding and Thematic Analysis](https://github.com/MattArtzAnthro/Coding_and_Thematic_Analysis) | Applies codes to qualitative data and builds themes using deductive, inductive, or hybrid approaches with visualizations and professional export (Excel, Word) |
+
+## Subfield Coverage
+
+The toolkit covers anthropology broadly:
+- Sociocultural anthropology
+- Linguistic anthropology
+- Medical anthropology
+- Archaeological methods (qualitative components)
+- Biological anthropology (qualitative components)
+- Applied and design anthropology
+- Science and Technology Studies (STS)
+- Cognate qualitative social sciences
 
 ## License
 
@@ -77,21 +152,18 @@ This project is licensed under the Creative Commons Attribution-NonCommercial 4.
 
 **Full license details**: https://creativecommons.org/licenses/by-nc/4.0/
 
-## Attribution   
+## Attribution
 
 If you use or adapt this project in your work, please cite:
 
-
 > Built with the AI Anthropology Toolkit (Matt Artz, 2025) — https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit
-
 
 ## Citation
 
 If you use this toolkit in your academic research, please cite:
 
-
-> Artz, Matt. 2025. AI Anthropology Toolkit. Software.
-Zenodo. https://doi.org/10.5281/zenodo.16728812
+> Artz, Matt. 2025. AI Anthropology Toolkit. Software. Zenodo. https://doi.org/10.5281/zenodo.16728812
 
 ## References
+
 Artz, Matt. Forthcoming. "AI Anthropology: The Future of Applied Anthropological Practice." In Routledge Handbook of Applied Anthropology, edited by Christina Wasson, Edward B. Liebow, Karine L. Narahara, Ndukuyakhe Ndlovu, and Alaka Wali. New York: Routledge.
