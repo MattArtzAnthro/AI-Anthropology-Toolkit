@@ -23,18 +23,18 @@ This toolkit focuses on the second aspect: using AI to enhance traditional anthr
 
 ## Notebooks
 
-Standalone Jupyter notebooks for computational qualitative analysis. Each can be run directly in Google Colab — no local setup required.
+Standalone Jupyter notebooks for computational qualitative analysis. Most can be run directly in Google Colab. Notebooks marked **Local** should be run on your own machine (see [Running Locally](#running-locally) below).
 
-| Notebook | Colab | Description |
-|:---------|:-----:|:------------|
-| [Qualitative Codebook Builder](notebooks/Qualitative_Codebook_Builder.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Qualitative_Codebook_Builder.ipynb) | AI-assisted development of qualitative coding frameworks with theory-driven code generation, inclusion/exclusion criteria, and export for analysis software |
-| [Interview Transcript Semantic Chunker](notebooks/Interview_Transcript_Semantic_Chunker.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Interview_Transcript_Semantic_Chunker.ipynb) | Segments interview transcripts into semantically coherent chunks with speaker-aware processing, multi-format support (PDF, DOCX, TXT, RTF), and coherence scoring |
-| [Coding and Thematic Analysis](notebooks/Coding_and_Thematic_Analysis.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Coding_and_Thematic_Analysis.ipynb) | Applies codes to qualitative data and builds themes using deductive, inductive, or hybrid approaches with professional export (Excel, Word) |
-| [Google Books Ngram Explorer](notebooks/Google_Books_Ngram_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Google_Books_Ngram_Explorer.ipynb) | Analyze historical word frequency patterns across Google Books corpora (1800–2022) with interactive search, visualization, and structured export |
-| [Google Trends Explorer](notebooks/Google_Trends_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Google_Trends_Explorer.ipynb) | Retrieve and visualize Google Trends data for research — compare search terms, explore regional interest, and export structured data (Excel, CSV, JSON) |
-| [Google News Explorer](notebooks/Google_News_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Google_News_Explorer.ipynb) | Search Google News by keyword, time period, and country with quick or extended date-range search, exported as CSV or Excel |
-| [Google Scholar Explorer](notebooks/Google_Scholar_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Google_Scholar_Explorer.ipynb) | Search Google Scholar for publications with year filtering, citation counts, and structured export for literature reviews |
-| [YouTube Transcript Fetcher](notebooks/YouTube_Transcript_Fetcher.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/YouTube_Transcript_Fetcher.ipynb) | Fetch YouTube video transcripts with language selection, segment chunking, and export as CSV, Excel, SRT, VTT, or plain text |
+| Notebook | Run | Colab | Description |
+|:---------|:---:|:-----:|:------------|
+| [Qualitative Codebook Builder](notebooks/Qualitative_Codebook_Builder.ipynb) | Colab | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Qualitative_Codebook_Builder.ipynb) | AI-assisted development of qualitative coding frameworks with theory-driven code generation, inclusion/exclusion criteria, and export for analysis software |
+| [Interview Transcript Semantic Chunker](notebooks/Interview_Transcript_Semantic_Chunker.ipynb) | Colab | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Interview_Transcript_Semantic_Chunker.ipynb) | Segments interview transcripts into semantically coherent chunks with speaker-aware processing, multi-format support (PDF, DOCX, TXT, RTF), and coherence scoring |
+| [Coding and Thematic Analysis](notebooks/Coding_and_Thematic_Analysis.ipynb) | Colab | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Coding_and_Thematic_Analysis.ipynb) | Applies codes to qualitative data and builds themes using deductive, inductive, or hybrid approaches with professional export (Excel, Word) |
+| [Google Books Ngram Explorer](notebooks/Google_Books_Ngram_Explorer.ipynb) | Colab | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Google_Books_Ngram_Explorer.ipynb) | Analyze historical word frequency patterns across Google Books corpora (1800–2022) with interactive search, visualization, and structured export |
+| [Google Trends Explorer](notebooks/Google_Trends_Explorer.ipynb) | Colab | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Google_Trends_Explorer.ipynb) | Retrieve and visualize Google Trends data for research — compare search terms, explore regional interest, and export structured data (Excel, CSV, JSON) |
+| [Google News Explorer](notebooks/Google_News_Explorer.ipynb) | Colab | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Google_News_Explorer.ipynb) | Search Google News by keyword, time period, and country with quick or extended date-range search, exported as CSV or Excel |
+| [Google Scholar Explorer](notebooks/Google_Scholar_Explorer.ipynb) | Local | | Search Google Scholar for publications with year filtering, citation counts, and structured export for literature reviews |
+| [YouTube Transcript Fetcher](notebooks/YouTube_Transcript_Fetcher.ipynb) | Colab | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/YouTube_Transcript_Fetcher.ipynb) | Fetch YouTube video transcripts with language selection, segment chunking, and export as CSV, Excel, SRT, VTT, or plain text |
 
 
 ## Skills
@@ -81,9 +81,31 @@ Autonomous Claude Code subagents that orchestrate across multiple skills for com
 
 ## Getting Started
 
-### Notebooks
+### Notebooks (Colab)
 
 Click any **Open in Colab** badge above to run a notebook directly in your browser. Each notebook handles its own dependencies — no local installation needed.
+
+### Running Locally
+
+Some notebooks (marked **Local** in the table) need to be run on your own machine. This requires Python and Jupyter.
+
+**If you already have Anaconda/Miniconda installed:**
+
+```bash
+pip install scholarly
+jupyter notebook
+```
+
+Then open the notebook file from the Jupyter file browser.
+
+**If you need to install Jupyter from scratch:**
+
+```bash
+pip install jupyter scholarly
+jupyter notebook
+```
+
+Notebooks that run locally will install any other dependencies they need automatically when you run the first cell.
 
 ### Claude Code Plugin
 
