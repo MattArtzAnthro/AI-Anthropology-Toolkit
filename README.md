@@ -1,8 +1,8 @@
 # AI Anthropology Toolkit
 
-*A suite of computational anthropology tools for qualitative research*
+*A suite of AI anthropology tools for qualitative research*
 
-**Created by [Matt Artz](https://www.mattartz.me/)**
+[Matt Artz](https://www.mattartz.me/) | [GitHub](https://github.com/MattArtzAnthro) | [ORCID](https://orcid.org/0000-0002-3822-1429)
 
 ---
 
