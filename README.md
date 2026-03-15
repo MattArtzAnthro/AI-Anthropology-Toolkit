@@ -1,6 +1,6 @@
 # AI Anthropology Toolkit
 
-*A Claude Code plugin for anthropological research across the full research lifecycle*
+*A suite of computational anthropology tools for qualitative research*
 
 **Created by [Matt Artz](https://www.mattartz.me/)**
 
@@ -8,9 +8,9 @@
 
 ## Overview
 
-The **AI Anthropology Toolkit** is a Claude Code plugin that provides discipline-specific skills, agents, and workflows for anthropological research. It covers the entire research lifecycle — from formulating research questions through publication and career advancement.
+The **AI Anthropology Toolkit** provides computational tools for anthropological and qualitative research. Every component is grounded in the conventions, debates, and craft knowledge of anthropology and cognate qualitative social sciences. Epistemic stance (interpretivist, critical, STS, feminist, applied, etc.) is treated as a first-class design parameter that shapes methods, writing, and analysis.
 
-Rather than offering generic academic advice, every component is grounded in the conventions, debates, and craft knowledge of anthropology and cognate qualitative social sciences. Epistemic stance (interpretivist, critical, STS, feminist, applied, etc.) is treated as a first-class design parameter that shapes methods, writing, and analysis.
+The toolkit includes standalone Jupyter notebooks for qualitative data analysis, a Claude Code plugin with research lifecycle skills and agents, and will expand to include MCP servers and additional components over time.
 
 ## What is AI Anthropology?
 
@@ -21,7 +21,65 @@ AI Anthropology is an emerging field that combines:
 
 This toolkit focuses on the second aspect: using AI to enhance traditional anthropological research methods while preserving the interpretive frameworks that make the discipline unique.
 
-## Installation
+## Notebooks
+
+Standalone Jupyter notebooks for computational qualitative analysis. Each can be run directly in Google Colab — no local setup required.
+
+| Notebook | Colab | Description |
+|:---------|:-----:|:------------|
+| [Qualitative Codebook Builder](notebooks/Qualitative_Codebook_Builder.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Qualitative_Codebook_Builder.ipynb) | AI-assisted development of qualitative coding frameworks with theory-driven code generation, inclusion/exclusion criteria, and export for analysis software |
+| [Interview Transcript Semantic Chunker](notebooks/Interview_Transcript_Semantic_Chunker.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Interview_Transcript_Semantic_Chunker.ipynb) | Segments interview transcripts into semantically coherent chunks with speaker-aware processing, multi-format support (PDF, DOCX, TXT, RTF), and coherence scoring |
+| [Coding and Thematic Analysis](notebooks/Coding_and_Thematic_Analysis.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Coding_and_Thematic_Analysis.ipynb) | Applies codes to qualitative data and builds themes using deductive, inductive, or hybrid approaches with professional export (Excel, Word) |
+
+## Skills
+
+Claude Code skills that activate automatically based on context. Requires the [AI Anthropology Toolkit plugin](https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit) installed in Claude Code.
+
+| Skill | Description |
+|:------|:------------|
+| research-question | Five-slot question grammar, evaluation rubric, genre conventions |
+| methodology-selection | Method-stance compatibility, evidence need decomposition, multi-method design |
+| research-plan | Ten-section plan architecture covering problem through feasibility |
+| irb-protocol | 13-section protocol narratives, risk assessment, digital ethnography ethics |
+| informed-consent | Consent modes (written, verbal, layered, community-based), cultural adaptation |
+| grant-proposal | NSF CA-DDRIG, Wenner-Gren, Fulbright, ERC, SSHRC, Wellcome — funder-specific guidance |
+| dissertation-prospectus | Section-by-section prospectus development (8-30 pages) |
+| fieldwork-methods | Interview guides, observation protocols, sampling strategies, data management plans |
+| research-writing | Article architecture, ethnographic craft, subfield conventions, journal requirements |
+| academic-review | Peer review writing, rebuttal letters, revision strategy |
+| conference-materials | AAA abstracts, slide decks, posters, speaker notes, oral delivery |
+| public-engagement | Op-eds, blog posts, policy briefs, community reports, media preparation |
+| job-materials | Academic CVs, cover letters, job talks, application strategy |
+| career-statements | Research, teaching, and diversity statements; tenure narratives |
+| teaching-materials | Syllabi, lesson plans, assignments, rubrics, discussion guides |
+
+## Agents
+
+Autonomous Claude Code subagents that orchestrate across multiple skills for complex, multi-step tasks.
+
+| Agent | Description |
+|:------|:------------|
+| research-design | Orchestrates question, methodology, and plan skills for end-to-end research design |
+| ethics-reviewer | Reviews research designs for ethics issues, drafts protocols and consent documents |
+| proposal-advisor | Translates research designs into persuasive funder-specific narratives |
+| fieldwork-advisor | Designs instruments tailored to specific research questions and fieldwork contexts |
+| writing-advisor | Guides article/chapter writing and R&R management |
+| dissemination-advisor | Handles register translation between academic and public audiences |
+| career-advisor | Coordinates application packages and course design |
+
+## Commands
+
+| Command | Description |
+|:------|:------------|
+| `/ai-anthropology:new-project` | Scaffold a new research project through guided phases |
+
+## Getting Started
+
+### Notebooks
+
+Click any **Open in Colab** badge above to run a notebook directly in your browser. Each notebook handles its own dependencies — no local installation needed.
+
+### Claude Code Plugin
 
 Install the plugin in Claude Code:
 
@@ -29,114 +87,10 @@ Install the plugin in Claude Code:
 claude plugin add /path/to/AI-Anthropology-Toolkit
 ```
 
-Or test locally:
-
-```bash
-claude --plugin-dir /path/to/AI-Anthropology-Toolkit
-```
-
-## What's Included
-
-The plugin provides **15 skills**, **7 agents**, and **1 command**, organized across 7 research lifecycle phases.
-
-### Phase 1: Research Design
-
-Design a study from the ground up — formulate questions, select methods, build a plan.
-
-| Component | Type | What It Does |
-|---|---|---|
-| research-question | Skill | Five-slot question grammar, evaluation rubric, genre conventions |
-| methodology-selection | Skill | Method-stance compatibility, evidence need decomposition, multi-method design |
-| research-plan | Skill | Ten-section plan architecture covering problem through feasibility |
-| research-design | Agent | Orchestrates all three skills for end-to-end research design |
-
-### Phase 2: Ethics and Compliance
-
-Navigate IRB requirements and design ethically sound research.
-
-| Component | Type | What It Does |
-|---|---|---|
-| irb-protocol | Skill | 13-section protocol narratives, risk assessment, digital ethnography ethics |
-| informed-consent | Skill | Consent modes (written, verbal, layered, community-based), cultural adaptation |
-| ethics-reviewer | Agent | Reviews research designs for ethics issues, drafts protocols and consent documents |
-
-### Phase 3: Funding and Proposals
-
-Write grant proposals and dissertation prospectuses.
-
-| Component | Type | What It Does |
-|---|---|---|
-| grant-proposal | Skill | NSF CA-DDRIG, Wenner-Gren, Fulbright, ERC, SSHRC, Wellcome — funder-specific guidance |
-| dissertation-prospectus | Skill | Section-by-section prospectus development (8-30 pages) |
-| proposal-advisor | Agent | Translates research designs into persuasive funder-specific narratives |
-
-### Phase 4: Fieldwork
-
-Design data collection instruments and plan fieldwork logistics.
-
-| Component | Type | What It Does |
-|---|---|---|
-| fieldwork-methods | Skill | Interview guides, observation protocols, sampling strategies, data management plans |
-| fieldwork-advisor | Agent | Designs instruments tailored to specific research questions and fieldwork contexts |
-
-### Phase 5: Writing and Review
-
-Write research articles, manage peer review, handle revisions.
-
-| Component | Type | What It Does |
-|---|---|---|
-| research-writing | Skill | Article architecture, ethnographic craft, subfield conventions, journal requirements |
-| academic-review | Skill | Peer review writing, rebuttal letters, revision strategy |
-| writing-advisor | Agent | Guides article/chapter writing and R&R management |
-
-### Phase 6: Dissemination
-
-Prepare conference presentations and public-facing work.
-
-| Component | Type | What It Does |
-|---|---|---|
-| conference-materials | Skill | AAA abstracts, slide decks, posters, speaker notes, oral delivery |
-| public-engagement | Skill | Op-eds, blog posts, policy briefs, community reports, media preparation |
-| dissemination-advisor | Agent | Handles register translation between academic and public audiences |
-
-### Phase 7: Career Development
-
-Build job applications, career statements, and teaching materials.
-
-| Component | Type | What It Does |
-|---|---|---|
-| job-materials | Skill | Academic CVs, cover letters, job talks, application strategy |
-| career-statements | Skill | Research, teaching, and diversity statements; tenure narratives |
-| teaching-materials | Skill | Syllabi, lesson plans, assignments, rubrics, discussion guides |
-| career-advisor | Agent | Coordinates application packages and course design |
-
-### Commands
-
-| Command | What It Does |
-|---|---|
-| `/ai-anthropology:new-project` | Scaffold a new research project through guided phases |
-
-## How It Works
-
-**Skills** activate automatically when Claude detects relevant context in your request. Ask about research questions, and the research-question skill loads. Ask about IRB protocols, and the irb-protocol skill loads.
-
-**Agents** are autonomous subprocesses that handle multi-step tasks. They orchestrate across multiple skills for a given research phase. Claude delegates to them when the task requires coordinated, phase-level guidance.
-
-**Commands** are user-initiated workflows you invoke with a slash command.
-
-## Companion Notebooks
-
-The toolkit is complemented by three standalone Jupyter notebooks for computational qualitative analysis. These are separate repositories that can be used independently or alongside the plugin. They will eventually be integrated into the plugin as an MCP server.
-
-| Notebook | What It Does |
-|---|---|
-| [Qualitative Codebook Builder](https://github.com/MattArtzAnthro/Qualitative_Codebook_Builder) | AI-assisted development of qualitative coding frameworks with theory-driven code generation, inclusion/exclusion criteria, and export for analysis software |
-| [Interview Transcript Semantic Chunker](https://github.com/MattArtzAnthro/Interview_Transcript_Semantic_Chunker) | Segments interview transcripts into semantically coherent chunks with speaker-aware processing, multi-format support (PDF, DOCX, TXT, RTF), and export for NVivo/ATLAS.ti |
-| [Coding and Thematic Analysis](https://github.com/MattArtzAnthro/Coding_and_Thematic_Analysis) | Applies codes to qualitative data and builds themes using deductive, inductive, or hybrid approaches with visualizations and professional export (Excel, Word) |
+Skills activate automatically when Claude detects relevant context. Agents handle multi-step tasks across skills. Commands are invoked with slash syntax.
 
 ## Subfield Coverage
 
-The toolkit covers anthropology broadly:
 - Sociocultural anthropology
 - Linguistic anthropology
 - Medical anthropology
@@ -148,15 +102,7 @@ The toolkit covers anthropology broadly:
 
 ## License
 
-This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) license. You may remix, adapt, and build upon the material for non-commercial purposes, provided you credit Matt Artz and link to the repository.
-
-**Full license details**: https://creativecommons.org/licenses/by-nc/4.0/
-
-## Attribution
-
-If you use or adapt this project in your work, please cite:
-
-> Built with the AI Anthropology Toolkit (Matt Artz, 2025) — https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit
+This project is licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). You may remix, adapt, and build upon the material for non-commercial purposes, provided you credit Matt Artz and link to the repository.
 
 ## Citation
 
