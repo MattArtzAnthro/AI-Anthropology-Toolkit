@@ -10,7 +10,7 @@ A suite of AI anthropology tools for qualitative research
 
 The **AI Anthropology Toolkit** provides computational tools for anthropological and qualitative research. Every component is grounded in the conventions, debates, and craft knowledge of anthropology and cognate qualitative social sciences. Epistemic stance (interpretivist, critical, STS, feminist, applied, etc.) is treated as a first-class design parameter that shapes methods, writing, and analysis.
 
-The toolkit includes standalone Jupyter notebooks for qualitative data analysis, a Claude Code plugin with research lifecycle skills and agents, and will expand to include MCP servers and additional components over time.
+The toolkit includes standalone notebooks for qualitative data analysis, a Claude Code plugin with research lifecycle skills and agents, and will expand to include MCP servers and additional components over time.
 
 ## What is AI Anthropology?
 
@@ -23,7 +23,7 @@ This toolkit focuses on the second aspect: using AI to enhance traditional anthr
 
 ## Notebooks
 
-Standalone Jupyter notebooks for computational qualitative analysis. Most can be run directly in Google Colab. Notebooks marked **Local** should be run on your own machine (see [Running Locally](#running-locally) below).
+Standalone notebooks for computational qualitative analysis. Most can be run directly in Google Colab. Notebooks marked **Local** should be run on your own machine (see [Running Locally](#running-locally) below).
 
 | Notebook | Run | Description |
 |:---------|:---:|:------------|
