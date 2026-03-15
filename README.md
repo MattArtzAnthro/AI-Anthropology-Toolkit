@@ -2,8 +2,6 @@
 
 A suite of AI anthropology tools for qualitative research
 
-Advancing AI Anthropology through computational approaches to qualitative research.
-
 [Matt Artz](https://www.mattartz.me/) | [GitHub](https://github.com/MattArtzAnthro) | [ORCID](https://orcid.org/0000-0002-3822-1429)
 
 ---
