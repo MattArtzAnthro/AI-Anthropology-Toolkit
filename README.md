@@ -42,6 +42,7 @@ Standalone notebooks for computational qualitative analysis. Most can be run dir
 | [Google Patents Explorer](notebooks/Google_Patents_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Google_Patents_Explorer.ipynb) | Search Google Patents for patent metadata including titles, inventors, assignees, and filing dates |
 | [YouTube Video Search](notebooks/YouTube_Video_Search.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/YouTube_Video_Search.ipynb) | Search YouTube and export video metadata including titles, channels, views, and durations |
 | [YouTube Transcript Fetcher](notebooks/YouTube_Transcript_Fetcher.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/YouTube_Transcript_Fetcher.ipynb) | Fetch YouTube video transcripts with language selection, segment chunking, and multiple export formats |
+| [Podcast RSS Explorer](notebooks/Podcast_RSS_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Podcast_RSS_Explorer.ipynb) | Pull episode metadata from any podcast RSS feed with titles, dates, durations, and structured export |
 
 
 ## Skills
@@ -123,17 +124,6 @@ claude plugin add /path/to/AI-Anthropology-Toolkit
 ```
 
 Skills activate automatically when Claude detects relevant context. Agents handle multi-step tasks across skills. Commands are invoked with slash syntax.
-
-## Subfield Coverage
-
-- Sociocultural anthropology
-- Linguistic anthropology
-- Medical anthropology
-- Archaeological methods (qualitative components)
-- Biological anthropology (qualitative components)
-- Applied and design anthropology
-- Science and Technology Studies (STS)
-- Cognate qualitative social sciences
 
 ## License
 
