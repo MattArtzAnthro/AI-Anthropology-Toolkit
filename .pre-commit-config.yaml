@@ -1,0 +1,7 @@
+# Install once with: pip install pre-commit && pre-commit install
+# Keeps notebook outputs and widget state out of commits.
+repos:
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.8.1
+    hooks:
+      - id: nbstripout
