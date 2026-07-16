@@ -6,7 +6,10 @@ description: >
   justifying methods, or building a research plan. This agent orchestrates across
   the research-question, methodology-selection, and research-plan skills to
   produce a coherent research design. Also use when a user is revising their
-  overall research design after committee or reviewer feedback.
+  overall research design after committee or reviewer feedback. Do NOT use
+  for writing funder- or committee-facing documents such as grant proposals
+  or dissertation prospectuses (use the proposal-advisor agent); this agent
+  handles the pre-proposal intellectual framing those documents draw on.
 
   <example>
   Context: A graduate student has a broad topic interest but no formulated research question or methods.

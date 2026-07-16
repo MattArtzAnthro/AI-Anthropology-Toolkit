@@ -61,7 +61,10 @@ def parse_frontmatter(path):
             fields[key] = "" if folded else value
         elif key is not None and line.strip():
             stripped = line.strip()
-            if stripped.startswith("- "):
+            # "- item" lines start a list only for plain (non-folded) fields;
+            # inside a folded scalar they are literal text and must count
+            # toward the field's length.
+            if stripped.startswith("- ") and not folded:
                 if not isinstance(fields[key], list):
                     fields[key] = []
                 fields[key].append(stripped[2:].strip().strip('"'))
@@ -118,7 +121,7 @@ class TestSkills(unittest.TestCase):
     def test_no_references_to_nonexistent_skills(self):
         """Any '<kebab-name> skill' mention must name a real skill."""
         known = skill_names()
-        pattern = re.compile(r"`?([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`?\s+skill\b")
+        pattern = re.compile(r"`?([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`?\s+skills?\b")
         for d in skill_dirs():
             text = (d / "SKILL.md").read_text(encoding="utf-8")
             for match in pattern.finditer(text):
@@ -172,8 +175,8 @@ class TestSkills(unittest.TestCase):
         self.assertTrue(design.is_file(), "skills/DESIGN.md is missing")
         text = design.read_text(encoding="utf-8")
         self.assertRegex(text, re.compile(r"analytical lens", re.I))
-        # The canonical registry: STS/Actor-Network is a distinctive entry.
-        self.assertIn("STS/Actor-Network", text)
+        # Must match the notebooks' actual label (STANCE_DEFINITIONS entry).
+        self.assertIn("STS / Actor-Network", text)
 
     def test_no_stale_research_design_planning_references(self):
         for f in SKILLS_DIR.rglob("*.md"):
@@ -237,7 +240,7 @@ class TestAgents(unittest.TestCase):
 
     def test_agents_reference_real_skills(self):
         known = skill_names()
-        pattern = re.compile(r"`?([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`?\s+skill\b")
+        pattern = re.compile(r"`?([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`?\s+skills?\b")
         for f in agent_files():
             text = f.read_text(encoding="utf-8")
             for match in pattern.finditer(text):
@@ -245,6 +248,21 @@ class TestAgents(unittest.TestCase):
                     match.group(1), known,
                     f"{f.name}: references nonexistent skill '{match.group(1)}'",
                 )
+
+    def test_agent_boundary_cross_pointers(self):
+        """Fuzzy-boundary agents must route their sibling's cases explicitly."""
+        pairs = [
+            ("research-design", "proposal-advisor"),
+            ("proposal-advisor", "research-design"),
+            ("writing-advisor", "dissemination-advisor"),
+            ("dissemination-advisor", "writing-advisor"),
+        ]
+        for agent, sibling in pairs:
+            fields, _ = parse_frontmatter(AGENTS_DIR / f"{agent}.md")
+            self.assertIn(
+                sibling, fields.get("description", ""),
+                f"{agent}: description should route boundary cases to {sibling}",
+            )
 
     def test_every_skill_owned_by_an_agent(self):
         owned = set()
@@ -280,9 +298,27 @@ class TestCommand(unittest.TestCase):
 
     def test_references_real_skills(self):
         known = skill_names()
-        pattern = re.compile(r"`?([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`?\s+skill\b")
+        pattern = re.compile(r"`?([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`?\s+skills?\b")
         for match in pattern.finditer(self.body):
             self.assertIn(match.group(1), known)
+
+
+class TestCommandCatalog(unittest.TestCase):
+    def test_every_skill_reachable_from_commands(self):
+        combined = "".join(
+            f.read_text(encoding="utf-8") for f in COMMANDS_DIR.glob("*.md")
+        )
+        missing = [s for s in sorted(skill_names()) if s not in combined]
+        self.assertFalse(missing, f"skills unreachable from any command: {missing}")
+
+    def test_skills_command_lists_full_catalog(self):
+        f = COMMANDS_DIR / "skills.md"
+        self.assertTrue(f.is_file(), "commands/skills.md is missing")
+        text = f.read_text(encoding="utf-8")
+        for s in sorted(skill_names()):
+            self.assertIn(s, text, f"skills.md catalog missing skill '{s}'")
+        for a in agent_files():
+            self.assertIn(a.stem, text, f"skills.md catalog missing agent '{a.stem}'")
 
 
 class TestNotebooks(unittest.TestCase):
@@ -333,14 +369,18 @@ class TestNotebooks(unittest.TestCase):
                 )
 
     def test_model_ids_are_current_aliases(self):
-        pattern = re.compile(r"claude-[a-z0-9][a-z0-9.-]*[a-z0-9]")
+        """Scan joined cell sources so IDs split across source lines are seen."""
+        pattern = re.compile(r"claude-[a-z0-9][a-z0-9._-]*[a-z0-9]")
         for f in notebook_files():
-            text = f.read_text(encoding="utf-8")
-            for model in set(pattern.findall(text)):
-                self.assertIn(
-                    model, ALLOWED_MODEL_IDS,
-                    f"{f.name}: model ID '{model}' not in current allowlist",
-                )
+            nb = json.loads(f.read_text(encoding="utf-8"))
+            for cell in nb["cells"]:
+                src = cell["source"]
+                text = src if isinstance(src, str) else "".join(src)
+                for model in set(pattern.findall(text)):
+                    self.assertIn(
+                        model, ALLOWED_MODEL_IDS,
+                        f"{f.name}: model ID '{model}' not in current allowlist",
+                    )
 
 
 class TestRepoDocs(unittest.TestCase):

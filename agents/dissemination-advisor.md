@@ -5,7 +5,10 @@ description: >
   public-facing writing, or community engagement materials for anthropological
   research. This agent orchestrates the conference-materials and public-engagement
   skills to cover the full dissemination arc — from AAA abstracts to op-eds,
-  posters to policy briefs, and slide decks to podcast preparation.
+  posters to policy briefs, and slide decks to podcast preparation. Do NOT
+  use for journal articles, thesis chapters, or peer review (use the
+  writing-advisor agent); this agent covers conference materials and
+  public audiences.
 
   <example>
   Context: A researcher needs to submit an abstract for the AAA annual meeting.
