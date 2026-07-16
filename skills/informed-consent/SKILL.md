@@ -2,23 +2,19 @@
 name: informed-consent
 description: >
   Use this skill whenever a user needs help designing informed consent
-  processes or documents for qualitative or anthropological research. Triggers
-  include: any mention of "informed consent," "consent form," "consent
-  process," "information sheet," "study information sheet," "participant
-  consent," "verbal consent," "oral consent," "community consent," "consent
-  for recording," "consent for photos," "consent for video," "media consent,"
-  "ongoing consent," "process consent," "iterative consent," "re-consent,"
-  "consent waiver," "waiver of documentation," "consent template," "consent
-  language," "consent for minors," "assent form," "guardian consent,"
-  "culturally appropriate consent," "consent in low-literacy settings,"
-  "consent for longitudinal research," "consent for multi-site research," or
-  "consent checklist." Covers designing consent processes (written, verbal,
+  processes or documents for qualitative or anthropological research.
+  Triggers include: "informed consent," "consent form," "consent process,"
+  "information sheet," "verbal consent," "community consent," "media
+  consent," "consent for recording, photos, or video," "ongoing consent,"
+  "process consent," "re-consent," "consent waiver," "consent template,"
+  "assent form," "guardian consent," "culturally appropriate consent,"
+  "consent in low-literacy settings," or "consent for longitudinal or
+  multi-site research." Covers designing consent processes (written, verbal,
   community-based, tiered), writing consent forms and information sheets,
   cultural adaptation, media and recording consent, and consent for special
-  populations and contexts. Do NOT use for full IRB protocol narratives (use
-  irb-protocol skill), methodology selection (use methodology-selection
-  skill), or data management plans (use irb-protocol skill for DMP guidance
-  within a protocol context).
+  populations and contexts. Do NOT use for full IRB protocol narratives or
+  data management plans (use irb-protocol skill) or methodology selection
+  (use methodology-selection skill).
 ---
 
 # Informed Consent Design

@@ -3,20 +3,18 @@ name: irb-protocol
 description: >
   Use this skill whenever a user needs help writing, revising, or evaluating
   an IRB or ethics protocol for qualitative or anthropological research.
-  Triggers include: any mention of "IRB," "ethics protocol," "IRB application,"
-  "ethics review," "human subjects," "Common Rule," "informed consent form,"
-  "consent process," "how to write an IRB protocol," "ethics board," "IRB
-  submission," "protocol narrative," "exempt vs expedited vs full board,"
-  "consent waiver," "verbal consent," "data security plan," "confidentiality,"
+  Triggers include: "IRB," "ethics protocol," "IRB application," "ethics
+  review," "human subjects," "Common Rule," "protocol narrative," "exempt vs
+  expedited vs full board," "data security plan," "confidentiality,"
   "de-identification," "deductive disclosure," "vulnerable populations,"
-  "fieldwork ethics," or "recruitment script." Also trigger when users ask
-  about writing consent forms, recruitment materials, data management plans
-  for IRB, risk assessment for qualitative research, digital ethnography
-  ethics, or oral history IRB issues. Covers all qualitative and ethnographic
-  methods. Do NOT use for upstream method selection (use methodology-selection
-  skill), full research plan writing (use research-plan skill), or grant
-  proposals (use grant-proposal skill). This skill handles writing IRB-ready
-  protocol narratives and associated documents.
+  "fieldwork ethics," or "recruitment script." Also trigger on questions
+  about recruitment materials, data management plans for IRB, risk assessment
+  for qualitative research, digital ethnography ethics, or oral history IRB
+  issues. Covers all qualitative and ethnographic methods. Do NOT use for
+  upstream method selection (use methodology-selection skill), full research
+  plan writing (use research-plan skill), or grant proposals (use
+  grant-proposal skill). This skill handles writing IRB-ready protocol
+  narratives and associated documents.
 ---
 
 # IRB & Ethics Protocol Writing

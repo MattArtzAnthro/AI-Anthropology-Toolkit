@@ -2,6 +2,7 @@
 name: new-project
 description: Scaffold a new anthropological research project by guiding the user through each phase of the research lifecycle
 allowed-tools:
+  - Skill
   - Read
   - Write
   - Grep
@@ -18,9 +19,11 @@ Guide the user through scaffolding a new anthropological research project. Work 
 ## Setup
 
 1. Ask the user for their project name or research topic (if not provided as an argument).
-2. Ask about their career stage (undergraduate, MA, PhD, postdoc, faculty) and institutional context.
-3. Create a project directory with the project name.
-4. Create a TodoWrite checklist tracking progress through the phases below.
+2. Ask where the project should live (parent directory). Default to the current working directory if the user has no preference.
+3. Ask about their career stage (undergraduate, MA, PhD, postdoc, faculty) and institutional context.
+4. Check whether the project directory already exists (use Glob). If it already exists, ask whether to resume it — creating only the missing phase documents — or to pick a different name. Never overwrite an existing phase document without explicit confirmation.
+5. Create the project directory.
+6. Create a TodoWrite checklist tracking progress through the phases below.
 
 ## Phase 1: Research Question
 
@@ -82,7 +85,8 @@ After all phases, present the user with:
 
 ## Guidelines
 
-- Use AskUserQuestion at each phase to gather key decisions from the user
+- Invoke each phase's skill explicitly with the Skill tool (e.g., `ai-anthropology:research-question`) before drafting that phase's document — do not work from memory of the skill's contents
+- Use AskUserQuestion for genuinely closed choices (career stage, consent mode, epistemic stance); gather free-text input (project name, topic, research questions) through plain conversation
 - Do not skip phases — walk through each one, even briefly
 - Each output file should be a working draft, not just an outline
 - Adapt depth to the user's needs — a faculty member may need less scaffolding than a first-year PhD student

@@ -3,19 +3,18 @@ name: research-plan
 description: >
   Use this skill whenever a user needs help writing, drafting, revising, or
   structuring a standalone research plan for anthropological or qualitative
-  research. Triggers include: any mention of "research plan," "research design,"
-  "study design," "fieldwork plan," "methods plan," or "how to structure my
-  research" when not tied to a specific funder or committee milestone; requests
-  to draft or revise sections of a research plan (problem statement, research
-  questions, methods, analysis plan, ethics, feasibility, timeline); questions
-  like "what should my research plan include," "how do I plan my fieldwork,"
-  "help me think through my methods," or "I need to write up my research
-  design." Also trigger when a user has a project idea and needs to develop it
-  into a structured, evaluable plan. Covers all anthropological subfields and
-  qualitative social science approaches. Do NOT use for grant proposals targeting
-  a specific funder (use grant-proposal skill), dissertation prospectuses for a
-  committee defense (use dissertation-prospectus skill), or research question
-  development without a full plan context (use research-question skill).
+  research. Triggers include: "research plan," "research design," "study
+  design," "fieldwork plan," or "methods plan" when not tied to a specific
+  funder or committee milestone; requests to draft or revise plan sections
+  (problem statement, research questions, methods, analysis, ethics,
+  feasibility, timeline); and questions like "what should my research plan
+  include" or "how do I plan my fieldwork." Also trigger when a user has a
+  project idea and needs to develop it into a structured, evaluable plan.
+  Covers all anthropological subfields and qualitative social science
+  approaches. Do NOT use for grant proposals targeting a specific funder (use
+  grant-proposal skill), dissertation prospectuses for a committee defense
+  (use dissertation-prospectus skill), or research question development
+  without a full plan context (use research-question skill).
 ---
 
 # Research Plan Writing

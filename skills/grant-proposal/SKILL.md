@@ -2,20 +2,19 @@
 name: grant-proposal
 description: >
   Use this skill whenever a user needs help writing, drafting, revising, or
-  structuring a grant proposal, funding application, or dissertation prospectus
-  for anthropological research. Triggers include: any mention of NSF, Wenner-Gren,
-  Fulbright, ERC, SSHRC, Wellcome, or other research funders in the context of
-  anthropology or ethnographic research; requests to write a Project Description,
-  research narrative, budget justification, broader impacts statement, or
-  specific aims page; requests to draft or revise a dissertation prospectus or
-  fieldwork grant; questions about how to frame ethnographic methods for a
-  grant committee; requests to translate a research plan into a funder-specific
-  format. Also use when the user mentions "grant writing," "proposal writing,"
-  "funding application," or "fellowship application" in the context of
-  anthropology, sociology, STS, or other social science fieldwork research.
-  Do NOT use for general academic writing (use academic-paper skill), research
-  plan writing without a specific funder (use research-plan skill), or IRB/ethics
-  protocols (use ethics-consent skill).
+  structuring a grant proposal or funding application for anthropological
+  research. Triggers include: any mention of NSF, Wenner-Gren, Fulbright,
+  ERC, SSHRC, Wellcome, or other research funders in the context of
+  anthropology or ethnographic research; requests to write a Project
+  Description, research narrative, budget justification, or broader impacts
+  statement; questions about framing ethnographic methods for a grant
+  committee; requests to translate a research plan into a funder-specific
+  format. Also use for "grant writing," "proposal writing," "funding
+  application," or "fellowship application" in anthropology, sociology, STS,
+  or other social science fieldwork research. Do NOT use for journal articles
+  or chapters (use research-writing skill), research plan writing without a
+  specific funder (use research-plan skill), or IRB/ethics protocols and
+  consent documents (use irb-protocol or informed-consent skill).
 ---
 
 # Anthropology Grant Proposal Writing
@@ -60,7 +59,9 @@ Ask the user if not immediately clear:
 If a specific funder is identified and a reference file exists, load it now.
 The reference file contains funder-specific section requirements, page limits,
 evaluation criteria, budget rules, and common pitfalls. Follow those constraints
-as hard requirements — they override the general guidance below.
+as hard requirements — they override the general guidance below — but first
+verify them against the funder's current solicitation or program page: award
+amounts, deadlines, and page/word limits change from cycle to cycle.
 
 If no funder is specified, proceed with the general workflow. The user may be
 at the "exploring options" stage, in which case help them identify suitable

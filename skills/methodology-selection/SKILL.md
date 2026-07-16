@@ -3,22 +3,18 @@ name: methodology-selection
 description: >
   Use this skill whenever a user needs help selecting, justifying, or
   evaluating research methods for anthropological or qualitative research.
-  Triggers include: any mention of "methods," "methodology," "method
-  selection," "which methods should I use," "how to choose methods," "how
-  do I justify my methods," "method-stance alignment," "my reviewer says my
-  methods don't match my theory," "multi-method design," "mixed methods in
-  anthropology," or "what methods fit an interpretivist / critical / STS /
-  feminist / phenomenological / applied / cognitive / linguistic /
-  computational project." Also trigger when users ask about epistemic
-  coherence between theory and methods, evidence types needed for a research
-  question, how to compose a multi-method system, how to write a methods
-  justification narrative, or how to handle data governance as a design
-  decision. Covers all anthropological subfields and qualitative social
-  science approaches. Do NOT use for writing a full research plan (use
-  research-plan skill), grant proposals targeting a specific funder (use
-  grant-proposal skill), or designing specific instruments like interview
-  guides or surveys (use fieldwork-instruments skill when available). This
-  skill handles the upstream design decision of which methods and why.
+  Triggers include: "which methods should I use," "how do I justify my
+  methods," "method-stance alignment," "my reviewer says my methods don't
+  match my theory," "multi-method design," "mixed methods in anthropology,"
+  or "what methods fit an interpretivist / critical / STS / feminist /
+  applied project." Also trigger on questions about epistemic coherence
+  between theory and methods, evidence types needed for a research question,
+  composing a multi-method system, writing a methods justification narrative,
+  or data governance as a design decision. Do NOT use for writing a full
+  research plan (use research-plan skill), grant proposals targeting a
+  specific funder (use grant-proposal skill), or designing specific
+  instruments like interview guides (use fieldwork-methods skill). This skill
+  handles the upstream design decision of which methods and why.
 ---
 
 # Methodology Selection
