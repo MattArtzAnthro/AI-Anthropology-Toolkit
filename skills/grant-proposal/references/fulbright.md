@@ -1,13 +1,19 @@
 # Fulbright U.S. Student Program — Study/Research Awards
 
 Reference file for generating Fulbright Study/Research grant applications.
-Loaded by the research-design-planning domain SKILL.md when the user is
+Loaded by the grant-proposal SKILL.md when the user is
 applying for a Fulbright award for anthropological research.
 
 Sources:
 - https://us.fulbrightonline.org/applicants/types-of-awards/study-research
 - https://us.fulbrightonline.org/applicants/application-components/academic
 - https://us.fulbrightonline.org/about/competition-selection
+
+> **Currency note (July 2026):** Character limits, eligibility rules, and
+> competition timelines below reflect the sources above and change between
+> cycles. Always verify every requirement against the current Fulbright
+> application instructions and the specific country program summary before
+> drafting or submitting.
 
 ---
 
