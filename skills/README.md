@@ -28,6 +28,7 @@ Skills are organized conceptually by research lifecycle phase. Each row is a sep
 | Ethics & Compliance | [IRB & Ethics Protocols](irb-protocol/) | `irb-protocol/` | Available |
 | Ethics & Compliance | [Informed Consent Design](informed-consent/) | `informed-consent/` | Available |
 | Data Collection | [Fieldwork Methods & Data Collection](fieldwork-methods/) | `fieldwork-methods/` | Available |
+| Analysis | [Qualitative Analysis & Coding](qualitative-analysis/) | `qualitative-analysis/` | Available |
 | Writing | [Research Writing](research-writing/) | `research-writing/` | Available |
 | Peer Review | [Academic Review & Manuscript Evaluation](academic-review/) | `academic-review/` | Available |
 | Conferences & Presentations | [Conference Materials & Presentations](conference-materials/) | `conference-materials/` | Available |

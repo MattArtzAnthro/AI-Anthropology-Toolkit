@@ -59,6 +59,7 @@ Claude Code skills that activate automatically based on context. Requires the [A
 | grant-proposal | NSF CA-DDRIG, Wenner-Gren, Fulbright, ERC, SSHRC, Wellcome — funder-specific guidance |
 | dissertation-prospectus | Section-by-section prospectus development (8-30 pages) |
 | fieldwork-methods | Interview guides, observation protocols, sampling strategies, data management plans |
+| qualitative-analysis | Codebook development, deductive/inductive/hybrid coding, thematic analysis, multi-lens comparison |
 | research-writing | Article architecture, ethnographic craft, subfield conventions, journal requirements |
 | academic-review | Peer review writing, rebuttal letters, revision strategy |
 | conference-materials | AAA abstracts, slide decks, posters, speaker notes, oral delivery |
@@ -77,6 +78,7 @@ Autonomous Claude Code subagents that orchestrate across multiple skills for com
 | ethics-reviewer | Reviews research designs for ethics issues, drafts protocols and consent documents |
 | proposal-advisor | Translates research designs into persuasive funder-specific narratives |
 | fieldwork-advisor | Designs instruments tailored to specific research questions and fieldwork contexts |
+| analysis-advisor | Guides qualitative coding, codebook development, and thematic analysis |
 | writing-advisor | Guides article/chapter writing and R&R management |
 | dissemination-advisor | Handles register translation between academic and public audiences |
 | career-advisor | Coordinates application packages and course design |
@@ -119,8 +121,9 @@ Notebooks that run locally will install any other dependencies they need automat
 
 Install the plugin in Claude Code:
 
-```bash
-claude plugin add /path/to/AI-Anthropology-Toolkit
+```
+/plugin marketplace add MattArtzAnthro/AI-Anthropology-Toolkit
+/plugin install ai-anthropology@ai-anthropology
 ```
 
 Skills activate automatically when Claude detects relevant context. Agents handle multi-step tasks across skills. Commands are invoked with slash syntax.

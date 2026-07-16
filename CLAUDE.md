@@ -7,9 +7,10 @@ A Claude Code plugin providing skills and agents for anthropological research ac
 ```
 AI-Anthropology-Toolkit/
 ├── .claude-plugin/plugin.json    # Plugin manifest
-├── agents/                       # 7 research lifecycle agents
+├── agents/                       # 8 research lifecycle agents
 ├── commands/                     # Slash commands
-└── skills/                       # 15 research skills
+├── tests/                        # Repository validation suite
+└── skills/                       # 16 research skills
     └── [skill-name]/
         ├── SKILL.md              # Skill definition (YAML frontmatter + instructions)
         └── references/           # Supporting reference files
@@ -17,11 +18,13 @@ AI-Anthropology-Toolkit/
 
 ## Components
 
-**Skills (15):** Auto-activated based on user context. Each has a `SKILL.md` with YAML frontmatter (`name`, `description`) and a `references/` directory with detailed guides.
+**Skills (16):** Auto-activated based on user context. Each has a `SKILL.md` with YAML frontmatter (`name`, `description`) and a `references/` directory with detailed guides. Shared conventions and the canonical stance list live in `skills/DESIGN.md`.
 
-**Agents (7):** Phase-specific subagents covering research design, ethics, fieldwork, proposals, writing, dissemination, and career development. All use `model: inherit` and read-only tools.
+**Agents (8):** Phase-specific subagents covering research design, ethics, fieldwork, analysis, proposals, writing, dissemination, and career development. All use `model: inherit` and carry the `Skill` tool plus read-only file tools, invoking the plugin's skills by name.
 
 **Commands (1):** `/ai-anthropology:new-project` — scaffolds a research project through guided phases.
+
+**Tests:** `python3 -m unittest tests/test_repo.py` validates plugin structure, notebook hygiene, and documentation consistency. CI runs the suite on every push and pull request.
 
 ## Conventions
 
@@ -37,14 +40,15 @@ AI-Anthropology-Toolkit/
 1. **Research Design** — question, methodology, plan
 2. **Ethics & Compliance** — IRB, consent
 3. **Fieldwork** — instruments, sampling, data management
-4. **Funding** — grants, prospectuses
-5. **Writing & Review** — articles, chapters, peer review
-6. **Dissemination** — conferences, public engagement
-7. **Career** — job materials, statements, teaching
+4. **Analysis** — coding, codebooks, thematic analysis
+5. **Funding** — grants, prospectuses
+6. **Writing & Review** — articles, chapters, peer review
+7. **Dissemination** — conferences, public engagement
+8. **Career** — job materials, statements, teaching
 
 ## MCP Server
 
-The AI Anthropology Toolkit MCP server (codebook building, transcript chunking, coding, thematic analysis) lives in a separate repository and is not bundled with this plugin.
+An MCP server version of the analysis workflow (codebook building, transcript chunking, coding, thematic analysis) is under development and is not bundled with this plugin. The equivalent functionality ships today as the notebooks in `notebooks/`.
 
 ## Citation
 
