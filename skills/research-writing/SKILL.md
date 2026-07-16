@@ -3,24 +3,19 @@ name: research-writing
 description: >
   Use this skill whenever a user needs help writing a research article,
   thesis chapter, or dissertation chapter for anthropology. Triggers include:
-  any mention of "write my article," "research article," "journal article,"
-  "ethnographic writing," "how to write an introduction," "methods section,"
-  "findings section," "discussion section," "conclusion," "literature review
-  for my paper," "theoretical framework," "thick description," "abstract for
-  my article," "ethnographic vignette," "thesis chapter," "dissertation
-  chapter," "writing for American Anthropologist," "writing for American
-  Ethnologist," "writing for Cultural Anthropology," "article draft,"
-  "manuscript draft," "journal submission," "article structure," "how to
-  structure my paper," "writing ethnography," "fieldnote writing," "using
-  quotes in my paper," "participant voice," or "anthropological writing."
-  Covers writing full research articles and their component sections (abstract,
-  introduction, literature/theory, methods, findings, discussion, conclusion),
-  thesis and dissertation chapters, and section-level drafting and revision
-  across all anthropology subfields. Do NOT use for peer review or responding
-  to reviewer feedback (use academic-review skill), conference abstracts or
-  presentations (use conference-materials skill), grant proposals (use
-  grant-proposal skill), or public-facing writing (use public-engagement
-  skill).
+  "write my article," "journal article," "ethnographic writing," "methods
+  section," "findings section," "literature review for my paper,"
+  "theoretical framework," "thick description," "ethnographic vignette,"
+  "thesis chapter," "dissertation chapter," "article structure,"
+  "manuscript draft," "using quotes in my paper,"
+  "participant voice," or writing for journals such as American
+  Anthropologist, American Ethnologist, or Cultural Anthropology. Covers full
+  research articles and their component sections, thesis and dissertation
+  chapters, and section-level drafting and revision across all anthropology
+  subfields. Do NOT use for peer review or reviewer responses (use
+  academic-review skill), conference abstracts or presentations (use
+  conference-materials skill), grant proposals (use grant-proposal skill), or
+  public-facing writing (use public-engagement skill).
 ---
 
 # Research Writing for Anthropology

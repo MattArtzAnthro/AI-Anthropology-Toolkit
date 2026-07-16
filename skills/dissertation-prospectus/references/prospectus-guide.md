@@ -1,7 +1,7 @@
 # Dissertation Proposal / Prospectus
 
 Reference file for generating anthropology dissertation proposals and prospectuses.
-Loaded by the research-design-planning domain SKILL.md when the user is writing
+Loaded by the dissertation-prospectus SKILL.md when the user is writing
 a dissertation prospectus, dissertation proposal, upgrade document, transfer
 document, or fieldwork clearance proposal.
 
@@ -268,9 +268,9 @@ the user's epistemic stance:
 - Mixed-methods: Foreground complementarity, sequential or concurrent
   design, integration points.
 
-(For the full list of 42 stances and their methods implications, see the
-methods reference files in the academic-paper domain once available. Until
-then, use the stance descriptions in DESIGN.md to calibrate language.)
+(For the full list of 42 stances see DESIGN.md; for their methods
+implications, see the methodology-selection skill's
+method-stance-compatibility reference.)
 
 ### Contingency Planning (Plan B)
 

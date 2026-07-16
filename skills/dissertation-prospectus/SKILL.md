@@ -2,25 +2,18 @@
 name: dissertation-prospectus
 description: >
   Use this skill whenever a user needs help writing, drafting, revising, or
-  structuring a dissertation prospectus, dissertation proposal, qualifying exam
-  proposal, upgrade document, transfer document, or fieldwork clearance proposal
-  for anthropological research. Triggers include: any mention of "prospectus,"
-  "dissertation proposal," "qualifying exam," "QE," "upgrade proposal,"
-  "transfer of status," "confirmation of status," "fieldwork proposal," or
-  "fieldwork clearance" in the context of anthropology or ethnographic research;
-  requests to structure, draft, or revise any section of a dissertation proposal
-  (problem statement, research questions, theoretical positioning, literature
-  review, methods, ethics, timeline, budget); questions about what a committee
-  expects or how to prepare for a prospectus defense or upgrade viva. Also use
-  when the user says "I need to write my prospectus," "I'm preparing for my
-  qualifying exam," "how do I structure a dissertation proposal," or "what
-  should my prospectus include." Covers US prospectuses (Berkeley, Harvard, and
-  other programs), UK upgrade/transfer/fieldwork proposals (LSE, Cambridge,
-  Oxford), and dual-purpose prospectuses that also serve as grant applications.
-  Do NOT use for standalone grant proposals without a committee audience (use
-  grant-proposal skill), general academic paper writing (use academic-paper
-  skill), or research question development without a prospectus context (use
-  research-question skill).
+  structuring a dissertation prospectus, dissertation proposal, qualifying
+  exam proposal, upgrade/transfer document, or fieldwork clearance proposal
+  for anthropological research. Triggers include: "prospectus," "dissertation
+  proposal," "qualifying exam," "QE," "upgrade proposal," "transfer of
+  status," "fieldwork clearance," "I need to write my prospectus," "how do I
+  structure a dissertation proposal," and questions about committee
+  expectations, prospectus defenses, or upgrade vivas. Covers US prospectuses,
+  UK upgrade/transfer/fieldwork proposals, and dual-purpose prospectuses that
+  also serve as grant applications. Do NOT use for standalone grant proposals
+  without a committee audience (use grant-proposal skill), journal articles or
+  thesis chapters (use research-writing skill), or research question
+  development outside a prospectus context (use research-question skill).
 ---
 
 # Dissertation Prospectus Writing
@@ -37,9 +30,9 @@ and an ethics dossier without full rewrites.
 | Task | Reference |
 |------|-----------|
 | Full prospectus guidance (sections, length norms, evaluation criteria, examples) | Read [references/prospectus-guide.md](references/prospectus-guide.md) |
-| NSF DDRIG-specific requirements (if dual-purpose) | Load from grant-proposal skill: `references/nsf-cultural-anthro.md` |
-| Wenner-Gren-specific requirements (if dual-purpose) | Load from grant-proposal skill: `references/wenner-gren.md` |
-| Fulbright-specific requirements (if dual-purpose) | Load from grant-proposal skill: `references/fulbright.md` |
+| NSF DDRIG-specific requirements (if dual-purpose) | Invoke the grant-proposal skill and read its NSF guide (nsf-cultural-anthro.md) |
+| Wenner-Gren-specific requirements (if dual-purpose) | Invoke the grant-proposal skill and read its Wenner-Gren guide (wenner-gren.md) |
+| Fulbright-specific requirements (if dual-purpose) | Invoke the grant-proposal skill and read its Fulbright guide (fulbright.md) |
 
 ## Workflow
 

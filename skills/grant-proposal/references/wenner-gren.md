@@ -1,11 +1,16 @@
 # Wenner-Gren Dissertation Fieldwork Grant
 
 Reference file for generating Wenner-Gren Dissertation Fieldwork Grant
-applications. Loaded by the research-design-planning domain SKILL.md when
+applications. Loaded by the grant-proposal SKILL.md when
 the user is applying for Wenner-Gren funding.
 
 Source: https://wennergren.org/application-guide/dissertation-fieldwork-grant/
 and https://wennergren.org/program/dissertation-fieldwork-grant/
+
+> **Currency note (July 2026):** Award amounts, deadlines, word caps, and
+> budget rules below reflect the sources above and change between cycles.
+> Always verify every figure against Wenner-Gren's current application guide
+> before drafting or submitting.
 
 ---
 

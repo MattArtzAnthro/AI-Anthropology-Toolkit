@@ -1,11 +1,16 @@
 # NSF Cultural Anthropology Program — Doctoral Dissertation Research Improvement Grants (CA-DDRIG)
 
 Reference file for generating NSF CA-DDRIG proposals. Loaded by the
-research-design-planning domain SKILL.md when the user is applying for
+grant-proposal SKILL.md when the user is applying for
 NSF Cultural Anthropology doctoral dissertation funding.
 
 Source: NSF 24-605 solicitation
 https://www.nsf.gov/funding/opportunities/ca-ddrig-cultural-anthropology-program-doctoral-dissertation-research/505057/nsf24-605/solicitation
+
+> **Currency note (July 2026):** Award caps, deadlines, and page limits below
+> reflect the solicitation cited above and change between cycles. Always verify
+> every figure against the current NSF solicitation before drafting or
+> submitting.
 
 ---
 
