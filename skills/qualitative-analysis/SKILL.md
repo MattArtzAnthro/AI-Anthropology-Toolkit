@@ -207,12 +207,12 @@ verbatim evidence; validate against disconfirming cases.
 Input: "My committee wants to see how my analysis would differ under a
 critical lens versus an interpretivist one."
 
-Output approach: Read the notebook-pipeline-guide reference — this is exactly
-what the Coding and Thematic Analysis notebook's multi-lens mode does. Build
-one codebook per lens with lens-specific prompting, run parallel coding
-passes, compare: agreement scores per segment, consensus codes, divergent
-codes, friction points. Present convergent themes and lens-specific themes
-separately — the divergence is the finding.
+Output approach: Read the notebook-pipeline-guide reference. Use the
+Codebook Builder to generate one codebook per lens with lens-specific
+prompting, run a coding pass per codebook, and compare the results:
+per-segment agreement, consensus codes, divergent codes, friction points.
+Present convergent themes and lens-specific themes separately — the
+divergence is the finding.
 
 **Example 3: Rescue an existing analysis**
 

@@ -74,14 +74,15 @@ skill's `references/method-stance-compatibility.md`.
 ## Terminology Note: Stance vs. Analytical Lens
 
 The toolkit's computational notebooks (Codebook Builder, Coding and Thematic
-Analysis) expose the same framework under the label **analytical lens**,
-because several registry entries (Business/Organizational, Mixed-methods,
-Evaluation) are not epistemologies in the strict philosophical sense. The
-notebook LENS_REGISTRY uses compact labels — e.g., "STS/Actor-Network" for
-STS / actor-network, "Interpretive" for interpretive — but the two lists
-describe the same design parameter. Skills say "epistemic stance"; notebooks
-say "analytical lens"; a codebook generated under a lens can be read by any
-skill as a stance commitment.
+Analysis) present the same framework as **analytical lenses** in user-facing
+text, because several entries (Business / Organizational, Mixed-methods,
+Applied / evaluation) are not epistemologies in the strict philosophical
+sense. Internally the notebooks keep stance naming: the Codebook Builder
+defines the lenses in a `STANCE_DEFINITIONS` dictionary with title-case
+labels (e.g., "STS / Actor-Network") and exports codebooks with a `stance`
+column. The two lists describe the same design parameter — skills say
+"epistemic stance," notebook interfaces say "analytical lens," and a codebook
+generated under a lens can be read by any skill as a stance commitment.
 
 ## Lifecycle Coverage
 

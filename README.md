@@ -88,6 +88,7 @@ Autonomous Claude Code subagents that orchestrate across multiple skills for com
 | Command | Description |
 |:------|:------------|
 | `/ai-anthropology:new-project` | Scaffold a new research project through guided phases |
+| `/ai-anthropology:skills` | List the toolkit's skills, agents, and commands |
 
 ## Getting Started
 

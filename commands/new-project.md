@@ -76,12 +76,56 @@ Use the fieldwork-methods skill to create initial drafts of:
 
 Save output to `[project]/05-fieldwork-instruments.md`.
 
+## Phase 6: Analysis Planning
+
+Use the qualitative-analysis skill to outline:
+- Coding approach (deductive, inductive, or hybrid) and its rationale
+- Codebook development plan (sources, lens or lenses, size cap)
+- Thematic analysis and validation plan
+- Tooling mode (conversational, toolkit notebooks, or QDA software)
+
+Save output to `[project]/06-analysis-plan.md`.
+
+## Later-Lifecycle Phases (optional)
+
+After Phase 6, ask which of the following phases to scaffold now. Create
+files only for the phases the user selects; note skipped phases as future
+steps in the completion summary.
+
+### Phase 7: Funding
+
+Use the grant-proposal skill (and the dissertation-prospectus skill for
+doctoral projects) to outline candidate funders, deadlines, eligibility
+notes, and a proposal development sequence. Save output to
+`[project]/07-funding-plan.md`.
+
+### Phase 8: Writing & Review
+
+Use the research-writing skill to outline target venues and an article or
+chapter plan, and the academic-review skill to sketch the expected
+review-and-revision cycle. Save output to `[project]/08-writing-plan.md`.
+
+### Phase 9: Dissemination
+
+Use the conference-materials skill (conference targets, abstract deadlines)
+and the public-engagement skill (public writing, community-facing outputs)
+to outline a dissemination plan. Save output to
+`[project]/09-dissemination-plan.md`.
+
+### Phase 10: Teaching & Career Materials
+
+Use the teaching-materials skill for courses or workshops arising from the
+project, and the job-materials and career-statements skills to note how the
+project will feed CVs, research statements, and application narratives. Save
+output to `[project]/10-career-materials.md`.
+
 ## Completion
 
-After all phases, present the user with:
+After the core phases (1-6) and any selected later phases, present the user
+with:
 - A summary of what was created
 - The project directory listing
-- Suggested next steps (e.g., "develop your research plan into a full grant proposal using the grant-proposal skill")
+- Suggested next steps, including any later-lifecycle phases they skipped
 
 ## Guidelines
 

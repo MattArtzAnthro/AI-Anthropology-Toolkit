@@ -6,7 +6,10 @@ description: >
   agent orchestrates the grant-proposal and dissertation-prospectus skills to
   provide funder-specific guidance and prospectus development. Covers NSF
   Cultural Anthropology (including CA-DDRIG), Wenner-Gren, Fulbright IIE and
-  Fulbright-Hays, ERC, SSHRC, and Wellcome Trust.
+  Fulbright-Hays, ERC, SSHRC, and Wellcome Trust. Do NOT use for formulating
+  research questions or selecting methods from scratch (use the
+  research-design agent first); this agent turns an existing research design
+  into a persuasive funder- or committee-facing document.
 
   <example>
   Context: A PhD student is writing an NSF CA-DDRIG proposal for dissertation fieldwork.

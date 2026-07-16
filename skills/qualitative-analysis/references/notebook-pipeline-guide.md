@@ -67,10 +67,10 @@ Applies codes to chunked data and builds themes.
 - **How it works:** Deductive coding against the codebook, inductive
   discovery of codes the codebook missed, hybrid integration with per-chunk
   status tracking, code frequency and co-occurrence analysis, and AI-assisted
-  theme building under the governing analytical lens. With multiple
-  lens-specific codebooks, coding passes run per lens and results are
-  compared across lenses — per-chunk agreement, consensus and divergent
-  codes, and convergence tagging of themes.
+  theme building under the governing analytical lens, which is set in the
+  notebook's configuration. For epistemically plural designs, run the
+  notebook once per lens-specific codebook and compare the per-lens results
+  using the convergence-tagging approach in the coding-workflow-guide.
 - **Output:** Coded data with status tracking, frequency and co-occurrence
   tables, themes with constituent codes, and reports exported to Excel,
   Word, JSON, and HTML.
@@ -86,7 +86,7 @@ Applies codes to chunked data and builds themes.
 |-----------|----------------|
 | A handful of short documents, exploratory | Conversational analysis in-session; apply the coding-workflow-guide directly |
 | Dozens of transcripts, defined codebook, reproducibility matters | Notebook pipeline |
-| Multi-lens parallel design | Notebook pipeline (lens-specific codebooks + cross-lens comparison) |
+| Multi-lens parallel design | Notebook pipeline (parallel lens-specific codebooks; one coding run per lens) |
 | Team already works in NVivo/MAXQDA/ATLAS.ti | Build the codebook (conversationally or via notebook), export QDPX, code in the QDA application |
 | Highly sensitive data, no cloud processing permitted | Chunker runs fully locally; for coding, prefer conversational or QDA-software analysis and flag consent scope to the ethics skills |
 
@@ -96,8 +96,9 @@ Practical notes for advising users:
   the Claude API and require the user's Anthropic API key. Data sent to an
   API is a disclosure event — check consent scope first.
 - Notebook outputs are designed to chain: Chunker output loads directly into
-  the coding notebook; Codebook Builder CSVs carry the lens in a `stance`
-  column the coding notebook reads.
+  the coding notebook. Codebook Builder CSVs record their lens in a `stance`
+  column for provenance; set the coding notebook's governing lens in its
+  configuration to match the codebook in use.
 - Keep the human in the loop at each stage boundary: review chunk
   boundaries and coherence flags before codebook application, review the
   codebook before coding, and review machine-proposed themes against the
