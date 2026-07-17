@@ -64,8 +64,12 @@ class TestMcpServer(unittest.TestCase):
     def test_expected_tools_registered(self):
         import asyncio
         tools = {t.name for t in asyncio.run(server.mcp.list_tools())}
-        self.assertEqual(tools, {"search_openalex", "search_pubmed",
-                                 "list_lenses", "get_lens", "toolkit_info"})
+        self.assertEqual(tools, {
+            "search_openalex", "search_pubmed", "list_lenses", "get_lens",
+            "toolkit_info", "chunk_transcript", "start_codebook_job",
+            "start_coding_job", "get_next_batch", "submit_batch",
+            "get_job_status", "get_job_result", "build_themes",
+            "compare_lenses"})
 
     def test_lens_tools(self):
         hits = server.list_lenses("decolonial")

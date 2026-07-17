@@ -16,9 +16,11 @@ keywords = ["anthropology", "qualitative-research", "ethnography", "mcp"]
 dependencies = [
     "mcp>=1.2",
     "requests>=2.31",
+    "numpy>=1.26",
 ]
 
 [project.optional-dependencies]
+chunking = ["nltk>=3.8,<4", "sentence-transformers>=3,<6"]
 test = ["pandas>=2.0"]
 
 [project.scripts]

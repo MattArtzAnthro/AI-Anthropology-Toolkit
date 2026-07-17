@@ -90,6 +90,17 @@ Autonomous Claude Code subagents that orchestrate across multiple skills for com
 | `/ai-anthropology:new-project` | Scaffold a new research project through guided phases |
 | `/ai-anthropology:skills` | List the toolkit's skills, agents, and commands |
 
+## MCP Server
+
+The toolkit also ships as a Python package with an MCP server, so Claude (and other MCP clients) can drive the full analysis pipeline conversationally — scholarly search, transcript chunking, lens-configured codebook generation, qualitative coding with per-code validation, thematic analysis, and cross-lens comparison.
+
+```
+pip install -e .            # add .[chunking] for local transcript chunking
+claude mcp add ai-anthropology -- python3 -m ai_anthro_toolkit.mcp
+```
+
+With `ANTHROPIC_API_KEY` set, analysis runs autonomously (`api` mode); without it, the orchestrating model performs each interpretive step itself through validated work packets (`delegated` mode), keeping every coding decision visible to the researcher.
+
 ## Getting Started
 
 ### Notebooks (Colab)

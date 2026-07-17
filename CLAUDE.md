@@ -46,9 +46,9 @@ AI-Anthropology-Toolkit/
 7. **Dissemination** — conferences, public engagement
 8. **Career** — job materials, statements, teaching
 
-## MCP Server
+## MCP Server & Python Package
 
-An MCP server version of the analysis workflow (codebook building, transcript chunking, coding, thematic analysis) is under development and is not bundled with this plugin. The equivalent functionality ships today as the notebooks in `notebooks/`.
+The `ai-anthropology-toolkit` Python package ships in this repository (`pyproject.toml`, `src/ai_anthro_toolkit/`) with an MCP server exposing the analysis pipeline as tools: scholarly search (OpenAlex, PubMed), the 42-lens registry, transcript chunking (fully local), and job-based codebook generation, qualitative coding, thematic analysis, and cross-lens comparison. LLM-dependent stages run in `api` mode (ANTHROPIC_API_KEY set) or `delegated` mode, where the orchestrating model completes work packets via `get_next_batch`/`submit_batch` and the server validates every submitted code against the codebook. Install with `pip install -e .` (add `.[chunking]` for local transcript chunking) and register with `claude mcp add ai-anthropology -- python3 -m ai_anthro_toolkit.mcp`. Prompt templates are extracted verbatim from the notebooks; `tests/package/` enforces parity. The same capabilities remain available as the Colab notebooks in `notebooks/`.
 
 ## Citation
 
