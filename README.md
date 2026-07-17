@@ -142,7 +142,8 @@ Skills activate automatically when Claude detects relevant context. Agents handl
 
 ## License
 
-This project is licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). You may remix, adapt, and build upon the material for non-commercial purposes, provided you credit Matt Artz and link to the repository.
+- **Notebooks, documentation, and plugin content** are licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): remix, adapt, and build upon the material for non-commercial purposes, provided you credit Matt Artz and link to the repository.
+- **The Python package and MCP server** (`src/`) are licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE-CODE.md): free for noncommercial use, including research, education, and work by nonprofit and government research organizations. For commercial licensing, contact [Matt Artz](https://www.mattartz.me/).
 
 ## Citation
 
