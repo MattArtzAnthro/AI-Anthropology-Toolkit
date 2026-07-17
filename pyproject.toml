@@ -8,10 +8,10 @@ version = "2.0.0"
 description = "Computational tools for anthropological and qualitative research: data collection and analysis as an MCP server and Python package"
 readme = "README.md"
 requires-python = ">=3.10"
-# Code is PolyForm Noncommercial; the repository's notebooks and
-# documentation remain CC BY-NC 4.0. Commercial licensing by arrangement.
+# The entire repository is licensed under PolyForm Noncommercial 1.0.0;
+# commercial licensing by arrangement.
 license = "PolyForm-Noncommercial-1.0.0"
-license-files = ["LICENSE-CODE.md"]
+license-files = ["LICENSE"]
 authors = [{ name = "Matt Artz" }]
 keywords = ["anthropology", "qualitative-research", "ethnography", "mcp"]
 dependencies = [
