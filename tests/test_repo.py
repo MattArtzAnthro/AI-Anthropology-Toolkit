@@ -429,6 +429,17 @@ class TestRepoDocs(unittest.TestCase):
         entry = marketplace["plugins"][0]
         self.assertEqual(plugin["version"], entry["version"], "plugin/marketplace version mismatch")
 
+    def test_mcp_json_wiring(self):
+        mcp_cfg = json.loads((REPO / ".mcp.json").read_text(encoding="utf-8"))
+        self.assertIn("ai-anthropology", mcp_cfg["mcpServers"])
+        args = " ".join(mcp_cfg["mcpServers"]["ai-anthropology"]["args"])
+        pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+        version = re.search(r'version = "(\d+)\.(\d+)\.', pyproject)
+        pin = f"ai-anthropology-toolkit=={version.group(1)}.{version.group(2)}.*"
+        self.assertIn(pin, args, ".mcp.json uvx pin does not match pyproject version")
+        plugin = json.loads((REPO / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
+        self.assertEqual(plugin.get("mcpServers"), "./.mcp.json")
+
     def test_precommit_config_present_with_nbstripout(self):
         f = REPO / ".pre-commit-config.yaml"
         self.assertTrue(f.is_file(), ".pre-commit-config.yaml missing")
