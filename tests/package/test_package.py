@@ -52,6 +52,39 @@ class TestDataSourcesLive(unittest.TestCase):
         for field in ("title", "authors", "year", "cited_by_count"):
             self.assertIn(field, first)
 
+    def test_crossref(self):
+        from ai_anthro_toolkit.datasources import search_crossref
+        records = search_crossref("multi-agent ethnography", limit=3,
+                                  year_from=2024)
+        self.assertGreaterEqual(len(records), 1)
+        for field in ("title", "journal", "year", "doi"):
+            self.assertIn(field, records[0])
+        for r in records:
+            if r["year"]:
+                self.assertGreaterEqual(r["year"], 2024)
+
+    def test_openalex_filters(self):
+        works = search_openalex("ethnography", limit=3,
+                                venue="Anthropological Forum",
+                                year_from=2024, sort="recent")
+        self.assertGreaterEqual(len(works), 1)
+        for w in works:
+            self.assertEqual(w["venue"], "Anthropological Forum")
+            self.assertGreaterEqual(w["year"], 2024)
+
+    def test_notebook_catalog(self):
+        from ai_anthro_toolkit import catalog
+        all_nb = catalog.list_notebooks()
+        self.assertEqual(len(all_nb), 16)
+        data = catalog.list_notebooks("data_collection")
+        self.assertEqual(len(data), 10)
+        for n in all_nb:
+            self.assertTrue(n["github_url"].endswith(".ipynb"))
+            if n["run"] == "colab":
+                self.assertIn("colab.research.google.com", n["colab_url"])
+        local = [n for n in data if n["run"] == "local"]
+        self.assertEqual([n["name"] for n in local], ["Google Scholar Explorer"])
+
     def test_pubmed(self):
         records = search_pubmed("medical anthropology", limit=3)
         self.assertGreaterEqual(len(records), 1)
@@ -65,7 +98,8 @@ class TestMcpServer(unittest.TestCase):
         import asyncio
         tools = {t.name for t in asyncio.run(server.mcp.list_tools())}
         self.assertEqual(tools, {
-            "search_openalex", "search_pubmed", "list_lenses", "get_lens",
+            "search_openalex", "search_crossref", "search_pubmed",
+            "list_notebooks", "list_lenses", "get_lens",
             "toolkit_info", "chunk_transcript", "start_codebook_job",
             "start_coding_job", "get_next_batch", "submit_batch",
             "get_job_status", "get_job_result", "build_themes",

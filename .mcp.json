@@ -2,7 +2,11 @@
   "mcpServers": {
     "ai-anthropology": {
       "command": "uvx",
-      "args": ["--from", "ai-anthropology-toolkit==2.0.*", "ai-anthro-mcp"]
+      "args": [
+        "--from",
+        "ai-anthropology-toolkit==2.0.1",
+        "ai-anthro-mcp"
+      ]
     }
   }
 }

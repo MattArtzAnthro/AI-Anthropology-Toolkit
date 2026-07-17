@@ -434,8 +434,8 @@ class TestRepoDocs(unittest.TestCase):
         self.assertIn("ai-anthropology", mcp_cfg["mcpServers"])
         args = " ".join(mcp_cfg["mcpServers"]["ai-anthropology"]["args"])
         pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
-        version = re.search(r'version = "(\d+)\.(\d+)\.', pyproject)
-        pin = f"ai-anthropology-toolkit=={version.group(1)}.{version.group(2)}.*"
+        version = re.search(r'version = "([\d.]+)"', pyproject)
+        pin = f"ai-anthropology-toolkit=={version.group(1)}"
         self.assertIn(pin, args, ".mcp.json uvx pin does not match pyproject version")
         plugin = json.loads((REPO / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
         self.assertEqual(plugin.get("mcpServers"), "./.mcp.json")
