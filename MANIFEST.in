@@ -1,0 +1,6 @@
+prune tests
+prune notebooks
+prune skills
+prune agents
+prune commands
+prune .github
