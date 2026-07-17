@@ -48,7 +48,8 @@ class ServerTestBase(unittest.TestCase):
 class TestToolRegistry(ServerTestBase):
     def test_pipeline_tools_registered(self):
         tools = {t.name for t in asyncio.run(server.mcp.list_tools())}
-        expected = {"toolkit_info", "search_openalex", "search_pubmed",
+        expected = {"toolkit_info", "search_openalex", "search_crossref",
+                    "search_pubmed", "list_notebooks",
                     "list_lenses", "get_lens", "chunk_transcript",
                     "start_codebook_job", "start_coding_job", "get_next_batch",
                     "submit_batch", "get_job_status", "get_job_result",

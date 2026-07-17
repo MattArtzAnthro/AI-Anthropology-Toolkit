@@ -6,16 +6,29 @@ ESEARCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
 ESUMMARY = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
 
 
-def search_pubmed(query: str, limit: int = 10, api_key: str | None = None) -> list[dict]:
+def search_pubmed(query: str, limit: int = 10, api_key: str | None = None,
+                  year_from: int | None = None, year_to: int | None = None,
+                  journal: str | None = None) -> list[dict]:
     """Search PubMed and return record summaries.
 
     Works without an API key (NCBI allows small keyless request volumes);
-    pass api_key for higher rate limits. Returns records with: pmid, title,
-    authors, journal, pubdate, doi.
+    pass api_key for higher rate limits. Supports full PubMed query syntax
+    in `query`, plus convenience filters: year_from/year_to (publication
+    date) and journal (title abbreviation or full name). Returns records
+    with: pmid, title, authors, journal, pubdate, doi.
     """
     limit = max(1, min(int(limit), 100))
     base = {"api_key": api_key} if api_key else {}
-    r = requests.get(ESEARCH, params={**base, "db": "pubmed", "term": query,
+    term = query
+    if journal:
+        term += f' AND "{journal}"[ta]'
+    date_params = {}
+    if year_from or year_to:
+        date_params = {"datetype": "pdat",
+                       "mindate": f"{int(year_from or 1800)}/01/01",
+                       "maxdate": f"{int(year_to or 2100)}/12/31"}
+    r = requests.get(ESEARCH, params={**base, **date_params, "db": "pubmed",
+                                      "term": term,
                                       "retmax": limit, "retmode": "json"}, timeout=30)
     r.raise_for_status()
     ids = r.json().get("esearchresult", {}).get("idlist", [])

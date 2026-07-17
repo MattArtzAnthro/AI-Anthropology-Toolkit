@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai-anthropology-toolkit"
-version = "2.0.0"
+version = "2.0.1"
 description = "Computational tools for anthropological and qualitative research: data collection and analysis as an MCP server and Python package"
 readme = "README.md"
 requires-python = ">=3.10"

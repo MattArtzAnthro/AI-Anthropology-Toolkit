@@ -30,6 +30,8 @@ from ai_anthro_toolkit import coding as _coding
 from ai_anthro_toolkit import crosslens as _crosslens
 from ai_anthro_toolkit import lenses as _lenses
 from ai_anthro_toolkit import themes as _themes
+from ai_anthro_toolkit import catalog as _catalog
+from ai_anthro_toolkit.datasources import search_crossref as _crossref
 from ai_anthro_toolkit.datasources import search_openalex as _openalex
 from ai_anthro_toolkit.datasources import search_pubmed as _pubmed
 from ai_anthro_toolkit.jobs import JobStore
@@ -39,13 +41,20 @@ from ai_anthro_toolkit.models import CodeEntry
 mcp = FastMCP(
     "ai-anthropology",
     instructions=(
-        "Tools for anthropological and qualitative research: scholarly search "
-        "(OpenAlex, PubMed), the 42-lens analytical registry, and a qualitative "
-        "analysis pipeline (transcript chunking, codebook generation, coding, "
-        "thematic analysis, cross-lens comparison). LLM-dependent stages run in "
-        "'api' mode when ANTHROPIC_API_KEY is set, otherwise in 'delegated' mode: "
-        "start a job, loop get_next_batch -> complete each prompt -> submit_batch, "
-        "then get_job_result."
+        "Tools for anthropological and qualitative research. Scholarly search: "
+        "search_openalex (250M+ works; supports year, journal, and sort filters) "
+        "and search_crossref (canonical DOI metadata); search_pubmed covers "
+        "biomedical literature specifically. Many more data sources — Google "
+        "Trends, News, Patents, Scholar, Books Ngram, YouTube search and "
+        "transcripts, podcast RSS — are available as Colab notebooks: call "
+        "list_notebooks to get names, descriptions, and one-click Colab links "
+        "whenever a user asks about finding or collecting data. Methodology: "
+        "list_lenses / get_lens expose the 42-lens analytical registry. Analysis "
+        "pipeline: transcript chunking, codebook generation, coding, thematic "
+        "analysis, and cross-lens comparison. LLM-dependent stages run in 'api' "
+        "mode when ANTHROPIC_API_KEY is set, otherwise in 'delegated' mode: start "
+        "a job, loop get_next_batch -> complete each prompt -> submit_batch, then "
+        "get_job_result."
     ),
 )
 
@@ -78,7 +87,8 @@ def toolkit_info() -> dict:
         "version": __version__,
         "repository": "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit",
         "tool_families": {
-            "data_collection": ["search_openalex", "search_pubmed"],
+            "data_collection": ["search_openalex", "search_crossref",
+                                 "search_pubmed", "list_notebooks"],
             "methodology": ["list_lenses", "get_lens"],
             "analysis": ["chunk_transcript", "start_codebook_job",
                           "start_coding_job", "get_next_batch", "submit_batch",
@@ -86,28 +96,74 @@ def toolkit_info() -> dict:
                           "compare_lenses"],
         },
         "llm_mode_default": _mode(None),
-        "notebooks": "Colab notebooks with the same capabilities live in the repository's notebooks/ directory.",
+        "notebooks": ("Additional data sources (Google Trends/News/Patents/"
+                       "Scholar/Ngram, YouTube, podcast RSS) and analysis "
+                       "capabilities run as Colab notebooks — call "
+                       "list_notebooks for descriptions and links."),
     }
 
 
 @mcp.tool()
-def search_openalex(query: str, limit: int = 10) -> list[dict]:
+def search_openalex(query: str, limit: int = 10,
+                    year_from: int = 0, year_to: int = 0,
+                    venue: str = "", sort: str = "relevance",
+                    open_access_only: bool = False) -> list[dict]:
     """Search OpenAlex for scholarly works across all disciplines.
 
-    Returns title, authors, year, venue, DOI, citation count, and open-access
-    status for up to `limit` works (max 100).
+    Filters: year_from/year_to bound the publication year; venue restricts
+    to a journal by name (e.g. "American Ethnologist"); sort is "relevance",
+    "recent", or "cited"; open_access_only limits to OA works. Returns
+    title, authors, year, venue, DOI, citation count, and open-access status
+    for up to `limit` works (max 100).
     """
-    return _openalex(query, limit=limit)
+    return _openalex(query, limit=limit,
+                     year_from=year_from or None, year_to=year_to or None,
+                     venue=venue or None, sort=sort,
+                     open_access_only=open_access_only)
 
 
 @mcp.tool()
-def search_pubmed(query: str, limit: int = 10) -> list[dict]:
-    """Search PubMed for biomedical and health literature.
+def search_crossref(query: str, limit: int = 10,
+                    year_from: int = 0, year_to: int = 0,
+                    journal: str = "") -> list[dict]:
+    """Search CrossRef for published works (canonical DOI metadata, very current).
 
-    Supports full PubMed query syntax. Returns PMID, title, authors, journal,
-    publication date, and DOI for up to `limit` records (max 100).
+    Filters: year_from/year_to bound the publication year; journal searches
+    within a container title. Returns title, authors, journal, year, DOI,
+    type, citation count, and publisher for up to `limit` records (max 100).
     """
-    return _pubmed(query, limit=limit)
+    return _crossref(query, limit=limit,
+                     year_from=year_from or None, year_to=year_to or None,
+                     journal=journal or None)
+
+
+@mcp.tool()
+def search_pubmed(query: str, limit: int = 10,
+                  year_from: int = 0, year_to: int = 0,
+                  journal: str = "") -> list[dict]:
+    """Search PubMed for biomedical and health literature specifically.
+
+    Supports full PubMed query syntax plus year_from/year_to and journal
+    convenience filters. Returns PMID, title, authors, journal, publication
+    date, and DOI for up to `limit` records (max 100). For scholarly search
+    beyond biomedicine, prefer search_openalex or search_crossref.
+    """
+    return _pubmed(query, limit=limit,
+                   year_from=year_from or None, year_to=year_to or None,
+                   journal=journal or None)
+
+
+@mcp.tool()
+def list_notebooks(category: str = "") -> list[dict]:
+    """List the toolkit's Colab notebooks — capabilities beyond these tools.
+
+    Use this whenever a user asks about finding or collecting data: the
+    data_collection notebooks cover Google Trends, Google News, Google
+    Patents, Google Scholar, Google Books Ngram, YouTube search and
+    transcripts, and podcast RSS feeds, each with a one-click Colab link.
+    Categories: data_collection, analysis, text_analysis; empty for all.
+    """
+    return _catalog.list_notebooks(category)
 
 
 @mcp.tool()
