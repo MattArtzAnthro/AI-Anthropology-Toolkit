@@ -99,6 +99,14 @@ class TestMcpServer(unittest.TestCase):
         tools = {t.name for t in asyncio.run(server.mcp.list_tools())}
         self.assertEqual(tools, {
             "search_openalex", "search_crossref", "search_pubmed",
+            "get_google_trends",
+            "search_google_news",
+            "search_google_scholar",
+            "search_google_patents",
+            "get_ngram_frequencies",
+            "search_youtube",
+            "get_youtube_transcript",
+            "get_podcast_episodes",
             "list_notebooks", "list_lenses", "get_lens",
             "toolkit_info", "chunk_transcript", "start_codebook_job",
             "start_coding_job", "get_next_batch", "submit_batch",
