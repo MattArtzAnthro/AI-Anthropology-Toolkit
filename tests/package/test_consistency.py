@@ -62,6 +62,23 @@ class TestNotebookCatalog(unittest.TestCase):
                          "notebooks on disk missing from the catalog")
 
 
+class TestNetworkHygiene(unittest.TestCase):
+    def test_every_requests_call_has_a_timeout(self):
+        import re
+        src = REPO / "src" / "ai_anthro_toolkit"
+        offenders = []
+        for path in src.rglob("*.py"):
+            text = path.read_text(encoding="utf-8")
+            for match in re.finditer(r"requests\.(?:get|post)\(", text):
+                span = text[match.start():match.start() + 400]
+                if "timeout" not in span:
+                    line = text.count("\n", 0, match.start()) + 1
+                    offenders.append(f"{path.relative_to(REPO)}:{line}")
+        self.assertEqual(offenders, [],
+                         "requests calls without a timeout can hang forever: "
+                         + ", ".join(offenders))
+
+
 class TestPromptParity(unittest.TestCase):
     """The drift treaty: package prompts stay verbatim ports of the notebooks.
 

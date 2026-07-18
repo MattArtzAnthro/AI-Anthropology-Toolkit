@@ -1,15 +1,21 @@
 # AI Anthropology Toolkit
 
-A Claude Code plugin providing skills and agents for anthropological research across the full research lifecycle.
+Computational tools for anthropological research: a Claude Code plugin (skills, agents, commands), a Python package with an MCP server, and Colab notebooks — one repository, one release lineage.
 
-## Plugin Structure
+## Repository Structure
 
 ```
 AI-Anthropology-Toolkit/
-├── .claude-plugin/plugin.json    # Plugin manifest
+├── .claude-plugin/plugin.json    # Plugin manifest (bundles the MCP server via .mcp.json)
+├── .mcp.json                     # uvx registration for the bundled MCP server
+├── AGENTS.md / GEMINI.md         # Instructions for non-Claude coding agents
 ├── agents/                       # 8 research lifecycle agents
 ├── commands/                     # Slash commands
-├── tests/                        # Repository validation suite
+├── notebooks/                    # 16 Colab notebooks (data collection + analysis)
+├── pyproject.toml                # ai-anthropology-toolkit package (PyPI)
+├── src/ai_anthro_toolkit/        # Package: datasources, analysis pipeline, MCP server, doctor
+├── tests/                        # Repo validation + skill routing evals
+│   └── package/                  # Package behavior, consistency, and parity tests
 └── skills/                       # 16 research skills
     └── [skill-name]/
         ├── SKILL.md              # Skill definition (YAML frontmatter + instructions)
@@ -24,7 +30,7 @@ AI-Anthropology-Toolkit/
 
 **Commands (2):** `/ai-anthropology:new-project` — scaffolds a research project through guided lifecycle phases; `/ai-anthropology:skills` — lists the catalog of skills, agents, and commands.
 
-**Tests:** `python3 -m unittest tests/test_repo.py` validates plugin structure, notebook hygiene, and documentation consistency. CI runs the suite on every push and pull request.
+**Tests:** `python3 -m unittest discover -s tests -t .` runs everything: `tests/test_repo.py` (plugin structure, notebook hygiene, documentation consistency), `tests/test_skill_routing.py` (deterministic routing evals — each skill description must win its typical prompts; description-collision ceiling), and `tests/package/` (package behavior, server consistency, notebook-prompt parity). CI runs two jobs on every push: `validate` (repo + routing suites, stdlib only) and `package` (installs the package with extras and runs `tests/package/`; live scraper tests are skipped there via `AAT_SKIP_LIVE_SCRAPERS` because datacenter IPs are the blocked class and can hang in library retry loops).
 
 ## Conventions
 

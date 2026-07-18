@@ -7,8 +7,13 @@ silent empty result fails.
     python3.12 -m unittest tests.package.test_datasources_youtube -v
 """
 
+import os
 import re
 import unittest
+
+if os.environ.get("AAT_SKIP_LIVE_SCRAPERS"):
+    raise unittest.SkipTest(
+        "AAT_SKIP_LIVE_SCRAPERS set — skipping live YouTube queries")
 
 from ai_anthro_toolkit.datasources import get_youtube_transcript, search_youtube
 from ai_anthro_toolkit.datasources.youtube import _parse_video_id
