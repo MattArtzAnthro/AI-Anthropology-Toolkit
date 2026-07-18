@@ -79,6 +79,43 @@ adopts.
    and the narrative walk-through. The diagram makes commitments
    visible; the narrative defends them from the literature.
 
+## Worked Example: A Conceptual Framework for Medical Pluralism
+
+How the three movements look in disciplinary material — a study of
+treatment-seeking in a city where biomedical, religious, and herbal
+therapeutic options coexist:
+
+1. **Delimit:** the framework must explain how households *sequence*
+   care options during an illness episode — not the whole medical system.
+2. **Gather:** the matrix's lens column shows three literatures doing
+   work: therapeutic-itinerary studies (how care paths unfold), political
+   economy of health (what constrains access), and pluralism-as-practice
+   accounts (how traditions interpenetrate rather than compete).
+3. **Extract concepts:** *therapeutic itinerary*, *structural constraint*
+   (cost, distance, documentation), *efficacy judgment* (how "it worked"
+   is assessed differently per tradition), *care obligation* (who in the
+   household decides and accompanies).
+4. **Map relationships:** structural constraint *filters* the option set;
+   care obligation *assigns* the decision; efficacy judgment *orders* the
+   sequence and is *revised* by each episode — a loop, not a decision
+   tree.
+5. **Abstraction:** interpretive register — the framework claims that
+   itineraries are produced by household care relations under constraint,
+   against the rational-choice account where individuals shop for
+   efficacy.
+6. **Empirical alignment:** itineraries observable in illness-episode
+   interviews; constraint in household budgets and documents; efficacy
+   judgments in how episodes are narrated; obligation in who appears at
+   the clinic.
+7. **Verify:** every research question maps to a relationship; the
+   rational-choice rival is named as what the framework argues against.
+8. **Render:** four boxes, three labeled arrows and a feedback loop, one
+   paragraph per arrow — each paragraph citing its matrix rows.
+
+The example's marks of discipline: concepts carry their literatures with
+them, one relationship is explicitly a *claim against* a rival account, and
+every element has an empirical face a fieldworker could observe.
+
 ## Quality Checks
 
 - **Provenance**: every element traces to matrix rows or is explicitly

@@ -41,6 +41,30 @@ keep the trail in files (CSV log alongside the search log). Either
 way, the trail lives outside the conversation — a screening decision
 that exists only in chat history does not exist.
 
+### Screening when the unit is a book
+
+Anthropology's screening pain point is that much of the field's conversation
+happens in monographs and edited-volume chapters — records that arrive
+without abstracts, often without database entries, and at a length that
+makes "full-text screening" a different activity:
+
+- **Title/abstract pass substitutes:** for books, screen on publisher
+  description, table of contents, introduction, and book reviews (reviews
+  in the discipline's journals function as expert abstracts — use them).
+- **Log book screening honestly:** "screened on introduction and chapters
+  3–4" is a defensible, recordable decision; pretending the whole
+  monograph was read is not.
+- **Edited volumes disaggregate:** the screening unit is the chapter, with
+  the volume logged as its source; a volume can contribute one essential
+  chapter and eleven exclusions.
+- **Criteria translate differently:** "wrong population" logic built for
+  clinical studies misfires on ethnography, where sites are singular by
+  design — the workable criterion is whether the case speaks to the
+  review's concepts, not whether it samples the same population.
+- **Coverage claim scales down:** database-exhaustive claims cannot be made
+  for book literatures; state the strategy instead (databases + citation
+  chasing + press catalogs + review essays) and its known limits.
+
 ### AI-assisted screening must be disclosed
 
 PRISMA 2020 requires that automation used in screening be reported:

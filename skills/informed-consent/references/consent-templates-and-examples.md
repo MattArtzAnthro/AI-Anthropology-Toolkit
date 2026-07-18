@@ -3,6 +3,15 @@
 Practical templates, sample wording, checklists, and flowcharts for creating
 informed consent documents in qualitative anthropological research.
 
+The templates below use the regulatory structure IRBs expect — that is their
+job. The **ethnographic adaptation notes** threaded through them are the
+anthropological layer: in this discipline consent is an ongoing negotiated
+relationship, not a one-time signature (the AAA position), and several
+template sections change meaning when the method is open-ended fieldwork
+rather than a scheduled interview. Use the notes to adapt the regulatory
+skeleton to ethnographic reality rather than compressing the fieldwork to
+fit the form.
+
 ---
 
 ## Consent Form Template (Written/Signed)
@@ -42,9 +51,11 @@ whether to participate.*
 Describe the study goal in two to four sentences of plain language. Avoid
 jargon. State what you hope to learn and why it matters.
 
-> Example: "This study seeks to understand how families in [community] make
-> decisions about healthcare. By learning about your experiences, we hope to
-> improve the way health services are offered in this region."
+> Example: "This study seeks to understand how vendors and customers in
+> [market] build trust and keep long-term trading relationships going. By
+> spending time in the market and learning from your experiences, we hope to
+> understand how the market works as a community, not just a place of
+> business."
 
 ### 4. Procedures
 
@@ -55,6 +66,14 @@ of sessions, location, and whether recording will be used.
 > at a location of your choice. With your permission, I will audio-record the
 > interview. You may also be asked to participate in a follow-up of about 30
 > minutes."
+
+**Ethnographic adaptation:** for participant observation there is no fixed
+"session" to describe. Describe the *presence* instead: where the researcher
+will be, over what period, doing what kinds of things ("spending time in the
+market on trading days over roughly eight months, observing, helping out,
+and having everyday conversations"), and how people can signal they do not
+want a moment observed or noted. Name the recording reality honestly:
+fieldnotes written during and after, not audio of every exchange.
 
 ### 5. Voluntary Participation
 
@@ -93,6 +112,15 @@ use, and note any international data sharing.
 
 Reiterate the right to withdraw. Explain how to withdraw, what happens to data
 already collected, and any limits (e.g., published data cannot be retracted).
+
+**Ethnographic adaptation:** withdrawal is straightforward when the datum is
+a discrete interview file — delete it. It is not straightforward when the
+data are relational fieldnotes in which the withdrawing person appears in
+scenes with others. State the honest policy: direct quotes and identifiable
+descriptions of the person will be removed or fully anonymized, but shared
+scenes cannot be unwoven from the record without destroying others' data.
+Deciding and disclosing this in advance is part of the AAA's ongoing-consent
+obligation, not an escape from it.
 
 ### 11. Consent Statement
 

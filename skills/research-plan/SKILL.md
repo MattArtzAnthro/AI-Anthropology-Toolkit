@@ -107,8 +107,10 @@ it in the middle, demonstrate feasibility at the end.
 7. **Reflexivity and positionality** — analytical statement about how the
    researcher's location shapes access, interpretation, and relationships;
    concrete management steps
-8. **Trustworthiness and transparency** — credibility, transferability,
-   dependability, confirmability strategies built into the design
+8. **Trustworthiness and transparency** — ethnographic warrants built into
+   the design: theoretical candor, the ethnographer's path, fieldnote
+   evidence (Sanjek 1990), with translation to interdisciplinary
+   vocabularies where the audience requires it
 9. **Ethics and governance** — consent strategy, confidentiality,
    potential harms, data governance, community obligations, dissemination
    ethics
@@ -127,9 +129,9 @@ Key generation principles:
 - **Reflexivity is analytical, not confessional.** Address how positionality
   shapes access, perception, and interpretation. Specify concrete steps to
   manage these effects. Integrate with methods and ethics, not siloed.
-- **Trustworthiness is designed in.** Credibility, transferability,
-  dependability, and confirmability are practices built into the plan, not
-  claims made after the fact.
+- **Trustworthiness is designed in.** Theoretical candor, a
+  reconstructable ethnographer's path, and fieldnote evidence are practices
+  built into the plan, not claims made after the fact.
 - **Ethics spans the full lifecycle.** Address consent modality, data
   governance (FAIR + CARE for Indigenous data), community obligations,
   dissemination ethics, and processual ethics — not just IRB compliance.
