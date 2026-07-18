@@ -29,6 +29,7 @@ Standalone notebooks for computational qualitative analysis. Most can be run dir
 |:---------|:---:|:------------|
 | [Academic Literature Explorer](notebooks/Academic_Literature_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Academic_Literature_Explorer.ipynb) | Search 250M+ scholarly works across all disciplines via OpenAlex with citation counts and open access detection |
 | [Qualitative Codebook Builder](notebooks/Qualitative_Codebook_Builder.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Qualitative_Codebook_Builder.ipynb) | Build qualitative codebooks from source literature with AI-assisted code generation, validation, and structured export |
+| [Audio Transcription with Whisper](notebooks/Audio_Transcription_Whisper.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Audio_Transcription_Whisper.ipynb) | Transcribe audio and video recordings locally with Whisper — timestamped transcripts, optional speaker diarization, and Chunker-ready export |
 | [Interview Transcript Semantic Chunker](notebooks/Interview_Transcript_Semantic_Chunker.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Interview_Transcript_Semantic_Chunker.ipynb) | Segment interview transcripts into semantically coherent chunks with speaker-aware processing and coherence scoring — fully local, no API key required |
 | [Coding and Thematic Analysis](notebooks/Coding_and_Thematic_Analysis.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Coding_and_Thematic_Analysis.ipynb) | Apply codes to qualitative data and build themes using deductive, inductive, or hybrid approaches, with multi-lens parallel analysis and cross-lens comparison |
 | [Text Network Analysis](notebooks/Text_Network_Analysis.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Text_Network_Analysis.ipynb) | Build co-occurrence networks from text with community detection, centrality metrics, and interactive visualization |
@@ -118,19 +119,19 @@ Installing the Claude Code plugin (above) bundles the server automatically. It a
 **Claude Code**
 
 ```
-claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.0" ai-anthro-mcp
+claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.1" ai-anthro-mcp
 ```
 
 **OpenAI Codex CLI**
 
 ```
-codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.0" ai-anthro-mcp
+codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.1" ai-anthro-mcp
 ```
 
 **Google Gemini CLI**
 
 ```
-gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==2.2.0" ai-anthro-mcp
+gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==2.2.1" ai-anthro-mcp
 ```
 
 The server is model-agnostic. With `ANTHROPIC_API_KEY` set, analysis runs autonomously (`api` mode). Without it, whichever model is orchestrating — Claude, GPT, or Gemini — performs each interpretive step itself through validated work packets (`delegated` mode): the analysis runs on your model, the methodology and validation run on the server, and every coding decision stays visible to the researcher.
