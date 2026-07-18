@@ -71,6 +71,7 @@ Research skills in the portable [SKILL.md format](https://agentskills.io) that a
 | job-materials | Academic CVs, cover letters, job talks, application strategy |
 | career-statements | Research, teaching, and diversity statements; tenure narratives |
 | teaching-materials | Syllabi, lesson plans, assignments, rubrics, discussion guides |
+| applied-practice | Client engagements: statements of work, stakeholder readouts, insight synthesis, workshop facilitation, research repositories |
 
 ### Using the Skills in Other Agents
 

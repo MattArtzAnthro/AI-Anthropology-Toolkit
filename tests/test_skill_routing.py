@@ -94,6 +94,10 @@ TRIGGER_PROMPTS = {
         "help me do the literature review for my dissertation",
         "build an annotated bibliography and literature matrix from my sources",
     ],
+    "applied-practice": [
+        "write a statement of work for a client research engagement",
+        "turn my findings into a stakeholder readout for the product team",
+    ],
 }
 
 STOPWORDS = frozenset(

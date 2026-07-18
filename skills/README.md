@@ -39,6 +39,7 @@ Skills are organized conceptually by research lifecycle phase. Each row is a sep
 | Public Engagement | [Public Engagement & Communication](public-engagement/) | `public-engagement/` | Available |
 | Teaching | [Teaching Materials](teaching-materials/) | `teaching-materials/` | Available |
 | Career | [Career Statements](career-statements/) | `career-statements/` | Available |
+| Applied Practice | [Applied Practice & Client Deliverables](applied-practice/) | `applied-practice/` | Available |
 | Career | [Job Application Materials](job-materials/) | `job-materials/` | Available |
 
 ## Installation
