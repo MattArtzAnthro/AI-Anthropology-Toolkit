@@ -170,7 +170,7 @@ def list_notebooks(category: str = "") -> list[dict]:
     the notebooks when they want to run, inspect, or customize a capability
     themselves in Colab (or need the heavier text-analysis notebooks: topic
     modeling, NER, text networks). Categories: data_collection, analysis,
-    text_analysis; empty for all.
+    text_analysis, multimodal; empty for all.
     """
     return _catalog.list_notebooks(category)
 

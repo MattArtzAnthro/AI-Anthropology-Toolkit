@@ -35,6 +35,9 @@ Gather scholarly, public, and media data through official APIs and structured co
 | [Academic Literature Explorer](notebooks/Academic_Literature_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Academic_Literature_Explorer.ipynb) | Search 250M+ scholarly works across all disciplines via OpenAlex with citation counts and open access detection |
 | [CrossRef Reference Verifier](notebooks/CrossRef_Reference_Verifier.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/CrossRef_Reference_Verifier.ipynb) | Verify reference lists against canonical CrossRef metadata — DOI resolution, text-vs-record comparison, retraction flags — plus journal and author queries |
 | [PubMed Literature Harvester](notebooks/PubMed_Literature_Harvester.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/PubMed_Literature_Harvester.ipynb) | Search PubMed and enrich results with metadata from CrossRef, OpenAlex, and Semantic Scholar |
+| [World Bank Data Explorer](notebooks/World_Bank_Data_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/World_Bank_Data_Explorer.ipynb) | Retrieve development indicators from the World Bank API — 16,000+ series across 200+ economies, no API key required |
+| [UN Data Explorer](notebooks/UN_Data_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/UN_Data_Explorer.ipynb) | Retrieve UN development data — SDG indicators (no key) and UNDP Human Development indices (free API key) |
+| [BLS Labor Statistics Explorer](notebooks/BLS_Labor_Statistics_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/BLS_Labor_Statistics_Explorer.ipynb) | Retrieve US labor and economic series from the Bureau of Labor Statistics — unemployment, prices, wages — keyless |
 | [Google Books Ngram Explorer](notebooks/Google_Books_Ngram_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Google_Books_Ngram_Explorer.ipynb) | Analyze historical word frequency patterns across Google Books corpora (1800-2022) with visualization and export |
 | [Google Trends Explorer](notebooks/Google_Trends_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Google_Trends_Explorer.ipynb) | Retrieve and visualize Google Trends data with multi-term comparison, regional breakdowns, and related queries |
 | [Google News Explorer](notebooks/Google_News_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Google_News_Explorer.ipynb) | Search Google News by keyword, time period, and country with quick or extended date-range modes |
@@ -54,6 +57,15 @@ Four notebooks chain into a complete recording-to-themes workflow — transcribe
 | [Interview Transcript Semantic Chunker](notebooks/Interview_Transcript_Semantic_Chunker.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Interview_Transcript_Semantic_Chunker.ipynb) | Segment interview transcripts into semantically coherent chunks with speaker-aware processing and coherence scoring — fully local, no API key required |
 | [Qualitative Codebook Builder](notebooks/Qualitative_Codebook_Builder.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Qualitative_Codebook_Builder.ipynb) | Build qualitative codebooks from source literature with AI-assisted code generation, validation, and structured export |
 | [Coding and Thematic Analysis](notebooks/Coding_and_Thematic_Analysis.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Coding_and_Thematic_Analysis.ipynb) | Apply codes to qualitative data and build themes using deductive, inductive, or hybrid approaches, with multi-lens parallel analysis and cross-lens comparison |
+
+### Multimodal & Visual Analysis
+
+Work with images, audio, video, and mixed-media collections through Gemini's multimodal models (free API key from Google AI Studio).
+
+| Notebook | Run | Description |
+|:---------|:---:|:------------|
+| [Multimodal Embedding Explorer](notebooks/Multimodal_Embedding_Explorer.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Multimodal_Embedding_Explorer.ipynb) | Embed text, images, audio, video, and PDFs into one vector space — similarity, clustering, UMAP maps, and cross-modal search |
+| [Visual Analysis & Image Annotation](notebooks/Visual_Analysis_Image_Annotation.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MattArtzAnthro/AI-Anthropology-Toolkit/blob/main/notebooks/Visual_Analysis_Image_Annotation.ipynb) | Annotate field photos with Gemini vision — ethnographic descriptions, structured tags, and categorization |
 
 ### Computational Text Analysis
 
@@ -141,19 +153,19 @@ Installing the Claude Code plugin (above) bundles the server automatically. It a
 **Claude Code**
 
 ```
-claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.2" ai-anthro-mcp
+claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.3" ai-anthro-mcp
 ```
 
 **OpenAI Codex CLI**
 
 ```
-codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.2" ai-anthro-mcp
+codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.3" ai-anthro-mcp
 ```
 
 **Google Gemini CLI**
 
 ```
-gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==2.2.2" ai-anthro-mcp
+gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==2.2.3" ai-anthro-mcp
 ```
 
 The server is model-agnostic. With `ANTHROPIC_API_KEY` set, analysis runs autonomously (`api` mode). Without it, whichever model is orchestrating — Claude, GPT, or Gemini — performs each interpretive step itself through validated work packets (`delegated` mode): the analysis runs on your model, the methodology and validation run on the server, and every coding decision stays visible to the researcher.
