@@ -194,6 +194,30 @@ researcher's voice and perspective are part of the appeal.
 
 ---
 
+## Interlocutors in Mass-Audience Venues
+
+The ethnographic vignette is public writing's best asset and its sharpest
+ethical edge: an op-ed reaches audiences that include the community written
+about, and search engines keep it reachable forever.
+
+- **Re-anonymize for the new audience.** Protection calibrated for a
+  journal's readership fails at mass scale — an identifying combination of
+  role, place, and event that no journal reader could crack may be obvious
+  to a hometown reader. Degrade details further than the academic version:
+  composite locations, shifted peripheral facts (flagged to the editor),
+  roles rather than titles.
+- **Assume the community reads it.** Write every vignette as if the person
+  described will encounter it shared on their own feed — because they may.
+  This is a stronger test than any review board's.
+- **Re-check consent scope.** Agreement to appear in scholarship is not
+  agreement to appear in a newspaper. For load-bearing vignettes, renew
+  consent for the public venue when the relationship allows it; when it
+  does not, aggregate or cut.
+- **Fact-checkers change the game.** Major outlets may ask for contact
+  information to verify quotes — know your answer before pitching:
+  anonymity commitments are non-negotiable, and editors respect that when
+  told upfront.
+
 ## Narrative Structures for Public Audiences
 
 ### The Lede

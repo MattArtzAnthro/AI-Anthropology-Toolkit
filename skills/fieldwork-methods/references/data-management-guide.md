@@ -27,6 +27,27 @@ confidentiality obligations of work with human participants.
 - **Confidentiality complexity** -- Context and narrative detail can make participants identifiable even without names.
 - **Consent complexity** -- Participants may consent to some uses but not others.
 
+### The Ethnographic Threat Model: Deductive Disclosure
+
+The organizing risk for ethnographic data management is not database breach
+but **deductive disclosure**: in a small community, the combination of role,
+event, and narrative detail identifies a person to insiders even with every
+name removed — "the midwife who opposed the clinic merger" is one person,
+and her neighbors know it (Tolich 2004; Kaiser 2009). Design for it:
+
+- The unit of protection is the *scene*, not the name field: assess
+  identifiability of each quoted or described episode against an insider
+  reader, not a stranger.
+- Internal confidentiality matters as much as external: the people most
+  able to re-identify participants are other participants (Tolich 2004).
+  What interviewees said about each other needs the tightest handling.
+- Fieldnote notebooks are primary data and identification keys at once —
+  store and transport them under the same protections as recordings.
+- **Naming is a consent decision, not a default.** Some interlocutors want
+  credit for their words and their work; blanket anonymization can itself
+  be a harm. Record per-person preferences and honor them, with a
+  documented conversation about the risks of being named.
+
 ### DMP Template
 
 ```
@@ -384,3 +405,15 @@ flowchart LR
 - [ ] Repository deposit completed (if applicable)
 - [ ] Destruction schedule documented
 - [ ] IRB closeout submitted with data status update
+
+
+---
+
+## Citations
+
+- Kaiser, Karen. 2009. "Protecting Respondent Confidentiality in
+  Qualitative Research." *Qualitative Health Research* 19(11): 1632–1641.
+  https://doi.org/10.1177/1049732309350879
+- Tolich, Martin. 2004. "Internal Confidentiality: When Confidentiality
+  Assurances Fail Relational Informants." *Qualitative Sociology* 27(1):
+  101–106. https://doi.org/10.1023/b:quas.0000015546.20441.4a

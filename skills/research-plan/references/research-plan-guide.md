@@ -76,6 +76,14 @@ your study fills that gap.
 - How does your theoretical orientation position you to see what others have
   missed? (your intervention)
 
+**Anthropological convention — two literatures, both argued:** plans in
+this discipline engage a *theoretical* conversation (the concepts and
+debates the study speaks to) and an *ethnographic/area* literature (what is
+known about this region, community, or institutional world). Reviewers
+check for both: theory without the area literature reads as unprepared for
+the field; area coverage without a theoretical conversation reads as
+descriptive. Say explicitly what the study contributes to each.
+
 **Common failure modes:**
 - Listing sources instead of engaging them analytically
 - Reviewing literature that is only tangentially related
@@ -201,19 +209,33 @@ important and should be integrated into methods and ethics, not siloed.
 
 ### Section 8: Trustworthiness and Transparency (0.5–1 page)
 
-Specify your strategies for ensuring credibility, transferability,
-dependability, and confirmability. These are not decorative — they are
-practices built into your design:
+State the warrants of the work in anthropology's own evidence terms.
+Sanjek (1990) names three canons of ethnographic validity, and they make a
+better spine for this section than imported checklists:
 
-- **Credibility:** Prolonged engagement, triangulation across methods or
-  sources, member checking where appropriate, searching for disconfirming
-  evidence
-- **Transferability:** Thick description that enables readers to assess
-  applicability to other contexts
-- **Dependability:** Audit trail of decisions, consistent (not rigid)
-  procedures, documentation of methodological pivots
-- **Confirmability:** Reflexive journaling, transparency about interpretive
-  choices, distinguishing observation from inference from interpretation
+- **Theoretical candor:** Declare the theoretical commitments and working
+  hypotheses that shaped what you attended to — the lens is stated, not
+  smuggled.
+- **The ethnographer's path:** Show how you came to know what you know —
+  the sequence of sites, relationships, and events through which access and
+  understanding developed. The path is reconstructable from the record.
+- **Fieldnote evidence:** Ground claims in the fieldnote and transcript
+  corpus, preserving the chain from observation to inscription to claim.
+  The corpus itself is the audit trail.
+
+To these add the practices ethnographers already recognize: prolonged
+co-presence in the field, thick description dense enough that readers can
+judge for themselves (Geertz 1973), deliberate search for disconfirming
+cases, and member reflection where appropriate to the community and design.
+
+**Translation note for interdisciplinary audiences:** review boards trained
+on qualitative research in education or health may expect the
+Lincoln-and-Guba vocabulary — credibility, transferability, dependability,
+confirmability (Lincoln and Guba 1985). Map to it explicitly if the
+audience requires it (candor and fieldnote evidence ≈ confirmability; the
+path and its documentation ≈ dependability; co-presence and disconfirming
+search ≈ credibility; thick description ≈ transferability) — but write the
+section in the discipline's terms first and translate second.
 
 ### Section 9: Ethics and Governance (1–2 pages)
 
@@ -293,3 +315,15 @@ advance the case. See funder-specific reference files for detailed guidance.
 
 **Community partners:** Emphasis on mutual benefit, practical deliverables,
 and accessible language. The research plan is also a relationship document.
+
+
+---
+
+## Citations
+
+- Geertz, Clifford. 1973. *The Interpretation of Cultures*. New York:
+  Basic Books.
+- Lincoln, Yvonna S., and Egon G. Guba. 1985. *Naturalistic Inquiry*.
+  Beverly Hills, CA: Sage.
+- Sanjek, Roger, ed. 1990. *Fieldnotes: The Makings of Anthropology*.
+  Ithaca, NY: Cornell University Press.

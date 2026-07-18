@@ -259,6 +259,36 @@ and framing shift.
 
 ---
 
+## The Anthropological Career Grammar
+
+Search committees in anthropology read statements against disciplinary
+conventions that generic advice misses:
+
+- **The book economy.** In sociocultural anthropology, the monograph is the
+  tenure unit; articles are the trajectory signals along the way. The
+  statement should name the book project explicitly — its argument, its
+  press ambitions, its timeline — and position articles as building toward
+  or extending it. (Subfields vary: biological anthropology and
+  archaeology run on article economies; calibrate to the department.)
+- **Fieldwork as program, not episode.** Long-term field engagement is the
+  discipline's signature capital. Narrate it as a *program*: the
+  relationships maintained between trips, how each return deepened access
+  and reframed questions, what the site can still yield. "Twelve months in
+  2019" is an episode; "an ongoing relationship with the community since
+  2019, across four return visits" is a research program.
+- **The second-project problem.** The question every committee asks of a
+  recent PhD: what comes after the dissertation site? A convincing answer
+  keeps the through-line while demonstrably escaping the dissertation's
+  orbit — new site, scale, or method, same animating question. A "second
+  project" that is the dissertation's leftovers reads as stalled; one with
+  no connection to anything prior reads as unmoored.
+- **Funder and venue signals.** Trajectory is legible through the
+  discipline's own markers: NSF Cultural Anthropology and Wenner-Gren
+  awards signal peer-reviewed field credibility; venue choices signal
+  conversation (a flagship generalist journal, the subfield's home
+  journal, and the regional/area journal do different work). Name them
+  deliberately — committees read the pattern.
+
 ## The Funding Narrative
 
 For R1 and research-intensive positions, the research statement must include

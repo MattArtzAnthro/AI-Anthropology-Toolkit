@@ -146,3 +146,31 @@ the conflict) across sites; use trace methods to reconstruct sequences of
 practice that are distributed and not directly observable at any single site;
 integrate with interviews to clarify how actors describe and contest the
 connections being traced.
+
+---
+
+## Anchor Citations by Method Family
+
+Exemplar works that define the craft standard for the modules above — the
+statement or plan citing a module should engage its anchor:
+
+- **Participant observation and fieldnotes:** Emerson, Robert M., Rachel
+  I. Fretz, and Linda L. Shaw. 2011. *Writing Ethnographic Fieldnotes*.
+  2nd ed. Chicago: University of Chicago Press.
+- **Ethnographic interviewing:** Spradley, James P. 1979. *The
+  Ethnographic Interview*. New York: Holt, Rinehart and Winston.
+- **Cognitive tasks and cultural consensus:** Romney, A. Kimball, Susan
+  C. Weller, and William H. Batchelder. 1986. "Culture as Consensus: A
+  Theory of Culture and Informant Accuracy." *American Anthropologist*
+  88(2): 313–338. https://doi.org/10.1525/aa.1986.88.2.02a00020
+- **Go-along and mobile methods:** Kusenbach, Margarethe. 2003. "Street
+  Phenomenology: The Go-Along as Ethnographic Research Tool."
+  *Ethnography* 4(3): 455–485. https://doi.org/10.1177/146613810343007
+- **Multi-sited design:** Marcus, George E. 1995. "Ethnography in/of the
+  World System: The Emergence of Multi-Sited Ethnography." *Annual Review
+  of Anthropology* 24: 95–117.
+  https://doi.org/10.1146/annurev.an.24.100195.000523
+- **Trace ethnography:** Geiger, R. Stuart, and David Ribes. 2011. "Trace
+  Ethnography: Following Coordination through Documentary Practices."
+  *Proceedings of the 44th Hawaii International Conference on System
+  Sciences (HICSS)*.

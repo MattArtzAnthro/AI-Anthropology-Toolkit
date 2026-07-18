@@ -32,6 +32,28 @@ text, extract the concepts it operationalizes, then consolidate across texts
 before writing definitions. Record which source motivated each code — code
 provenance is part of the audit trail.
 
+### Worked example: codes from a named literature
+
+What makes a code anthropological is that it names a cultural or relational
+process from a literature, at the specificity the literature earns. Deriving
+from the exchange literature (Mauss 1925; Sahlins 1972), a market-fieldwork
+codebook gets:
+
+| | Generic code | Anthropological code |
+|---|---|---|
+| Label | HELPING | RECIPROCITY_DEFERRED |
+| Definition | Participant helps another person | Giving that creates an open obligation to return, with the return deliberately unscheduled (generalized reciprocity, Sahlins 1972) |
+| Inclusion | Any assistance between participants | Transfers where repayment is expected but unstated, and pressing for it would damage the relationship |
+| Exclusion | — | Simultaneous or negotiated exchange → RECIPROCITY_BALANCED; extraction without return expectation → RECIPROCITY_NEGATIVE |
+| Example | "She helped her neighbor" | "He never charges the stallholders for repairs — 'they remember,' he says" |
+
+The generic code could come from any discipline's project; the
+anthropological codes carry a typology (generalized/balanced/negative), an
+argument about obligation, and exclusion criteria that other codes in the
+family absorb. The same move works from any literature the stance makes
+relevant — ritual (liminality, communitas), kinship (fictive kin,
+obligation), value, care, infrastructure.
+
 ### Consolidation before coding
 
 Run the codebook through three checks before applying it to data:
@@ -97,6 +119,30 @@ first by topic shift, never splitting inside a speaker's turn unless the
 turn itself changes topic. Each segment carries: an identifier, source
 document, speaker (if applicable), and position, so every later claim can be
 traced back.
+
+### What is being coded: data types carry different evidentiary weight
+
+Ethnographic corpora are not homogeneous transcript streams, and coding
+should track what kind of record each segment is:
+
+- **Interview transcripts** record what people say about what they do —
+  accounts, framings, justifications. Strong evidence for meaning and
+  ideology; weak, on their own, for behavior.
+- **Fieldnotes** are the researcher's own inscriptions, already
+  interpretive at the moment of writing (Emerson, Fretz, and Shaw 2011):
+  a jotting expanded hours later is a different evidentiary object than a
+  verbatim quote captured in the moment, and in-process memos are analysis,
+  not data — code them separately or not at all. Sanjek (1990) makes the
+  fieldnote record itself the warrant of ethnographic validity: preserve
+  the chain from jotting to expanded note to claim.
+- **Artifacts and documents** (policies, posters, chat logs, objects
+  photographed) evidence what circulates and what institutions assert —
+  code them for what they are, not as if they were testimony.
+
+Carry a record-type field per segment. When a theme rests mostly on one
+record type ("all the evidence for this is what people *said*"), that is a
+finding about the theme's standing, and the disconfirming-evidence search
+should deliberately cross types.
 
 ### Co-occurrence
 
@@ -171,3 +217,15 @@ theme:
 When QDPX import fails in the target application (importers vary), fall back
 to a manual import guide: codebook as a structured document plus coded data
 as a spreadsheet keyed by segment ID.
+
+---
+
+## Citations
+
+- Emerson, Robert M., Rachel I. Fretz, and Linda L. Shaw. 2011. *Writing
+  Ethnographic Fieldnotes*. 2nd ed. Chicago: University of Chicago Press.
+- Mauss, Marcel. 1925. *The Gift: Forms and Functions of Exchange in
+  Archaic Societies*. (English trans., multiple editions.)
+- Sahlins, Marshall. 1972. *Stone Age Economics*. Chicago: Aldine.
+- Sanjek, Roger, ed. 1990. *Fieldnotes: The Makings of Anthropology*.
+  Ithaca, NY: Cornell University Press.

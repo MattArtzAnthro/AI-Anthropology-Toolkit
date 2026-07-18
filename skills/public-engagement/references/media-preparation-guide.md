@@ -193,6 +193,30 @@ Academic training creates speech habits that do not work in media:
 
 ---
 
+## Anthropology's Recurring Media Traps
+
+Journalists reach for anthropologists with a set of frames the discipline
+has spent a century earning and un-earning. Prepare bridges for each:
+
+| Trap | How it sounds | The bridge |
+|---|---|---|
+| Speak-for-a-culture | "So what do [group] think about X?" | "I can't speak for millions of people — what I can tell you is what the families I spent a year with taught me, which was..." |
+| The exotic frame | "What's the strangest thing you saw?" | "What surprised me most is how familiar it was — [pivot to the finding]. The exotic angle usually hides the interesting part, which is..." |
+| The primitivist timeline | "Are these communities still living in the past?" | "They're living in 2026, dealing with smartphones and supply chains like everyone — what's different is [the actual dynamic]..." |
+| The lost-tribe romance | "Untouched by modernity?" | "No community is outside the modern world — and this one's connections to it are exactly the story..." |
+| Instant cultural expertise | "Explain [entire country] in 30 seconds" | "Here's one thing from my research that helps make sense of it..." (scope the claim to what fieldwork licenses) |
+| The debunk request | "Isn't that just culture/superstition?" | "It works differently than that — from inside, the logic is [emic account], and that logic explains behavior better than dismissing it does" |
+
+The pattern across all six: **shrink the claim to what your fieldwork
+licenses, then make that smaller claim vivid.** The discipline's credibility
+in public is built on refusing the omniscient-expert chair while still
+saying something true and useful.
+
+**Prep listening:** before a podcast or radio appearance, listen to an
+episode of an anthropology-fluent show — SAPIENS (the magazine's podcast),
+AnthroPod (Cultural Anthropology's), or The Familiar Strange — to hear how
+working anthropologists handle these frames conversationally.
+
 ## Handling Challenging Questions
 
 ### The Bridge Technique

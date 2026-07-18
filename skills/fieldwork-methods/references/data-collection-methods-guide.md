@@ -52,6 +52,10 @@ A well-designed interview guide follows a deliberate arc:
 
 #### Types of Questions
 
+The descriptive question typology below is Spradley's (1979), from *The
+Ethnographic Interview* — the discipline's foundational account of how
+interview questions elicit cultural knowledge rather than mere opinion:
+
 | Type | Purpose | Example |
 |------|---------|---------|
 | Grand tour | Elicit a broad description of a setting, process, or experience | "Can you walk me through a typical day at the clinic?" |
@@ -393,6 +397,10 @@ Structured observation tools are most valuable when they complement rather than 
 
 ### Types of Field Notes
 
+The genre taxonomy below follows Emerson, Fretz, and Shaw (2011), *Writing
+Ethnographic Fieldnotes* — the standard account of how inscription works as
+the first act of analysis:
+
 **Jottings**
 
 Brief notes taken in the field, often in a small notebook or on a phone. Jottings capture keywords, phrases, timestamps, fragments of speech, and sensory details that will serve as memory anchors for writing full field notes later. Keep jottings discreet and unobtrusive when possible.
@@ -592,3 +600,13 @@ Complete this matrix during research design and revisit it periodically during f
 6. Plan for triangulation at the design stage, not retrospectively during analysis.
 7. Document all methodological decisions, adaptations, and rationales in methodological notes.
 8. Treat every instrument as a living document that improves through use.
+
+
+---
+
+## Citations
+
+- Emerson, Robert M., Rachel I. Fretz, and Linda L. Shaw. 2011. *Writing
+  Ethnographic Fieldnotes*. 2nd ed. Chicago: University of Chicago Press.
+- Spradley, James P. 1979. *The Ethnographic Interview*. New York: Holt,
+  Rinehart and Winston.

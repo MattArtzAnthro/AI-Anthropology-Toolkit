@@ -113,6 +113,54 @@ or a brief discussion of limitations.
 Never respond with just "this is already in the manuscript." If the reviewer missed
 it, it was not clear enough.
 
+## Anthropology's Recurring R&R Patterns
+
+Certain reviewer demands recur across anthropology journals often enough to
+deserve prepared strategies:
+
+### The theory-ethnography contradiction
+
+The signature anthropological R&R bind: Reviewer 1 wants deeper theoretical
+engagement (naming specific theorists), Reviewer 2 says the theory is
+smothering the ethnography. This is rarely resolvable by doing both
+"more" — the workable strategies:
+
+- Read the editor's letter for a tiebreak signal; when absent, ask the
+  editor directly which direction serves the journal.
+- Integrate rather than add: move theory *into* the ethnographic analysis
+  (a paragraph interpreting a scene through the requested concept) instead
+  of expanding a standalone theory section. This can satisfy both reviewers
+  because the disagreement is usually about *placement*, not quantity.
+- In the response letter, name the tension respectfully and state the
+  integration principle you followed — editors reward authors who handle
+  contradictory reviews with an explicit strategy.
+
+### The area-literature demand
+
+"The author does not engage the [regional] literature" — a request to cite
+the ethnographic record of the region or community, distinct from the
+theoretical conversation. Treat it as a legitimacy check, not padding:
+engage the two or three works that actually bear on the argument, in the
+analysis rather than a courtesy paragraph, and say in the response where
+the regional record complicates or supports the claims.
+
+### The positionality request
+
+Reviewers increasingly ask what the researcher's relationship to the
+community was and how it shaped the material. Respond analytically, not
+confessionally: a paragraph on access, relationships, and what the position
+made visible or invisible — reflexivity as method, in the tradition the
+journal's readers expect, not autobiography.
+
+### The evidence-register challenge
+
+"How representative is this vignette?" imports a sampling logic foreign to
+the genre. Respond by clarifying the evidentiary claim: the vignette is not
+a sample statistic but a theoretically load-bearing case, chosen because it
+condenses the dynamics the argument names — and point to the corroborating
+pattern in the fieldnote corpus ("this exchange was one of N similar
+recorded instances").
+
 ### Requests to Add Literature
 
 **Relevant source:**

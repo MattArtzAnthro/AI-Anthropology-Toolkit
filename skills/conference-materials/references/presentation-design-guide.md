@@ -150,6 +150,54 @@ Always check the conference specifications for poster board dimensions.
 
 ---
 
+## Performing Ethnographic Evidence Aloud
+
+The distinctive delivery problem of an anthropology talk is that the
+evidence is people's words and worlds, spoken by you in a public room.
+
+### Voicing interlocutors
+
+- Read quotes *as quotes*: announce the speaker's role ("a ward nurse I'll
+  call Amina"), pause, shift register slightly, and return to your
+  analytic voice. Do not perform accents or imitate speech styles — the
+  line between voicing and caricature is thin, and crossing it costs the
+  room's trust instantly.
+- Slow down for the quote. Verbatim words carry the argument's weight;
+  audiences need a beat to hear them as evidence rather than color.
+- One vignette read well beats three summarized. If the talk opens with a
+  fieldnote scene (the genre's signature move), rehearse it separately —
+  it is performance, and it sets the epistemic contract for the talk.
+
+### The ethics of the spoken word
+
+- **Anonymity is harder aloud than in print.** A conference room may
+  contain area specialists, community members, or colleagues of your
+  interlocutors; a role plus a place plus an event can identify someone to
+  the three people in the audience best positioned to harm or embarrass
+  them. Apply the deductive-disclosure test to spoken vignettes, and
+  degrade identifying detail beyond what the written version needs.
+- Speak consent status where it matters ("shared with permission") — it
+  models the discipline's norms and preempts the ethics question in Q&A.
+- Pronounce names, places, and non-English terms correctly — rehearse
+  them; mispronouncing your interlocutors' language undercuts the claim
+  to have been there.
+
+### Subfield formats on slides
+
+- **Linguistic anthropology:** interlinear glosses need progressive
+  disclosure — reveal the transcript line, then the gloss, then the free
+  translation; never flash a full Jefferson-transcribed excerpt and talk
+  over it. Give the audience time to *hear* recorded excerpts before
+  analyzing them.
+- **Archaeology:** stratigraphic profiles, site plans, and artifact
+  photographs are evidence slides — label scales and contexts on the
+  slide, and walk the laser pointer through the sequence rather than
+  describing it abstractly.
+- **Biological anthropology:** data-dense figures follow
+  assertion-evidence discipline like any quantitative field, but
+  provenance of skeletal or genomic material belongs on the slide —
+  audiences will ask.
+
 ## Speaker Notes and Timing
 
 ### Notes as Prompts, Not Scripts
