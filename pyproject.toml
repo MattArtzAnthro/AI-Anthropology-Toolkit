@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai-anthropology-toolkit"
-version = "2.1.1"
+version = "2.2.0"
 description = "Computational tools for anthropological and qualitative research: data collection and analysis as an MCP server and Python package"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -34,6 +34,7 @@ test = ["pandas>=2.0"]
 
 [project.scripts]
 ai-anthro-mcp = "ai_anthro_toolkit.mcp.server:main"
+ai-anthro-doctor = "ai_anthro_toolkit.doctor:main"
 
 [project.urls]
 Homepage = "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit"

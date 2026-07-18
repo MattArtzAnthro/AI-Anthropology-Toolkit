@@ -79,7 +79,11 @@ Collect before starting (ask only for what is missing):
   contain `ai-anthropology`): when present, drive chunking, codebook
   generation, coding, themes, and cross-lens comparison directly — read
   [references/mcp-workflow-guide.md](references/mcp-workflow-guide.md)
-  before starting. Otherwise choose between conversational analysis (working
+  before starting. In a session with code execution but no MCP tools (a
+  sandbox), install the package and drive the same pipeline through its
+  Python API — see "When the MCP Tools Are Absent" in
+  [references/mcp-workflow-guide.md](references/mcp-workflow-guide.md).
+  Otherwise choose between conversational analysis (working
   through data together in this session), the toolkit's Colab notebooks (for
   hands-on or customized runs — read
   [references/notebook-pipeline-guide.md](references/notebook-pipeline-guide.md)),

@@ -97,10 +97,25 @@ The toolkit also ships as a Python package ([`ai-anthropology-toolkit` on PyPI](
 Installing the Claude Code plugin (above) bundles the server automatically. To register it anywhere else:
 
 ```
-claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.1.1" ai-anthro-mcp
+claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.0" ai-anthro-mcp
 ```
 
 With `ANTHROPIC_API_KEY` set, analysis runs autonomously (`api` mode); without it, the orchestrating model performs each interpretive step itself through validated work packets (`delegated` mode), keeping every coding decision visible to the researcher.
+
+### Coding Agents & Sandboxes
+
+AI coding agents — Claude Code and Claude Desktop's Cowork, OpenAI Codex CLI, Gemini CLI — often run in sandboxed environments where MCP connectors are unavailable but `pip` and Python still work. The toolkit degrades gracefully across three tiers:
+
+1. **MCP tools available** → use them; the full pipeline runs natively.
+2. **Code execution only** → install the package and call the Python API directly:
+
+   ```bash
+   pip install "ai-anthropology-toolkit[data]"
+   python -m ai_anthro_toolkit.doctor
+   ```
+
+   The doctor (`python -m ai_anthro_toolkit.doctor`, also installed as `ai-anthro-doctor`) probes every data source from the current network and reports which are reachable. Sandbox network policies typically allow the scholarly APIs (OpenAlex, CrossRef, PubMed) and block the Google/YouTube scraping endpoints — collect what is reachable and route each blocked source to local execution or its Colab notebook (the doctor prints the link). The collector functions live in `ai_anthro_toolkit.datasources`; transcript chunking (`ai_anthro_toolkit.chunking`, fully local) and the 42-lens registry (`ai_anthro_toolkit.lenses`) work in any environment. Agent-facing instructions for this fallback chain ship in this repository as [AGENTS.md](AGENTS.md) and [GEMINI.md](GEMINI.md).
+3. **No code execution either** → every capability runs in the browser through the Colab notebooks below.
 
 ## Getting Started
 
