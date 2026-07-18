@@ -53,7 +53,9 @@ pip-installed package (see the repository's AGENTS.md fallback chain):
   venue, open access. Venue filtering resolves journal names to IDs
   internally (names are ambiguous; identifiers are not).
 - `search_crossref` — canonical DOI metadata; useful for verifying
-  citations and coverage checks.
+  citations and coverage checks. For hands-on verification of a full
+  reference list (DOI resolution, text-vs-record comparison, retraction
+  flags), use the CrossRef Reference Verifier notebook.
 - `search_pubmed` — biomedical and health literature with date and
   journal filters; the right tool when the question touches clinical
   territory.

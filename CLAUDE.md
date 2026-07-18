@@ -11,7 +11,7 @@ AI-Anthropology-Toolkit/
 ├── AGENTS.md / GEMINI.md         # Instructions for non-Claude coding agents
 ├── agents/                       # 8 research lifecycle agents
 ├── commands/                     # Slash commands
-├── notebooks/                    # 17 Colab notebooks (data collection + analysis)
+├── notebooks/                    # 18 Colab notebooks (data collection + analysis)
 ├── pyproject.toml                # ai-anthropology-toolkit package (PyPI)
 ├── src/ai_anthro_toolkit/        # Package: datasources, analysis pipeline, MCP server, doctor
 ├── tests/                        # Repo validation + skill routing evals
