@@ -16,6 +16,7 @@ markdown.
 | Skill | Phase | Covers |
 |-------|-------|--------|
 | research-question | Research Design | Question formulation: five-slot grammar, evaluation rubric, genre conventions |
+| literature-review | Research Design | Review genres (narrative, scoping, systematic), search strategy and logging, screening with audit trails, annotated bibliographies, literature matrices, theoretical and conceptual frameworks |
 | methodology-selection | Research Design | Method choice and justification, method-stance compatibility, multi-method design |
 | research-plan | Research Design | Standalone research plans: ten-section architecture, problem through feasibility |
 | dissertation-prospectus | Research Design | Prospectuses, qualifying exam and upgrade documents, committee expectations |

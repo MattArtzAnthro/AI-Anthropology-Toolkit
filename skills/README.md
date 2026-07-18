@@ -23,6 +23,7 @@ Skills are organized conceptually by research lifecycle phase. Each row is a sep
 | Phase | Skill | Folder | Status |
 |-------|-------|--------|--------|
 | Research Design | [Research Question Development](research-question/) | `research-question/` | Available |
+| Research Design | [Literature Review & Evidence Synthesis](literature-review/) | `literature-review/` | Available |
 | Research Design | [Dissertation Prospectus](dissertation-prospectus/) | `dissertation-prospectus/` | Available |
 | Research Design | [Research Plan Writing](research-plan/) | `research-plan/` | Available |
 | Research Design | [Methodology Selection](methodology-selection/) | `methodology-selection/` | Available |

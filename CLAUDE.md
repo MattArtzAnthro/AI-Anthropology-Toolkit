@@ -16,7 +16,7 @@ AI-Anthropology-Toolkit/
 ├── src/ai_anthro_toolkit/        # Package: datasources, analysis pipeline, MCP server, doctor
 ├── tests/                        # Repo validation + skill routing evals
 │   └── package/                  # Package behavior, consistency, and parity tests
-└── skills/                       # 17 research skills
+└── skills/                       # 18 research skills
     └── [skill-name]/
         ├── SKILL.md              # Skill definition (YAML frontmatter + instructions)
         └── references/           # Supporting reference files
@@ -24,7 +24,7 @@ AI-Anthropology-Toolkit/
 
 ## Components
 
-**Skills (17):** Auto-activated based on user context. Each has a `SKILL.md` with YAML frontmatter (`name`, `description`) and a `references/` directory with detailed guides. Shared conventions and the canonical stance list live in `skills/DESIGN.md`.
+**Skills (18):** Auto-activated based on user context. Each has a `SKILL.md` with YAML frontmatter (`name`, `description`) and a `references/` directory with detailed guides. Shared conventions and the canonical stance list live in `skills/DESIGN.md`.
 
 **Agents (8):** Phase-specific subagents covering research design, ethics, fieldwork, analysis, proposals, writing, dissemination, and career development. All use `model: inherit` and carry the `Skill` tool plus read-only file tools, invoking the plugin's skills by name.
 

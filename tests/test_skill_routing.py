@@ -90,6 +90,10 @@ TRIGGER_PROMPTS = {
         "help me design a digital ethnography of an online community",
         "which computational text analysis method fits my forum corpus",
     ],
+    "literature-review": [
+        "help me do the literature review for my dissertation",
+        "build an annotated bibliography and literature matrix from my sources",
+    ],
 }
 
 STOPWORDS = frozenset(
