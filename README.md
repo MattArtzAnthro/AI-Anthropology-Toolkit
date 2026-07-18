@@ -97,7 +97,7 @@ The toolkit also ships as a Python package ([`ai-anthropology-toolkit` on PyPI](
 Installing the Claude Code plugin (above) bundles the server automatically. To register it anywhere else:
 
 ```
-claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit==2.0.1" ai-anthro-mcp
+claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.1.0" ai-anthro-mcp
 ```
 
 With `ANTHROPIC_API_KEY` set, analysis runs autonomously (`api` mode); without it, the orchestrating model performs each interpretive step itself through validated work packets (`delegated` mode), keeping every coding decision visible to the researcher.

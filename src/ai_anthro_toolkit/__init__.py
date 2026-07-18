@@ -1,3 +1,3 @@
 """AI Anthropology Toolkit — computational tools for anthropological research."""
 
-__version__ = "2.0.1"
+__version__ = "2.1.0"

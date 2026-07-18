@@ -2,7 +2,9 @@
 
 Tool families:
 
-- **Data collection**: search_openalex, search_pubmed.
+- **Data collection**: scholarly search (OpenAlex, CrossRef, PubMed,
+  Google Scholar), Google Trends, News, Patents, Books Ngram, YouTube
+  search and transcripts, and podcast RSS — all running natively.
 - **Methodology**: list_lenses, get_lens — the 42-lens analytical registry.
 - **Analysis pipeline**: chunk_transcript (local, no LLM), plus job-based
   codebook generation and qualitative coding, theme building, and cross-lens
@@ -31,6 +33,7 @@ from ai_anthro_toolkit import crosslens as _crosslens
 from ai_anthro_toolkit import lenses as _lenses
 from ai_anthro_toolkit import themes as _themes
 from ai_anthro_toolkit import catalog as _catalog
+from ai_anthro_toolkit import datasources as _data
 from ai_anthro_toolkit.datasources import search_crossref as _crossref
 from ai_anthro_toolkit.datasources import search_openalex as _openalex
 from ai_anthro_toolkit.datasources import search_pubmed as _pubmed
@@ -41,20 +44,22 @@ from ai_anthro_toolkit.models import CodeEntry
 mcp = FastMCP(
     "ai-anthropology",
     instructions=(
-        "Tools for anthropological and qualitative research. Scholarly search: "
-        "search_openalex (250M+ works; supports year, journal, and sort filters) "
-        "and search_crossref (canonical DOI metadata); search_pubmed covers "
-        "biomedical literature specifically. Many more data sources — Google "
-        "Trends, News, Patents, Scholar, Books Ngram, YouTube search and "
-        "transcripts, podcast RSS — are available as Colab notebooks: call "
-        "list_notebooks to get names, descriptions, and one-click Colab links "
-        "whenever a user asks about finding or collecting data. Methodology: "
-        "list_lenses / get_lens expose the 42-lens analytical registry. Analysis "
-        "pipeline: transcript chunking, codebook generation, coding, thematic "
-        "analysis, and cross-lens comparison. LLM-dependent stages run in 'api' "
-        "mode when ANTHROPIC_API_KEY is set, otherwise in 'delegated' mode: start "
-        "a job, loop get_next_batch -> complete each prompt -> submit_batch, then "
-        "get_job_result."
+        "Tools for anthropological and qualitative research. Data collection "
+        "runs natively — collect data yourself rather than referring the user "
+        "elsewhere: search_openalex (250M+ works; year/journal/sort filters), "
+        "search_crossref (canonical DOI metadata), search_pubmed (biomedical), "
+        "search_google_scholar, get_google_trends, search_google_news, "
+        "search_google_patents, get_ngram_frequencies (Google Books word "
+        "frequencies 1800-2022), search_youtube, get_youtube_transcript, and "
+        "get_podcast_episodes. Some sources rate-limit or block; tool errors "
+        "carry honest guidance to relay. list_notebooks links Colab versions of "
+        "these capabilities for users who want to run or customize them "
+        "hands-on. Methodology: list_lenses / get_lens expose the 42-lens "
+        "analytical registry. Analysis pipeline: transcript chunking, codebook "
+        "generation, coding, thematic analysis, and cross-lens comparison. "
+        "LLM-dependent stages run in 'api' mode when ANTHROPIC_API_KEY is set, "
+        "otherwise in 'delegated' mode: start a job, loop get_next_batch -> "
+        "complete each prompt -> submit_batch, then get_job_result."
     ),
 )
 
@@ -88,7 +93,11 @@ def toolkit_info() -> dict:
         "repository": "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit",
         "tool_families": {
             "data_collection": ["search_openalex", "search_crossref",
-                                 "search_pubmed", "list_notebooks"],
+                                 "search_pubmed", "search_google_scholar",
+                                 "get_google_trends", "search_google_news",
+                                 "search_google_patents", "get_ngram_frequencies",
+                                 "search_youtube", "get_youtube_transcript",
+                                 "get_podcast_episodes", "list_notebooks"],
             "methodology": ["list_lenses", "get_lens"],
             "analysis": ["chunk_transcript", "start_codebook_job",
                           "start_coding_job", "get_next_batch", "submit_batch",
@@ -155,15 +164,107 @@ def search_pubmed(query: str, limit: int = 10,
 
 @mcp.tool()
 def list_notebooks(category: str = "") -> list[dict]:
-    """List the toolkit's Colab notebooks — capabilities beyond these tools.
+    """List the toolkit's Colab notebooks — hands-on versions of these capabilities.
 
-    Use this whenever a user asks about finding or collecting data: the
-    data_collection notebooks cover Google Trends, Google News, Google
-    Patents, Google Scholar, Google Books Ngram, YouTube search and
-    transcripts, and podcast RSS feeds, each with a one-click Colab link.
-    Categories: data_collection, analysis, text_analysis; empty for all.
+    The data-collection and analysis tools here run natively; point users at
+    the notebooks when they want to run, inspect, or customize a capability
+    themselves in Colab (or need the heavier text-analysis notebooks: topic
+    modeling, NER, text networks). Categories: data_collection, analysis,
+    text_analysis; empty for all.
     """
     return _catalog.list_notebooks(category)
+
+
+@mcp.tool()
+def get_google_trends(terms: list[str] | str, timeframe: str = "today 12-m",
+                      geo: str = "") -> dict:
+    """Google Trends interest for up to five terms (relative 0-100 scale).
+
+    timeframe examples: "today 12-m", "today 5-y", "2020-01-01 2024-12-31".
+    geo: ISO country code ("US") or empty for worldwide. Returns
+    interest_over_time, interest_by_region, and related_queries per term.
+    Rate-limits aggressively; errors carry retry guidance.
+    """
+    return _data.get_google_trends(terms, timeframe=timeframe, geo=geo)
+
+
+@mcp.tool()
+def search_google_news(query: str, limit: int = 10, period: str = "7d",
+                       country: str = "US", language: str = "en") -> list[dict]:
+    """Search Google News. period examples: "1d", "7d", "1m", "6m", "1y".
+
+    Returns title, publisher, published (ISO), url, description.
+    """
+    return _data.search_google_news(query, limit=limit, period=period,
+                                    country=country, language=language)
+
+
+@mcp.tool()
+def search_google_scholar(query: str, limit: int = 5,
+                          year_from: int = 0, year_to: int = 0) -> list[dict]:
+    """Search Google Scholar (unofficial; keep limits small, blocks fast).
+
+    Returns title, authors, year, venue, cited_by_count, url for up to 20
+    records. Prefer search_openalex/search_crossref for large sweeps.
+    """
+    return _data.search_google_scholar(query, limit=limit,
+                                       year_from=year_from or None,
+                                       year_to=year_to or None)
+
+
+@mcp.tool()
+def search_google_patents(query: str, limit: int = 10) -> list[dict]:
+    """Search Google Patents for patent metadata.
+
+    Returns title, patent_id, inventors, assignee, filing_date,
+    publication_date, url. Google bot-blocks this endpoint per IP at times;
+    errors carry retry guidance.
+    """
+    return _data.search_google_patents(query, limit=limit)
+
+
+@mcp.tool()
+def get_ngram_frequencies(terms: list[str] | str, year_from: int = 1900,
+                          year_to: int = 2022, corpus: str = "en",
+                          case_insensitive: bool = False) -> list[dict]:
+    """Historical word frequencies from Google Books Ngram (1800-2022).
+
+    Returns long-format rows {term, year, frequency}. corpus: en, en-fiction,
+    en-us, en-gb, fr, de, es, it, zh, he, ru.
+    """
+    return _data.get_ngram_frequencies(terms, year_from=year_from,
+                                       year_to=year_to, corpus=corpus,
+                                       case_insensitive=case_insensitive)
+
+
+@mcp.tool()
+def search_youtube(query: str, limit: int = 10) -> list[dict]:
+    """Search YouTube video metadata.
+
+    Returns video_id, title, channel, views, duration, url.
+    """
+    return _data.search_youtube(query, limit=limit)
+
+
+@mcp.tool()
+def get_youtube_transcript(video_id: str,
+                           languages: list[str] | None = None) -> dict:
+    """Fetch a YouTube video's transcript (accepts a URL or bare video ID).
+
+    Returns language, auto_generated flag, timed segments, and the joined
+    text. Raises with a clear message when no transcript exists or YouTube
+    blocks the request.
+    """
+    return _data.get_youtube_transcript(video_id, languages=languages)
+
+
+@mcp.tool()
+def get_podcast_episodes(feed_url: str, limit: int = 50) -> list[dict]:
+    """Pull episode metadata from any podcast RSS feed.
+
+    Returns title, published (ISO), duration, audio_url, description, link.
+    """
+    return _data.get_podcast_episodes(feed_url, limit=limit)
 
 
 @mcp.tool()
