@@ -446,6 +446,26 @@ class TestRepoDocs(unittest.TestCase):
         self.assertNotIn("will expand to include MCP", readme,
                          "README still claims the MCP server is future work")
 
+    def test_agent_instruction_files_carry_fallback_chain(self):
+        install = 'pip install "ai-anthropology-toolkit[data]"'
+        for name in ("AGENTS.md", "GEMINI.md"):
+            path = REPO / name
+            self.assertTrue(path.exists(), f"{name} missing from repo root")
+            text = path.read_text(encoding="utf-8")
+            self.assertIn(install, text, f"{name} lacks the install command")
+            self.assertIn("doctor", text, f"{name} lacks the doctor step")
+            self.assertIn("colab", text.lower(), f"{name} lacks the Colab fallback")
+
+    def test_readme_documents_sandbox_fallback(self):
+        readme = (REPO / "README.md").read_text(encoding="utf-8")
+        self.assertIn('pip install "ai-anthropology-toolkit[data]"', readme)
+        self.assertIn("ai_anthro_toolkit.doctor", readme)
+
+    def test_doctor_console_script_registered(self):
+        pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+        self.assertIn('ai-anthro-doctor = "ai_anthro_toolkit.doctor:main"',
+                      pyproject)
+
     def test_mcp_json_wiring(self):
         mcp_cfg = json.loads((REPO / ".mcp.json").read_text(encoding="utf-8"))
         self.assertIn("ai-anthropology", mcp_cfg["mcpServers"])

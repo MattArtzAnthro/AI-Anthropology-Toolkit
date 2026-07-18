@@ -5,8 +5,8 @@ server. Loaded by the qualitative-analysis SKILL.md when `ai-anthropology`
 MCP tools are available in the session (tool names begin with
 `mcp__` and include `ai-anthropology`). When they are available, prefer them
 over conversational hand-processing for any corpus beyond a few documents;
-when they are not, fall back to conversational analysis or the Colab
-notebooks per the notebook-pipeline-guide.
+when they are not, work through the fallback chain in "When the MCP Tools
+Are Absent" below.
 
 ---
 
@@ -36,6 +36,29 @@ Check `toolkit_info` for the session's default mode.
   codebook and lens framing), and `submit_batch`. The server validates every
   code you return against the codebook and rejects anything not in it, so
   report rejections to the researcher rather than retrying silently.
+
+## When the MCP Tools Are Absent
+
+If the session has code execution (a sandbox, a CLI environment), the same
+package the MCP server is built from installs from PyPI:
+
+```bash
+pip install "ai-anthropology-toolkit[data]"
+python -m ai_anthro_toolkit.doctor
+```
+
+Run the doctor first — it probes each data source from the current network.
+Sandbox policies typically allow the scholarly APIs (OpenAlex, CrossRef,
+PubMed) and block Google/YouTube scraping endpoints. Collect from reachable
+sources via `ai_anthro_toolkit.datasources`, chunk transcripts locally via
+`ai_anthro_toolkit.chunking.chunk_transcript` (needs the `[chunking]`
+extra), and use `ai_anthro_toolkit.lenses` for lens framing. Tell the
+researcher honestly which sources the environment blocks and hand them the
+Colab link the doctor prints — do not retry against the firewall, and do
+not substitute a proxy source without saying so.
+
+If there is no code execution either, fall back to conversational analysis
+or the Colab notebooks per the notebook-pipeline-guide.
 
 ## Working Practices
 

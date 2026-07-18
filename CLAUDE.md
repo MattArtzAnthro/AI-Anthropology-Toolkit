@@ -50,6 +50,8 @@ AI-Anthropology-Toolkit/
 
 The `ai-anthropology-toolkit` Python package ships in this repository (`pyproject.toml`, `src/ai_anthro_toolkit/`) with an MCP server exposing the research pipeline as 24 tools: data collection (OpenAlex, CrossRef, PubMed, Google Scholar, Google Trends, Google News, Google Patents, Books Ngram, YouTube search and transcripts, podcast RSS — scraper dependencies via the `[data]` extra), the 42-lens registry, transcript chunking (fully local), and job-based codebook generation, qualitative coding, thematic analysis, and cross-lens comparison. LLM-dependent stages run in `api` mode (ANTHROPIC_API_KEY set) or `delegated` mode, where the orchestrating model completes work packets via `get_next_batch`/`submit_batch` and the server validates every submitted code against the codebook. Install with `pip install -e ".[data]"` (add `chunking` to the extras for local transcript chunking) and register with `claude mcp add ai-anthropology -- python3 -m ai_anthro_toolkit.mcp`. Prompt templates are extracted verbatim from the notebooks; `tests/package/` enforces parity. The same capabilities remain available as the Colab notebooks in `notebooks/`.
 
+In environments with code execution but no MCP tools (agent sandboxes such as Claude Cowork, Codex CLI, Gemini CLI), the fallback chain is: `pip install "ai-anthropology-toolkit[data]"`, run `python -m ai_anthro_toolkit.doctor` to see which data sources the network allows, collect from reachable sources via the Python API, and route blocked sources to local execution or their Colab notebook. AGENTS.md and GEMINI.md at the repo root carry these instructions for non-Claude agents.
+
 ## Citation
 
 Artz, M. (2025). AI Anthropology Toolkit. DOI: https://doi.org/10.5281/zenodo.16728812
