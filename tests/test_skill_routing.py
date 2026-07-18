@@ -27,7 +27,7 @@ TRIGGER_PROMPTS = {
         "is my research question too broad for an ethnographic study",
     ],
     "methodology-selection": [
-        "which methods should I choose to study online communities",
+        "which methods should I choose for my study of healing rituals",
         "help me select a methodology that fits an interpretivist stance",
     ],
     "research-plan": [
@@ -85,6 +85,10 @@ TRIGGER_PROMPTS = {
     "qualitative-analysis": [
         "code my interview transcripts and build themes",
         "help me construct a codebook for thematic analysis",
+    ],
+    "digital-computational-methods": [
+        "help me design a digital ethnography of an online community",
+        "which computational text analysis method fits my forum corpus",
     ],
 }
 

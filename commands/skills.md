@@ -23,6 +23,7 @@ markdown.
 | informed-consent | Ethics & Compliance | Consent modes (written, verbal, layered, community-based), cultural adaptation |
 | fieldwork-methods | Fieldwork | Interview guides, observation protocols, sampling, data management plans |
 | qualitative-analysis | Analysis | Codebooks, deductive/inductive/hybrid coding, thematic analysis, multi-lens comparison |
+| digital-computational-methods | Data Collection & Analysis | Digital ethnography and netnography design, platform ethics, computational text methods (topic modeling, NER, text networks), AI-collaboration design |
 | grant-proposal | Funding | NSF CA-DDRIG, Wenner-Gren, Fulbright, ERC, SSHRC, Wellcome funder-specific guidance |
 | research-writing | Writing & Review | Journal articles, thesis and dissertation chapters, ethnographic craft |
 | academic-review | Writing & Review | Peer review writing, rebuttal letters, revision strategy |

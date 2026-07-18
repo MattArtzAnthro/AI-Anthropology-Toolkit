@@ -61,6 +61,7 @@ Research skills in the portable [SKILL.md format](https://agentskills.io) that a
 | dissertation-prospectus | Section-by-section prospectus development (8-30 pages) |
 | fieldwork-methods | Interview guides, observation protocols, sampling strategies, data management plans |
 | qualitative-analysis | Codebook development, deductive/inductive/hybrid coding, thematic analysis, multi-lens comparison |
+| digital-computational-methods | Digital ethnography and platform ethics, computational text analysis at scale, AI-collaboration design |
 | research-writing | Article architecture, ethnographic craft, subfield conventions, journal requirements |
 | academic-review | Peer review writing, rebuttal letters, revision strategy |
 | conference-materials | AAA abstracts, slide decks, posters, speaker notes, oral delivery |
