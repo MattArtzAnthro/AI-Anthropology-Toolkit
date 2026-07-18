@@ -14,6 +14,8 @@ The directory name of each skill matches its `name` field. Reference files are o
 
 For the full architectural rationale and shared parameter framework, see [DESIGN.md](DESIGN.md).
 
+The skills are agent-portable: any coding agent that reads the SKILL.md format can use them. See [Using the Skills in Other Agents](../README.md#using-the-skills-in-other-agents) in the repository README for per-agent install locations (copy `DESIGN.md` alongside any skill you install).
+
 ## Skills
 
 Skills are organized conceptually by research lifecycle phase. Each row is a separate installable skill.

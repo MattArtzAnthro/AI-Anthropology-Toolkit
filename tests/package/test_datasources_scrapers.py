@@ -7,11 +7,20 @@ IPs. Each test therefore passes on either real data with the expected fields
 OR a RuntimeError that carries block/rate-limit guidance, and fails on silent
 empty success or unexpected exception types.
 
+Set AAT_SKIP_LIVE_SCRAPERS=1 to skip the whole module: blocked endpoints
+sometimes hang in library retry loops instead of failing fast, so CI (whose
+datacenter IPs are the blocked class) sets it rather than risk a stuck job.
+
     python3.12 -m unittest tests.package.test_datasources_scrapers -v
 """
 
 import importlib.util
+import os
 import unittest
+
+if os.environ.get("AAT_SKIP_LIVE_SCRAPERS"):
+    raise unittest.SkipTest(
+        "AAT_SKIP_LIVE_SCRAPERS set — skipping live scraper queries")
 
 
 def _lib_missing(name: str) -> bool:
