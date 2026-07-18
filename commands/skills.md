@@ -32,6 +32,7 @@ markdown.
 | public-engagement | Dissemination | Op-eds, blog posts, policy briefs, community reports, media preparation |
 | job-materials | Career | Academic CVs, cover letters, job talks, application strategy |
 | career-statements | Career | Research, teaching, and diversity statements; tenure narratives |
+| applied-practice | Applied Practice | Client deliverables for practicing anthropologists: SOWs, readouts, insight formulation, workshops, repositories, business translation without losing the anthropology |
 | teaching-materials | Career | Syllabi, lesson plans, assignments, rubrics, discussion guides |
 
 ## Agents (autonomous, multi-step work across skills)
