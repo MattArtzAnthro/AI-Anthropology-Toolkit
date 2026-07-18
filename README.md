@@ -54,6 +54,7 @@ Research skills in the portable [SKILL.md format](https://agentskills.io) that a
 | Skill | Description |
 |:------|:------------|
 | research-question | Five-slot question grammar, evaluation rubric, genre conventions |
+| literature-review | Review genres, search logging, screening audit trails, annotated bibliographies, literature matrices, framework construction |
 | methodology-selection | Method-stance compatibility, evidence need decomposition, multi-method design |
 | research-plan | Ten-section plan architecture covering problem through feasibility |
 | irb-protocol | 13-section protocol narratives, risk assessment, digital ethnography ethics |
