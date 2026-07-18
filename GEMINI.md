@@ -12,9 +12,9 @@ follow this fallback chain:
    add it (same uvx command everywhere):
 
    ```bash
-   claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.2" ai-anthro-mcp
-   codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.2" ai-anthro-mcp
-   gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==2.2.2" ai-anthro-mcp
+   claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.3" ai-anthro-mcp
+   codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.3" ai-anthro-mcp
+   gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==2.2.3" ai-anthro-mcp
    ```
 
    The server's LLM-dependent stages run in delegated mode by default: the

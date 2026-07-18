@@ -75,9 +75,9 @@ class TestDataSourcesLive(unittest.TestCase):
     def test_notebook_catalog(self):
         from ai_anthro_toolkit import catalog
         all_nb = catalog.list_notebooks()
-        self.assertEqual(len(all_nb), 18)
+        self.assertEqual(len(all_nb), 23)
         data = catalog.list_notebooks("data_collection")
-        self.assertEqual(len(data), 11)
+        self.assertEqual(len(data), 14)
         for n in all_nb:
             self.assertTrue(n["github_url"].endswith(".ipynb"))
             if n["run"] == "colab":
