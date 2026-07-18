@@ -10,7 +10,7 @@ A suite of AI anthropology tools for qualitative research
 
 The **AI Anthropology Toolkit** provides computational tools for anthropological and qualitative research. Every component is grounded in the conventions, debates, and craft knowledge of anthropology and cognate qualitative social sciences. Epistemic stance (interpretivist, critical, STS, feminist, applied, etc.) is treated as a first-class design parameter that shapes methods, writing, and analysis.
 
-The toolkit includes standalone notebooks for qualitative data analysis, a Claude Code plugin with research lifecycle skills and agents, and will expand to include MCP servers and additional components over time.
+The toolkit includes standalone notebooks for data collection and qualitative analysis, a Claude Code plugin with research lifecycle skills and agents, and an MCP server that lets Claude run the full pipeline — from data collection through coding and thematic analysis — directly.
 
 ## What is AI Anthropology?
 
@@ -92,12 +92,12 @@ Autonomous Claude Code subagents that orchestrate across multiple skills for com
 
 ## MCP Server
 
-The toolkit also ships as a Python package ([`ai-anthropology-toolkit` on PyPI](https://pypi.org/project/ai-anthropology-toolkit/)) with an MCP server, so Claude (and other MCP clients) can drive the full analysis pipeline conversationally — scholarly search, transcript chunking, lens-configured codebook generation, qualitative coding with per-code validation, thematic analysis, and cross-lens comparison.
+The toolkit also ships as a Python package ([`ai-anthropology-toolkit` on PyPI](https://pypi.org/project/ai-anthropology-toolkit/)) with an MCP server, so Claude (and other MCP clients) can drive the full research pipeline conversationally: data collection (OpenAlex, CrossRef, PubMed, Google Scholar, Google Trends, Google News, Google Patents, Books Ngram, YouTube search and transcripts, podcast RSS) and analysis (transcript chunking, lens-configured codebook generation, qualitative coding with per-code validation, thematic analysis, and cross-lens comparison).
 
 Installing the Claude Code plugin (above) bundles the server automatically. To register it anywhere else:
 
 ```
-claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.1.0" ai-anthro-mcp
+claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.1.1" ai-anthro-mcp
 ```
 
 With `ANTHROPIC_API_KEY` set, analysis runs autonomously (`api` mode); without it, the orchestrating model performs each interpretive step itself through validated work packets (`delegated` mode), keeping every coding decision visible to the researcher.

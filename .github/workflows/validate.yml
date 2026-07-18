@@ -15,3 +15,15 @@ jobs:
           python-version: "3.12"
       - name: Run validation suite
         run: python3 -m unittest tests/test_repo.py -v
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package with data extra
+        run: pip install -e ".[data,test]" nltk
+      - name: Run package suite
+        run: python3 -m unittest discover -s tests/package -t . -v

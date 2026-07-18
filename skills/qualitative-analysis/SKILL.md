@@ -33,7 +33,8 @@ interpretation while keeping interpretive authority with the researcher.
 | Task | Reference |
 |------|-----------|
 | Codebook construction, coding passes, theme building, quality validation | Read [references/coding-workflow-guide.md](references/coding-workflow-guide.md) |
-| The toolkit's computational pipeline (Semantic Chunker → Codebook Builder → Coding and Thematic Analysis notebooks) | Read [references/notebook-pipeline-guide.md](references/notebook-pipeline-guide.md) |
+| Driving the pipeline through the ai-anthropology MCP tools (when available in the session) | Read [references/mcp-workflow-guide.md](references/mcp-workflow-guide.md) |
+| The toolkit's Colab notebooks (Semantic Chunker → Codebook Builder → Coding and Thematic Analysis) | Read [references/notebook-pipeline-guide.md](references/notebook-pipeline-guide.md) |
 | Canonical stance/lens list | See DESIGN.md (skills library root) |
 
 ## Workflow
@@ -74,13 +75,15 @@ Collect before starting (ask only for what is missing):
   approach should follow from the research design, not from convenience.
 - **Research context.** Project name, governing research question, and a
   short study description — these ground every analytic judgment.
-- **Tooling mode.** Conversational analysis (working through data together in
-  this session), the toolkit's computational notebooks (for large corpora,
-  reproducible runs, and multi-lens parallelism), or export to QDA software
-  (NVivo, MAXQDA, ATLAS.ti via QDPX). Recommend the notebooks when the corpus
-  exceeds what fits comfortably in conversation; read
-  [references/notebook-pipeline-guide.md](references/notebook-pipeline-guide.md)
-  before advising on them.
+- **Tooling mode.** Check for the ai-anthropology MCP tools first (names
+  contain `ai-anthropology`): when present, drive chunking, codebook
+  generation, coding, themes, and cross-lens comparison directly — read
+  [references/mcp-workflow-guide.md](references/mcp-workflow-guide.md)
+  before starting. Otherwise choose between conversational analysis (working
+  through data together in this session), the toolkit's Colab notebooks (for
+  hands-on or customized runs — read
+  [references/notebook-pipeline-guide.md](references/notebook-pipeline-guide.md)),
+  or export to QDA software (NVivo, MAXQDA, ATLAS.ti via QDPX).
 
 ### Step 3: Build or Refine the Codebook
 
