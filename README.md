@@ -14,12 +14,13 @@ The toolkit includes standalone notebooks for data collection and qualitative an
 
 ## What is AI Anthropology?
 
-AI Anthropology is an emerging field that combines:
-- **Studying AI as cultural artifact** — Understanding how AI systems reflect and shape human culture
-- **Using AI to enhance ethnographic research** — Leveraging computational methods to scale qualitative analysis
-- **Applying anthropological insights to AI development** — Bringing cultural understanding to technology design
+AI Anthropology is the integrated practice of studying, using, and shaping AI ([Artz 2026](https://doi.org/10.1111/gena.70007)) — an iterative lifecycle of anthropology **of**, **by**, and **for** AI ([Artz 2026](https://doi.org/10.4324/9781032672663-29)):
 
-This toolkit focuses on the second aspect: using AI to enhance traditional anthropological research methods while preserving the interpretive frameworks that make the discipline unique.
+- **Anthropology of AI** — studying AI systems as cultural phenomena: how they reflect, reshape, and redistribute human culture and power
+- **Anthropology by AI** — using AI and computational methods to extend ethnographic research while preserving interpretive judgment
+- **Anthropology for AI** — bringing anthropological insight to the design, building, and governance of AI systems
+
+This toolkit primarily operationalizes anthropology **by** AI — scaling qualitative research while keeping the researcher's interpretive authority at the center — and is itself an act of anthropology **for** AI: purpose-built research infrastructure designed with anthropological sensibilities. The toolkit is presented as a demonstration of multi-agent ethnography in [A Call for an AI Anthropology](https://doi.org/10.1111/gena.70007) (*General Anthropology*) and [Multi-Agent Ethnography: Post-Conventional Anthropological Practice Through Human-AI Collaboration](https://doi.org/10.1080/00664677.2026.2614501) (*Anthropological Forum*).
 
 ## Notebooks
 
@@ -199,16 +200,22 @@ This repository — notebooks, Python package, MCP server, plugin content, and d
 
 If you use this toolkit in your academic research, please cite:
 
-> Artz, Matt. 2025. AI Anthropology Toolkit. Software. Zenodo. https://doi.org/10.5281/zenodo.16728812
+> Artz, Matt. 2026. AI Anthropology Toolkit. Software. Zenodo. https://doi.org/10.5281/zenodo.16728812
 
-## References
+## Research Behind the Toolkit
+
+The toolkit operationalizes a published research program on AI Anthropology:
+
+Artz, Matt. 2026. "A Call for an AI Anthropology." General Anthropology 33(1): 23–28. https://doi.org/10.1111/gena.70007.
+
+Artz, Matt. 2026. "Multi-Agent Ethnography: Post-Conventional Anthropological Practice Through Human-AI Collaboration." Anthropological Forum. https://doi.org/10.1080/00664677.2026.2614501.
+
+Artz, Matt. 2026. "Artificial Intelligence: The AI Anthropology Lifecycle (of, by, for AI)." In Practicing Digital Ethnography, edited by Devin Proctor. Routledge. https://doi.org/10.4324/9781032672663-29.
+
+Koycheva, Lora, Angela K. VandenBroek, and Matt Artz, eds. 2026. Anthropology and AI. New York: Routledge. https://doi.org/10.4324/9781003532750.
 
 Artz, Matt. 2023. From Machine Learning to Machine Knowing: A Digital Anthropology Approach for the Machine Interpretation of Cultures. UNESCO. https://unesdoc.unesco.org/ark:/48223/pf0000384902.
 
 Artz, Matt. 2023. "Ten Predictions for AI and the Future of Anthropology." Anthropology News, May 8. https://doi.org/10.1111/AN.1605.
-
-Artz, Matt. 2026. "Artificial Intelligence: The AI Anthropology Lifecycle (of, by, for AI)." In Practicing Digital Ethnography, edited by Devin Proctor. Routledge. https://doi.org/10.4324/9781032672663-29.
-
-Artz, Matt. 2026. "Multi-Agent Ethnography: Post-Conventional Anthropological Practice Through Human-AI Collaboration." Human Organization. https://doi.org/10.1080/00664677.2026.2614501.
 
 Artz, Matt. Forthcoming. "AI Anthropology: The Future of Applied Anthropological Practice." In Routledge Handbook of Applied Anthropology, edited by Christina Wasson, Edward B. Liebow, Karine L. Narahara, Ndukuyakhe Ndlovu, and Alaka Wali. New York: Routledge.
