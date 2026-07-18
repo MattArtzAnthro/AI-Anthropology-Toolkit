@@ -56,6 +56,9 @@ NOTEBOOKS = [
         "data_collection",
         "Search PubMed and enrich results with metadata from CrossRef, OpenAlex, and Semantic Scholar"),
     # -- qualitative analysis ----------------------------------------------
+    _nb("Audio Transcription with Whisper",
+        "Audio_Transcription_Whisper.ipynb", "analysis",
+        "Transcribe audio and video recordings locally with Whisper — timestamped transcripts, optional speaker diarization, and Chunker-ready export; no API key required"),
     _nb("Interview Transcript Semantic Chunker",
         "Interview_Transcript_Semantic_Chunker.ipynb", "analysis",
         "Segment interview transcripts into semantically coherent chunks with speaker-aware processing and coherence scoring — fully local, no API key required"),

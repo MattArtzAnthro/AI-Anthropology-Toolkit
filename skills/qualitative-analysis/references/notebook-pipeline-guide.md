@@ -12,15 +12,27 @@ run in Google Colab: https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit
 
 ## The Pipeline
 
-Three notebooks chain into a complete transcript-to-themes workflow. Each
+The notebooks chain into a complete recording-to-themes workflow. Each
 also works standalone.
 
 ```
-Interview Transcript          Qualitative                Coding and
-Semantic Chunker      ─────►  Codebook Builder   ─────►  Thematic Analysis
-(transcripts → chunks)        (literature → codebook)    (chunks + codebook →
-                                                          codes → themes)
+Audio Transcription           Interview Transcript          Qualitative                Coding and
+with Whisper          ─────►  Semantic Chunker      ─────►  Codebook Builder   ─────►  Thematic Analysis
+(audio/video →                (transcripts → chunks)        (literature → codebook)    (chunks + codebook →
+ transcripts)                                                                           codes → themes)
 ```
+
+### 0. Audio Transcription with Whisper
+
+Transcribes audio and video recordings locally — the upstream entry point
+when the researcher has recordings rather than transcripts.
+
+- **Input:** Audio (.mp3, .wav, .m4a, .ogg) or video (.mp4, .mov, .webm)
+- **Output:** Timestamped transcripts (TXT feeds the Chunker directly);
+  optional speaker diarization via a free HuggingFace token
+- **Privacy:** Fully local processing (faster-whisper) — recordings never
+  leave the machine; no API key required
+- Skip this step when transcripts already exist.
 
 ### 1. Interview Transcript Semantic Chunker
 
