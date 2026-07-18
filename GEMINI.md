@@ -8,6 +8,19 @@ or qualitative analysis (transcript chunking, codebooks, coding, themes),
 follow this fallback chain:
 
 1. **MCP tools present** (tool names contain `ai-anthropology`): use them.
+   If your agent supports MCP but the server is not registered, the user can
+   add it (same uvx command everywhere):
+
+   ```bash
+   claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.0" ai-anthro-mcp
+   codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.0" ai-anthro-mcp
+   gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==2.2.0" ai-anthro-mcp
+   ```
+
+   The server's LLM-dependent stages run in delegated mode by default: the
+   orchestrating model (whichever one you are) performs the interpretive
+   work and the server validates every coding decision against the
+   codebook.
 
 2. **Code execution available** (including sandboxed environments): install
    the package and probe the network before collecting anything:

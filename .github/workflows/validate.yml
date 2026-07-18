@@ -14,7 +14,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Run validation suite
-        run: python3 -m unittest tests/test_repo.py -v
+        run: python3 -m unittest tests.test_repo tests.test_skill_routing -v
 
   package:
     runs-on: ubuntu-latest

@@ -446,6 +446,27 @@ class TestRepoDocs(unittest.TestCase):
         self.assertNotIn("will expand to include MCP", readme,
                          "README still claims the MCP server is future work")
 
+    def test_readme_registers_server_across_clis(self):
+        readme = (REPO / "README.md").read_text(encoding="utf-8")
+        for snippet in ("claude mcp add", "codex mcp add", "gemini mcp add"):
+            self.assertIn(snippet, readme,
+                          f"README lacks the {snippet.split()[0]} registration")
+
+    def test_readme_skills_section_is_cross_agent(self):
+        readme = (REPO / "README.md").read_text(encoding="utf-8")
+        for marker in ("~/.codex/skills", "~/.cursor/skills", "DESIGN.md"):
+            self.assertIn(marker, readme,
+                          f"README skills install table lacks {marker}")
+
+    def test_agent_instruction_files_include_registration(self):
+        pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+        version = re.search(r'version = "([\d.]+)"', pyproject).group(1)
+        pin = f"ai-anthropology-toolkit[data]=={version}"
+        for name in ("AGENTS.md", "GEMINI.md"):
+            text = (REPO / name).read_text(encoding="utf-8")
+            for snippet in ("codex mcp add", "gemini mcp add", pin):
+                self.assertIn(snippet, text, f"{name} lacks {snippet}")
+
     def test_agent_instruction_files_carry_fallback_chain(self):
         install = 'pip install "ai-anthropology-toolkit[data]"'
         for name in ("AGENTS.md", "GEMINI.md"):

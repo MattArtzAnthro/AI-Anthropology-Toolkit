@@ -47,7 +47,7 @@ Standalone notebooks for computational qualitative analysis. Most can be run dir
 
 ## Skills
 
-Claude Code skills that activate automatically based on context. Requires the [AI Anthropology Toolkit plugin](https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit) installed in Claude Code.
+Research skills in the portable [SKILL.md format](https://agentskills.io) that activate automatically based on context. In Claude Code, the [AI Anthropology Toolkit plugin](https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit) installs all of them at once; other coding agents can install any skill by copying its folder (see [Using the Skills in Other Agents](#using-the-skills-in-other-agents) below).
 
 | Skill | Description |
 |:------|:------------|
@@ -67,6 +67,25 @@ Claude Code skills that activate automatically based on context. Requires the [A
 | job-materials | Academic CVs, cover letters, job talks, application strategy |
 | career-statements | Research, teaching, and diversity statements; tenure narratives |
 | teaching-materials | Syllabi, lesson plans, assignments, rubrics, discussion guides |
+
+### Using the Skills in Other Agents
+
+Each skill is a self-contained folder (`SKILL.md` plus a `references/` directory) in the portable format that most 2026 coding agents read. To install one outside Claude Code, clone the repository and copy the skill folder — plus `skills/DESIGN.md`, the shared analytical-lens reference the skills consult — into your agent's skills directory:
+
+```bash
+git clone https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit.git
+cp -r AI-Anthropology-Toolkit/skills/qualitative-analysis AI-Anthropology-Toolkit/skills/DESIGN.md ~/.codex/skills/
+```
+
+| Agent | Skills directory |
+|:------|:-----------------|
+| Claude Code | `~/.claude/skills/` (or install the plugin — all 16 at once) |
+| OpenAI Codex CLI | `~/.codex/skills/` |
+| Cursor | `~/.cursor/skills/` |
+| GitHub Copilot / VS Code | `~/.copilot/skills/` |
+| Shared project-level | `.agents/skills/` in your repository |
+
+The skills pair naturally with the MCP server (below): descriptions route the request, the server runs the pipeline.
 
 ## Agents
 
@@ -94,13 +113,27 @@ Autonomous Claude Code subagents that orchestrate across multiple skills for com
 
 The toolkit also ships as a Python package ([`ai-anthropology-toolkit` on PyPI](https://pypi.org/project/ai-anthropology-toolkit/)) with an MCP server, so Claude (and other MCP clients) can drive the full research pipeline conversationally: data collection (OpenAlex, CrossRef, PubMed, Google Scholar, Google Trends, Google News, Google Patents, Books Ngram, YouTube search and transcripts, podcast RSS) and analysis (transcript chunking, lens-configured codebook generation, qualitative coding with per-code validation, thematic analysis, and cross-lens comparison).
 
-Installing the Claude Code plugin (above) bundles the server automatically. To register it anywhere else:
+Installing the Claude Code plugin (above) bundles the server automatically. It also registers in any other MCP-capable agent — the command is the same everywhere:
+
+**Claude Code**
 
 ```
 claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.0" ai-anthro-mcp
 ```
 
-With `ANTHROPIC_API_KEY` set, analysis runs autonomously (`api` mode); without it, the orchestrating model performs each interpretive step itself through validated work packets (`delegated` mode), keeping every coding decision visible to the researcher.
+**OpenAI Codex CLI**
+
+```
+codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.0" ai-anthro-mcp
+```
+
+**Google Gemini CLI**
+
+```
+gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==2.2.0" ai-anthro-mcp
+```
+
+The server is model-agnostic. With `ANTHROPIC_API_KEY` set, analysis runs autonomously (`api` mode). Without it, whichever model is orchestrating — Claude, GPT, or Gemini — performs each interpretive step itself through validated work packets (`delegated` mode): the analysis runs on your model, the methodology and validation run on the server, and every coding decision stays visible to the researcher.
 
 ### Coding Agents & Sandboxes
 
