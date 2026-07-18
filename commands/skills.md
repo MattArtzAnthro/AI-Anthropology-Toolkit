@@ -56,7 +56,6 @@ markdown.
   users can also ask for one by name.
 - Agents suit multi-step tasks that span several skills; skills suit focused,
   single-document work.
-- The computational notebooks (transcript chunking, codebook building, coding
-  and thematic analysis, and data collection utilities) live in the
-  repository's `notebooks/` directory and run in Google Colab — see the
-  README for the full notebook table.
+- The bundled MCP server runs data collection and the analysis pipeline as
+  native tools; the same capabilities exist as Colab notebooks in the
+  repository's `notebooks/` directory for hands-on use — see the README.

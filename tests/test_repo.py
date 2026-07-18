@@ -429,6 +429,23 @@ class TestRepoDocs(unittest.TestCase):
         entry = marketplace["plugins"][0]
         self.assertEqual(plugin["version"], entry["version"], "plugin/marketplace version mismatch")
 
+    def test_package_version_consistency(self):
+        pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+        declared = re.search(r'version = "([\d.]+)"', pyproject).group(1)
+        init = (REPO / "src/ai_anthro_toolkit/__init__.py").read_text(encoding="utf-8")
+        dunder = re.search(r'__version__ = "([\w.]+)"', init).group(1)
+        self.assertEqual(declared, dunder,
+                         "pyproject version and module __version__ disagree")
+
+    def test_readme_mcp_section_reflects_native_data_tools(self):
+        readme = (REPO / "README.md").read_text(encoding="utf-8")
+        section = readme.split("## MCP Server", 1)[1].split("\n## ", 1)[0]
+        for phrase in ("Google Trends", "podcast", "data collection"):
+            self.assertIn(phrase.lower(), section.lower(),
+                          f"README MCP section no longer mentions {phrase}")
+        self.assertNotIn("will expand to include MCP", readme,
+                         "README still claims the MCP server is future work")
+
     def test_mcp_json_wiring(self):
         mcp_cfg = json.loads((REPO / ".mcp.json").read_text(encoding="utf-8"))
         self.assertIn("ai-anthropology", mcp_cfg["mcpServers"])

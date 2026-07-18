@@ -105,10 +105,10 @@ def toolkit_info() -> dict:
                           "compare_lenses"],
         },
         "llm_mode_default": _mode(None),
-        "notebooks": ("Additional data sources (Google Trends/News/Patents/"
-                       "Scholar/Ngram, YouTube, podcast RSS) and analysis "
-                       "capabilities run as Colab notebooks — call "
-                       "list_notebooks for descriptions and links."),
+        "notebooks": ("Every capability also exists as a hands-on Colab "
+                       "notebook for researchers who want to run, inspect, or "
+                       "customize it themselves — call list_notebooks for "
+                       "descriptions and links."),
     }
 
 
