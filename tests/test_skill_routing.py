@@ -53,6 +53,7 @@ TRIGGER_PROMPTS = {
     "research-writing": [
         "help me write the methods chapter of my dissertation",
         "structure a journal article about my ethnographic findings",
+        "prepare an anonymous version of my manuscript for blind peer review",
     ],
     "academic-review": [
         "how do I respond to reviewer 2 in my revise and resubmit",
