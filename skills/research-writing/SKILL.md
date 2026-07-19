@@ -4,15 +4,14 @@ description: >
   Use this skill whenever a user needs help writing a research article,
   thesis chapter, or dissertation chapter for anthropology. Triggers include:
   "write my article," "journal article," "ethnographic writing," "methods
-  section," "findings section," "literature review for my paper,"
-  "theoretical framework," "thick description," "ethnographic vignette,"
+  section," "findings section," "thick description," "ethnographic vignette,"
   "thesis chapter," "dissertation chapter," "article structure,"
   "manuscript draft," "using quotes in my paper,"
-  "participant voice," or writing for journals such as American
-  Anthropologist, American Ethnologist, or Cultural Anthropology. Covers full
-  research articles and their component sections, thesis and dissertation
-  chapters, and section-level drafting and revision across all anthropology
-  subfields. Do NOT use for peer review or reviewer responses (use
+  "participant voice," "anonymize my manuscript," "blind review version,"
+  "anonymous version for submission," or writing for anthropology journals.
+  Covers full research articles and their sections, thesis and dissertation
+  chapters, section-level drafting and revision, and preparing anonymized
+  manuscripts for blind peer review submission, across all subfields. Do NOT use for peer review or reviewer responses (use
   academic-review skill), conference abstracts or presentations (use
   conference-materials skill), grant proposals (use grant-proposal skill), or
   public-facing writing (use public-engagement skill).
@@ -53,6 +52,7 @@ abstracts and presentations, use the
 | Section-by-section article guide, structural templates, word counts, thesis adaptations, checklists | Read [references/article-architecture-guide.md](references/article-architecture-guide.md) |
 | Subfield-specific conventions, journal requirements, comparative guidance | Read [references/subfield-conventions-guide.md](references/subfield-conventions-guide.md) |
 | Style, voice, ethnographic craft, participant quotes, literature integration, citations, ethics statements | Read [references/writing-craft-guide.md](references/writing-craft-guide.md) |
+| Preparing an anonymous manuscript for blind review — identity scan, redaction worklist, restoration map | Read [references/anonymization-guide.md](references/anonymization-guide.md) |
 
 ## Workflow
 
