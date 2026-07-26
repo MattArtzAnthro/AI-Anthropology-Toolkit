@@ -99,6 +99,10 @@ TRIGGER_PROMPTS = {
         "write a statement of work for a client research engagement",
         "turn my findings into a stakeholder readout for the product team",
     ],
+    "paper-planning": [
+        "I have all my material but I cannot tell what the paper argues",
+        "what is my contribution and how should I order the argument",
+    ],
 }
 
 STOPWORDS = frozenset(
