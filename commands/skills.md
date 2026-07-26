@@ -26,6 +26,7 @@ markdown.
 | qualitative-analysis | Analysis | Codebooks, deductive/inductive/hybrid coding, thematic analysis, multi-lens comparison |
 | digital-computational-methods | Data Collection & Analysis | Digital ethnography and netnography design, platform ethics, computational text methods (topic modeling, NER, text networks), AI-collaboration design |
 | grant-proposal | Funding | NSF CA-DDRIG, Wenner-Gren, Fulbright, ERC, SSHRC, Wellcome funder-specific guidance |
+| paper-planning | Writing & Review | Working out what a paper argues before drafting: claim extraction, the paper's position against the existing conversation, argument sequencing |
 | research-writing | Writing & Review | Journal articles, thesis and dissertation chapters, ethnographic craft |
 | academic-review | Writing & Review | Peer review writing, rebuttal letters, revision strategy |
 | conference-materials | Dissemination | AAA abstracts, slide decks, posters, speaker notes |

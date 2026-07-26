@@ -4,7 +4,8 @@ description: >
   Use this skill whenever a user needs client-facing or industry
   deliverables for applied anthropological work — consulting, UX
   research, business anthropology, or practicing roles. Triggers
-  include: "statement of work," "SOW," "client report," "stakeholder
+  include: "statement of work," "SOW," "scope of work," "client
+  engagement," "client work," "client report," "stakeholder
   readout," "executive summary," "insight synthesis," "research
   repository," "atomic insights," "workshop facilitation," "design
   sprint," "product team," "consulting engagement," "case study

@@ -45,6 +45,12 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Claude Code Plugin
 
+### 1.9.0 — 2026-07-26
+- Added the paper-planning skill (20th skill), for working out what a paper argues before drafting it: claim extraction from ethnographic or archival material, testing a claim for disputability, scope, and load-bearing premises, six ways of positioning a contribution against the existing conversation, argument sequencing, and eight diagnostic vectors for an unresolved plan
+- The skill proceeds by questioning rather than by producing text. It will not state an author's claim, name their contribution, or write their thesis sentence, and it calibrates the depth of interrogation to what the author could plausibly get wrong rather than applying uniform depth
+- writing-advisor now orchestrates paper-planning alongside research-writing and academic-review, and routes to argument planning before structural work when a claim is unsettled
+- Sharpened the applied-practice description with "scope of work" and "client engagement" triggers, which were routing to career-statements
+
 ### 1.8.3 — 2026-07-19
 - Added a manuscript anonymization guide to the research-writing skill, covering preparation of an anonymous manuscript for double-anonymous peer review
 

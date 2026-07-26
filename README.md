@@ -94,6 +94,7 @@ Research skills in the portable [SKILL.md format](https://agentskills.io) that a
 | fieldwork-methods | Interview guides, observation protocols, sampling strategies, data management plans |
 | qualitative-analysis | Codebook development, deductive/inductive/hybrid coding, thematic analysis, multi-lens comparison |
 | digital-computational-methods | Digital ethnography and platform ethics, computational text analysis at scale, AI-collaboration design |
+| paper-planning | Claim extraction, the paper's position against the existing conversation, argument sequencing — worked out by questioning before drafting begins |
 | research-writing | Article architecture, ethnographic craft, subfield conventions, journal requirements |
 | academic-review | Peer review writing, rebuttal letters, revision strategy |
 | conference-materials | AAA abstracts, slide decks, posters, speaker notes, oral delivery |
@@ -114,7 +115,7 @@ cp -r AI-Anthropology-Toolkit/skills/qualitative-analysis AI-Anthropology-Toolki
 
 | Agent | Skills directory |
 |:------|:-----------------|
-| Claude Code | `~/.claude/skills/` (or install the plugin — all 16 at once) |
+| Claude Code | `~/.claude/skills/` (or install the plugin — all 20 at once) |
 | OpenAI Codex CLI | `~/.codex/skills/` |
 | Cursor | `~/.cursor/skills/` |
 | GitHub Copilot / VS Code | `~/.copilot/skills/` |
@@ -133,7 +134,7 @@ Autonomous Claude Code subagents that orchestrate across multiple skills for com
 | proposal-advisor | Translates research designs into persuasive funder-specific narratives |
 | fieldwork-advisor | Designs instruments tailored to specific research questions and fieldwork contexts |
 | analysis-advisor | Guides qualitative coding, codebook development, and thematic analysis |
-| writing-advisor | Guides article/chapter writing and R&R management |
+| writing-advisor | Guides argument planning, article/chapter writing, and R&R management |
 | dissemination-advisor | Handles register translation between academic and public audiences |
 | career-advisor | Coordinates application packages and course design |
 
