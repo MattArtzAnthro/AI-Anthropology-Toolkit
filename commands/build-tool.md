@@ -36,10 +36,16 @@ through.
 
 ## Ask how deep to go
 
-Ask once, before anything else:
+Ask once, before anything else, as a single-select question with exactly two
+options and no others:
 
-> "Do you want a full pass, where I stop at each decision, or an advisory pass,
-> where I raise what I see and you take what is useful?"
+| Option | Description to offer |
+|---|---|
+| Full pass | Every stage completes before the next begins. Best for a first instrument, an unfamiliar artifact type, or a build you know is underspecified |
+| Advisory pass | I raise what applies and you direct. The sort is still a hard gate; the rest of the ceremony is skipped |
+
+Phrase the question as: "Do you want a full pass, where I stop at each decision,
+or an advisory pass, where I raise what I see and you take what is useful?"
 
 An advisory pass skips the ceremony. It does not skip the sort, and it records
 what it did not ask, so a lighter pass leaves a trace rather than a silence.
