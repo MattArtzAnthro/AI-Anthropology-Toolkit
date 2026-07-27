@@ -132,6 +132,12 @@ with:
 - Invoke each phase's skill explicitly with the Skill tool (e.g., `ai-anthropology:research-question`) before drafting that phase's document — do not work from memory of the skill's contents
 - Use AskUserQuestion for genuinely closed choices (career stage, consent mode, epistemic stance); gather free-text input (project name, topic, research questions) through plain conversation
 - Do not skip phases — walk through each one, even briefly
+- Honor each skill's Friction by Design gates rather than answering through
+  them: the question is adopted by the user (Phase 1), the claim envelope
+  and method system are confirmed by the user (Phase 2), and the codebook
+  plan is theirs to ratify (Phase 6). Phase documents carry the Unresolved
+  items forward instead of tidying them — the unresolved list is the next
+  phase's agenda
 - Each output file should be a working draft, not just an outline
 - Adapt depth to the user's needs — a faculty member may need less scaffolding than a first-year PhD student
 - Cross-reference between phases — methods should align with questions, ethics should address methods

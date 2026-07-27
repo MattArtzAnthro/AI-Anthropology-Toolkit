@@ -96,10 +96,15 @@ with a canonical form:
    full pass, where the skill stops at each decision, or an advisory pass,
    where it raises what it sees and the researcher directs. Asked once at
    the start of an engagement, not once per skill activation when several
-   skills run inside one session. The depth setting is never inferred from
-   how confident someone sounds. Inferring and then confirming a substantive
-   parameter, such as epistemic stance, is a different act and remains
-   legitimate.
+   skills run inside one session — and the carrier of that "once" is the
+   advisor agent: an agent whose engagement will use a Tier 1 skill asks at
+   dispatch and passes the setting into every skill invocation, and a skill
+   that receives a setting does not re-ask. A skill activated directly,
+   outside any agent, asks for itself. Skills with a declared variance keep
+   their documented default either way. The depth setting is never inferred
+   from how confident someone sounds. Inferring and then confirming a
+   substantive parameter, such as epistemic stance, is a different act and
+   remains legitimate.
 3. **Questioning over production.** Where the researcher's judgment is the
    deliverable, the skill proceeds by questioning rather than by producing:
    one high-leverage question at a time. Two boundaries keep this honest.
@@ -134,6 +139,19 @@ the researcher's reaction to the artifact is an acceptable carrier of the
 decision, and the skill documents that as its calibrated default instead of
 asking the depth question. The variance is recorded in the adoption table
 below.
+
+### How each surface carries the philosophy
+
+The toolkit runs on three surfaces, and friction takes the form each surface
+can actually hold. The plugin's skills carry conversational gates — the
+sections above. The MCP server and Python package carry analytic friction
+natively (cross-lens comparison, friction points, per-code validation). The
+Colab notebooks carry analytic friction the same way, and their
+interactional layer is structural rather than conversational: execution is
+cell-gated, every stage's output is reviewed before the next cell runs, and
+ratification happens by editing the artifact between cells. A notebook that
+interrogated its user would be ceremony; the cell boundary already stops
+exactly where review belongs.
 
 ### Proportionality
 

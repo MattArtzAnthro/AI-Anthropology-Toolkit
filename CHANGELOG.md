@@ -6,6 +6,23 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
+### 3.0.0 — 2026-07-27
+- BREAKING: start_coding_job now requires a ratification_id and refuses a codebook the researcher
+  has not ratified. The gate implements the toolkit's Friction by Design conventions server-side:
+  an unratified codebook never governs a coding pass, because every downstream claim inherits its
+  authority from that decision
+- Added the ratify_codebook tool (25th tool): records the researcher's confirm-or-revise decision
+  for a codebook job or externally supplied records, with an optional note for what was changed or
+  rejected on review, and returns a ratification_id bound to an order-insensitive content checksum
+  over code labels and definitions — so revising after ratification is ordinary and simply means
+  re-ratifying what actually runs
+- The gate enforces sequence, not sincerity: the server verifies that a ratification event preceded
+  coding and that the ratified content is what runs; it cannot verify that the researcher read the
+  codebook, and its error messages instruct the orchestrating model to surface the question rather
+  than answer it
+- Server instructions and tool docstrings carry the gate protocol; api and delegated modes are
+  gated identically
+
 ### 2.2.3 — 2026-07-18
 - Added five notebooks: World Bank Data Explorer, UN Data Explorer, BLS Labor Statistics Explorer, Multimodal Embedding Explorer, and Visual Analysis & Image Annotation
 - Added a Multimodal & Visual Analysis notebook category
@@ -51,6 +68,26 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.12.0 — 2026-07-27
+- The Friction by Design conventions now reach every surface: AGENTS.md and GEMINI.md instruct
+  non-Claude agents to honor the gates when executing skills, the /ai-anthropology:skills catalog
+  names each skill's adoption tier, and /ai-anthropology:new-project honors the gates through the
+  lifecycle phases and carries each phase's Unresolved items forward as the next phase's agenda
+- skills/DESIGN.md now states how each surface carries the philosophy — conversational gates in
+  the plugin, native analytic friction in the server and package, and cell-gated execution in the
+  notebooks, where the cell boundary already stops exactly where review belongs
+- The depth setting gained its carrier: an advisor agent whose engagement uses a Tier 1 skill asks
+  full-pass-or-advisory once at dispatch and passes the answer into every skill invocation, so
+  three skills in one session no longer each re-ask; a skill activated directly asks for itself,
+  and declared variances keep their defaults. A structural check requires the carrier language of
+  every advisor that draws on a Tier 1 skill
+- Added behavioral gate-holding evals (tests/evals/test_gate_holding.py, run locally with
+  AAT_RUN_GATE_EVALS=1 and the claude CLI; never in CI): six pressure scenarios test that Tier 1
+  gates refuse to be answered through, and three compliant scenarios test the opposite failure —
+  that judgments the researcher has already supplied are not re-interrogated. First run: all six
+  pressure gates held; the one compliant failure was a miscalibrated rubric, corrected to permit
+  fact-gathering while forbidding the re-opening of stated decisions
 
 ### 1.11.0 — 2026-07-27
 - Named Friction by Design as the toolkit's governing design philosophy in skills/DESIGN.md, with

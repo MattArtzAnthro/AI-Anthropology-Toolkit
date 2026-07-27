@@ -8,7 +8,9 @@ Tool families:
 - **Methodology**: list_lenses, get_lens — the 42-lens analytical registry.
 - **Analysis pipeline**: chunk_transcript (local, no LLM), plus job-based
   codebook generation and qualitative coding, theme building, and cross-lens
-  comparison.
+  comparison. Coding is gated: ratify_codebook records the researcher's
+  confirm-or-revise decision and start_coding_job refuses a codebook with no
+  matching ratification (sequence enforced; sincerity cannot be).
 
 Analysis LLM work supports two modes. In **api** mode (requires
 ANTHROPIC_API_KEY in the environment) the server calls the Anthropic API
@@ -19,6 +21,7 @@ the server validates every submission against the codebook — keeping each
 interpretive move visible to, and contestable by, the researcher.
 """
 
+import hashlib
 import json
 import os
 import threading
@@ -59,7 +62,12 @@ mcp = FastMCP(
         "generation, coding, thematic analysis, and cross-lens comparison. "
         "LLM-dependent stages run in 'api' mode when ANTHROPIC_API_KEY is set, "
         "otherwise in 'delegated' mode: start a job, loop get_next_batch -> "
-        "complete each prompt -> submit_batch, then get_job_result."
+        "complete each prompt -> submit_batch, then get_job_result. Coding is "
+        "gated: present the codebook to the researcher as one table, ask one "
+        "confirm-or-revise question, call ratify_codebook with what they "
+        "approved, and pass its ratification_id to start_coding_job — the "
+        "server refuses unratified codebooks. Never ratify on the "
+        "researcher's behalf."
     ),
 )
 
@@ -82,6 +90,22 @@ def _load_records(job_id: str, name: str):
     return json.loads(raw) if raw else None
 
 
+def _codebook_checksum(records: list[dict]) -> str:
+    """Order-insensitive content checksum over (label, definition) pairs.
+
+    Field order, extra columns, and record order do not change the checksum;
+    changing, adding, or removing a code does.
+    """
+    canon = sorted(
+        (str(r.get("code_label") or r.get("label") or ""),
+         str(r.get("definition") or ""))
+        for r in records
+    )
+    return hashlib.sha256(
+        json.dumps(canon, ensure_ascii=False).encode("utf-8")
+    ).hexdigest()[:16]
+
+
 # --------------------------------------------------------------- discovery
 
 @mcp.tool()
@@ -100,7 +124,8 @@ def toolkit_info() -> dict:
                                  "get_podcast_episodes", "list_notebooks"],
             "methodology": ["list_lenses", "get_lens"],
             "analysis": ["chunk_transcript", "start_codebook_job",
-                          "start_coding_job", "get_next_batch", "submit_batch",
+                          "ratify_codebook", "start_coding_job",
+                          "get_next_batch", "submit_batch",
                           "get_job_status", "get_job_result", "build_themes",
                           "compare_lenses"],
         },
@@ -401,22 +426,99 @@ def start_codebook_job(documents: dict, lens_key: str,
 
 
 @mcp.tool()
+def ratify_codebook(codebook: list[dict] | None = None,
+                    codebook_job_id: str = "", note: str = "") -> dict:
+    """Record the researcher's ratification of a codebook, enabling coding.
+
+    A codebook governs a coding pass only after the researcher has ratified
+    it — reviewed it as one table and answered one confirm-or-revise
+    question. Call this AFTER the researcher has confirmed, passing either
+    the completed codebook job's `codebook_job_id` or the `codebook` records
+    themselves (for codebooks built outside this server). `note` records
+    what the researcher changed or rejected during review, and belongs in
+    the audit trail.
+
+    Returns a `ratification_id` to pass to start_coding_job, plus the
+    content checksum of what was ratified. Revising the codebook afterward
+    is legitimate and ordinary — re-ratify the revised version, because the
+    checksum binds coding to the exact codebook the researcher approved.
+
+    Honest limit: this gate enforces sequence, not sincerity. The server
+    can verify that a ratification event preceded coding and that the
+    ratified content is what runs; it cannot verify that the researcher
+    truly read the codebook. Surfacing the confirm-or-revise question to
+    the researcher — not answering it for them — is the caller's
+    obligation under the toolkit's Friction by Design conventions.
+    """
+    if codebook_job_id:
+        records = _load_records(codebook_job_id, "result.json")
+        if records is None:
+            raise ValueError(
+                f"Codebook job '{codebook_job_id}' has no result yet — "
+                "ratification applies to a finished codebook the researcher "
+                "has seen, not a job in progress.")
+        ratification_id = codebook_job_id
+    elif codebook:
+        records = list(codebook)
+        ratification_id = _jobs.create("ratification", {"codes": len(records)})
+        _jobs.save_artifact(ratification_id, "result.json", json.dumps(records))
+        _jobs.complete(ratification_id)
+    else:
+        raise ValueError("Provide codebook records or a codebook_job_id.")
+
+    checksum = _codebook_checksum(records)
+    _jobs.save_artifact(ratification_id, "ratification.json", json.dumps({
+        "checksum": checksum,
+        "codes": len(records),
+        "note": note,
+    }))
+    return {"ratification_id": ratification_id, "checksum": checksum,
+            "codes": len(records), "note": note,
+            "next": "pass ratification_id to start_coding_job"}
+
+
+@mcp.tool()
 def start_coding_job(chunks: list[dict], codebook: list[dict],
+                     ratification_id: str = "",
                      lens_key: str = "", llm_mode: str = "",
                      approach: str = "deductive",
                      research_context: dict | None = None) -> dict:
-    """Start qualitative coding of transcript chunks against a codebook.
+    """Start qualitative coding of transcript chunks against a ratified codebook.
 
     `chunks` come from chunk_transcript; `codebook` is codebook records
     (code_label + definition at minimum, e.g. from get_job_result of a
-    codebook job). approach: deductive | hybrid (hybrid adds inductive
-    discovery; api mode only). In delegated mode each chunk becomes a work
-    packet: complete the prompt, submit via submit_batch, and the server
-    validates every returned code against the codebook.
+    codebook job). `ratification_id` comes from ratify_codebook and is
+    required: an unratified codebook never governs a coding pass, and the
+    supplied codebook must match the ratified content (labels and
+    definitions) exactly. approach: deductive | hybrid (hybrid adds
+    inductive discovery; api mode only). In delegated mode each chunk
+    becomes a work packet: complete the prompt, submit via submit_batch,
+    and the server validates every returned code against the codebook.
     """
     mode = _mode(llm_mode)
     if approach not in ("deductive", "hybrid"):
         raise ValueError("approach must be 'deductive' or 'hybrid'")
+    if not ratification_id:
+        raise ValueError(
+            "This codebook has not been ratified. A codebook governs a "
+            "coding pass only after the researcher has reviewed it and "
+            "answered one confirm-or-revise question — present the codebook "
+            "to the researcher as one table, ask, and call ratify_codebook "
+            "with what they approved. Then pass the ratification_id here.")
+    ratification = _load_records(ratification_id, "ratification.json")
+    if not ratification:
+        raise ValueError(
+            f"'{ratification_id}' carries no ratification record. Call "
+            "ratify_codebook after the researcher has confirmed the "
+            "codebook, and pass the ratification_id it returns.")
+    supplied = _codebook_checksum(list(codebook))
+    if supplied != ratification["checksum"]:
+        raise ValueError(
+            "The supplied codebook differs from the one the researcher "
+            f"ratified (checksum {supplied} != {ratification['checksum']}). "
+            "If the researcher revised it, that is ordinary — re-ratify the "
+            "revised codebook with ratify_codebook and use the new "
+            "ratification_id. Do not code with content nobody approved.")
     if mode == "delegated" and approach == "hybrid":
         approach = "deductive"  # inductive discovery requires api mode for now
     records = list(codebook)

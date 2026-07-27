@@ -59,7 +59,8 @@ class TestToolRegistry(ServerTestBase):
             "get_podcast_episodes",
                     "search_pubmed", "list_notebooks",
                     "list_lenses", "get_lens", "chunk_transcript",
-                    "start_codebook_job", "start_coding_job", "get_next_batch",
+                    "start_codebook_job", "ratify_codebook", "start_coding_job",
+                    "get_next_batch",
                     "submit_batch", "get_job_status", "get_job_result",
                     "build_themes", "compare_lenses"}
         self.assertEqual(tools, expected)
@@ -83,9 +84,74 @@ class TestChunkTool(ServerTestBase):
             chunking_mod._default_embedder = old
 
 
+class TestRatificationGate(ServerTestBase):
+    """The Friction by Design gate: sequence enforced server-side."""
+
+    def test_unratified_codebook_is_refused(self):
+        with self.assertRaises(ValueError) as ctx:
+            server.start_coding_job(CHUNKS, CODEBOOK, lens_key="interpretive",
+                                    llm_mode="delegated")
+        self.assertIn("ratif", str(ctx.exception).lower())
+
+    def test_bogus_ratification_id_is_refused(self):
+        with self.assertRaises(ValueError):
+            server.start_coding_job(CHUNKS, CODEBOOK,
+                                    ratification_id="ratification-nonsense",
+                                    llm_mode="delegated")
+
+    def test_revised_codebook_needs_re_ratification(self):
+        rat = server.ratify_codebook(codebook=CODEBOOK, note="approved as drafted")
+        revised = CODEBOOK[:2] + [{"code_label": "care_networks",
+                                   "definition": "Sustained informal care ties"}]
+        with self.assertRaises(ValueError) as ctx:
+            server.start_coding_job(CHUNKS, revised,
+                                    ratification_id=rat["ratification_id"],
+                                    llm_mode="delegated")
+        self.assertIn("differs", str(ctx.exception))
+
+    def test_checksum_ignores_order_and_extra_fields(self):
+        rat = server.ratify_codebook(codebook=CODEBOOK)
+        reordered = [dict(r, extra_column="x") for r in reversed(CODEBOOK)]
+        start = server.start_coding_job(CHUNKS, reordered,
+                                        ratification_id=rat["ratification_id"],
+                                        llm_mode="delegated")
+        self.assertEqual(start["mode"], "delegated")
+
+    def test_ratifying_a_finished_codebook_job(self):
+        docs = {"fieldnote.txt": "Community members organise rotating savings groups. " * 30}
+        start = server.start_codebook_job(docs, "interpretive",
+                                          llm_mode="delegated", min_frequency=1)
+        job_id = start["job_id"]
+        # ratifying before the job has a result is refused
+        with self.assertRaises(ValueError):
+            server.ratify_codebook(codebook_job_id=job_id)
+        batch = server.get_next_batch(job_id, batch_size=10)
+        canned = json.dumps([{"label": "rotating_savings",
+                              "definition": "Member-run rotating credit groups",
+                              "extraction_type": "emergent",
+                              "example": "savings groups"}])
+        server.submit_batch(job_id, [{"id": p["id"], "response": canned}
+                                     for p in batch["packets"]])
+        rat = server.ratify_codebook(codebook_job_id=job_id,
+                                     note="merged two duplicates on review")
+        self.assertEqual(rat["ratification_id"], job_id)
+        self.assertEqual(rat["note"], "merged two duplicates on review")
+        records = server.get_job_result(job_id)["records"]
+        coding = server.start_coding_job(CHUNKS, records,
+                                         ratification_id=job_id,
+                                         llm_mode="delegated")
+        self.assertEqual(coding["mode"], "delegated")
+
+
+def _ratified(codebook):
+    """Test helper: ratify a codebook and return its ratification_id."""
+    return server.ratify_codebook(codebook=codebook)["ratification_id"]
+
+
 class TestDelegatedCoding(ServerTestBase):
     def test_full_delegated_loop_with_validation(self):
         start = server.start_coding_job(CHUNKS, CODEBOOK, lens_key="interpretive",
+                                        ratification_id=_ratified(CODEBOOK),
                                         llm_mode="delegated")
         job_id = start["job_id"]
         self.assertEqual(start["mode"], "delegated")
@@ -214,6 +280,7 @@ class TestApiModeLiveViaCli(ServerTestBase):
         server._api_llm = lambda model=None: cli_llm
         try:
             start = server.start_coding_job(CHUNKS[:2], CODEBOOK,
+                                            ratification_id=_ratified(CODEBOOK),
                                             lens_key="interpretive",
                                             llm_mode="api")
             job_id = start["job_id"]

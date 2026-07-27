@@ -12,9 +12,9 @@ follow this fallback chain:
    add it (same uvx command everywhere):
 
    ```bash
-   claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.3" ai-anthro-mcp
-   codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==2.2.3" ai-anthro-mcp
-   gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==2.2.3" ai-anthro-mcp
+   claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.0.0" ai-anthro-mcp
+   codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.0.0" ai-anthro-mcp
+   gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==3.0.0" ai-anthro-mcp
    ```
 
    The server's LLM-dependent stages run in delegated mode by default: the
@@ -56,6 +56,13 @@ follow this fallback chain:
 
 3. **Neither**: point the user to the Colab notebooks in `notebooks/` —
    every capability runs in the browser (Open in Colab badges in README.md).
+
+When executing this repository's research skills (`skills/*/SKILL.md` — they
+are portable and run under Claude Code, Codex, Cursor, and Copilot), honor
+the Friction by Design conventions defined in `skills/DESIGN.md`: skills
+declare an adoption tier, Tier 1 skills gate their core judgments behind
+confirm-or-revise questions, and no skill decides on the researcher's behalf
+what its will-not-do list reserves. The gates are the product, not a delay.
 
 When editing this repository itself, read CLAUDE.md for structure and
 conventions and run `python3 -m unittest tests/test_repo.py` before

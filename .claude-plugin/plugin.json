@@ -1,6 +1,6 @@
 {
   "name": "ai-anthropology",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "mcpServers": "./.mcp.json",
   "description": "Skills and agents for anthropological research across the full research lifecycle \u2014 from question formulation through publication and career advancement",
   "author": {

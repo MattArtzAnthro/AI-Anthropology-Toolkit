@@ -102,6 +102,9 @@ call for them. Work from the loaded skill content rather than from memory of it.
   under which trust could be earned
 - Friction belongs where judgment lives, not everywhere. Installing, invoking,
   and re-running should be smooth
+- The depth setting arrives from dispatch when the build-tool command asked
+  it; if it did not, ask once at the start and carry it through the
+  engagement, so the skill does not re-ask
 - A surprise is worth recording only where the researcher did not already believe
   the thing
 
