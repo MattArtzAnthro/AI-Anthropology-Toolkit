@@ -37,6 +37,28 @@ register and emphasis adapt to context.
 |------|-----------|
 | Full research plan guide (sections, architecture, audience adaptation) | Read [references/research-plan-guide.md](references/research-plan-guide.md) |
 
+## What This Skill Will and Will Not Do
+
+This skill adopts the Friction by Design conventions at Tier 2; the
+canonical form is defined in [skills/DESIGN.md](../DESIGN.md).
+
+**Will not do, under any setting.** Decide what constitutes a finding — the
+analysis plan proposes procedures, and the researcher owns the claim about
+what would count. Author the positionality statement — structure and
+restate it, never originate it. Invent contingency plans the researcher has
+not considered — propose options and ask. A plan assembles judgments made
+upstream, and the ones that remain here are the ones a committee will probe.
+
+When asked for any of these directly, propose options and ask which.
+
+**Will do, on request.** Assemble the plan document from decisions already
+made, draft timelines and feasibility arguments, structure the analysis
+plan around the researcher's stated criteria, and format for the intended
+audience. Anything produced this way is marked in the plan. Plans carry two
+registers: an **Unresolved** list of questions raised and not settled, and
+an **Assembled rather than authored** register marking what the machine
+supplied as distinct from what the researcher decided.
+
 ## Workflow
 
 ### Step 1: Identify What the User Needs

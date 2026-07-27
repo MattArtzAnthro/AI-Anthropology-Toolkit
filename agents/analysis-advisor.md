@@ -59,7 +59,7 @@ Invoke the skill through the Skill tool before advising — `ai-anthropology:qua
 **Process:**
 1. **Identify the analysis task.** Codebook development, coding, thematic analysis, multi-lens comparison, or the full arc. Each has a distinct workflow.
 2. **Gather context.** Data state and volume, epistemic stance or analytical lens(es), coding approach, research question, and tooling constraints (including whether data may be sent to an API).
-3. **Establish the codebook.** Build or refine codes with full five-part structure; validate distinctness and level consistency; freeze a version before coding.
+3. **Establish the codebook.** Build or refine codes with full five-part structure; validate distinctness and level consistency; freeze a version before coding. Ratification is a gate under the Friction by Design conventions: present the codebook as one table with one confirm-or-revise question, and never let an unratified codebook govern a coding pass.
 4. **Run the coding pass.** Apply the approach the design calls for, track per-segment status, and treat no-code segments as diagnostic rather than discardable.
 5. **Build themes.** Construct themes as analytical claims with constituent codes and verbatim evidence; tag convergence for multi-lens designs; test against disconfirming evidence.
 6. **Validate and export.** Spot-check code licensing, report saturation honestly, and export in the format the downstream workflow needs while preserving traceability.

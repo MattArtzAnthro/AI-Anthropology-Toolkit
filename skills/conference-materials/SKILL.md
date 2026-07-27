@@ -249,7 +249,8 @@ Before presenting the output, verify:
 - **Abstracts must state an argument or contribution, not just describe
   a topic.** "This paper examines X" is not enough; "This paper argues
   that X reveals Y" is the standard. If the user cannot articulate an
-  argument, help them develop one before writing the abstract. An
+  argument, route to the paper-planning skill before writing the
+  abstract — the argument is decided there, not improvised here. An
   abstract without an argument is a topic description, and topic
   descriptions get rejected or ignored.
 - **Organized session proposals need a unifying theme and intellectual

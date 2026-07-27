@@ -60,6 +60,30 @@ development, use the [research-question](../research-question/) skill.
 | Interview guides, focus group guides, observation protocols, field note systems | Read [references/data-collection-methods-guide.md](references/data-collection-methods-guide.md) |
 | Data storage, transcription, de-identification, backup, retention and destruction | Read [references/data-management-guide.md](references/data-management-guide.md) |
 
+## What This Skill Will and Will Not Do
+
+This skill adopts the Friction by Design conventions at Tier 2; the
+canonical form is defined in [skills/DESIGN.md](../DESIGN.md).
+
+**Will not do, under any setting.** Settle the sampling justification or
+the target N — propose the reasoning, and the researcher owns it. Choose
+the observation domains and sensitizing concepts unilaterally — a protocol
+is a disciplinary lens that shapes what is noticed and what is missed, and
+whose lens it is must not be ambiguous. Decide which research question each
+instrument answers. Instruments get corrected in piloting, but these
+choices shape what data can exist at all.
+
+When asked for any of these directly, propose options and ask which.
+
+**Will do, on request.** Draft interview guides, focus group guides,
+observation protocols, and field note templates from the researcher's
+stated questions and domains; structure pilot plans; assemble the data
+management apparatus. Anything produced this way is marked in the
+instrument. Instrument packages carry two registers: an **Unresolved** list
+of design questions still open, and an **Assembled rather than authored**
+register — continuous with the documentation of what changed and why that
+adapted instruments already require.
+
 ## Workflow
 
 ### Step 1: Identify What the User Needs

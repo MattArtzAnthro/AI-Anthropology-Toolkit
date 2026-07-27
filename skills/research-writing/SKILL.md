@@ -54,6 +54,29 @@ abstracts and presentations, use the
 | Style, voice, ethnographic craft, participant quotes, literature integration, citations, ethics statements | Read [references/writing-craft-guide.md](references/writing-craft-guide.md) |
 | Preparing an anonymous manuscript for blind review — identity scan, redaction worklist, restoration map | Read [references/anonymization-guide.md](references/anonymization-guide.md) |
 
+## What This Skill Will and Will Not Do
+
+This skill adopts the Friction by Design conventions at Tier 2; the
+canonical form is defined in [skills/DESIGN.md](../DESIGN.md).
+
+**Will not do, under any setting.** State the paper's argument — an
+unsettled argument is not a drafting problem, and it routes to the
+paper-planning skill rather than being improvised here. Decide what a quote
+or fieldnote is evidence for. Leave machine-drafted interpretive commentary
+unmarked in a manuscript that will carry the author's name. Drafting prose
+from a decided argument is this skill's work; deciding is not.
+
+When asked for any of these directly, propose options and ask which.
+
+**Will do, on request.** Draft and revise article and chapter prose from a
+settled argument, structure sections to the venue's conventions, integrate
+evidence and interpretation at the paragraph level, and prepare
+anonymization and submission apparatus. Anything produced this way is
+marked in the manuscript file. Drafts carry two registers: an
+**Unresolved** list of writing decisions still open, and an **Assembled
+rather than authored** register marking which interpretive prose the
+machine drafted for the author to make their own or replace.
+
 ## Workflow
 
 ### Step 1: Identify What the User Needs
@@ -224,7 +247,9 @@ Before presenting output, verify:
 - **Every article must have an argument, not just a topic.** "This paper
   examines X" is insufficient. Push for "This paper argues that X reveals Y"
   or "This paper demonstrates that X challenges Y." If the user cannot
-  articulate an argument, help them develop one before drafting.
+  articulate an argument, route to the paper-planning skill before
+  drafting — working out what the paper argues is gated there, and a side
+  door here would bypass the gate.
 - **Do not separate description from analysis.** Ethnographic writing
   integrates evidence and interpretation at the paragraph level. A findings
   section that presents quotes without analysis, or a discussion that

@@ -28,6 +28,9 @@ not "picking tools" — it is an argument about why these methods, for this
 question, from this stance, will produce the evidence needed to support
 the claims you intend to make.
 
+This skill adopts the Friction by Design conventions at Tier 1; the canonical
+form of the framework sections is defined in [skills/DESIGN.md](../DESIGN.md).
+
 ## Quick Reference
 
 | Task | Reference |
@@ -35,6 +38,49 @@ the claims you intend to make.
 | Decision workflow, criteria, failure modes, checklist | Read [references/methodology-selection-guide.md](references/methodology-selection-guide.md) |
 | Method-stance compatibility matrix, justification templates, worked examples | Read [references/method-stance-compatibility.md](references/method-stance-compatibility.md) |
 | Method module details (evidence, claims, limitations, ethics), multi-method patterns | Read [references/method-modules.md](references/method-modules.md) |
+
+## What This Skill Will and Will Not Do
+
+Method selection mixes project facts a machine can collect with design
+judgments only the researcher can defend. The intake below batches the
+facts; the judgments are gates.
+
+**Will not do, under any setting.** Choose the primary stance for the
+researcher. Settle the claim envelope on their behalf — it is proposed from
+the stance and put as one confirm-or-revise question. Silently reframe a
+high-tension stance-method combination — the tension is stated and the
+researcher decides which way it resolves. Compose the final method system
+without a ratify-or-revise question. These are the design commitments a
+methods section defends, and a justification whose commitments came from
+elsewhere is one the researcher cannot argue past a reviewer.
+
+When asked for any of these directly, propose options and ask which. Do not
+decide, and do not lecture about why not.
+
+**Will do, on request.** Generate candidate method modules and rate their
+compatibility. Draft role statements, the justification narrative, and the
+integration plan from decisions the researcher has ratified. Translate the
+research question into evidence needs for confirmation. Format any
+deliverable. Anything produced this way is marked in the output.
+
+## Calibrating the Depth
+
+Friction should be proportional to what the researcher could plausibly get
+wrong, not applied at uniform depth to everyone. Ask once, at the start of
+the engagement:
+
+**Full pass.** The skill stops at each design gate: stance, claim envelope,
+any high-tension rating, and ratification of the composed system. For a
+first design, an unfamiliar stance, or reviewer trouble the researcher does
+not yet understand.
+
+**Advisory pass.** For a researcher who has designed before and arrives
+with the shape in hand. Raise what applies and let them direct. The stance
+gate holds in both — methods without a stance is an incoherent request, and
+the skill does not proceed past it.
+
+Default to asking. Do not infer the setting from how confident someone
+sounds.
 
 ## Workflow
 
@@ -57,14 +103,18 @@ Determine the entry point:
 
 ### Step 2: Gather Context
 
-Before generating any content, collect these inputs:
+Before generating any content, collect these inputs. This intake gathers
+project facts and may be collected together; it is not the decision
+surface — the judgments (stance, claim envelope, system composition) are
+gates inside Step 4.
 
 **Required:**
 1. **Research question(s).** What is the user trying to answer? This
    determines what evidence is needed.
 2. **Epistemic stance.** Which theoretical orientation(s) does the researcher
-   work within? Ask for primary and secondary. The stance determines what
-   counts as evidence and what methods are epistemically coherent.
+   work within? Ask for primary and secondary — asked, never inferred. The
+   stance determines what counts as evidence and what methods are
+   epistemically coherent.
 3. **Field configuration.** Single site, multi-sited, digital, archival,
    hybrid? This constrains which methods are practical.
 
@@ -100,10 +150,11 @@ Before generating any content, collect these inputs:
 
 Follow this sequence (detailed in the guide reference file):
 
-1. **Define the claim envelope.** Based on the epistemic stance, state what
-   kinds of claims are admissible and what kinds are not. An interpretivist
-   project makes claims about meaning, not prevalence. A critical project
-   makes claims about power, not neutral description.
+1. **Define the claim envelope. Gate.** Based on the epistemic stance,
+   propose what kinds of claims are admissible and what kinds are not, and
+   put it as one confirm-or-revise question before generating candidates. An
+   interpretivist project makes claims about meaning, not prevalence. A
+   critical project makes claims about power, not neutral description.
 
 2. **Decompose the question into evidence needs.** Translate the research
    question into required evidence types: embodied practices (requires
@@ -116,18 +167,24 @@ Follow this sequence (detailed in the guide reference file):
 3. **Generate candidate method modules.** From the 14 method modules in the
    method-modules reference, identify which could produce the required evidence.
 
-4. **Check epistemic coherence.** Using the compatibility matrix, rate each
-   candidate method against the user's stance: Standard (S), Coherent (C),
-   Innovative/defensible (I), or High-tension (T). Flag any T-rated methods
-   and explain what reframing would be needed to make them defensible.
+4. **Check epistemic coherence. Gate on tension.** Using the compatibility
+   matrix, rate each candidate method against the user's stance: Standard
+   (S), Coherent (C), Innovative/defensible (I), or High-tension (T). A
+   T-rated method stops the workflow: state the tension, state what
+   reframing would make the method defensible, and ask which way it
+   resolves — drop the method, or adopt the reframing. Do not resolve it
+   silently in either direction.
 
 5. **Check field constraints.** Filter candidates by access, risk, consent
    feasibility, platform terms, legality, and resource availability.
 
-6. **Compose the multi-method system.** Assign each surviving method a role:
-   primary evidence generation, complementary perspective, contextualization,
-   or validation. Ensure the system has internal logic — methods should relate
-   to each other, not just coexist.
+6. **Compose the multi-method system. Gate.** Assign each surviving method a
+   role: primary evidence generation, complementary perspective,
+   contextualization, or validation. Ensure the system has internal logic —
+   methods should relate to each other, not just coexist. Present the
+   composed system as one role table with one ratify-or-revise question
+   before any justification narrative is written — not method by method, and
+   not silently.
 
 7. **Specify the integration plan.** State when and where evidence streams
    are joined, what analytic strategy governs integration, and what
@@ -150,6 +207,13 @@ Produce one or more of these deliverables depending on user needs:
 - **Ethics and data governance plan.** Consent strategy, identifiability
   analysis, storage and embargo choices, platform-specific ethics for digital
   methods, and rules for future sharing.
+
+Every deliverable carries two registers. **Unresolved:** design questions
+raised and not settled — a T-rated tension awaiting a decision, a sampling
+justification not yet argued, an integration point left implicit. Keep the
+list; a design with nothing unresolved has usually been tidied rather than
+finished. **Assembled rather than authored:** what the machine drafted on
+request, as distinct from what the researcher decided.
 
 ### Step 6: Quality Check
 
@@ -233,6 +297,7 @@ Before presenting output, verify using the full checklist:
 | Integration left implicit — "triangulation" as magic word | Specify type of triangulation and what convergence/divergence means |
 | Sample size by round number or unexamined "saturation" | Use information power or empirically grounded saturation reasoning |
 | Ethics treated as appendix | Require ethics and data governance as design determinants, not afterthoughts |
+| The gate that becomes a form — envelope and system ratified without reading | Ask which claim the envelope excludes, or which method they would cut; a researcher who cannot answer has not yet decided |
 
 ## Examples
 

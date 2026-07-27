@@ -38,6 +38,30 @@ theoretical stance).
 | Screening with audit trails, annotated bibliographies, literature matrices | Read [references/screening-and-synthesis-guide.md](references/screening-and-synthesis-guide.md) |
 | Theoretical vs. conceptual frameworks and how to build one | Read [references/framework-construction-guide.md](references/framework-construction-guide.md) |
 
+## What This Skill Will and Will Not Do
+
+This skill adopts the Friction by Design conventions at Tier 2; the
+canonical form is defined in [skills/DESIGN.md](../DESIGN.md).
+
+**Will not do, under any setting.** Set the inclusion and exclusion
+criteria — selection is an argument, so criteria are proposed from the
+review's purpose and the researcher ratifies them. Declare the gap
+statement — naming what a field has not done is the reviewer's claim to
+stake. Commit the framework's concept relationships on the researcher's
+behalf. Screening at scale is this skill's legitimate work; the judgments
+that make the screening mean something are not.
+
+When asked for any of these directly, propose options and ask which.
+
+**Will do, on request.** Run searches and screening against ratified
+criteria, build synthesis matrices, organize a body of work into positions,
+draft framework prose from relationships the researcher has committed to,
+and maintain the search log. Anything produced this way is marked in the
+review. Reviews carry two registers: an **Unresolved** list of screening
+and synthesis questions still open, and an **Assembled rather than
+authored** register — the same disclosure the review's PRISMA-style
+AI-assistance reporting already requires, kept in one place.
+
 ## Workflow
 
 ### Step 1: Establish the Review's Genre and Purpose

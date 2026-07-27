@@ -242,6 +242,130 @@ class TestSkills(unittest.TestCase):
             )
 
 
+FRICTION_DECLARATION_RE = re.compile(
+    r"This skill adopts the Friction by Design conventions at Tier ([123])"
+)
+FRICTION_WILL_HEADING = "## What This Skill Will and Will Not Do"
+FRICTION_WILL_NOT_LEAD = "**Will not do, under any setting.**"
+FRICTION_WILL_DO_LEAD = "**Will do, on request.**"
+FRICTION_DEPTH_HEADING = "## Calibrating the Depth"
+
+
+def friction_tier_table():
+    """Parse the Friction by Design adoption table in skills/DESIGN.md.
+
+    Returns {skill_name: (tier, reason_cell)}.
+    """
+    text = (SKILLS_DIR / "DESIGN.md").read_text(encoding="utf-8")
+    section = text.split("### Adoption tiers", 1)[1].split("\n## ", 1)[0]
+    tiers = {}
+    for line in section.splitlines():
+        m = re.match(r"\|\s*([a-z][a-z0-9-]+)\s*\|\s*([123])\s*\|(.*)\|", line)
+        if m:
+            tiers[m.group(1)] = (int(m.group(2)), m.group(3).strip())
+    return tiers
+
+
+class TestFrictionConvention(unittest.TestCase):
+    """The Friction by Design conventions (skills/DESIGN.md).
+
+    These checks verify structural presence only. Whether a will-not list is
+    specific to its skill or generic, whether friction sits where the risk
+    is, and whether any of it is questioning rather than a form are
+    judgments no check here touches — the same limit class as the
+    specificity bar.
+    """
+
+    def test_adoption_table_covers_every_skill_exactly(self):
+        table = friction_tier_table()
+        self.assertEqual(
+            set(table), skill_names(),
+            "DESIGN.md adoption table and skills/ directory disagree",
+        )
+
+    def test_declarations_match_the_table(self):
+        table = friction_tier_table()
+        for d in skill_dirs():
+            body = (d / "SKILL.md").read_text(encoding="utf-8")
+            m = FRICTION_DECLARATION_RE.search(body)
+            if m:
+                declared = int(m.group(1))
+                self.assertIn(
+                    declared, (1, 2),
+                    f"{d.name}: Tier 3 is non-adoption and takes no declaration",
+                )
+                self.assertEqual(
+                    declared, table[d.name][0],
+                    f"{d.name}: declares Tier {declared} but DESIGN.md "
+                    f"assigns Tier {table[d.name][0]}",
+                )
+
+    def test_declared_adopters_carry_required_sections(self):
+        table = friction_tier_table()
+        for d in skill_dirs():
+            body = (d / "SKILL.md").read_text(encoding="utf-8")
+            m = FRICTION_DECLARATION_RE.search(body)
+            if not m:
+                continue
+            tier = int(m.group(1))
+            for required in (
+                FRICTION_WILL_HEADING,
+                FRICTION_WILL_NOT_LEAD,
+                FRICTION_WILL_DO_LEAD,
+            ):
+                self.assertIn(
+                    required, body,
+                    f"{d.name}: Tier {tier} adopter missing '{required}'",
+                )
+            if tier == 1 and "Variance:" not in table[d.name][1]:
+                for required in (
+                    FRICTION_DEPTH_HEADING,
+                    "**Full pass.**",
+                    "**Advisory pass.**",
+                ):
+                    self.assertIn(
+                        required, body,
+                        f"{d.name}: Tier 1 adopter missing '{required}'",
+                    )
+
+    def test_tier_three_skills_do_not_carry_the_ceremony(self):
+        table = friction_tier_table()
+        for d in skill_dirs():
+            if table[d.name][0] != 3:
+                continue
+            body = (d / "SKILL.md").read_text(encoding="utf-8")
+            self.assertIsNone(
+                FRICTION_DECLARATION_RE.search(body),
+                f"{d.name}: Tier 3 must not carry an adoption declaration",
+            )
+            self.assertNotIn(
+                FRICTION_DEPTH_HEADING, body,
+                f"{d.name}: Tier 3 must not carry the depth ceremony",
+            )
+
+    def test_every_assigned_adopter_declares(self):
+        # The reverse direction of test_declarations_match_the_table: a
+        # Tier 1/2 assignment in DESIGN.md that no SKILL.md declares is a
+        # convention nobody adopted.
+        table = friction_tier_table()
+        for name, (tier, _reason) in table.items():
+            if tier == 3:
+                continue
+            body = (SKILLS_DIR / name / "SKILL.md").read_text(encoding="utf-8")
+            self.assertIsNotNone(
+                FRICTION_DECLARATION_RE.search(body),
+                f"{name}: assigned Tier {tier} in DESIGN.md but SKILL.md "
+                "carries no adoption declaration",
+            )
+
+    def test_carriers_declare_tier_one(self):
+        for name in ("tool-building", "paper-planning"):
+            body = (SKILLS_DIR / name / "SKILL.md").read_text(encoding="utf-8")
+            m = FRICTION_DECLARATION_RE.search(body)
+            self.assertIsNotNone(m, f"{name}: missing adoption declaration")
+            self.assertEqual("1", m.group(1), f"{name}: carrier must be Tier 1")
+
+
 class TestAgents(unittest.TestCase):
     def test_agents_present(self):
         names = {f.stem for f in agent_files()}

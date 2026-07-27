@@ -34,12 +34,59 @@ every reviewer point was read and considered; (b) shows evidence of substantive
 change where change was warranted; and (c) provides reasoned justification
 where the author disagrees, supported by evidence or argument.
 
+This skill adopts the Friction by Design conventions at Tier 1; the canonical
+form of the framework sections is defined in [skills/DESIGN.md](../DESIGN.md).
+
 ## Quick Reference
 
 | Task | Reference |
 |------|-----------|
 | Review structure, evaluation criteria, constructive framework, discipline-specific assessment | Read [references/review-writing-guide.md](references/review-writing-guide.md) |
 | Rebuttal letters, point-by-point responses, revision plans, handling contradictory feedback | Read [references/revision-response-guide.md](references/revision-response-guide.md) |
+
+## What This Skill Will and Will Not Do
+
+A review is a signed scholarly judgment, even when the signature is only to
+the editor, and a rebuttal is the author's position in the scholarly record.
+The skill structures both; it holds neither.
+
+**Will not do, under any setting.** Choose the overall recommendation — the
+review is drafted around the reviewer's judgment, and the recommendation is
+theirs. Write evaluative judgments about a manuscript it has not been
+shown, or characterize a paper's weaknesses from a secondhand summary as if
+from reading. Decide which reviewer points the author concedes and which
+they contest. These are the judgments a reviewer answers for to an editor
+and an author answers for in print, and ones that came from elsewhere
+cannot be defended in either place.
+
+When asked for any of these directly, propose options and ask which. Do not
+decide, and do not lecture about why not.
+
+**Will do, on request.** Structure the six-part review anatomy and draft
+prose around judgments the reviewer has stated. Check a draft review for
+tone, anonymity, and actionability. Assemble the point-by-point response
+from the author's own triage decisions. Diagnose contradictory reviewer
+demands and propose navigation strategies for the author to choose among.
+Format any deliverable. Anything produced this way is marked in the output.
+
+## Calibrating the Depth
+
+Friction should be proportional to what the reviewer or author could
+plausibly get wrong, not applied at uniform depth to everyone. Ask once, at
+the start of the engagement:
+
+**Full pass.** The skill stops at each judgment: the contribution
+assessment, the recommendation, and the concede-or-contest triage,
+presented as one table with one confirm-or-revise question rather than
+point by point. For a first review, a first rebuttal, or a decision the
+user finds hard to read.
+
+**Advisory pass.** For an experienced reviewer or author who arrives with
+their judgments formed. Raise what applies and let them direct. The
+recommendation stays theirs in both.
+
+Default to asking. Do not infer the setting from how confident someone
+sounds.
 
 ## Workflow
 
@@ -101,6 +148,21 @@ Before generating any content, collect these inputs:
 - Editor's letter and whether it signals which reviewer to prioritize
 - Timeline for revision submission
 
+### Step 2a: Confidential Material
+
+Fires only when someone else's unpublished manuscript, or reviewer reports,
+would enter the session; silent otherwise.
+
+Reviewing means confidential material passes through this tool, and most
+journals' reviewer undertakings were written before that was possible —
+some now prohibit sharing manuscripts with AI systems outright. Before any
+manuscript text arrives, raise it once: what does the journal's
+confidentiality policy say, and does the reviewer read it as covering this
+use? Where the task allows, prefer excerpts over full text. The user
+decides; record what was decided. This re-fires when the material changes —
+a second manuscript, or a new round of reports, is not covered by the
+earlier decision.
+
 ### Step 3: Load Appropriate References
 
 - **Always load** `references/review-writing-guide.md` when the user is
@@ -131,8 +193,12 @@ Follow the appropriate framework from the loaded reference files:
    path forward. Separate conceptual problems from execution problems.
 5. **Minor issues.** List smaller concerns (clarity, citation gaps, structural
    suggestions) that would improve the manuscript but are not revision-blocking.
-6. **Overall recommendation.** Accept, minor revisions, major revisions/R&R,
-   or reject — with a clear rationale tied to the issues identified above.
+6. **Overall recommendation. Gate.** Accept, minor revisions, major
+   revisions/R&R, or reject — the reviewer's call, never proposed for them.
+   Ask which recommendation the issues above add up to, then draft the
+   rationale that ties their answer to those issues. A mismatch between the
+   severity of the critique and the chosen recommendation is surfaced as a
+   question, not corrected silently.
 
 **For rebuttal letters and revision responses:**
 1. **Cover letter to the editor.** Brief, professional summary of how the
@@ -146,9 +212,12 @@ Follow the appropriate framework from the loaded reference files:
    major reviewer concern to the specific changes made and their locations.
 
 **For revision plans:**
-1. **Triage reviewer comments.** Categorize each point as: (a) agree and will
-   change, (b) partially agree and will accommodate, (c) disagree and will
-   defend with argument. Prioritize major issues over minor ones.
+1. **Triage reviewer comments. Gate.** Categorize each point as: (a) agree
+   and will change, (b) partially agree and will accommodate, (c) disagree
+   and will defend with argument. The categorization is the author's:
+   propose a triage as one table and ask one confirm-or-revise question
+   before drafting responses from it. Prioritize major issues over minor
+   ones.
 2. **Map changes to manuscript sections.** Identify which sections need
    revision and what kind (rewriting, adding, cutting, reorganizing).
 3. **Timeline and sequencing.** Determine the order of revisions — usually
@@ -173,6 +242,12 @@ Produce one or more deliverables depending on user needs:
 - **Review framework.** For first-time reviewers: a structured template with
   prompts for each section of the review, calibrated to the specific journal
   and manuscript type.
+
+Reviews and revision plans carry two registers. **Unresolved:** points not
+yet settled — an expertise limit the reviewer wants to flag to the editor, a
+reviewer comment the author has not decided how to answer. Keep the list.
+**Assembled rather than authored:** which prose the machine drafted from
+the user's stated judgments, as distinct from the judgments themselves.
 
 ### Step 6: Quality Check
 
@@ -264,6 +339,7 @@ Before presenting output, verify:
 | Rebuttal that skips uncomfortable reviewer points | Require explicit response to every numbered or substantive point, even if the response is "we respectfully disagree because..." |
 | Confusing "I would have done it differently" with actual flaws | Distinguish between the reviewer's preferences and genuine problems in the manuscript's internal logic |
 | Review that demands a different paper than the one submitted | Evaluate the manuscript on its own terms: does it achieve what it sets out to do? Flag only where the chosen approach creates identifiable problems |
+| The gate that becomes a form — a recommendation chosen to end the questioning | Ask which single issue most drove the recommendation; a reviewer who cannot name one has ranked nothing |
 
 ## Examples
 

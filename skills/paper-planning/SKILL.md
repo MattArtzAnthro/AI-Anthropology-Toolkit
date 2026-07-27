@@ -33,6 +33,9 @@ about what the paper claims and why it matters. This skill supplies the
 questions that make those judgments explicit, and the record of what was
 decided.
 
+This skill adopts the Friction by Design conventions at Tier 1; the canonical
+form of the sections below is defined in [skills/DESIGN.md](../DESIGN.md).
+
 ## Quick Reference
 
 | Task | Reference |
@@ -71,8 +74,10 @@ wrong, not applied at uniform depth to everyone. Ask once, at the start:
 
 **Full pass.** For a first paper, an unfamiliar genre, or a plan the author
 knows is unresolved. One question per turn. Each phase completes before the
-next begins. Do not batch questions; batching is what turns this into a form to
-fill in.
+next begins. Do not batch decision questions; batching is what turns this into
+a form to fill in. Do not atomize either: one decision is one question, and
+splitting a single judgment across several turns exhausts the author without
+sharpening the plan.
 
 **Advisory pass.** For an experienced author with a plan largely in hand. Raise
 the diagnostics that apply, note what looks unresolved, and let the author

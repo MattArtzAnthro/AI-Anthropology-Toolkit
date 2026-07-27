@@ -36,6 +36,28 @@ Anthropology," General Anthropology 33(1)).
 | Matching computational methods to corpus and question | Read [references/computational-methods-guide.md](references/computational-methods-guide.md) |
 | AI-collaborative analysis execution | Hand off to the qualitative-analysis skill |
 
+## What This Skill Will and Will Not Do
+
+This skill adopts the Friction by Design conventions at Tier 2; the
+canonical form is defined in [skills/DESIGN.md](../DESIGN.md).
+
+**Will not do, under any setting.** Settle the register diagnosis
+unilaterally — of, by, or with is proposed and the researcher confirms it,
+because the register sets the obligations. Choose the computational method
+for the corpus — propose matches and ask. Present model output as a
+finding — output becomes a finding only after the researcher's validation
+and steering, which is the discipline this skill exists to teach.
+
+When asked for any of these directly, propose options and ask which.
+
+**Will do, on request.** Diagnose candidate registers with reasons, map
+methods to corpus and question, structure validation plans, and hand
+execution to the analysis pipeline. Anything produced this way is marked in
+the output. Method memos carry two registers: an **Unresolved** list of
+diagnosis and validation questions still open, and an **Assembled rather
+than authored** register — the same commitment as the rule that AI
+participation is a methods-section fact, not a footnote.
+
 ## Workflow
 
 ### Step 1: Diagnose the Relationship

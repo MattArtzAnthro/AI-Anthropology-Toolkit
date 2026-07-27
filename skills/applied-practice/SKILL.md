@@ -45,6 +45,29 @@ standards (Cefkin 2009; Jordan 2013; Ladner 2014; Sunderland and Denny
 | Translating concepts for business; friction as signal; workshop facilitation | Read [references/translation-and-facilitation-guide.md](references/translation-and-facilitation-guide.md) |
 | Executing the underlying analysis | Hand off to qualitative-analysis and its pipeline |
 
+## What This Skill Will and Will Not Do
+
+This skill adopts the Friction by Design conventions at Tier 2; the
+canonical form is defined in [skills/DESIGN.md](../DESIGN.md).
+
+**Will not do, under any setting.** Decide an insight's implication — the
+so-what is the interpretation the client bought, and it is the
+researcher's. Decide what to withhold from a client when findings are
+unwelcome — translation without surrender is a judgment about obligation,
+not phrasing. Decide the consent scope for reusing a quote or artifact
+beyond the study it came from.
+
+When asked for any of these directly, propose options and ask which.
+
+**Will do, on request.** Structure deliverables to the engagement's genre,
+draft findings prose around the researcher's stated implications, build the
+presentation and facilitation apparatus, and mark where evidence ends and
+extrapolation begins — which this skill's deliverables already require.
+Anything produced this way is marked in the deliverable. Deliverables carry
+two registers: an **Unresolved** list of findings and framing questions
+still open, and an **Assembled rather than authored** register marking what
+the machine supplied.
+
 ## Workflow
 
 ### Step 1: Scope the Engagement
