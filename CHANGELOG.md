@@ -10,6 +10,13 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 - Added five notebooks: World Bank Data Explorer, UN Data Explorer, BLS Labor Statistics Explorer, Multimodal Embedding Explorer, and Visual Analysis & Image Annotation
 - Added a Multimodal & Visual Analysis notebook category
 - Notebook catalog now serves 23 notebooks across four categories
+- Hardened the three computational text-analysis notebooks, 47 fixes, recorded here late. Named
+  Entity Recognition: the confidence slider did not reach the extractor, so the threshold stayed at
+  the library default and values below 0.5 had no effect. Text Network Analysis: comparative
+  multi-document export crashed when writing GEXF and GraphML, because list-valued source attributes
+  were not serialized first; empty networks and scanned PDFs yielding no text now report honestly
+  rather than raising or showing success. Across all three: PyPDF2 replaced with pypdf, spaCy calls
+  batched via nlp.pipe, betweenness sampled on large graphs
 
 ### 2.2.2 — 2026-07-18
 - Added the CrossRef Reference Verifier notebook: verifies reference lists against CrossRef metadata, flags mismatches, invalid or retracted DOIs, and recovers missing DOIs
@@ -44,6 +51,19 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.10.0 — 2026-07-26
+- Added the tool-building skill (21st skill), the tool-builder agent (9th agent), and the
+  /ai-anthropology:build-tool command: specification, verification, and provenance discipline for
+  researchers building their own research instruments
+- Version 1 supports one artifact family, Claude Code skills and agents, where the repository's
+  routing evals and structure tests can genuinely reject the work
+- tool-builder is the first agent in this plugin that writes files rather than advising
+- Added tests/test_spec_pack.py, which enforces specification completeness and a reading check
+  against fixtures rather than by convention
+- Routing evals now check the margin by which each prompt wins, not only that it wins; commands and
+  agents are validated as families rather than one file each; and a skill's routing clause must name
+  a skill that exists, which closed a gap affecting 19 references across 6 descriptions
 
 ### 1.9.0 — 2026-07-26
 - Added the paper-planning skill (20th skill), for working out what a paper argues before drafting it: claim extraction from ethnographic or archival material, testing a claim for disputability, scope, and load-bearing premises, six ways of positioning a contribution against the existing conversation, argument sequencing, and eight diagnostic vectors for an unresolved plan
