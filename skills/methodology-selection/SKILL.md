@@ -79,6 +79,9 @@ with the shape in hand. Raise what applies and let them direct. The stance
 gate holds in both — methods without a stance is an incoherent request, and
 the skill does not proceed past it.
 
+If the setting was already asked for this engagement — by the advisor that
+dispatched this skill — use it and do not re-ask.
+
 Default to asking. Do not infer the setting from how confident someone
 sounds.
 

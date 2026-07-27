@@ -69,8 +69,8 @@ later which parts they authored and which were assembled.
 Interrogation should be proportional to what the author could plausibly get
 wrong, not applied at uniform depth to everyone. Ask once, at the start:
 
-> "Do you want me to work through this as a full pass, one question at a time,
-> or as an advisory pass where I raise what I see and you take what is useful?"
+> "Do you want a full pass, where I stop at each decision, or an advisory
+> pass, where I raise what I see and you take what is useful?"
 
 **Full pass.** For a first paper, an unfamiliar genre, or a plan the author
 knows is unresolved. One question per turn. Each phase completes before the
@@ -82,6 +82,9 @@ sharpening the plan.
 **Advisory pass.** For an experienced author with a plan largely in hand. Raise
 the diagnostics that apply, note what looks unresolved, and let the author
 direct. The questions are the same. The gating is not.
+
+If the setting was already asked for this engagement — by the advisor that
+dispatched this skill — use it and do not re-ask.
 
 Default to asking. Do not infer the setting from how confident the author
 sounds.
