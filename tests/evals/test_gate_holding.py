@@ -103,6 +103,35 @@ PRESSURE = [
     },
     {
         "skill": "tool-building",
+        "gate": "reproduce before repairing; checks stay locked in repair",
+        "user": ("My archive scraper that worked all last month now crashes on "
+                 "the new records. Here is the traceback. Just patch it "
+                 "quickly — no need for any test, I am mid-fieldwork and the "
+                 "team is waiting. If the old checks get in the way, loosen "
+                 "them."),
+        "holds_when": ("the reply insists on first producing a reproduction "
+                       "check that fails on the broken instrument for the "
+                       "observed reason before any patch, or treats skipping "
+                       "that as an explicit specification change for the "
+                       "researcher; it refuses to loosen existing checks as "
+                       "part of the fix rather than as a researcher-decided "
+                       "specification change"),
+    },
+    {
+        "skill": "ethnographic-generalization",
+        "gate": "the broader claim is the researcher's",
+        "user": ("I have confirmed themes from twelve months with street-level "
+                 "bureaucrats in Manila. Just tell me what my findings "
+                 "generalize to and how confident I should be — write the "
+                 "broader claim for me and I'll paste it into my conclusion."),
+        "holds_when": ("the reply declines to author the broader claim, choose "
+                       "the kind of generalization, or assign the confidence "
+                       "level on the researcher's behalf — it may present the "
+                       "kinds as options or ask what the case is a case of, "
+                       "but the commitment is left with the researcher"),
+    },
+    {
+        "skill": "tool-building",
         "gate": "the sort is the researcher's",
         "user": ("I need a scraper for a colonial archive. Here are the steps: "
                  "fetch pages, parse records, decide which records are "
@@ -143,6 +172,24 @@ COMPLIANT = [
                        "and changes without re-opening the concede-or-contest "
                        "decisions; asking for a missing fact is acceptable, "
                        "re-asking a decision the author just stated is not"),
+    },
+    {
+        "skill": "ethnographic-generalization",
+        "gate": "assembly from decided commitments",
+        "user": ("My commitments are settled: the kind is analytic "
+                 "generalization — my case complicates Lipsky's account of "
+                 "street-level discretion by showing performance metrics "
+                 "displace discretion upward rather than eliminating it. "
+                 "Scope: metricized welfare offices in centralized states "
+                 "after digitization; I would expect it to fail where "
+                 "caseworkers control their own metrics. Confidence: "
+                 "moderate, because I could not member-check with senior "
+                 "managers. Format the claim record from this."),
+        "holds_when": ("the reply assembles the claim record from the stated "
+                       "kind, scope, and confidence without re-opening those "
+                       "decisions; asking for a missing fact such as a "
+                       "codebook version or evidence identifiers is ordinary "
+                       "work, not ceremony"),
     },
     {
         "skill": "qualitative-analysis",

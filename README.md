@@ -93,6 +93,7 @@ Research skills in the portable [SKILL.md format](https://agentskills.io) that a
 | dissertation-prospectus | Section-by-section prospectus development (8-30 pages) |
 | fieldwork-methods | Interview guides, observation protocols, sampling strategies, data management plans |
 | qualitative-analysis | Codebook development, deductive/inductive/hybrid coding, thematic analysis, multi-lens comparison |
+| ethnographic-generalization | Moving from confirmed findings to the broader claim they can support: kinds of generalization, warrant building, scope conditions, confidence calibration |
 | digital-computational-methods | Digital ethnography and platform ethics, computational text analysis at scale, AI-collaboration design |
 | paper-planning | Claim extraction, the paper's position against the existing conversation, argument sequencing — worked out by questioning before drafting begins |
 | research-writing | Article architecture, ethnographic craft, subfield conventions, journal requirements |
@@ -103,7 +104,7 @@ Research skills in the portable [SKILL.md format](https://agentskills.io) that a
 | career-statements | Research, teaching, and diversity statements; tenure narratives |
 | teaching-materials | Syllabi, lesson plans, assignments, rubrics, discussion guides |
 | applied-practice | Client engagements: statements of work, stakeholder readouts, insight synthesis, workshop facilitation, research repositories |
-| tool-building | Building your own research instruments: the outcome, which steps a rule can settle and which need judgment, what would count as correct, and a decision record for a methods appendix |
+| tool-building | Building your own research instruments: the outcome, which steps a rule can settle and which need judgment, what would count as correct, and a decision record for a methods appendix. Repairs broken instruments reproduction-first |
 
 ### Using the Skills in Other Agents
 
@@ -116,7 +117,7 @@ cp -r AI-Anthropology-Toolkit/skills/qualitative-analysis AI-Anthropology-Toolki
 
 | Agent | Skills directory |
 |:------|:-----------------|
-| Claude Code | `~/.claude/skills/` (or install the plugin — all 21 at once) |
+| Claude Code | `~/.claude/skills/` (or install the plugin — all 22 at once) |
 | OpenAI Codex CLI | `~/.codex/skills/` |
 | Cursor | `~/.cursor/skills/` |
 | GitHub Copilot / VS Code | `~/.copilot/skills/` |

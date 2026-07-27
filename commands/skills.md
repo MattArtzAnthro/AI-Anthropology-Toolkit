@@ -24,6 +24,7 @@ markdown.
 | informed-consent | Ethics & Compliance | Consent modes (written, verbal, layered, community-based), cultural adaptation |
 | fieldwork-methods | Fieldwork | Interview guides, observation protocols, sampling, data management plans |
 | qualitative-analysis | Analysis | Codebooks, deductive/inductive/hybrid coding, thematic analysis, multi-lens comparison |
+| ethnographic-generalization | Analysis | Moving from confirmed findings to the broader claim they can support: kinds of generalization, emic-to-etic translation, disconfirmation and rivals, scope conditions, confidence calibration, the claim record |
 | digital-computational-methods | Data Collection & Analysis | Digital ethnography and netnography design, platform ethics, computational text methods (topic modeling, NER, text networks), AI-collaboration design |
 | grant-proposal | Funding | NSF CA-DDRIG, Wenner-Gren, Fulbright, ERC, SSHRC, Wellcome funder-specific guidance |
 | paper-planning | Writing & Review | Working out what a paper argues before drafting: claim extraction, the paper's position against the existing conversation, argument sequencing |
@@ -35,7 +36,7 @@ markdown.
 | career-statements | Career | Research, teaching, and diversity statements; tenure narratives |
 | applied-practice | Applied Practice | Client deliverables for practicing anthropologists: SOWs, readouts, insight formulation, workshops, repositories, business translation without losing the anthropology |
 | teaching-materials | Career | Syllabi, lesson plans, assignments, rubrics, discussion guides |
-| tool-building | Building | Building your own research instruments: stating the outcome, sorting which steps a rule can settle and which need judgment, declaring what would count as correct, and keeping a decision record |
+| tool-building | Building | Building your own research instruments: stating the outcome, sorting which steps a rule can settle and which need judgment, declaring what would count as correct, and keeping a decision record. Also repairs a broken instrument: reproduction before patch, checks locked, each defect closed as a rule |
 
 ## Agents (autonomous, multi-step work across skills)
 

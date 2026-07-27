@@ -76,6 +76,41 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Claude Code Plugin
 
+### 1.15.0 — 2026-07-27
+- tool-building now covers the instrument that breaks after it shipped. New repair discipline
+  (references/repair-discipline.md): the repair's first artifact is a reproduction check that fails
+  on the broken instrument for the observed reason; a triage sorts assertion failures (defect) from
+  setup errors (the environment changed) from reproductions that pass (misdiagnosis, or the source
+  changed — a specification question for the researcher, not a patch); the repair loop refines on
+  movement and pivots on a repeated failure, bounded at three dead hypotheses before the question
+  returns to the researcher; checks stay locked during repair — weakening one to let a patch pass
+  is a specification change only the researcher makes; and every repaired defect closes as a
+  one-line class-level rule in the decision record, so a researcher's instruments stop repeating
+  each other's defects
+- The reproduction-first rule is inherited from software engineering practice (fail-to-pass
+  reproduction tests in automated program repair) and restated in research terms, per the library's
+  convention of crediting inherited techniques
+- Two new failure modes (patching before reproducing; repairing the code when the world changed),
+  a repair pressure scenario in the gate-holding evals, a repair routing prompt, and a repair
+  example on the tool-builder agent
+
+### 1.14.0 — 2026-07-27
+- Added the ethnographic-generalization skill (22nd): the move from confirmed findings to the
+  broader claim they can support. Covers the kinds of generalization (analytic, theoretical,
+  transferability, middle-range, case-to-case) and the within-case and extended-case pathways,
+  emic-to-etic translation with a what-is-lost column, disconfirmation logs and rival
+  explanations, comparison discipline for connected sites (diffusion / common context /
+  co-variation), scope conditions specific enough to fail, confidence calibration, and an
+  ethics-at-scale check before any claim ships. Produces a claim record that hands the claim
+  to paper-planning as the candidate thesis
+- The skill adopts the Friction by Design conventions at Tier 1: what a case is a case of, the
+  kind of generalization, the scope conditions, and the confidence level are gated as the
+  researcher's decisions; the machine assembles evidence, drafts candidates, and keeps the record
+- analysis-advisor now carries the generalization arc as the analysis lifecycle's exit:
+  new draw-on entry, a process step for dispatching the skill, and a fourth routing example
+- qualitative-analysis (theme confirmation) and paper-planning (Phase 1) carry body-level
+  handoffs to the new skill in both directions
+
 ### 1.13.0 — 2026-07-27
 - digital-computational-methods now hands network-analysis execution to the
   gephi-network-analysis companion plugin when it is installed — text-network construction,
