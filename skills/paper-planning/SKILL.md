@@ -120,6 +120,12 @@ somewhere in the material.
 Do not proceed to Phase 3 until a claim exists that the author is willing to be
 wrong about.
 
+Where the sticking point turns out to be what the fieldwork licenses beyond
+the case — the kind of generalization being attempted and its scope
+conditions, rather than what this paper argues — that is the
+ethnographic-generalization skill's work. Route there, and return with the
+claim record's claim as the candidate thesis.
+
 ### Step 3: Literature, Routed Out
 
 Phase 1 will surface literature work: sources to find, a body of work to

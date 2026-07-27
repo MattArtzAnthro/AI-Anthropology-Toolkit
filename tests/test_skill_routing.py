@@ -1,7 +1,7 @@
 """Skill routing evals: descriptions must win the prompts they exist for.
 
 Skill activation is driven by the description field in each SKILL.md. With
-16 skills sharing anthropological vocabulary, two failure modes matter:
+this many skills sharing anthropological vocabulary, two failure modes matter:
 a description that no longer wins its own typical user prompts, and two
 descriptions drifting close enough to collide. Both are checked here
 deterministically (tf-idf cosine over description text — no model calls),
@@ -19,8 +19,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 SKILLS_DIR = REPO / "skills"
 
-# Two realistic user prompts per skill. Each must rank its own skill first
-# across all 16 descriptions.
+# Two or three realistic user prompts per skill. Each must rank its own
+# skill first across every description in the library.
 TRIGGER_PROMPTS = {
     "research-question": [
         "help me formulate my research question about migration and belonging",
@@ -107,6 +107,12 @@ TRIGGER_PROMPTS = {
         "help me build a scraper for the archive my fieldsite uses",
         "I want to make my own research tool but I have never written a spec",
         "walk me through specifying an MCP server before any code gets written",
+        "my scraper broke and I need to repair it without wrecking anything",
+    ],
+    "ethnographic-generalization": [
+        "can I generalize from one fieldsite to a broader insight",
+        "what kind of generalization can my ethnography support",
+        "help me set scope conditions and transferability for my findings",
     ],
 }
 

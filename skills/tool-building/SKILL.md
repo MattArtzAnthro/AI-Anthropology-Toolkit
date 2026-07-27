@@ -2,15 +2,16 @@
 name: tool-building
 description: >
   Use this skill when someone wants to build their own computational
-  instrument rather than select an approach for analyzing data. Triggers
-  include: "build a tool," "write a scraper," "make an MCP server,"
-  "create a skill," "I want to build," "help me spec this out," "I have
-  never written a specification," "vibe coding," "spec-driven
-  development," "the model wrote something I cannot verify," "how do I know
-  this pipeline is right." Covers stating what an instrument should make
-  possible, sorting which steps a rule can settle and which
-  require judgment, declaring what would count as correct, and leaving a
-  decision record for a methods appendix. Proceeds by questioning and writes nothing before a specification is ratified. Do NOT use for
+  instrument rather than select a method, or repair one that broke.
+  Triggers include: "build a tool," "write a scraper," "make an MCP
+  server," "create a skill," "I have never written a specification," "vibe
+  coding," "the model wrote something I cannot verify," "my scraper broke,"
+  "repair my instrument." Covers stating what an instrument should make
+  possible, sorting which steps a rule can settle and which require
+  judgment, declaring what would count as correct, leaving a decision
+  record for a methods appendix, and repairing one that breaks in use,
+  reproduction before patch. Proceeds by questioning and writes nothing
+  before a specification is ratified. Do NOT use for
   designing interview guides or observation protocols (use
   fieldwork-methods), choosing a computational or digital method (use
   digital-computational-methods), running codebooks and coding passes
@@ -50,6 +51,7 @@ form of the sections below is defined in [skills/DESIGN.md](../DESIGN.md).
 | The two verification modes, what each licenses, how to decide between them, and why checks are written and seen to fail before code exists | Read [references/verification-modes.md](references/verification-modes.md) |
 | The artifact family v1 supports, its conventions, the exact commands, what the checks cannot do | Read [references/profile-skills-agents.md](references/profile-skills-agents.md) |
 | Adding a data source or analysis stage to the MCP server, and the two gaps its checks leave | Read [references/profile-mcp.md](references/profile-mcp.md) |
+| Repairing an instrument that breaks in use: reproduction first, the triage, the repair loop, rules that compound | Read [references/repair-discipline.md](references/repair-discipline.md) |
 
 ## What This Skill Will and Will Not Do
 
@@ -237,6 +239,33 @@ decision record, including what the artifact returned rather than what was
 expected of it, because the gap between those two is the only part that
 constitutes learning.
 
+## When the Instrument Breaks
+
+A shipped instrument that fails re-enters the same discipline through a
+different door. Read
+[references/repair-discipline.md](references/repair-discipline.md) before
+touching anything, and hold its order even under fieldwork pressure —
+especially under fieldwork pressure, because repair is where every shortcut
+looks justified:
+
+1. **Reproduce first.** The repair's first artifact is a check that fails on
+   the broken instrument for the observed reason. No patch before it exists
+   and has been seen to fail. This is the builder's work, done unasked.
+2. **Triage the failure's reason.** An assertion failure means a defect; a
+   setup error means the environment changed; a reproduction that *passes*
+   means the failure is misdiagnosed or the world changed — and the last of
+   these is a specification question for the researcher, not a patch.
+3. **Refine or pivot, bounded.** Same failure twice means the hypothesis is
+   dead: record it, revert, take another approach. Three dead hypotheses
+   means the specification and reality have diverged — stop and ask.
+4. **Checks stay locked.** Weakening a check to let a patch pass is a
+   specification change only the researcher makes. The one writing the fix
+   is never the one redefining correct.
+5. **Close with a rule.** Each repaired defect ends as a one-line,
+   class-level rule in the decision record where it could recur elsewhere —
+   which is how a researcher's instruments stop repeating each other's
+   defects.
+
 ## Failure Modes
 
 **Everything classified as rule-following.** The fastest route through Stage 2 is
@@ -266,3 +295,15 @@ check quietly guards nothing. Write checks before code and run them red once;
 before trusting a finished suite, break each guarded thing deliberately and
 watch its check fire. A model that writes the implementation and its checks in
 one pass has graded its own work, and the grade is not evidence.
+
+**Patching before reproducing.** Under fieldwork pressure, the patch that
+fixes the failure in someone's head gets written first and verified against
+nothing. The reproduction check is not overhead on the repair; it is the only
+thing that makes "fixed" a claim rather than a hope, and it costs least at
+the start.
+
+**Repairing the code when the world changed.** Scrapers and pipelines break
+most often because their source changed, not because their code was wrong. A
+repair session that patches the instrument to chase a redesigned archive has
+quietly rewritten the specification without the researcher — the changed
+world is a specification question, and it goes back to them as one.

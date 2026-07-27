@@ -8,7 +8,8 @@ description: >
   to run the full arc from stated outcome through a ratified
   specification, implementation, verification, and a decision record fit
   for a methods appendix. Also use when someone has code a model wrote
-  for them and cannot tell whether it is right.
+  for them and cannot tell whether it is right, or when an instrument that
+  worked has broken and needs repair without loosening its checks.
 
   <example>
   Context: A researcher needs an instrument no shipped notebook covers.
@@ -34,6 +35,15 @@ description: >
   assistant: "I'll use the tool-builder agent, which reads skills/DESIGN.md as the governing conventions and treats the routing evals as the gate the new skill has to pass."
   <commentary>
   A toolkit artifact, where the conventions are written down and the tests can genuinely reject the work. The gate cannot judge whether the content is specific to the discipline, which stays with the contributor.
+  </commentary>
+  </example>
+
+  <example>
+  Context: A working instrument failed mid-project.
+  user: "My scraper ran fine for months and now it crashes on the new records. Can you just patch it?"
+  assistant: "I'll use the tool-builder agent, which starts a repair by reproducing the failure as a check that fails for the observed reason — then patches, with the existing checks locked."
+  <commentary>
+  Repair re-enters the build discipline. The triage matters: an assertion failure means a defect, a setup error means the environment changed, and a reproduction that passes means the source may have changed — which is a specification question for the researcher, not a patch.
   </commentary>
   </example>
 model: inherit

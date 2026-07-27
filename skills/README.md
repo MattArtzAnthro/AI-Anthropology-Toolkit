@@ -32,6 +32,7 @@ Skills are organized conceptually by research lifecycle phase. Each row is a sep
 | Ethics & Compliance | [Informed Consent Design](informed-consent/) | `informed-consent/` | Available |
 | Data Collection | [Fieldwork Methods & Data Collection](fieldwork-methods/) | `fieldwork-methods/` | Available |
 | Analysis | [Qualitative Analysis & Coding](qualitative-analysis/) | `qualitative-analysis/` | Available |
+| Analysis | [Ethnographic Generalization](ethnographic-generalization/) | `ethnographic-generalization/` | Available |
 | Data Collection & Analysis | [Digital & Computational Methods](digital-computational-methods/) | `digital-computational-methods/` | Available |
 | Writing | [Paper Planning](paper-planning/) | `paper-planning/` | Available |
 | Writing | [Research Writing](research-writing/) | `research-writing/` | Available |

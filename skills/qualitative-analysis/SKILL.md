@@ -207,6 +207,10 @@ work.
   nothing unresolved has usually been tidied rather than finished.
   **Assembled rather than authored:** which codes and theme drafts the
   machine proposed, as distinct from what the researcher decided.
+- When the researcher asks what the confirmed themes amount to beyond the
+  case — what kind of broader claim the fieldwork can support, and under
+  what conditions — hand off to the ethnographic-generalization skill,
+  which takes confirmed themes as its input.
 
 ## Parameters
 
