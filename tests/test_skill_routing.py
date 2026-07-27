@@ -103,6 +103,11 @@ TRIGGER_PROMPTS = {
         "I have all my material but I cannot tell what the paper argues",
         "what is my contribution and how should I order the argument",
     ],
+    "tool-building": [
+        "help me build a scraper for the archive my fieldsite uses",
+        "I want to make my own research tool but I have never written a spec",
+        "walk me through specifying an MCP server before any code gets written",
+    ],
 }
 
 STOPWORDS = frozenset(
@@ -189,6 +194,40 @@ class TestSkillRouting(unittest.TestCase):
                     sim, 0.55,
                     f"descriptions of {a} and {b} are converging "
                     f"(cosine {sim:.2f}) — routing between them is at risk")
+
+    def test_every_prompt_wins_by_a_margin(self):
+        """Winning is not enough; a one-vote win is a coin flip next release.
+
+        test_each_prompt_routes_to_its_own_skill checks rank, which is a
+        boolean over a population-relative metric: every added description
+        shifts every IDF weight, so a prompt can keep its rank while its
+        margin collapses. That is not hypothetical. The 20th skill pushed
+        applied-practice off its own prompt by 0.009, and the 21st arrived
+        holding two siblings' prompts by 0.036 and 0.047 while the suite
+        reported green.
+
+        MARGIN_FLOOR is a ratchet. The tightest margin in the corpus at the
+        time of writing was 0.007 (public-engagement vs
+        dissertation-prospectus), which is pre-existing and marginal. Lower
+        this constant only with a stated reason; raising it is free once the
+        weak pairs are repaired.
+        """
+        MARGIN_FLOOR = 0.005
+        thin = []
+        for skill, prompts in TRIGGER_PROMPTS.items():
+            for prompt in prompts:
+                ranked = self._rank(prompt)
+                margin = ranked[0][0] - ranked[1][0]
+                if margin < MARGIN_FLOOR:
+                    thin.append(
+                        (margin, f"{margin:+.4f}  {skill} holds its own prompt "
+                                 f"over {ranked[1][1]} by almost nothing: "
+                                 f"{prompt!r}"))
+        self.assertEqual(
+            [], [m for m, _ in thin],
+            "margins below the floor; repair the weaker description, which is "
+            "usually not the newest one:\n"
+            + "\n".join(msg for _, msg in sorted(thin)))
 
 
 if __name__ == "__main__":

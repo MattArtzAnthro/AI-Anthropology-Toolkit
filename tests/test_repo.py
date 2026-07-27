@@ -28,6 +28,14 @@ ALLOWED_MODEL_IDS = {
 
 VALID_AGENT_COLORS = {"blue", "cyan", "green", "yellow", "magenta", "red"}
 
+# Tool names that may appear in an agent's `tools` or a command's
+# `allowed-tools`. A typo silently disables the capability rather than
+# erroring, so the vocabulary is closed on purpose.
+KNOWN_TOOLS = {
+    "Skill", "Read", "Write", "Edit", "Grep", "Glob", "Bash",
+    "WebFetch", "WebSearch", "AskUserQuestion", "TodoWrite", "NotebookEdit",
+}
+
 SECRET_PATTERNS = [
     r"sk-ant-[A-Za-z0-9_-]{10,}",
     r"sk-[A-Za-z0-9]{40,}",
@@ -94,6 +102,10 @@ def agent_files():
     return sorted(AGENTS_DIR.glob("*.md"))
 
 
+def command_files():
+    return sorted(COMMANDS_DIR.glob("*.md"))
+
+
 def notebook_files():
     return sorted(NOTEBOOKS_DIR.glob("*.ipynb"))
 
@@ -130,6 +142,32 @@ class TestSkills(unittest.TestCase):
                     name, known,
                     f"{d.name}/SKILL.md references nonexistent skill '{name}'",
                 )
+
+    def test_routing_clauses_name_real_skills(self):
+        """A "Do NOT use ... (use other-skill)" clause must name a real skill.
+
+        test_no_references_to_nonexistent_skills only sees the phrasing
+        "`x-y` skill", so it cannot see the routing clauses, which say
+        "(use x-y)" instead. That left 19 sibling references across 6
+        descriptions unguarded: a rename or a typo would silently point a user
+        at nothing, and the routing clause is where a wrong name does the most
+        damage, because it is the instruction that sends them elsewhere.
+
+        The "use" anchor is required rather than checking every kebab-case
+        token: 28 tokens in these descriptions are hyphenated words rather than
+        skill names, so a blanket check would report de-identification and
+        co-occurrence as missing skills.
+        """
+        known = skill_names()
+        pattern = re.compile(
+            r"\buse\s+(?:the\s+)?`?([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`?")
+        for d in skill_dirs():
+            fields, _ = parse_frontmatter(d / "SKILL.md")
+            for name in pattern.findall(fields.get("description", "")):
+                self.assertIn(
+                    name, known,
+                    f"{d.name}: routing clause sends the user to '{name}', "
+                    f"which is not a skill in this library")
 
     def test_reference_files_all_mentioned(self):
         for d in skill_dirs():
@@ -223,6 +261,29 @@ class TestAgents(unittest.TestCase):
             fields, _ = parse_frontmatter(f)
             self.assertIn("<example>", fields.get("description", ""), f"{f.name}: no <example> blocks")
 
+    def test_agent_tool_names_are_real(self):
+        for f in agent_files():
+            fields, _ = parse_frontmatter(f)
+            for tool in parse_tools_field(fields.get("tools")):
+                self.assertIn(tool, KNOWN_TOOLS,
+                              f"{f.stem}: '{tool}' is not a known tool name")
+
+    def test_write_capable_agents_can_also_read_and_run(self):
+        """An agent that writes files but cannot read them is broken.
+
+        tool-builder is the first agent here that produces files. Write
+        without Read means it cannot inspect what it is editing, and without
+        Bash it cannot run the gates it exists to run.
+        """
+        for f in agent_files():
+            fields, _ = parse_frontmatter(f)
+            tools = set(parse_tools_field(fields.get("tools")))
+            if {"Write", "Edit"} & tools:
+                self.assertIn("Read", tools,
+                              f"{f.stem}: writes files but cannot Read them")
+                self.assertIn("Bash", tools,
+                              f"{f.stem}: writes files but cannot run checks")
+
     def test_agents_carry_skill_tool(self):
         """Agents orchestrate skills, so each must be able to invoke them."""
         for f in agent_files():
@@ -273,6 +334,59 @@ class TestAgents(unittest.TestCase):
                 owned.add(a or b)
         missing = skill_names() - owned
         self.assertFalse(missing, f"skills not claimed by any agent: {sorted(missing)}")
+
+
+class TestAllCommands(unittest.TestCase):
+    """Structural checks every command must pass.
+
+    TestCommand below is specific to new-project. These apply to all of them,
+    because a command added without them is unvalidated: build-tool shipped
+    with no structural coverage at all until this class existed.
+    """
+
+    def test_frontmatter_complete(self):
+        for f in command_files():
+            fields, body = parse_frontmatter(f)
+            self.assertEqual(fields.get("name"), f.stem,
+                             f"{f.name}: name/filename mismatch")
+            self.assertTrue(fields.get("description"),
+                            f"{f.name}: missing description")
+            self.assertTrue(body.strip(), f"{f.name}: empty body")
+
+    def test_declared_tools_include_skill(self):
+        """A command that declares tools is dispatching work, so it needs Skill.
+
+        Commands that declare no tools are display-only; `skills` prints a
+        catalog from its own body and correctly asks for nothing. Whether a
+        given command ought to declare tools at all is a judgment about what it
+        is for, and no rule here can settle it, so the check applies only to
+        commands that have already declared.
+        """
+        for f in command_files():
+            fields, _ = parse_frontmatter(f)
+            declared = parse_tools_field(fields.get("allowed-tools"))
+            if not declared:
+                continue
+            self.assertIn("Skill", declared,
+                          f"{f.stem}: declares tools but not Skill")
+
+    def test_tool_names_are_real(self):
+        for f in command_files():
+            fields, _ = parse_frontmatter(f)
+            for tool in parse_tools_field(fields.get("allowed-tools")):
+                self.assertIn(tool, KNOWN_TOOLS,
+                              f"{f.stem}: '{tool}' is not a known tool name")
+
+    def test_references_real_skills(self):
+        known = skill_names()
+        pattern = re.compile(r"`?([a-z][a-z0-9]*(?:-[a-z0-9]+)+)`?\s+skills?\b")
+        for f in command_files():
+            _, body = parse_frontmatter(f)
+            for match in pattern.finditer(body):
+                self.assertIn(
+                    match.group(1), known,
+                    f"{f.stem} references nonexistent skill "
+                    f"'{match.group(1)}'")
 
 
 class TestCommand(unittest.TestCase):

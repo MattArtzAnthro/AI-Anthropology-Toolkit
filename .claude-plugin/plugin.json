@@ -1,13 +1,18 @@
 {
   "name": "ai-anthropology",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "mcpServers": "./.mcp.json",
-  "description": "Skills and agents for anthropological research across the full research lifecycle — from question formulation through publication and career advancement",
+  "description": "Skills and agents for anthropological research across the full research lifecycle \u2014 from question formulation through publication and career advancement",
   "author": {
     "name": "Matt Artz",
     "url": "https://github.com/MattArtzAnthro"
   },
   "repository": "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit",
   "license": "PolyForm-Noncommercial-1.0.0",
-  "keywords": ["anthropology", "qualitative-research", "ethnography", "academic-writing"]
+  "keywords": [
+    "anthropology",
+    "qualitative-research",
+    "ethnography",
+    "academic-writing"
+  ]
 }
