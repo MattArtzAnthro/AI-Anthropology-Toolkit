@@ -75,10 +75,17 @@ parts were authored and which were assembled.
 ## Calibrating the Depth
 
 Friction should be proportional to what the researcher could plausibly get
-wrong, not applied at uniform depth to everyone. Ask once, at the start:
+wrong, not applied at uniform depth to everyone. Ask once, at the start, as a
+single-select question with these two options and no others:
 
-> "Do you want a full pass, where I stop at each decision, or an advisory pass,
-> where I raise what I see and you take what is useful?"
+| Option | Description to offer |
+|---|---|
+| Full pass | Every stage completes before the next begins. Best for a first instrument, an unfamiliar artifact type, or a build you know is underspecified |
+| Advisory pass | I raise what applies and you direct. The sort is still a hard gate; the rest of the ceremony is skipped |
+
+Phrase the question itself as: "Do you want a full pass, where I stop at each
+decision, or an advisory pass, where I raise what I see and you take what is
+useful?"
 
 **Full pass.** For a first instrument, an unfamiliar artifact type, or a build
 the researcher knows is underspecified. Every stage completes before the next
@@ -154,6 +161,13 @@ to report about itself.
 **Stage 2. Sort the steps. Gate.** As above. The researcher classifies. This
 skill may propose a classification and may not settle one.
 
+Put it to them as a table of the decomposed steps with a proposed classification
+and a reason for each, then ask one single-select question: whether the
+classification is right as proposed, or whether a step needs moving. Do not ask
+step by step; a decomposition of nine steps becomes nine questions and the
+researcher stops reading. Do not offer "you decide" as an option, because that is
+the one answer this gate exists to refuse.
+
 **Stage 3. Elicit the specification.** One high-leverage question at a time,
 covering the outcome, what is in and out of scope, the constraints, prior
 decisions the artifact must respect, and what would count as correct.
@@ -179,8 +193,12 @@ weakest step.
 
 **Stage 5. Check that the specification was read, then ratify. Gate.** A
 specification that could have been written without looking at the researcher's
-actual materials has not been written for them. Confirm the outcome, what is out
-of scope, and the sort. No code exists before this.
+actual materials has not been written for them. No code exists before this.
+
+Show the outcome, the scope-out list, and the sort, on one screen. Then ask one
+single-select question with exactly these options: ratify and begin, or revise
+first and say what. Not a document review, and not a request for approval of
+something they cannot see.
 
 **Stage 6. Implement from the specification.** Working from the ratified
 specification rather than from the conversation that produced it.
