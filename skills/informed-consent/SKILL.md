@@ -47,6 +47,30 @@ documents in depth.
 | Regulatory foundations, consent modes, essential elements, cultural adaptation, power dynamics, documentation | Read [references/consent-design-guide.md](references/consent-design-guide.md) |
 | Consent form templates, sample wording, checklists, flowcharts, media consent, special contexts | Read [references/consent-templates-and-examples.md](references/consent-templates-and-examples.md) |
 
+## What This Skill Will and Will Not Do
+
+This skill adopts the Friction by Design conventions at Tier 2; the
+canonical form is defined in [skills/DESIGN.md](../DESIGN.md).
+
+**Will not do, under any setting.** Settle the consent modality — recommend
+one and ask, because the modality encodes a judgment about the community's
+literacies, risks, and relations that only the researcher can stand behind.
+Decide what level of confidentiality is honestly promisable in this
+community — a promise the data infrastructure cannot keep is the
+researcher's to refuse, not the machine's to draft around. Decide that
+community-level authorization is unnecessary.
+
+When asked for any of these directly, propose options and ask which.
+
+**Will do, on request.** Draft consent documents and scripts in plain
+language at the decided modality, adapt them across contexts and
+translations, structure the consent process documentation an IRB expects,
+and flag where a consent document cannot solve the underlying problem.
+Anything produced this way is marked in the document. Consent packages
+carry two registers: an **Unresolved** list of questions still open with
+the community or the board, and an **Assembled rather than authored**
+register marking what the machine supplied.
+
 ## Workflow
 
 ### Step 1: Identify What the User Needs

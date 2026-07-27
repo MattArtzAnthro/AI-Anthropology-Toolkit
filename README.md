@@ -20,7 +20,7 @@ AI Anthropology is the integrated practice of studying, using, and shaping AI ([
 - **Anthropology by AI** — using AI and computational methods to extend ethnographic research while preserving interpretive judgment
 - **Anthropology for AI** — bringing anthropological insight to the design, building, and governance of AI systems
 
-This toolkit primarily operationalizes anthropology **by** AI — scaling qualitative research while keeping the researcher's interpretive authority at the center — and is itself an act of anthropology **for** AI: purpose-built research infrastructure designed with anthropological sensibilities. The toolkit is presented as a demonstration of multi-agent ethnography in [A Call for an AI Anthropology](https://doi.org/10.1111/gena.70007) (*General Anthropology*) and [Multi-Agent Ethnography: Post-Conventional Anthropological Practice Through Human-AI Collaboration](https://doi.org/10.1080/00664677.2026.2614501) (*Anthropological Forum*).
+This toolkit primarily operationalizes anthropology **by** AI — scaling qualitative research while keeping the researcher's interpretive authority at the center — and is itself an act of anthropology **for** AI: purpose-built research infrastructure designed with anthropological sensibilities. Its governing design philosophy is **friction by design**: divergence between machine readings is sustained as data rather than resolved as noise, and the interaction itself withholds production wherever a judgment is not the machine's to make (see `skills/DESIGN.md`). The toolkit is presented as a demonstration of multi-agent ethnography in [A Call for an AI Anthropology](https://doi.org/10.1111/gena.70007) (*General Anthropology*) and [Multi-Agent Ethnography: Post-Conventional Anthropological Practice Through Human-AI Collaboration](https://doi.org/10.1080/00664677.2026.2614501) (*Anthropological Forum*).
 
 ## Notebooks
 
@@ -116,7 +116,7 @@ cp -r AI-Anthropology-Toolkit/skills/qualitative-analysis AI-Anthropology-Toolki
 
 | Agent | Skills directory |
 |:------|:-----------------|
-| Claude Code | `~/.claude/skills/` (or install the plugin — all 20 at once) |
+| Claude Code | `~/.claude/skills/` (or install the plugin — all 21 at once) |
 | OpenAI Codex CLI | `~/.codex/skills/` |
 | Cursor | `~/.cursor/skills/` |
 | GitHub Copilot / VS Code | `~/.copilot/skills/` |

@@ -33,6 +33,7 @@ Skills are organized conceptually by research lifecycle phase. Each row is a sep
 | Data Collection | [Fieldwork Methods & Data Collection](fieldwork-methods/) | `fieldwork-methods/` | Available |
 | Analysis | [Qualitative Analysis & Coding](qualitative-analysis/) | `qualitative-analysis/` | Available |
 | Data Collection & Analysis | [Digital & Computational Methods](digital-computational-methods/) | `digital-computational-methods/` | Available |
+| Writing | [Paper Planning](paper-planning/) | `paper-planning/` | Available |
 | Writing | [Research Writing](research-writing/) | `research-writing/` | Available |
 | Peer Review | [Academic Review & Manuscript Evaluation](academic-review/) | `academic-review/` | Available |
 | Conferences & Presentations | [Conference Materials & Presentations](conference-materials/) | `conference-materials/` | Available |
@@ -41,6 +42,7 @@ Skills are organized conceptually by research lifecycle phase. Each row is a sep
 | Career | [Career Statements](career-statements/) | `career-statements/` | Available |
 | Applied Practice | [Applied Practice & Client Deliverables](applied-practice/) | `applied-practice/` | Available |
 | Career | [Job Application Materials](job-materials/) | `job-materials/` | Available |
+| Building | [Tool Building](tool-building/) | `tool-building/` | Available |
 
 ## Installation
 

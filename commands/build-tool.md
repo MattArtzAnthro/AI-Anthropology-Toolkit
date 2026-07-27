@@ -49,6 +49,8 @@ or an advisory pass, where I raise what I see and you take what is useful?"
 
 An advisory pass skips the ceremony. It does not skip the sort, and it records
 what it did not ask, so a lighter pass leaves a trace rather than a silence.
+This block echoes the depth-calibration element of the Friction by Design
+conventions in `skills/DESIGN.md`; that file carries the canonical form.
 
 ## Ask where things go
 

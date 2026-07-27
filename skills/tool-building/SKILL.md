@@ -38,6 +38,9 @@ comes from familiarity with how something behaves over time. What it can do is
 sustain the conditions under which that familiarity is worth having, and leave a
 record by which the researcher and their readers can judge.
 
+This skill adopts the Friction by Design conventions at Tier 1; the canonical
+form of the sections below is defined in [skills/DESIGN.md](../DESIGN.md).
+
 ## Quick Reference
 
 | Task | Reference |

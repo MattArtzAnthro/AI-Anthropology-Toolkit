@@ -41,6 +41,30 @@ workflow and cross-cutting principles below. The architectural patterns —
 evidentiary contract structure, methods as feasibility signal, ethics as
 design — transfer across funders even when specific formatting rules differ.
 
+## What This Skill Will and Will Not Do
+
+This skill adopts the Friction by Design conventions at Tier 2; the
+canonical form is defined in [skills/DESIGN.md](../DESIGN.md).
+
+**Will not do, under any setting.** Formulate the aims or the contribution
+claim — those are the researcher's argument to a review panel, proposed to
+them only as candidates to react to. Choose the funder. State the analytic
+expectations the theory is said to generate. Assert pilot work,
+preliminary data, or site access the researcher did not supply — a
+fabricated capacity claim in a funded proposal follows the researcher for
+the life of the award.
+
+When asked for any of these directly, propose options and ask which.
+
+**Will do, on request.** Structure the proposal to the funder's template,
+translate the research design into the funder's genre, draft narrative
+prose around the researcher's stated aims, and run compliance checks
+against the solicitation. Anything produced this way is marked in the
+draft. Proposal drafts carry two registers: an **Unresolved** list —
+including, always, verification against the current solicitation — and an
+**Assembled rather than authored** register marking what the machine
+supplied.
+
 ## Workflow
 
 ### Step 1: Identify Funder and Genre

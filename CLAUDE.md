@@ -40,6 +40,7 @@ AI-Anthropology-Toolkit/
 - Agent descriptions include `<example>` blocks with `<commentary>`
 - All content is anthropology-specific, not generic academic advice
 - Epistemic stance (interpretivist, critical, STS, feminist, applied, etc.) is treated as a first-class design parameter
+- Friction by Design governs researcher-machine interaction: skills adopt the conventions at tiers declared in `skills/DESIGN.md`, enforced structurally by `tests/test_repo.py`
 
 ## Research Lifecycle Phases
 

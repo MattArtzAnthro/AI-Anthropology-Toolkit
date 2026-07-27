@@ -52,6 +52,34 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Claude Code Plugin
 
+### 1.11.0 — 2026-07-27
+- Named Friction by Design as the toolkit's governing design philosophy in skills/DESIGN.md, with
+  two layers: analytic friction (divergence between machine readings sustained as data, the sense
+  operationalized in the analysis pipeline; slowing reasoning with machine friction remains Madsen,
+  Munk, and Søltoft's documented technique) and interactional friction (gates and questions that
+  withhold production where a judgment is not the machine's to make)
+- The interactional layer generalizes the framework the paper-planning and tool-building skills
+  already carried: a declared division of labour, depth calibrated once per engagement, questioning
+  over production, record registers (an Unresolved list and an Assembled-rather-than-authored
+  register), and failure modes aimed at the method itself
+- Adoption is tiered because the framework's own proportionality rule forbids uniform depth: six
+  skills adopt the full framework (the two carriers plus research-question, methodology-selection,
+  qualitative-analysis, and academic-review), twelve adopt the division of labour and record
+  registers, and three adopt nothing, with each assignment and its reason recorded in the DESIGN.md
+  adoption table
+- Tier 1 skills gate their core judgments: codebook ratification and theme confirmation in
+  qualitative-analysis; stance, claim envelope, high-tension resolution, and method-system
+  ratification in methodology-selection; the recommendation and the concede-or-contest triage in
+  academic-review, which also gains a conditional confidentiality stage that fires when someone
+  else's unpublished manuscript would enter the session; research-question keeps its
+  draft-and-react method as a declared variance, with adoption of the question as its hard gate
+- research-writing and conference-materials now route unsettled arguments to paper-planning
+  instead of developing them in-house, so the planning gate cannot be bypassed from a neighboring
+  skill; research-design, analysis-advisor, and writing-advisor honor the new gates
+- tests/test_repo.py gains TestFrictionConvention: adoption declarations, the DESIGN.md tier
+  table, and the required sections must agree in both directions, with Tier 3 checked for absence
+  of ceremony; every check was mutation-tested against a deliberately broken copy before shipping
+
 ### 1.10.0 — 2026-07-26
 - Added the tool-building skill (21st skill), the tool-builder agent (9th agent), and the
   /ai-anthropology:build-tool command: specification, verification, and provenance discipline for

@@ -42,6 +42,29 @@ its own narrative logics, and its own standards of evidence presentation.
 | Community reports, return-of-results, reciprocity documents | Read [references/community-engagement-guide.md](references/community-engagement-guide.md) |
 | Podcast, radio, media interviews, talking points | Read [references/media-preparation-guide.md](references/media-preparation-guide.md) |
 
+## What This Skill Will and Will Not Do
+
+This skill adopts the Friction by Design conventions at Tier 2; the
+canonical form is defined in [skills/DESIGN.md](../DESIGN.md).
+
+**Will not do, under any setting.** Decide the op-ed's position or take —
+public words appear under the scholar's byline, and the take is theirs to
+choose from candidates. Decide what falls within consent scope for public
+dissemination — verify with the researcher, defaulting restrictive, because
+participants consented to research, not to publicity. Choose the advocacy
+stance — advocacy is the scholar's deliberate choice, never a drafting
+default.
+
+When asked for any of these directly, propose options and ask which.
+
+**Will do, on request.** Translate research for public genres without
+oversimplifying, draft around the take the scholar has chosen, adapt
+register across outlets, and prepare pitch and interview apparatus.
+Anything produced this way is marked in the draft. Public-facing drafts
+carry two registers: an **Unresolved** list — including any consent-scope
+question not yet verified — and an **Assembled rather than authored**
+register marking what the machine supplied.
+
 ## Workflow
 
 ### Step 1: Identify What the User Needs

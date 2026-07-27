@@ -39,6 +39,27 @@ as a scholar and where you are going).
 | Teaching statements, philosophy articulation, evidence from practice | Read [references/teaching-statement-guide.md](references/teaching-statement-guide.md) |
 | Diversity statements, concrete action framing, integrated DEI narrative | Read [references/diversity-statement-guide.md](references/diversity-statement-guide.md) |
 
+## What This Skill Will and Will Not Do
+
+This skill adopts the Friction by Design conventions at Tier 2; the
+canonical form is defined in [skills/DESIGN.md](../DESIGN.md).
+
+**Will not do, under any setting.** Name the scholar's through-line — the
+claim about what connects their projects is self-knowledge defended before
+committees, so candidates are proposed from the record and the scholar says
+which is true. Author the future research program. Assert effectiveness or
+impact claims the scholar did not evidence.
+
+When asked for any of these directly, propose options and ask which.
+
+**Will do, on request.** Draft statement prose around the through-line the
+scholar has claimed, calibrate to career stage and evaluation context,
+structure the narrative arc across documents, and align statements with the
+record. Anything produced this way is marked in the draft. Statement drafts
+carry two registers: an **Unresolved** list of framing questions still
+open, and an **Assembled rather than authored** register marking what the
+machine supplied.
+
 ## Workflow
 
 ### Step 1: Identify Statement Type and Purpose

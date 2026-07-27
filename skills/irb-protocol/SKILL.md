@@ -41,6 +41,30 @@ contingency plans for fieldwork changes).
 | Protocol template, checklist, regulatory foundations, comparative guidance | Read [references/irb-protocol-guide.md](references/irb-protocol-guide.md) |
 | Method-specific guidance, consent templates, sample language, annotated excerpts | Read [references/irb-templates-and-examples.md](references/irb-templates-and-examples.md) |
 
+## What This Skill Will and Will Not Do
+
+This skill adopts the Friction by Design conventions at Tier 2; the
+canonical form is defined in [skills/DESIGN.md](../DESIGN.md).
+
+**Will not do, under any setting.** Classify the project's risk level on
+the researcher's behalf — the classification is proposed with its
+reasoning, and the researcher who signs the protocol adopts it. Decide the
+review-pathway strategy. Draw the line between approved flexibility and
+amendment triggers — that line is what the researcher answers for when
+fieldwork shifts. A protocol is a regulated document under the researcher's
+signature, and its commitments must be theirs.
+
+When asked for any of these directly, propose options and ask which.
+
+**Will do, on request.** Draft protocol narrative sections that translate
+ethnographic practice into board language, structure the application to the
+institution's template, assemble the data security and consent apparatus
+from decisions made, and anticipate likely board questions. Anything
+produced this way is marked in the draft. Protocol drafts carry two
+registers: an **Unresolved** list of questions still open before
+submission, and an **Assembled rather than authored** register marking what
+the machine supplied.
+
 ## Workflow
 
 ### Step 1: Identify What the User Needs

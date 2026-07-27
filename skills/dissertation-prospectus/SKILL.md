@@ -34,6 +34,28 @@ and an ethics dossier without full rewrites.
 | Wenner-Gren-specific requirements (if dual-purpose) | Invoke the grant-proposal skill and read its Wenner-Gren guide (wenner-gren.md) |
 | Fulbright-specific requirements (if dual-purpose) | Invoke the grant-proposal skill and read its Fulbright guide (fulbright.md) |
 
+## What This Skill Will and Will Not Do
+
+This skill adopts the Friction by Design conventions at Tier 2; the
+canonical form is defined in [skills/DESIGN.md](../DESIGN.md).
+
+**Will not do, under any setting.** Choose the theoretical positioning — a
+prospectus is defended orally, and a positioning the candidate did not
+choose collapses under the first committee question. Decide the Plan B
+methodology. Settle the primary and secondary stance combination. The
+prospectus document is this skill's work; the design commitments inside it
+are not.
+
+When asked for any of these directly, propose options and ask which.
+
+**Will do, on request.** Structure the document to the program's
+conventions, calibrate length and register to the milestone, draft section
+prose from decisions the candidate has made, and assemble the feasibility
+and timeline apparatus. Anything produced this way is marked in the
+document. Prospectuses carry two registers: an **Unresolved** list — which
+doubles as the agenda for the next committee meeting — and an **Assembled
+rather than authored** register marking what the machine supplied.
+
 ## Workflow
 
 ### Step 1: Identify What the User Needs

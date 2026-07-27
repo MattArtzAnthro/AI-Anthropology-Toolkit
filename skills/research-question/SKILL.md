@@ -20,6 +20,11 @@ Helps anthropologists formulate, evaluate, and iteratively refine research
 questions that are theoretically grounded, empirically tractable, ethically
 reflexive, and calibrated to their target genre and audience.
 
+This skill adopts the Friction by Design conventions at Tier 1, with a
+declared variance recorded in [skills/DESIGN.md](../DESIGN.md): it proceeds
+draft-and-react, so its calibrated default replaces the opening depth
+question.
+
 ## Quick Reference
 
 | Task | Reference |
@@ -27,6 +32,40 @@ reflexive, and calibrated to their target genre and audience.
 | Question grammar, templates, and subfield examples | Read [references/question-grammar.md](references/question-grammar.md) |
 | Evaluation rubric and stress-testing | Read [references/evaluation-rubric.md](references/evaluation-rubric.md) |
 | Genre-specific conventions (journals, proposals, grants) | Read [references/genre-conventions.md](references/genre-conventions.md) |
+
+## What This Skill Will and Will Not Do
+
+Drafting candidate questions is this skill's legitimate generative work —
+anthropologists think through writing, and a draft to react to beats an
+intake form. What the drafting never carries is the adoption.
+
+**Will not do, under any setting.** Declare which candidate question is the
+researcher's — the skill drafts candidates, and the researcher adopts one.
+Settle the primary stance by inference alone — inference is followed by
+confirmation. Certify a question as final without the researcher naming
+what would make it wrong in the field. Decide what the project is really
+about when drafts diverge. The question governs everything downstream —
+methods, consent, analysis, the dissertation's spine — and a question the
+researcher did not adopt is one they cannot defend at a proposal hearing.
+
+When asked for any of these directly, propose options and ask which. Do not
+decide, and do not lecture about why not.
+
+**Will do, on request.** Draft candidate questions and question sets from
+the five-slot grammar. Run the rubric and the scope-feasibility matrix and
+report candidly. Rework the weakest element. Format an adopted question set
+for any genre. Anything produced this way is marked in the output.
+
+## Calibrating the Depth
+
+Declared variance: this skill does not open with the depth question. Its
+calibrated default is the cap in Step 1 — at most two questions before
+producing a draft the researcher can react to — which is the advisory
+posture built in. A researcher who wants a full pass can say so at any
+point; the skill then probes one element per turn against the current
+draft, never returning to intake. In both modes, adoption is the hard gate:
+no question set leaves as final until the researcher has named which
+candidate is theirs and what would make it wrong.
 
 ## Workflow
 
@@ -145,6 +184,14 @@ Present the evaluated question set with:
 If the user wants to continue refining, return to Step 3 with updated context.
 Each iteration should visibly improve on the identified weakness.
 
+**Adoption is a gate.** Before a question set is treated as settled, the
+researcher names which candidate is theirs — adopted as drafted, or adopted
+with their own rewording — and what finding or field condition would make it
+wrong. A question set the researcher has not adopted is presented as
+candidates in every output, and carries its open items (an unconfirmed
+stance, an unresolved scope tension, a sub-question not yet mapped to
+evidence) as an unresolved list rather than silently dropping them.
+
 ### Step 6: Genre Formatting (if applicable)
 
 If the user needs the question set formatted for a specific output, read
@@ -245,6 +292,12 @@ are the everyday practices of X community?" needs a conceptual lever.
 **Overfit to one stance.** If the user's project sits at the intersection of two
 stances (e.g., feminist + STS), the question should reflect both, not default
 to one. Ask which is primary and which is secondary.
+
+**The interrogation that exhausts.** The two-question cap exists because
+questioning past the point of usefulness produces abandonment, and an
+abandoned question is worse than a rough one. When two consecutive probes
+produce no movement in the draft, stop and present what exists, with the
+open items named.
 
 ## Examples
 

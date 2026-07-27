@@ -28,6 +28,9 @@ epistemic stance (or analytical lens) governing the analysis shapes what the
 coder attends to. Treat AI assistance as a way to scale and systematize
 interpretation while keeping interpretive authority with the researcher.
 
+This skill adopts the Friction by Design conventions at Tier 1; the canonical
+form of the framework sections is defined in [skills/DESIGN.md](../DESIGN.md).
+
 ## Quick Reference
 
 | Task | Reference |
@@ -36,6 +39,51 @@ interpretation while keeping interpretive authority with the researcher.
 | Driving the pipeline through the ai-anthropology MCP tools (when available in the session) | Read [references/mcp-workflow-guide.md](references/mcp-workflow-guide.md) |
 | The toolkit's Colab notebooks (Semantic Chunker → Codebook Builder → Coding and Thematic Analysis) | Read [references/notebook-pipeline-guide.md](references/notebook-pipeline-guide.md) |
 | Canonical stance/lens list | See DESIGN.md (skills library root) |
+
+## What This Skill Will and Will Not Do
+
+Some of analysis is mechanical and some is interpretive judgment. The
+division is the point: the pipeline can scale coding across hundreds of
+segments precisely because the claims that govern it stay with the
+researcher.
+
+**Will not do, under any setting.** Choose which lens governs the analysis.
+Ratify a codebook — machine-generated codes enter the codebook in force only
+when the researcher ratifies them. Declare a theme confirmed, or decide what
+counts as significance in the data. Adjudicate friction between lenses —
+friction points are presented as findings, never resolved on the
+researcher's behalf. These are the interpretive claims that make the
+analysis the researcher's, and an analysis whose claims came from elsewhere
+is one they cannot defend to a committee or in review.
+
+When asked for any of these directly, propose options and ask which. Do not
+decide, and do not lecture about why not.
+
+**Will do, on request.** Draft candidate codes as five-part entries for
+ratification. Run coding passes against a ratified codebook and report code
+status. Compute frequencies, co-occurrences, and agreement scores. Assemble
+theme drafts from ratified codes for the researcher to confirm, revise, or
+reject. Format codebooks, coded data, and reports for export. Anything
+produced this way is marked in the output, so it stays visible later which
+claims the researcher authored and which the machine assembled.
+
+## Calibrating the Depth
+
+Friction should be proportional to what the researcher could plausibly get
+wrong, not applied at uniform depth to everyone. Ask once, at the start of
+the engagement — not again at each pipeline stage:
+
+**Full pass.** The skill stops at each interpretive gate: the lens choice,
+codebook ratification, and theme confirmation. For a first analysis, an
+unfamiliar lens, or data the researcher does not yet know well.
+
+**Advisory pass.** For a researcher who has coded before and knows their
+data. Raise what applies and let them direct. Codebook ratification remains
+a hard gate in both — an unratified codebook never governs a coding pass,
+because every downstream claim inherits its authority from that decision.
+
+Default to asking. Do not infer the setting from how confident someone
+sounds.
 
 ## Workflow
 
@@ -104,6 +152,10 @@ drift; codes without examples cannot be applied consistently.
   projects. Consolidate semantic near-duplicates before coding begins.
 - Version the codebook. Analysis decisions must be traceable to the codebook
   version in force when they were made.
+- **Ratification is a gate.** A machine-generated codebook is a proposal.
+  Present it as one table and ask one confirm-or-revise question before any
+  coding pass runs — not code by code, which produces a researcher who stops
+  reading, and not silently, which produces an analysis nobody decided.
 
 ### Step 4: Apply Codes
 
@@ -127,6 +179,10 @@ research question. For each theme, state: the claim, the constituent codes,
 representative evidence (verbatim quotes with source identifiers), and what
 the theme contributes to the argument.
 
+Themes are presented for confirmation, not announced. A theme draft the
+researcher has not confirmed, revised, or rejected stays a draft in every
+export.
+
 For multi-lens analysis, tag each theme by convergence: **convergent**
 (appears across lenses), **lens-specific** (visible only under one lens), or
 **friction** (lenses actively disagree about the same data). Friction points
@@ -142,6 +198,12 @@ work.
 - Export in the format the downstream workflow needs: tabular (CSV/Excel)
   for audit and co-analysis, QDPX for QDA software, structured summaries for
   writing. Every export must preserve segment-to-source traceability.
+- Theme reports carry two registers. **Unresolved:** questions raised during
+  analysis and not settled — thin evidence, unadjudicated friction points,
+  no-code segments not yet inspected. Keep the list; an analysis with
+  nothing unresolved has usually been tidied rather than finished.
+  **Assembled rather than authored:** which codes and theme drafts the
+  machine proposed, as distinct from what the researcher decided.
 
 ## Parameters
 
@@ -194,6 +256,12 @@ codes.
 **Coding to confirm.** Applying the codebook only where it fits and ignoring
 what it misses. The inductive pass and the no-code segments are where the
 data pushes back.
+
+**The gate that becomes a form.** A researcher who ratifies a forty-code
+codebook without reading it has not ratified anything, and the coding pass
+that follows carries no more authority than an unratified one. When
+ratification arrives instantly on a large codebook, ask which code they
+would delete — a researcher who cannot name one has not yet read it.
 
 ## Examples
 

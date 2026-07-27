@@ -26,7 +26,11 @@ Conventions:
   research-writing skill"); descriptions must never route to skills that do
   not exist in this library.
 - SKILL.md bodies follow a shared skeleton: Quick Reference → Workflow →
-  Parameters → Guardrails → Common Failure Modes → Examples.
+  Parameters → Guardrails → Common Failure Modes → Examples. Skills adopting
+  the Friction by Design conventions at Tier 1 insert What This Skill Will
+  and Will Not Do and Calibrating the Depth immediately after Quick
+  Reference; the remaining sections follow as usual (see Friction by Design,
+  below).
 - All content is anthropology-specific. If output could appear unchanged in a
   generic social science methods textbook, it fails the library's bar.
 
@@ -49,6 +53,135 @@ phase:
 - **Risk posture** — low-risk, vulnerable populations, high-surveillance,
   politically sensitive; escalates consent, governance, and harm handling.
 - **Formality register** — working draft, committee-ready, publication-ready.
+
+## Friction by Design
+
+The toolkit's design philosophy: build deliberate resistance into AI-assisted
+research at the points where a researcher's judgment could otherwise be
+displaced. Placed well, friction is what keeps the researcher the author of
+the judgments that make the work theirs. The claim is placement, not
+quantity — three stops in the right places beat fifteen, and logistics
+(installing, invoking, re-running) are never where judgment lives.
+
+The philosophy has two layers.
+
+**Analytic friction.** Divergence between machine readings, and between
+machine readings and the researcher's own, sustained as data rather than
+resolved as noise: multiple analytical lenses run in parallel, disagreement
+surfaced as friction points, convergence tagged rather than assumed
+(Artz 2026c). It is operationalized in the analysis pipeline (cross-lens
+comparison, friction reports) and governed by the
+digital-computational-methods and qualitative-analysis skills. Slowing
+reasoning down with machine friction is a documented technique in its own
+right (Madsen, Munk, and Søltoft 2023); this library inherits that technique
+and does not rename it. Full citations live in
+`digital-computational-methods/references/relationship-framework.md`.
+
+**Interactional friction.** The same philosophy applied to the interaction
+between researcher and machine: gates and questions that withhold production
+where a judgment is not the machine's to make. It has five elements, each
+with a canonical form:
+
+1. **Division of labour.** A section headed
+   `## What This Skill Will and Will Not Do`, carrying two bolded lead-ins.
+   `**Will not do, under any setting.**` lists the judgments that belong to
+   the researcher, stated for that skill specifically, and closes with why:
+   an output whose judgments came from elsewhere is one the researcher
+   cannot defend. When asked for one of these directly, the skill proposes
+   options and asks which; it does not decide, and it does not lecture.
+   `**Will do, on request.**` lists the assembly work — formatting,
+   restating the researcher's own answers, listing what remains unresolved —
+   and anything produced this way is marked in the output.
+2. **Depth calibration.** A section headed `## Calibrating the Depth`: a
+   full pass, where the skill stops at each decision, or an advisory pass,
+   where it raises what it sees and the researcher directs. Asked once at
+   the start of an engagement, not once per skill activation when several
+   skills run inside one session. The depth setting is never inferred from
+   how confident someone sounds. Inferring and then confirming a substantive
+   parameter, such as epistemic stance, is a different act and remains
+   legitimate.
+3. **Questioning over production.** Where the researcher's judgment is the
+   deliverable, the skill proceeds by questioning rather than by producing:
+   one high-leverage question at a time. Two boundaries keep this honest.
+   Anti-batching applies to decisions, not facts — project facts (field
+   configuration, scale, access, resources) may be collected together;
+   batching decision questions is what turns a dialogue into a form.
+   Anti-atomizing forbids the reverse failure: one decision is one question,
+   and a classification is one table with one confirm-or-revise question,
+   not nine questions the researcher stops reading.
+4. **Record registers.** Output artifacts carry an Unresolved list, which
+   must not be tidied — an artifact with nothing unresolved after a full
+   pass has usually been tidied rather than finished — and an "Assembled
+   rather than authored" register marking what the machine supplied on
+   request as distinct from what the researcher decided. Several skills
+   already carry instances of this register under other names: the
+   AI-assistance disclosure in literature-review, the evidence-versus-
+   extrapolation marking in applied-practice, the provenance rules in
+   qualitative-analysis, the instrument-adaptation documentation in
+   fieldwork-methods. The register names and unifies existing practice.
+5. **Method-facing failure modes.** An adopting skill's failure modes
+   include failures of this framework itself, not only failures of the
+   output. The canonical three: the gate that becomes a form (people learn
+   which answers let a stage proceed); friction added to look rigorous
+   (quantity mistaken for placement); the interrogation that exhausts
+   (questioning past usefulness produces abandonment). Each skill carries
+   the ones that fit its work.
+
+One further rule: what the framework gates is the decision, not the
+conversation. Where a skill's method is
+draft-and-react — produce an artifact early and revise against reactions —
+the researcher's reaction to the artifact is an acceptable carrier of the
+decision, and the skill documents that as its calibrated default instead of
+asking the depth question. The variance is recorded in the adoption table
+below.
+
+### Proportionality
+
+Friction is proportional to what the researcher could plausibly get wrong,
+not applied at uniform depth to everyone. Uniform adoption would itself be
+the failure mode the framework names: a skill that formats a CV does not
+interrogate its user. Adoption is therefore tiered, and a tier of none is a
+legitimate assignment whose reason is recorded — friction not placed, and
+why, is part of the account.
+
+### Adoption tiers
+
+- **Tier 1 — full framework.** All five elements. For skills where the
+  researcher's substantive judgment is itself the deliverable.
+- **Tier 2 — division of labour and record registers.** Elements 1 and 4
+  only. For skills that produce documents from judgments largely already
+  made, where some judgments still leak to the machine. No depth ceremony,
+  no questioning protocol.
+- **Tier 3 — none.** Genre mechanics over a factual record. Existing
+  guardrails do the boundary work; added friction would be ceremony.
+
+A skill declares its adoption with one line in the SKILL.md body, in this
+form: "This skill adopts the Friction by Design conventions at Tier N."
+The declarations, the table below, and the structural tests must agree.
+
+| Skill | Tier | Reason, and any variance |
+|---|---|---|
+| tool-building | 1 | What an instrument is for, and what counts as correct, are the researcher's; the sort is an additional hard gate |
+| paper-planning | 1 | The claim, the position, and the sequence are the author's |
+| research-question | 1 | The question is the highest-leverage judgment in the lifecycle. Variance: proceeds draft-and-react; its two-question cap before producing a draft is its documented calibrated default, and full-pass probing runs against the drafted artifact |
+| methodology-selection | 1 | Method choice is an argument that must survive reviewers. Intake of project facts stays batched; judgment-bearing moments are gates |
+| qualitative-analysis | 1 | Machine judgment flows into findings by default through the pipeline; codebook ratification and theme confirmation are gates |
+| academic-review | 1 | A signed review is a non-delegable scholarly judgment |
+| research-plan | 2 | Assembles judgments made upstream; what constitutes a finding, and the positionality statement, stay with the researcher |
+| dissertation-prospectus | 2 | The committee document, not the design judgments, is the product; theoretical positioning stays with the researcher |
+| grant-proposal | 2 | Funder compliance and genre rhetoric are legitimately assembled; aims and the contribution claim are not |
+| fieldwork-methods | 2 | Instruments are corrected in piloting; sampling justification and observation domains stay with the researcher |
+| informed-consent | 2 | Consent drafting is template work; the modality choice and what confidentiality can honestly be promised are not |
+| irb-protocol | 2 | A regulated document the researcher signs; risk classification stays with the researcher |
+| literature-review | 2 | Search and matrices are procedure; inclusion criteria and the gap statement are the argument |
+| research-writing | 2 | Drafting prose from a decided argument is the work; the argument itself is gated in paper-planning |
+| digital-computational-methods | 2 | Register diagnosis is proposed and confirmed; sessions are short and consultative, so depth ceremony would be noise |
+| applied-practice | 2 | The interpretation is the product the client bought; the so-what and what to withhold stay with the researcher |
+| career-statements | 2 | The through-line is a self-knowledge judgment; the skill proposes candidates and asks which is true |
+| public-engagement | 2 | Public words appear under the scholar's byline; the take and the consent scope are the scholar's |
+| job-materials | 3 | Genre mechanics over a factual record; honesty and voice guardrails already do the boundary work |
+| conference-materials | 3 | Compressions of an argument decided elsewhere; limits and formats are rule-checkable |
+| teaching-materials | 3 | Instructor-corrected scaffolding; classroom iteration is the corrective loop |
 
 ## Canonical Epistemic Stances (42)
 
