@@ -9,14 +9,14 @@ AI-Anthropology-Toolkit/
 ├── .claude-plugin/plugin.json    # Plugin manifest (bundles the MCP server via .mcp.json)
 ├── .mcp.json                     # uvx registration for the bundled MCP server
 ├── AGENTS.md / GEMINI.md         # Instructions for non-Claude coding agents
-├── agents/                       # 8 research lifecycle agents
+├── agents/                       # 9 agents (8 lifecycle advisors + tool-builder)
 ├── commands/                     # Slash commands
 ├── notebooks/                    # 23 Colab notebooks (data collection + analysis)
 ├── pyproject.toml                # ai-anthropology-toolkit package (PyPI)
 ├── src/ai_anthro_toolkit/        # Package: datasources, analysis pipeline, MCP server, doctor
 ├── tests/                        # Repo validation + skill routing evals
 │   └── package/                  # Package behavior, consistency, and parity tests
-└── skills/                       # 20 research skills
+└── skills/                       # 21 research skills
     └── [skill-name]/
         ├── SKILL.md              # Skill definition (YAML frontmatter + instructions)
         └── references/           # Supporting reference files
@@ -24,11 +24,11 @@ AI-Anthropology-Toolkit/
 
 ## Components
 
-**Skills (20):** Auto-activated based on user context. Each has a `SKILL.md` with YAML frontmatter (`name`, `description`) and a `references/` directory with detailed guides. Shared conventions and the canonical stance list live in `skills/DESIGN.md`.
+**Skills (21):** Auto-activated based on user context. Each has a `SKILL.md` with YAML frontmatter (`name`, `description`) and a `references/` directory with detailed guides. Shared conventions and the canonical stance list live in `skills/DESIGN.md`.
 
-**Agents (8):** Phase-specific subagents covering research design, ethics, fieldwork, analysis, proposals, writing, dissemination, and career development. All use `model: inherit` and carry the `Skill` tool plus read-only file tools, invoking the plugin's skills by name.
+**Agents (9):** Eight phase-specific advisors covering research design, ethics, fieldwork, analysis, proposals, writing, dissemination, and career development, all carrying the `Skill` tool plus read-only file tools. The ninth, `tool-builder`, is the only agent that writes files: it runs the `tool-building` workflow, whose three gates stop for the researcher at the sort, at ratification of the specification, and at any verification finding that requires deciding what the artifact should do. All use `model: inherit`.
 
-**Commands (2):** `/ai-anthropology:new-project` — scaffolds a research project through guided lifecycle phases; `/ai-anthropology:skills` — lists the catalog of skills, agents, and commands.
+**Commands (3):** `/ai-anthropology:new-project` — scaffolds a research project through guided lifecycle phases; `/ai-anthropology:skills` — lists the catalog of skills, agents, and commands.
 
 **Tests:** `python3 -m unittest discover -s tests -t .` runs everything: `tests/test_repo.py` (plugin structure, notebook hygiene, documentation consistency), `tests/test_skill_routing.py` (deterministic routing evals — each skill description must win its typical prompts; description-collision ceiling), and `tests/package/` (package behavior, server consistency, notebook-prompt parity). CI runs two jobs on every push: `validate` (repo + routing suites, stdlib only) and `package` (installs the package with extras and runs `tests/package/`; live scraper tests are skipped there via `AAT_SKIP_LIVE_SCRAPERS` because datacenter IPs are the blocked class and can hang in library retry loops).
 

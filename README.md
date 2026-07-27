@@ -103,6 +103,7 @@ Research skills in the portable [SKILL.md format](https://agentskills.io) that a
 | career-statements | Research, teaching, and diversity statements; tenure narratives |
 | teaching-materials | Syllabi, lesson plans, assignments, rubrics, discussion guides |
 | applied-practice | Client engagements: statements of work, stakeholder readouts, insight synthesis, workshop facilitation, research repositories |
+| tool-building | Building your own research instruments: the outcome, which steps a rule can settle and which need judgment, what would count as correct, and a decision record for a methods appendix |
 
 ### Using the Skills in Other Agents
 
@@ -137,12 +138,14 @@ Autonomous Claude Code subagents that orchestrate across multiple skills for com
 | writing-advisor | Guides argument planning, article/chapter writing, and R&R management |
 | dissemination-advisor | Handles register translation between academic and public audiences |
 | career-advisor | Coordinates application packages and course design |
+| tool-builder | Builds a research instrument, or a skill, agent, or MCP tool for this toolkit. The only agent here that writes files |
 
 ## Commands
 
 | Command | Description |
 |:------|:------------|
 | `/ai-anthropology:new-project` | Scaffold a new research project through guided phases |
+| `/ai-anthropology:build-tool` | Build a research instrument, specification first |
 | `/ai-anthropology:skills` | List the toolkit's skills, agents, and commands |
 
 ## MCP Server

@@ -35,6 +35,7 @@ markdown.
 | career-statements | Career | Research, teaching, and diversity statements; tenure narratives |
 | applied-practice | Applied Practice | Client deliverables for practicing anthropologists: SOWs, readouts, insight formulation, workshops, repositories, business translation without losing the anthropology |
 | teaching-materials | Career | Syllabi, lesson plans, assignments, rubrics, discussion guides |
+| tool-building | Building | Building your own research instruments: stating the outcome, sorting which steps a rule can settle and which need judgment, declaring what would count as correct, and keeping a decision record |
 
 ## Agents (autonomous, multi-step work across skills)
 
@@ -48,10 +49,12 @@ markdown.
 | writing-advisor | Articles, chapters, and the peer review / R&R process |
 | dissemination-advisor | Conference materials and public-facing writing |
 | career-advisor | Application packages, career statements, course design |
+| tool-builder | Building a research instrument, or a skill, agent, or MCP tool for this toolkit. The only agent here that writes files |
 
 ## Commands
 
 - `/ai-anthropology:new-project` — scaffold a research project through guided lifecycle phases
+- `/ai-anthropology:build-tool` — build a research instrument, specification first
 - `/ai-anthropology:skills` — this catalog
 
 ## Guidance
