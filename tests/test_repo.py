@@ -322,6 +322,10 @@ class TestFrictionConvention(unittest.TestCase):
                     FRICTION_DEPTH_HEADING,
                     "**Full pass.**",
                     "**Advisory pass.**",
+                    # Canonical shared sentences: the trailing noun varies by
+                    # audience (someone/the author), the rule may not.
+                    "Default to asking. Do not infer the setting from how confident",
+                    "use it and do not re-ask",
                 ):
                     self.assertIn(
                         required, body,

@@ -103,6 +103,9 @@ classification, because misclassifying a step is the failure this whole practice
 exists to prevent. Record the mode in the decision record, and record what the
 mode did not ask, so a lighter pass leaves a trace rather than a silence.
 
+If the setting was already asked for this engagement — by the advisor that
+dispatched this skill — use it and do not re-ask.
+
 Default to asking. Do not infer the setting from how confident someone sounds.
 
 ## Sorting the Steps

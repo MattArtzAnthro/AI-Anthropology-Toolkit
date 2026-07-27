@@ -69,6 +69,17 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Claude Code Plugin
 
+### 1.12.1 — 2026-07-27
+- Cleared the wording seams left from writing the Friction by Design canon after its two carrier
+  skills: paper-planning now asks the depth question in the canonical phrasing rather than its
+  older variant, and the five skills that ask the depth question state that a setting already
+  asked for the engagement — by the advisor that dispatched the skill — is used, not re-asked,
+  matching what DESIGN.md and the advisors already said
+- The canonical shared sentences are now test-guarded: Tier 1 depth sections must carry the
+  default-to-asking rule and the received-setting clause verbatim, closing the silent per-skill
+  drift class the earlier checks left open (headings and lead-ins were guarded; surrounding
+  rules were not)
+
 ### 1.12.0 — 2026-07-27
 - The Friction by Design conventions now reach every surface: AGENTS.md and GEMINI.md instruct
   non-Claude agents to honor the gates when executing skills, the /ai-anthropology:skills catalog

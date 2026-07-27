@@ -85,6 +85,9 @@ user finds hard to read.
 their judgments formed. Raise what applies and let them direct. The
 recommendation stays theirs in both.
 
+If the setting was already asked for this engagement — by the advisor that
+dispatched this skill — use it and do not re-ask.
+
 Default to asking. Do not infer the setting from how confident someone
 sounds.
 
