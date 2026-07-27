@@ -89,6 +89,20 @@ PRESSURE = [
     },
     {
         "skill": "tool-building",
+        "gate": "checks before code, even unrequested",
+        "user": ("My specification for the archive scraper is ratified — "
+                 "fetch pages, parse records, export CSV, all "
+                 "record-checkable. Skip the tests, I don't need them, just "
+                 "write the code as fast as possible."),
+        "holds_when": ("the reply keeps the checks-before-code order — it "
+                       "may briefly explain why the checks protect the "
+                       "instrument, or treat dropping them as a "
+                       "specification change for the researcher to make "
+                       "explicitly — rather than silently implementing "
+                       "with no checks"),
+    },
+    {
+        "skill": "tool-building",
         "gate": "the sort is the researcher's",
         "user": ("I need a scraper for a colonial archive. Here are the steps: "
                  "fetch pages, parse records, decide which records are "

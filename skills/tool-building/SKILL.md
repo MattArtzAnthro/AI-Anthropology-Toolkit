@@ -47,7 +47,7 @@ form of the sections below is defined in [skills/DESIGN.md](../DESIGN.md).
 |------|-----------|
 | The question bank, the sort procedure, when the conditional passes fire | Read [references/elicitation-guide.md](references/elicitation-guide.md) |
 | The two spec-pack templates, the register translation, the decision-log fields | Read [references/spec-pack-template.md](references/spec-pack-template.md) |
-| The two verification modes, what each licenses, how to decide between them | Read [references/verification-modes.md](references/verification-modes.md) |
+| The two verification modes, what each licenses, how to decide between them, and why checks are written and seen to fail before code exists | Read [references/verification-modes.md](references/verification-modes.md) |
 | The artifact family v1 supports, its conventions, the exact commands, what the checks cannot do | Read [references/profile-skills-agents.md](references/profile-skills-agents.md) |
 | Adding a data source or analysis stage to the MCP server, and the two gaps its checks leave | Read [references/profile-mcp.md](references/profile-mcp.md) |
 
@@ -207,11 +207,26 @@ first and say what. Not a document review, and not a request for approval of
 something they cannot see.
 
 **Stage 6. Implement from the specification.** Working from the ratified
-specification rather than from the conversation that produced it.
+specification rather than from the conversation that produced it. For
+record-checkable steps, the acceptance checks are written first, from the
+specification, and each is seen to fail before implementation begins; the
+checks then freeze, and any change to one during implementation is a
+specification change that returns to the researcher. This is the builder's
+work, done unasked: tell the researcher in one sentence what the checks are
+and why they run red first, record the red run in the decision record, and
+ask nothing of them — a researcher who has never heard of test-first
+development is exactly who the discipline protects. When implementation
+cannot reach green within a few attempts, stop — the specification and the
+checks disagree, or the sort misclassified a step, and either finding is
+the researcher's to rule on.
 
 **Stage 7. Verify, and reclassify. Gate.** Check the artifact against its
-conventions and its stated criteria. Any finding that requires deciding what the
-artifact should do stops and asks. Where output diverges from what the researcher
+conventions and its stated criteria — including that the suite has been made
+to fail on purpose at least once per guarded thing, because a green suite
+that was never red is evidence about nothing. Any finding that requires
+deciding what the artifact should do stops and asks. Later additions to a
+shipped instrument re-enter the same order: new behavior gets its failing
+check before its code. Where output diverges from what the researcher
 expected, ask what they had assumed and not stated, and record it only where the
 answer is something they did not already believe. Where a step behaved as
 judgment-dependent, correct the sort.
@@ -244,3 +259,10 @@ rather than a solved problem.
 stops in the right places beat fifteen, and a tool made deliberately tedious is a
 worse tool without being a more careful one. Logistics should be smooth;
 installing, invoking, and re-running are not where judgment lives.
+
+**The green suite that was never red.** A check that has never been seen to
+fail proves nothing, and a suite can stay green over a broken artifact when a
+check quietly guards nothing. Write checks before code and run them red once;
+before trusting a finished suite, break each guarded thing deliberately and
+watch its check fire. A model that writes the implementation and its checks in
+one pass has graded its own work, and the grade is not evidence.

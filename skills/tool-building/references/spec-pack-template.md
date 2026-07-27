@@ -120,6 +120,17 @@ worth keeping even when the instrument is small.
 ### Gate 2, ratification
 ### Gate 3, verification findings
 
+## The red run
+Every check for a record-checkable step, with its observed first failure,
+dated before the implementation that satisfied it. The researcher does not
+write these and is not asked to review them; they are told once, plainly,
+that the checks exist and why — a check that has never failed proves
+nothing, so each is run red before code is written against it. Later
+additions to a shipped instrument re-enter here: new behavior, new failing
+check first. An empty section on an artifact with record-checkable steps
+means the order was not followed, and the record should say so rather than
+hide it.
+
 ## What the specification got wrong on its first pass
 How the error surfaced, and what changed. This section being empty on a first
 build is unusual rather than good.

@@ -213,6 +213,18 @@ class TestTemplateMatchesTheChecks(unittest.TestCase):
                          "reads these top to bottom and the load-bearing "
                          "items come first on purpose")
 
+    def test_template_requires_the_red_run(self):
+        # The decision record must carry the red run: checks listed with
+        # their observed first failure, before implementation. Without this
+        # section the checks-before-code order is unrecorded and therefore
+        # unenforceable after the fact.
+        text = TEMPLATE.read_text(encoding="utf-8")
+        self.assertIn("## The red run", text,
+                      "spec-pack-template.md lacks the red-run section")
+        self.assertIn("first failure", text,
+                      "red-run section does not require the observed "
+                      "first failure")
+
     def test_template_names_both_verification_modes(self):
         text = TEMPLATE.read_text(encoding="utf-8")
         for mode in sorted(VALID_MODES):
