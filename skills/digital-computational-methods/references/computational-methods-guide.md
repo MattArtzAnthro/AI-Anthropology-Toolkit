@@ -74,7 +74,10 @@ chunking prepare interview material.
   picture shows.
 - **Validation**: for any edge or cluster given analytic weight, read
   the passages that produced it.
-- Exports travel to Gephi (GEXF) for deeper network analysis.
+- Exports travel to Gephi (GEXF) for deeper network analysis; with the
+  gephi-network-analysis companion plugin installed, that analysis runs
+  in Gephi Desktop directly from the session (see Step 3 of the skill
+  for the handoff).
 
 ### Embedding Similarity
 

@@ -35,6 +35,7 @@ Anthropology," General Anthropology 33(1)).
 | Digital ethnography and netnography design, platform ethics | Read [references/digital-fieldwork-guide.md](references/digital-fieldwork-guide.md) |
 | Matching computational methods to corpus and question | Read [references/computational-methods-guide.md](references/computational-methods-guide.md) |
 | AI-collaborative analysis execution | Hand off to the qualitative-analysis skill |
+| Network analysis execution in Gephi | Hand off to the gephi-network-analysis plugin when installed (see Step 3) |
 
 ## What This Skill Will and Will Not Do
 
@@ -120,6 +121,26 @@ each.
   topic, the passages behind the network edge.
 - Report parameters and preprocessing: tokenization, thresholds, and
   model choices shape results and belong in the methods section.
+
+**Network analysis execution.** When the work moves from choosing a
+network method to executing one — building the network, running
+layouts, computing centrality or communities, or verifying a structural
+claim — check whether the
+[gephi-network-analysis](https://github.com/MattArtzAnthro/gephi-ai)
+companion plugin is installed (its skills appear under the
+`gephi-network-analysis:` prefix). If it is, hand off to it rather than
+improvising network analysis here: its text-network workflow builds
+co-occurrence networks from a corpus, analyze-network runs a structural
+read, and verify-claim checks a single structural assertion. The
+validation obligation travels with the handoff — an edge or cluster
+given analytic weight still sends the researcher back to the passages
+that produced it. If the plugin is not installed, say so and offer the
+install (`/plugin marketplace add MattArtzAnthro/gephi-ai`, then
+`/plugin install gephi-network-analysis@gephi-ai`; it requires Gephi
+Desktop), or fall back to the Text Network Analysis notebook and a GEXF
+export for manual work in Gephi. The advisor agents cannot run Gephi
+tools themselves; from inside an agent, recommend the handoff back to
+the main conversation.
 
 ### Step 4: Design AI Collaboration (collaborating with it)
 

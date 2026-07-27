@@ -6,6 +6,13 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
+### 3.1.0 — 2026-07-27
+- toolkit_info now carries a companion_plugins field listing tools the toolkit hands off to
+  rather than duplicating — first entry: gephi-network-analysis (network analysis in live Gephi
+  Desktop), with its capabilities, repository, and the fallback when it is absent — so an
+  orchestrating model can route network-analysis execution even in hosts where the companion's
+  own skills are not loaded
+
 ### 3.0.0 — 2026-07-27
 - BREAKING: start_coding_job now requires a ratification_id and refuses a codebook the researcher
   has not ratified. The gate implements the toolkit's Friction by Design conventions server-side:
@@ -68,6 +75,19 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.13.0 — 2026-07-27
+- digital-computational-methods now hands network-analysis execution to the
+  gephi-network-analysis companion plugin when it is installed — text-network construction,
+  layouts, centrality and communities, structural claim verification — and otherwise offers the
+  install or falls back to the Text Network Analysis notebook and a GEXF export. The handoff
+  lives in the skill body, not the description, so the companion keeps winning its own routing
+  triggers, and the validation obligation (read the passages behind any edge given analytic
+  weight) travels with it
+- skills/DESIGN.md records the cross-plugin handoff convention: body-level placement,
+  capabilities named rather than versions pinned, presence checked in the session, and a
+  fallback for when the companion is absent
+- README gains a Companion Plugins section
 
 ### 1.12.2 — 2026-07-27
 - The tool-building skill now carries the order of checks and code: for record-checkable steps,

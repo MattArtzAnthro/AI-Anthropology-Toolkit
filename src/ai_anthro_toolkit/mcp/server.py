@@ -134,6 +134,20 @@ def toolkit_info() -> dict:
                        "notebook for researchers who want to run, inspect, or "
                        "customize it themselves — call list_notebooks for "
                        "descriptions and links."),
+        "companion_plugins": [
+            {
+                "name": "gephi-network-analysis",
+                "repository": "https://github.com/MattArtzAnthro/gephi-ai",
+                "capabilities": ("Network analysis in live Gephi Desktop: "
+                                  "text-network construction, layouts, "
+                                  "centrality and community metrics, and "
+                                  "structural claim verification. Hand "
+                                  "network-analysis execution to it when it "
+                                  "is installed; otherwise offer the install "
+                                  "or fall back to the Text Network Analysis "
+                                  "notebook and a GEXF export."),
+            },
+        ],
     }
 
 
