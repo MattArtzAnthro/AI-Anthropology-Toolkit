@@ -109,6 +109,7 @@ class TestMcpServer(unittest.TestCase):
             "get_podcast_episodes",
             "list_notebooks", "list_lenses", "get_lens",
             "toolkit_info", "chunk_transcript", "start_codebook_job",
+            "ratify_codebook",
             "start_coding_job", "get_next_batch", "submit_batch",
             "get_job_status", "get_job_result", "build_themes",
             "compare_lenses"})

@@ -66,3 +66,8 @@ markdown.
 - The bundled MCP server runs data collection and the analysis pipeline as
   native tools; the same capabilities exist as Colab notebooks in the
   repository's `notebooks/` directory for hands-on use — see the README.
+- Skills adopt the Friction by Design conventions at declared tiers
+  (`skills/DESIGN.md` carries the table): Tier 1 skills stop at their core
+  judgments and ask, Tier 2 skills declare what they will not decide and
+  keep two registers in their outputs, and three skills deliberately carry
+  no added friction. When showing a skill's detail entry, name its tier.

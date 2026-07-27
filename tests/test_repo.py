@@ -343,6 +343,27 @@ class TestFrictionConvention(unittest.TestCase):
                 f"{d.name}: Tier 3 must not carry the depth ceremony",
             )
 
+    def test_advisors_owning_tier_one_skills_carry_the_depth_setting(self):
+        # The "once per engagement" rule needs a carrier: an agent whose
+        # draw-on list includes a Tier 1 skill must say it carries the
+        # depth setting, or three skills in one session each re-ask.
+        table = friction_tier_table()
+        tier_one = {n for n, (t, _r) in table.items() if t == 1}
+        for f in agent_files():
+            body = f.read_text(encoding="utf-8")
+            m = re.search(
+                r"\*\*Skills You Draw On:\*\*(.*?)(?:\n\*\*|\Z)", body, re.S
+            )
+            if not m:
+                continue
+            claimed = {n for n in tier_one if n in m.group(1)}
+            if claimed:
+                self.assertIn(
+                    "depth setting", body,
+                    f"{f.stem}: draws on Tier 1 skill(s) {sorted(claimed)} "
+                    "but never mentions carrying the depth setting",
+                )
+
     def test_every_assigned_adopter_declares(self):
         # The reverse direction of test_declarations_match_the_table: a
         # Tier 1/2 assignment in DESIGN.md that no SKILL.md declares is a
