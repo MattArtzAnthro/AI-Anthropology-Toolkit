@@ -25,6 +25,13 @@ Conventions:
 - Cross-skill handoffs name the target skill exactly (e.g., "use the
   research-writing skill"); descriptions must never route to skills that do
   not exist in this library.
+- Cross-plugin handoffs — to companion plugins that own a capability this
+  library deliberately does not duplicate — live in the SKILL.md body, never
+  in the description, so companion plugins keep winning their own routing
+  triggers. The handoff names the companion's capabilities rather than its
+  versions or tool counts, checks for the companion's presence in the
+  session, and carries a fallback for when it is absent (an install pointer
+  plus whatever this library can do alone).
 - SKILL.md bodies follow a shared skeleton: Quick Reference → Workflow →
   Parameters → Guardrails → Common Failure Modes → Examples. Skills adopting
   the Friction by Design conventions at Tier 1 insert What This Skill Will

@@ -157,19 +157,19 @@ Installing the Claude Code plugin (above) bundles the server automatically. It a
 **Claude Code**
 
 ```
-claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.0.0" ai-anthro-mcp
+claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.1.0" ai-anthro-mcp
 ```
 
 **OpenAI Codex CLI**
 
 ```
-codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.0.0" ai-anthro-mcp
+codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.1.0" ai-anthro-mcp
 ```
 
 **Google Gemini CLI**
 
 ```
-gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==3.0.0" ai-anthro-mcp
+gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==3.1.0" ai-anthro-mcp
 ```
 
 The server is model-agnostic. With `ANTHROPIC_API_KEY` set, analysis runs autonomously (`api` mode). Without it, whichever model is orchestrating — Claude, GPT, or Gemini — performs each interpretive step itself through validated work packets (`delegated` mode): the analysis runs on your model, the methodology and validation run on the server, and every coding decision stays visible to the researcher.
@@ -188,6 +188,16 @@ AI coding agents — Claude Code and Claude Desktop's Cowork, OpenAI Codex CLI, 
 
    The doctor (`python -m ai_anthro_toolkit.doctor`, also installed as `ai-anthro-doctor`) probes every data source from the current network and reports which are reachable. Sandbox network policies typically allow the scholarly APIs (OpenAlex, CrossRef, PubMed) and block the Google/YouTube scraping endpoints — collect what is reachable and route each blocked source to local execution or its Colab notebook (the doctor prints the link). The collector functions live in `ai_anthro_toolkit.datasources`; transcript chunking (`ai_anthro_toolkit.chunking`, fully local) and the 42-lens registry (`ai_anthro_toolkit.lenses`) work in any environment. Agent-facing instructions for this fallback chain ship in this repository as [AGENTS.md](AGENTS.md) and [GEMINI.md](GEMINI.md).
 3. **No code execution either** → every capability runs in the browser through the Colab notebooks below.
+
+## Companion Plugins
+
+Where a specialized tool already owns a capability, the toolkit hands off to it instead of duplicating it here.
+
+| Plugin | Capability | Install |
+|:-------|:-----------|:--------|
+| [gephi-network-analysis](https://github.com/MattArtzAnthro/gephi-ai) | Network analysis in live Gephi Desktop — text-network construction, layouts, centrality and community metrics, structural claim verification | `claude plugin marketplace add MattArtzAnthro/gephi-ai`, then `claude plugin install gephi-network-analysis@gephi-ai` |
+
+With the companion installed, the digital-computational-methods skill hands network-analysis execution to it. Without it, the skill falls back to the [Text Network Analysis notebook](notebooks/Text_Network_Analysis.ipynb) and a GEXF export for manual work in Gephi.
 
 ## Getting Started
 
