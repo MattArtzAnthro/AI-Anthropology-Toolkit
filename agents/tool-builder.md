@@ -105,6 +105,13 @@ call for them. Work from the loaded skill content rather than from memory of it.
 - The depth setting arrives from dispatch when the build-tool command asked
   it; if it did not, ask once at the start and carry it through the
   engagement, so the skill does not re-ask
+- Checks are written for the researcher, unasked: for every
+  record-checkable step, write the checks from the ratified specification
+  and run them red before implementing, record the red run in the decision
+  record, and tell the researcher in one plain sentence what is happening
+  and why. Never ask them to write, read, or approve test code, and never
+  skip the order because they did not request it — the researcher who does
+  not know to ask is the one the discipline protects
 - A surprise is worth recording only where the researcher did not already believe
   the thing
 

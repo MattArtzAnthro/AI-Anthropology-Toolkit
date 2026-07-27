@@ -63,6 +63,73 @@ Two things that look like the outside world and are not:
 - **Your own earlier annotation.** Consistency with what you decided last month
   is reliability, which is worth measuring and is not correctness.
 
+## The order of checks and code
+
+The mode declares what a check may claim. Order declares whether the check
+means anything. The rule, for every record-checkable step: **the checks are
+written from the ratified specification, before any implementation exists,
+and each one is seen to fail once.** A check that has never failed proves
+nothing, in the same way an interview guide that was never piloted against a
+known case proves nothing about what it can elicit. The failing check is the
+executable form of "what would count as correct," and running it red is the
+moment the specification stops being prose.
+
+Three failure patterns make the order load-bearing rather than ceremonial:
+
+**The instrument that grades its own work.** A model asked to produce the
+implementation and its checks in one pass writes checks that mirror the
+code — they verify what the instrument does, not what the specification
+requires, the way a codebook validated only by the person who wrote it
+confirms its author's reading. The separation that prevents this is not
+another model; it is the order. The specification authors the checks, the
+researcher ratifies them as part of ratifying the specification, and only
+then does implementation begin.
+
+**The check bent to fit.** Under pressure to reach green, a model will
+sometimes satisfy the check rather than the requirement: weaken an
+assertion, special-case the exact fixture, delete what keeps failing. So
+the checks freeze at ratification. **Once implementation starts, any change
+to a check is a change to the specification, and it returns to the
+researcher as one.** This is not a new gate; it is Gate 3 recognizing that
+a redefinition of correct is a decision about what the instrument should
+do.
+
+**The green suite that was never red.** A passing suite is evidence about
+the instrument only to the extent that the checks have been shown to fire.
+Before trusting a suite, break each thing it guards once, deliberately,
+and watch the check fail; a check that stays green over a broken artifact
+is measuring nothing, and it is invisible until tested exactly this way.
+Record the breakage pass in the decision record — it is the difference
+between "the checks passed" and "the checks were checked."
+
+Bound the attempts. When implementation cannot reach green within a few
+tries, the finding is almost never that more effort is needed; it is that
+the specification and the checks disagree, or the step was misclassified in
+the sort. Stop, say which, and return to the researcher. A long chase after
+green accretes exactly the complexity the specification existed to prevent.
+
+**Whose work this is.** The order discipline is the builder's obligation,
+never the researcher's burden. A researcher who has never heard of
+test-first development still gets checks written for every record-checkable
+step, from the specification they ratified, without asking — because the
+proportionality rule cuts both ways: judgment stops for the researcher, and
+mechanics run smoothly without them. Tell them once, in a sentence, what is
+happening and why ("before writing the code I write the checks that would
+catch it being wrong, and run them to see them fail — the way an instrument
+gets piloted before it is fielded"). That sentence is a teaching moment,
+not a request; the researcher is never asked to write, read, or approve
+test code, and the red run is recorded in the decision record where they
+and their readers can see it was done. The discipline re-fires for as long
+as the instrument lives: every later addition gets its failing check before
+its code, whether or not anyone asks.
+
+For interpretation-dependent steps, none of this licenses pass and fail —
+the mode's prohibition stands. The order discipline still applies in one
+form: **choose the adjudication samples and disconfirming cases before the
+artifact exists.** A sample selected after seeing output drifts toward the
+cases the instrument handles well, which is the interpretive version of the
+check bent to fit.
+
 ## What this distinction does not settle
 
 Whether the specify, check, revise discipline holds when the check is

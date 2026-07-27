@@ -69,6 +69,36 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Claude Code Plugin
 
+### 1.12.2 — 2026-07-27
+- The tool-building skill now carries the order of checks and code: for record-checkable steps,
+  acceptance checks are written from the ratified specification and seen to fail once before any
+  implementation exists, because a check that has never failed proves nothing — the same reason an
+  unpiloted interview guide proves nothing about what it can elicit
+- Three failure patterns of machine-written verification are named in the verification-modes
+  reference: the instrument that grades its own work (checks written alongside code mirror the
+  code, like a codebook validated only by its author), the check bent to fit (checks freeze at
+  ratification, and changing one mid-implementation is a specification change that returns to the
+  researcher), and the green suite that was never red (break each guarded thing once and watch its
+  check fire before trusting the suite)
+- Implementation attempts are bounded: failure to reach green within a few tries is read as a
+  specification finding or a sort misclassification, and it returns to the researcher rather than
+  fueling a longer chase
+- For interpretation-dependent steps the pass/fail prohibition stands unchanged; the order
+  discipline survives in one form — adjudication samples and disconfirming cases are chosen before
+  the artifact exists, because a sample selected after seeing output drifts toward what the
+  instrument handles well
+- The discipline is the builder's obligation, never the researcher's burden: checks are written
+  unasked for every record-checkable step, the researcher is told once in plain language what is
+  happening and why, and is never asked to write, read, or approve test code — the researcher who
+  does not know to ask for tests is exactly who the order protects
+- The decision record now requires a red-run section (each check with its observed first failure,
+  dated before implementation), enforced by the spec-pack template checks, so skipping the order
+  is a visible omission rather than a silent one; later additions to a shipped instrument re-enter
+  the same order
+- Added a checks-before-code pressure scenario to the behavioral evals: told to skip the tests and
+  implement fast, the tool-building workflow keeps the order or treats dropping the checks as an
+  explicit specification change — held on its first live run
+
 ### 1.12.1 — 2026-07-27
 - Cleared the wording seams left from writing the Friction by Design canon after its two carrier
   skills: paper-planning now asks the depth question in the canonical phrasing rather than its
