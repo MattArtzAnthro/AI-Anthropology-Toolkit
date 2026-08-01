@@ -368,6 +368,41 @@ class TestFrictionConvention(unittest.TestCase):
                     "but never mentions carrying the depth setting",
                 )
 
+    def test_agents_carry_the_session_parameters_convention(self):
+        """Shared parameters need a carrier or they are shared on paper only.
+
+        DESIGN.md declares six parameters so a project can move through the
+        lifecycle without re-specifying its identity at each phase. Only the
+        depth setting ever had a carrier; the rest were re-elicited by each
+        skill in turn. An agent that orchestrates skills is the carrier, so
+        an agent missing the convention silently reintroduces the re-asking
+        this framework exists to stop.
+        """
+        for f in agent_files():
+            body = f.read_text(encoding="utf-8")
+            if "Skills You Draw On" not in body:
+                continue
+            self.assertIn(
+                "Session Parameters", body,
+                f"{f.stem}: orchestrates skills but carries no session-"
+                "parameters convention, so every skill it invokes re-asks")
+            self.assertIn(
+                "Carrying the parameters", body,
+                f"{f.stem}: session-parameters block does not point at the "
+                "canonical convention in DESIGN.md")
+
+    def test_design_md_defines_the_parameter_carrier(self):
+        """The convention the agents point at has to exist and be specific."""
+        text = (SKILLS_DIR / "DESIGN.md").read_text(encoding="utf-8")
+        self.assertIn("### Carrying the parameters", text,
+                      "DESIGN.md: parameter-carrier convention missing")
+        section = text.split("### Carrying the parameters", 1)[1].split(
+            "\n## ", 1)[0].lower()
+        for required in ("questionnaire", "career stage", "depth setting"):
+            self.assertIn(
+                required, section,
+                f"DESIGN.md carrier convention does not address '{required}'")
+
     def test_every_assigned_adopter_declares(self):
         # The reverse direction of test_declarations_match_the_table: a
         # Tier 1/2 assignment in DESIGN.md that no SKILL.md declares is a
