@@ -37,12 +37,14 @@ Skills are organized conceptually by research lifecycle phase. Each row is a sep
 | Writing | [Paper Planning](paper-planning/) | `paper-planning/` | Available |
 | Writing | [Research Writing](research-writing/) | `research-writing/` | Available |
 | Peer Review | [Academic Review & Manuscript Evaluation](academic-review/) | `academic-review/` | Available |
+| Peer Review | [Manuscript Markup & Editor Feedback](manuscript-markup/) | `manuscript-markup/` | Available |
 | Conferences & Presentations | [Conference Materials & Presentations](conference-materials/) | `conference-materials/` | Available |
 | Public Engagement | [Public Engagement & Communication](public-engagement/) | `public-engagement/` | Available |
 | Teaching | [Teaching Materials](teaching-materials/) | `teaching-materials/` | Available |
 | Career | [Career Statements](career-statements/) | `career-statements/` | Available |
 | Applied Practice | [Applied Practice & Client Deliverables](applied-practice/) | `applied-practice/` | Available |
 | Career | [Job Application Materials](job-materials/) | `job-materials/` | Available |
+| Building | [Repeated Work](repeated-work/) | `repeated-work/` | Available |
 | Building | [Tool Building](tool-building/) | `tool-building/` | Available |
 
 ## Installation

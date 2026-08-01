@@ -6,6 +6,8 @@ Tool families:
   Google Scholar), Google Trends, News, Patents, Books Ngram, YouTube
   search and transcripts, and podcast RSS — all running natively.
 - **Methodology**: list_lenses, get_lens — the 42-lens analytical registry.
+- **Documents**: extract_document_markup — comments with their anchored
+  spans, and tracked changes, out of a marked-up .docx. Read-only.
 - **Analysis pipeline**: chunk_transcript (local, no LLM), plus job-based
   codebook generation and qualitative coding, theme building, and cross-lens
   comparison. Coding is gated: ratify_codebook records the researcher's
@@ -34,6 +36,7 @@ from ai_anthro_toolkit import codebook as _codebook
 from ai_anthro_toolkit import coding as _coding
 from ai_anthro_toolkit import crosslens as _crosslens
 from ai_anthro_toolkit import lenses as _lenses
+from ai_anthro_toolkit import markup as _markup
 from ai_anthro_toolkit import themes as _themes
 from ai_anthro_toolkit import catalog as _catalog
 from ai_anthro_toolkit import datasources as _data
@@ -58,7 +61,9 @@ mcp = FastMCP(
         "carry honest guidance to relay. list_notebooks links Colab versions of "
         "these capabilities for users who want to run or customize them "
         "hands-on. Methodology: list_lenses / get_lens expose the 42-lens "
-        "analytical registry. Analysis pipeline: transcript chunking, codebook "
+        "analytical registry. Documents: extract_document_markup reads the "
+        "comments, anchored spans, and tracked changes out of a marked-up "
+        ".docx, read-only. Analysis pipeline: transcript chunking, codebook "
         "generation, coding, thematic analysis, and cross-lens comparison. "
         "LLM-dependent stages run in 'api' mode when ANTHROPIC_API_KEY is set, "
         "otherwise in 'delegated' mode: start a job, loop get_next_batch -> "
@@ -123,6 +128,7 @@ def toolkit_info() -> dict:
                                  "search_youtube", "get_youtube_transcript",
                                  "get_podcast_episodes", "list_notebooks"],
             "methodology": ["list_lenses", "get_lens"],
+            "documents": ["extract_document_markup"],
             "analysis": ["chunk_transcript", "start_codebook_job",
                           "ratify_codebook", "start_coding_job",
                           "get_next_batch", "submit_batch",
@@ -362,6 +368,24 @@ def chunk_transcript(text: str = "", path: str = "",
     coherence = [r["coherence_score"] for r in records] or [0.0]
     return {"chunks": records, "total_chunks": len(records),
             "mean_coherence": round(sum(coherence) / len(coherence), 3)}
+
+
+# -------------------------------------------------------------- documents
+
+@mcp.tool()
+def extract_document_markup(path: str) -> dict:
+    """Read comments, their anchored spans, and tracked changes from a .docx.
+
+    For a manuscript returned marked up by an editor, advisor, committee
+    member, or co-author. Each comment comes back with the exact span it is
+    attached to, the paragraph and section containing that span, its reply
+    parent, and whether it has been marked resolved; tracked changes come
+    back with author and a substantive flag that separates judgments about
+    the manuscript from spelling and spacing. Read-only: the file is never
+    modified. Export Google Docs as .docx first. PDF annotations are not read.
+    """
+    result = _markup.extract_markup(path)
+    return result
 
 
 # --------------------------------------------------------------- jobs

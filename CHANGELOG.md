@@ -6,6 +6,26 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
+### 3.2.0 — 2026-08-01
+- Added the markup module and the extract_document_markup tool (26th tool): reads comments out of
+  a .docx together with the exact span each one is anchored to, plus tracked changes with author
+  and a substantive flag that separates judgments about the manuscript from spelling and spacing.
+  The anchor is the point of it — a comment reading "unclear" is unanswerable in the abstract and
+  usually obvious once the sentence it points at is in view, and pasting a manuscript in as plain
+  text discards every anchor, author, and change
+- Reply threading and resolved state are read from commentsExtended.xml where it exists; its
+  absence in older documents is read as absence of threading rather than as a failure
+- Standard library only (zipfile, xml.etree), so it adds no dependency and installs with the base
+  package. Any part declaring a DTD is refused rather than parsed: no .docx written by Word carries
+  one, and refusing it closes the entity-expansion path without pulling in defusedxml
+- Verified against real Word documents rather than only against synthetic fixtures: comments with
+  no quotable span (Word allows attaching one to an insertion point, or to a selection containing
+  only a space) report an empty anchor and fall back to the enclosing paragraph, and
+  summary.unanchored_count says how many
+- Read-only by design. Writing edits and resolved comments back into a .docx is out of scope,
+  because tracked-change XML is easy to write in a way that opens correctly in one reader and
+  breaks in Word, and the author would find out at the editor's desk
+
 ### 3.1.0 — 2026-07-27
 - toolkit_info now carries a companion_plugins field listing tools the toolkit hands off to
   rather than duplicating — first entry: gephi-network-analysis (network analysis in live Gephi
@@ -75,6 +95,52 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.17.0 — 2026-08-01
+- Added the repeated-work skill (24th skill), at Tier 2 of the Friction by Design conventions: a
+  skeptical gate that runs before any instrument is proposed, for the researcher who keeps doing
+  the same thing by hand and wonders whether it has to stay that way. tool-building starts from
+  "I want to build X"; nothing covered the step before it
+- The default answer is not to build. Four tests have to pass — does it recur often enough, has
+  the procedure settled, does something in the library already do it, and does it repeat because
+  every instance needs a fresh interpretive call — and four of the five outcomes are not "build":
+  it already exists, change the procedure, leave it manual, not yet, build
+- The judgment-load test is the one that makes this anthropological rather than generic. Coding a
+  transcript, deciding whether two accounts describe the same event, judging what a photograph
+  shows: these look like batch operations and are not, and encoding them destroys the thing being
+  done. Preparing, sorting, and presenting are legitimate; deciding is the researcher's
+- Non-toolkit answers are in scope and are usually right: an existing utility, a plain script, or
+  a written checklist. A gate that can only propose toolkit-shaped things is not a gate
+- The skill inspects nothing uninvited. Evidence comes from the session and from a place the
+  researcher points it at, because in this library a project directory holds transcripts, field
+  notes, and consent forms
+- All nine agents now carry one rule from it: when the researcher corrects the same thing twice,
+  fix what they raised first and completely, then offer the skill in one sentence — never on a
+  first correction, once per engagement, never again if declined. Answering "you got that wrong"
+  with "perhaps you should build something" moves the machine's error onto the researcher's
+  workflow, and that reads as deflection even when it is right
+
+### 1.16.0 — 2026-08-01
+- Added the manuscript-markup skill (23rd skill), at Tier 1 of the Friction by Design conventions:
+  for feedback that arrives as marks inside a document rather than as a numbered report. Comments
+  are read with their anchored spans, sorted by what each one demands, and the demanding ones are
+  worked against the text they point at
+- The sort has five kinds — mechanical, local judgment, structural, argumentative, and ethically
+  constrained — and the rhythm follows the kind. Mechanical comments are batch-confirmed rather
+  than answered one by one, so fifty-four comments do not become fifty-four exchanges
+- Ethically constrained is the kind that makes this an anthropological problem rather than a
+  document-handling one: "which village is this," "name the organization," "make this scene more
+  vivid" are ordinary editorial requests that may also be requests to breach anonymization, exceed
+  what consent covers, or invent detail the field notes do not contain. They are stopped at under
+  every depth setting and always produce written language for the editor
+- Produces a decision record and a cover letter to the editor in the author's voice. The record
+  carries a status column with two values, decided and implemented, and every claim in the letter
+  must trace to a row marked implemented — a letter that reports a change not in the file is the
+  costliest failure available here
+- Never modifies the document file
+- academic-review is unchanged and keeps the numbered reviewer report and the rebuttal to a
+  decision letter; the boundary between them is the form the feedback arrived in
+- writing-advisor draws on the new skill and carries the depth setting into it
 
 ### 1.15.0 — 2026-07-27
 - tool-building now covers the instrument that breaks after it shipped. New repair discipline

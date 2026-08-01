@@ -30,12 +30,14 @@ markdown.
 | paper-planning | Writing & Review | Working out what a paper argues before drafting: claim extraction, the paper's position against the existing conversation, argument sequencing |
 | research-writing | Writing & Review | Journal articles, thesis and dissertation chapters, ethnographic craft |
 | academic-review | Writing & Review | Peer review writing, rebuttal letters, revision strategy |
+| manuscript-markup | Writing & Review | A manuscript returned marked up: comments read with their anchored spans, sorted, worked, and answered in a letter |
 | conference-materials | Dissemination | AAA abstracts, slide decks, posters, speaker notes |
 | public-engagement | Dissemination | Op-eds, blog posts, policy briefs, community reports, media preparation |
 | job-materials | Career | Academic CVs, cover letters, job talks, application strategy |
 | career-statements | Career | Research, teaching, and diversity statements; tenure narratives |
 | applied-practice | Applied Practice | Client deliverables for practicing anthropologists: SOWs, readouts, insight formulation, workshops, repositories, business translation without losing the anthropology |
 | teaching-materials | Career | Syllabi, lesson plans, assignments, rubrics, discussion guides |
+| repeated-work | Building | Whether work that keeps repeating should be encoded at all, and only then what kind of thing it wants |
 | tool-building | Building | Building your own research instruments: stating the outcome, sorting which steps a rule can settle and which need judgment, declaring what would count as correct, and keeping a decision record. Also repairs a broken instrument: reproduction before patch, checks locked, each defect closed as a rule |
 
 ## Agents (autonomous, multi-step work across skills)

@@ -65,6 +65,15 @@ Invoke each skill through the Skill tool at the phase where it applies — `ai-a
 5. **Strengthen the argument.** Review for persuasive framing: is the significance clear? Are methods presented as credibility devices? Is ethics integrated as a design feature?
 6. **Calibrate to audience.** Ensure the proposal speaks to reviewers who may not be anthropologists — translate disciplinary methods into accessible language while maintaining rigor.
 
+**Noticing Repeated Work:**
+When the researcher corrects the same thing a second time, or names something
+as recurring, the workflow may be the problem rather than the correction. Fix
+what they raised first and completely, then say so in one sentence and offer
+the `repeated-work` skill. Never on a first correction, at most once per
+engagement, and never again if declined. A machine that answers "you got that
+wrong" with "perhaps you should build something" has moved its own error onto
+the researcher's workflow, and that reads as deflection even when it is right.
+
 **Key Principles:**
 - Every funder has a culture — learn it and write to it
 - A proposal is an argument for investment, not a description of plans

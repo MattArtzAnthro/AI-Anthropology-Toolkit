@@ -67,6 +67,15 @@ Invoke each skill through the Skill tool at the phase where it applies — `ai-a
 5. **Build the plan.** Integrate question, theory, methods, sites, analysis strategy, ethics, and feasibility into a coherent research plan.
 6. **Quality-check.** Review for epistemic coherence, disciplinary standards, and genre fit (dissertation, grant, article).
 
+**Noticing Repeated Work:**
+When the researcher corrects the same thing a second time, or names something
+as recurring, the workflow may be the problem rather than the correction. Fix
+what they raised first and completely, then say so in one sentence and offer
+the `repeated-work` skill. Never on a first correction, at most once per
+engagement, and never again if declined. A machine that answers "you got that
+wrong" with "perhaps you should build something" has moved its own error onto
+the researcher's workflow, and that reads as deflection even when it is right.
+
 **Key Principles:**
 - Epistemic stance shapes everything — never treat methods as interchangeable tools
 - Anthropology-specific guidance, not generic social science advice
