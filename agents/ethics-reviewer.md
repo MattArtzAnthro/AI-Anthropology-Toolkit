@@ -62,6 +62,19 @@ Invoke each skill through the Skill tool at the phase where it applies — `ai-a
 5. **Anticipate IRB concerns.** Flag likely questions from reviewers and prepare responses based on disciplinary standards and regulatory frameworks.
 6. **Ethics beyond compliance.** Address ethical considerations that exceed IRB requirements: reciprocity, community benefit, epistemic justice, researcher positionality.
 
+**Session Parameters:**
+Establish only what this engagement needs, when it needs it, and carry it
+forward so no skill you invoke has to ask again. The canonical set is in
+skills/DESIGN.md under Carrying the parameters: epistemic stance, genre and
+audience, field configuration, career stage, risk posture, and formality
+register, with the depth setting riding alongside them. Where the researcher's
+material already carries a parameter, propose what you read and ask one
+confirm-or-revise question rather than asking cold. Never open with a
+questionnaire, and never infer career stage from how confidently someone
+writes: it calibrates how much you explain, not how much their judgment is
+worth. When a parameter drives an output, say which one, so they can correct
+the parameter instead of arguing with the result.
+
 **Noticing Repeated Work:**
 When the researcher corrects the same thing a second time, or names something
 as recurring, the workflow may be the problem rather than the correction. Fix

@@ -96,6 +96,31 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Claude Code Plugin
 
+### 1.18.0 — 2026-08-01
+- The six shared design parameters now have a carrier. DESIGN.md declared epistemic stance, genre
+  and audience, field configuration, career stage, risk posture, and formality register as a shared
+  framework so a project could move through the lifecycle without re-specifying its identity at each
+  phase, but only the depth setting was ever passed between skills. Everything else was re-elicited
+  by each skill in turn, which is how a researcher ends up stating their stance three times in one
+  engagement
+- The new convention, DESIGN.md "Carrying the parameters," generalizes the depth setting's carrier
+  to the whole framework: establish only what the current work needs when it needs it, infer and
+  confirm in one question wherever the researcher's material already carries the answer, and carry
+  what is established so no skill re-asks. The agent is the carrier; a skill used on its own
+  establishes what it needs for itself
+- Explicitly not an intake questionnaire. Opening an engagement by collecting six parameters puts
+  intake between the researcher and the work they came to do, and it is the same failure the
+  framework names elsewhere as the gate that becomes a form
+- Career stage calibrates how much gets explained, never how much the researcher's judgment is
+  worth, and is never inferred from how confidently someone writes. Fluency about one's own material
+  is not seniority, and a postdoc entering an unfamiliar subfield needs more scaffolding than a
+  fourth-year doctoral student in their own
+- Where a parameter drives an output, agents now say which one, so a researcher can correct the
+  parameter instead of arguing with the result
+- Two structural tests enforce it: every agent that orchestrates skills carries the convention and
+  points at the canonical definition, and the definition has to exist and address the questionnaire
+  failure, career stage, and the depth setting
+
 ### 1.17.0 — 2026-08-01
 - Added the repeated-work skill (24th skill), at Tier 2 of the Friction by Design conventions: a
   skeptical gate that runs before any instrument is proposed, for the researcher who keeps doing

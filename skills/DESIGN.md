@@ -61,6 +61,48 @@ phase:
   politically sensitive; escalates consent, governance, and harm handling.
 - **Formality register** — working draft, committee-ready, publication-ready.
 
+### Carrying the parameters
+
+Declaring the parameters shared is not the same as sharing them. Before this
+convention, one parameter had a carrier and the rest did not: the depth
+setting is asked once by the advisor at dispatch and passed into every skill
+invocation, and a skill that receives it does not re-ask. Everything else was
+re-elicited by each skill in turn, which is how a researcher ends up stating
+their epistemic stance three times in one engagement.
+
+The convention generalizes that carrier to the whole framework.
+
+**Establish only what the current work needs, when it needs it.** Not all six
+parameters bear on every engagement. Collecting them as an opening
+questionnaire is the failure mode the framework names elsewhere, the gate that
+becomes a form, and it puts intake between the researcher and the work they
+came to do.
+
+**Infer and confirm wherever the material supports it.** A draft, a research
+question, or a description of a fieldsite usually carries the stance, the
+genre, and the field configuration. Proposing what was read and asking one
+confirm-or-revise question is faster than asking, and it is more accurate,
+because researchers describe their own stance in the vocabulary of whoever
+taught them. Ask outright only where the material does not support an
+inference. This is the legitimate inference already named under depth
+calibration, applied to the rest.
+
+**Carry what is established, and do not re-ask it.** The agent is the carrier,
+the same role it holds for the depth setting. A skill activated directly,
+outside any agent, establishes for itself what it needs.
+
+**Career stage calibrates scaffolding, not authority.** It sets how much is
+explained and how much is assumed, never how much the researcher's judgment is
+worth. It is never inferred from how confidently someone writes: fluency about
+one's own material is not seniority, and a postdoc entering an unfamiliar
+subfield needs more scaffolding than a fourth-year doctoral student in their
+own.
+
+**Say which parameter drove an output when it drove one.** Where a stance
+determined a method recommendation or a risk posture determined a consent
+approach, name it. A researcher who can see which parameter moved the output
+can correct the parameter rather than arguing with the output.
+
 ## Friction by Design
 
 The toolkit's design philosophy: build deliberate resistance into AI-assisted
