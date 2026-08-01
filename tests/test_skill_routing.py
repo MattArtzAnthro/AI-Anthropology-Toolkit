@@ -109,6 +109,18 @@ TRIGGER_PROMPTS = {
         "walk me through specifying an MCP server before any code gets written",
         "my scraper broke and I need to repair it without wrecking anything",
     ],
+    "manuscript-markup": [
+        "my editor sent the chapter back with comments in the document",
+        "work through the tracked changes and comments in this docx",
+        "read the marked up file my advisor returned",
+        "draft the letter to my editor saying what I changed",
+    ],
+    "repeated-work": [
+        "I keep doing this same cleanup by hand every week",
+        "there must be a better way to do this than doing it manually",
+        "this is the third time I have written the same thing out",
+        "should I automate this or just keep doing it",
+    ],
     "ethnographic-generalization": [
         "can I generalize from one fieldsite to a broader insight",
         "what kind of generalization can my ethnography support",

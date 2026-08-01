@@ -98,12 +98,14 @@ Research skills in the portable [SKILL.md format](https://agentskills.io) that a
 | paper-planning | Claim extraction, the paper's position against the existing conversation, argument sequencing — worked out by questioning before drafting begins |
 | research-writing | Article architecture, ethnographic craft, subfield conventions, journal requirements |
 | academic-review | Peer review writing, rebuttal letters, revision strategy |
+| manuscript-markup | A manuscript returned marked up: comments read with their anchored spans, sorted, worked, and answered in a letter |
 | conference-materials | AAA abstracts, slide decks, posters, speaker notes, oral delivery |
 | public-engagement | Op-eds, blog posts, policy briefs, community reports, media preparation |
 | job-materials | Academic CVs, cover letters, job talks, application strategy |
 | career-statements | Research, teaching, and diversity statements; tenure narratives |
 | teaching-materials | Syllabi, lesson plans, assignments, rubrics, discussion guides |
 | applied-practice | Client engagements: statements of work, stakeholder readouts, insight synthesis, workshop facilitation, research repositories |
+| repeated-work | Whether work that keeps repeating should be encoded at all, and only then what kind of thing it wants |
 | tool-building | Building your own research instruments: the outcome, which steps a rule can settle and which need judgment, what would count as correct, and a decision record for a methods appendix. Repairs broken instruments reproduction-first |
 
 ### Using the Skills in Other Agents
@@ -117,7 +119,7 @@ cp -r AI-Anthropology-Toolkit/skills/qualitative-analysis AI-Anthropology-Toolki
 
 | Agent | Skills directory |
 |:------|:-----------------|
-| Claude Code | `~/.claude/skills/` (or install the plugin — all 22 at once) |
+| Claude Code | `~/.claude/skills/` (or install the plugin — all 24 at once) |
 | OpenAI Codex CLI | `~/.codex/skills/` |
 | Cursor | `~/.cursor/skills/` |
 | GitHub Copilot / VS Code | `~/.copilot/skills/` |

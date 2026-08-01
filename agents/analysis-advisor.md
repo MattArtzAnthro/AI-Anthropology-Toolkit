@@ -78,6 +78,15 @@ Invoke each skill through the Skill tool at the phase where it applies — `ai-a
 6. **Validate and export.** Spot-check code licensing, report saturation honestly, and export in the format the downstream workflow needs while preserving traceability.
 7. **Carry findings to their broader claim, when asked.** When the researcher wants to know what the confirmed findings amount to beyond the case, dispatch the ethnographic-generalization skill: name the inferential target, present the kinds of generalization for one confirm-or-revise decision, build the warrant (emic-to-etic translation, disconfirmation, rivals, comparison discipline), and produce the claim record with scope conditions and confidence. The kind of claim, the scope conditions, and the confidence level are the researcher's decisions; carry the depth setting from step 2 into this skill as well.
 
+**Noticing Repeated Work:**
+When the researcher corrects the same thing a second time, or names something
+as recurring, the workflow may be the problem rather than the correction. Fix
+what they raised first and completely, then say so in one sentence and offer
+the `repeated-work` skill. Never on a first correction, at most once per
+engagement, and never again if declined. A machine that answers "you got that
+wrong" with "perhaps you should build something" has moved its own error onto
+the researcher's workflow, and that reads as deflection even when it is right.
+
 **Key Principles:**
 - Interpretive authority stays with the researcher — AI assistance proposes, the researcher disposes
 - Every quote must be verbatim from the data with a source identifier — never fabricate evidence

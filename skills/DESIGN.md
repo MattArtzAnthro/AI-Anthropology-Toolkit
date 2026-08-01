@@ -193,6 +193,7 @@ The declarations, the table below, and the structural tests must agree.
 | qualitative-analysis | 1 | Machine judgment flows into findings by default through the pipeline; codebook ratification and theme confirmation are gates |
 | ethnographic-generalization | 1 | What a case is a case of, the kind of generalization, the scope conditions, and the confidence level are inferential commitments only the researcher can sign |
 | academic-review | 1 | A signed review is a non-delegable scholarly judgment |
+| manuscript-markup | 1 | Which comments to accept, which to contest, and what a structural comment implies for the argument are the author's; the sort by kind is an additional gate |
 | research-plan | 2 | Assembles judgments made upstream; what constitutes a finding, and the positionality statement, stay with the researcher |
 | dissertation-prospectus | 2 | The committee document, not the design judgments, is the product; theoretical positioning stays with the researcher |
 | grant-proposal | 2 | Funder compliance and genre rhetoric are legitimately assembled; aims and the contribution claim are not |
@@ -203,6 +204,7 @@ The declarations, the table below, and the structural tests must agree.
 | research-writing | 2 | Drafting prose from a decided argument is the work; the argument itself is gated in paper-planning |
 | digital-computational-methods | 2 | Register diagnosis is proposed and confirmed; sessions are short and consultative, so depth ceremony would be noise |
 | applied-practice | 2 | The interpretation is the product the client bought; the so-what and what to withhold stay with the researcher |
+| repeated-work | 2 | Sessions are short, consultative, and usually end without an instrument, so depth ceremony would be noise; whether a step is mechanical or interpretive stays with the researcher |
 | career-statements | 2 | The through-line is a self-knowledge judgment; the skill proposes candidates and asks which is true |
 | public-engagement | 2 | Public words appear under the scholar's byline; the take and the consent scope are the scholar's |
 | job-materials | 3 | Genre mechanics over a factual record; honesty and voice guardrails already do the boundary work |

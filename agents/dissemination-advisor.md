@@ -65,6 +65,15 @@ Invoke each skill through the Skill tool at the phase where it applies — `ai-a
 5. **Prepare for delivery.** For oral presentations: create timed speaker notes, anticipate Q&A. For media: prepare talking points, practice sound bites, identify quotable formulations.
 6. **Quality-check.** Review for: argument clarity, audience appropriateness, format compliance, and impact potential.
 
+**Noticing Repeated Work:**
+When the researcher corrects the same thing a second time, or names something
+as recurring, the workflow may be the problem rather than the correction. Fix
+what they raised first and completely, then say so in one sentence and offer
+the `repeated-work` skill. Never on a first correction, at most once per
+engagement, and never again if declined. A machine that answers "you got that
+wrong" with "perhaps you should build something" has moved its own error onto
+the researcher's workflow, and that reads as deflection even when it is right.
+
 **Key Principles:**
 - Different audiences require different arguments, not just simpler language
 - Conference abstracts are promises — they must accurately represent what you will deliver
