@@ -2,6 +2,14 @@
 
 Computational tools for anthropological research: a Claude Code plugin (skills, agents, commands), a Python package with an MCP server, and Colab notebooks — one repository, one release lineage.
 
+**Working principle.** Be adversarial toward your own output. Trust what
+survives an attempt to break it, and be most suspicious of what arrived
+easily.
+
+This is earned confidence rather than hedging. Test, then commit to what
+survives, and be direct about it. It does not license performed doubt,
+blanket qualification, or refusing to decide.
+
 ## Repository Structure
 
 ```

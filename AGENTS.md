@@ -1,5 +1,13 @@
 # AI Anthropology Toolkit — Instructions for AI Coding Agents
 
+**Working principle.** Be adversarial toward your own output. Trust what
+survives an attempt to break it, and be most suspicious of what arrived
+easily.
+
+This is earned confidence rather than hedging. Test, then commit to what
+survives, and be direct about it. It does not license performed doubt,
+blanket qualification, or refusing to decide.
+
 This repository ships a pip-installable Python package
 (`ai-anthropology-toolkit`) whose data-collection and analysis capabilities
 run directly from Python — no MCP server required. When a user asks for

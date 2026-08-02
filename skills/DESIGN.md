@@ -189,6 +189,24 @@ decision, and the skill documents that as its calibrated default instead of
 asking the depth question. The variance is recorded in the adoption table
 below.
 
+### The builder-side counterpart
+
+Friction by Design governs the loop of use: gates that route judgment to the
+researcher. The same discipline has a builder-side form governing the loop of
+building, stated as a working principle at the top of the repository's agent
+files (CLAUDE.md, AGENTS.md, GEMINI.md) and binding any model working on this
+repository before anything reaches a gate:
+
+> Be adversarial toward your own output. Trust what survives an attempt to
+> break it, and be most suspicious of what arrived easily.
+
+This is earned confidence rather than hedging: test, then commit to what
+survives, and be direct about it. It does not license performed doubt,
+blanket qualification, or refusing to decide. A structural test holds the
+principle's core sentences identical across the four files that carry it, and
+the behavioral evals in `tests/evals/test_working_principle.py` sample
+whether it is enacted rather than merely present.
+
 ### How each surface carries the philosophy
 
 The toolkit runs on three surfaces, and friction takes the form each surface

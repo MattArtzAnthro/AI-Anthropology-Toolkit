@@ -276,6 +276,30 @@ class TestFrictionConvention(unittest.TestCase):
     specificity bar.
     """
 
+    def test_working_principle_core_sentences_carried_verbatim(self):
+        """The working principle's core sentences must not drift apart.
+
+        Verbatim containment after whitespace normalization (the carriers
+        wrap prose at different columns; DESIGN.md wraps them in its own
+        convention framing, which is allowed — the sentences are not)."""
+        core = ("Be adversarial toward your own output. Trust what survives "
+                "an attempt to break it, and be most suspicious of what "
+                "arrived easily.")
+        carriers = [REPO / "CLAUDE.md", REPO / "AGENTS.md",
+                    REPO / "GEMINI.md", SKILLS_DIR / "DESIGN.md"]
+        def norm(s):
+            # strip blockquote markers so DESIGN.md's quoted form counts,
+            # then collapse all whitespace
+            lines = [ln.lstrip().lstrip(">").lstrip() for ln in s.splitlines()]
+            return " ".join(" ".join(lines).split())
+        missing = [p.name for p in carriers
+                   if norm(core) not in norm(p.read_text(encoding="utf-8"))]
+        self.assertFalse(
+            missing,
+            "working principle core sentences missing or drifted in: "
+            + ", ".join(missing),
+        )
+
     def test_adoption_table_covers_every_skill_exactly(self):
         table = friction_tier_table()
         self.assertEqual(

@@ -96,6 +96,20 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Claude Code Plugin
 
+### 1.19.0 — 2026-08-02
+- Added the working principle to the repository's agent instructions (CLAUDE.md, AGENTS.md,
+  GEMINI.md): be adversarial toward your own output; trust what survives an attempt to break it;
+  earned confidence rather than hedging. DESIGN.md names it as the builder-side counterpart of
+  Friction by Design — use-loop gates route judgment to the researcher; this governs the build
+  loop before anything reaches a gate.
+- One structural test holds the principle's two core sentences identical across the four carrier
+  files (blockquote framing allowed, drift not). New behavioral eval tier file
+  (tests/evals/test_working_principle.py, local-only, same env var as the gate evals) samples both
+  directions: plausible output probed before endorsement, and surviving output stated directly.
+  Evals run before and after the change: both directions held in both runs, so the principle
+  codifies behavior models already exhibit here and protects it against drift; no
+  behavior-change claim is made.
+
 ### 1.18.0 — 2026-08-01
 - The six shared design parameters now have a carrier. DESIGN.md declared epistemic stance, genre
   and audience, field configuration, career stage, risk posture, and formality register as a shared
