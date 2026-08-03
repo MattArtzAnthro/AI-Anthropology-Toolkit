@@ -83,30 +83,30 @@ Research skills in the portable [SKILL.md format](https://agentskills.io) that a
 
 | Skill | Description |
 |:------|:------------|
-| research-question | Five-slot question grammar, evaluation rubric, genre conventions |
-| literature-review | Review genres, search logging, screening audit trails, annotated bibliographies, literature matrices, framework construction |
-| methodology-selection | Method-stance compatibility, evidence need decomposition, multi-method design |
-| research-plan | Ten-section plan architecture covering problem through feasibility |
-| irb-protocol | 13-section protocol narratives, risk assessment, digital ethnography ethics |
-| informed-consent | Consent modes (written, verbal, layered, community-based), cultural adaptation |
-| grant-proposal | NSF CA-DDRIG, Wenner-Gren, Fulbright, ERC, SSHRC, Wellcome — funder-specific guidance |
-| dissertation-prospectus | Section-by-section prospectus development (8-30 pages) |
-| fieldwork-methods | Interview guides, observation protocols, sampling strategies, data management plans |
-| qualitative-analysis | Codebook development, deductive/inductive/hybrid coding, thematic analysis, multi-lens comparison |
-| ethnographic-generalization | Moving from confirmed findings to the broader claim they can support: kinds of generalization, warrant building, scope conditions, confidence calibration |
-| digital-computational-methods | Digital ethnography and platform ethics, computational text analysis at scale, AI-collaboration design |
-| paper-planning | Claim extraction, the paper's position against the existing conversation, argument sequencing — worked out by questioning before drafting begins |
-| research-writing | Article architecture, ethnographic craft, subfield conventions, journal requirements |
-| academic-review | Peer review writing, rebuttal letters, revision strategy |
-| manuscript-markup | A manuscript returned marked up: comments read with their anchored spans, sorted, worked, and answered in a letter |
-| conference-materials | AAA abstracts, slide decks, posters, speaker notes, oral delivery |
-| public-engagement | Op-eds, blog posts, policy briefs, community reports, media preparation |
-| job-materials | Academic CVs, cover letters, job talks, application strategy |
-| career-statements | Research, teaching, and diversity statements; tenure narratives |
-| teaching-materials | Syllabi, lesson plans, assignments, rubrics, discussion guides |
-| applied-practice | Client engagements: statements of work, stakeholder readouts, insight synthesis, workshop facilitation, research repositories |
-| repeated-work | Whether work that keeps repeating should be encoded at all, and only then what kind of thing it wants |
-| tool-building | Specifying and building a custom research instrument — scraper, MCP server, skill, or agent — before any code is written: sorting rule-following steps from judgment calls, declaring what counts as correct, a ratification gate, a decision record for a methods appendix. Repairs a broken instrument by reproducing the failure first, then patching with checks locked |
+| research-question | Helps you turn a research interest into a clear, answerable research question. Walks through the five parts a good question needs and checks it against a rubric. |
+| literature-review | Helps you plan and write a literature review, whether narrative, scoping, or systematic. Guides your search strategy, logs what you screened and why, and helps you build the bibliography or framework you need. |
+| methodology-selection | Helps you choose and justify research methods that fit your question and your stance. Checks that your methods actually match what you are trying to find out, including when you need more than one. |
+| research-plan | Helps you write a standalone research plan. Covers every section, from the problem statement through feasibility. |
+| irb-protocol | Helps you write your IRB protocol. Covers risk assessment and the specific ethics of digital ethnography, section by section. |
+| informed-consent | Helps you design your informed consent process. Covers different consent modes, like written, verbal, layered, or community-based, and how to adapt them to your cultural context. |
+| grant-proposal | Helps you write a grant proposal for a specific funder. Covers NSF CA-DDRIG, Wenner-Gren, Fulbright, ERC, SSHRC, and Wellcome, each with its own guidance. |
+| dissertation-prospectus | Helps you write your dissertation prospectus, section by section. Works whether your prospectus is short or long. |
+| fieldwork-methods | Helps you design your fieldwork instruments. Covers interview guides, observation protocols, sampling strategy, and how you will manage your data. |
+| qualitative-analysis | Helps you analyze your qualitative data. Covers building a codebook, coding it, and pulling out themes, including comparing across more than one analytical lens. |
+| ethnographic-generalization | Helps you figure out what your confirmed findings actually generalize to. Walks through the kind of claim you can make, builds its warrant, and states its scope and how confident you can be. |
+| digital-computational-methods | Helps you design digital or computational research methods. Covers digital ethnography, platform ethics, large-scale text analysis, and working alongside AI tools. |
+| paper-planning | Helps you work out what your paper actually argues before you draft it. Extracts your claim, positions it against existing work, and sequences your argument through questions rather than writing. |
+| research-writing | Helps you write your article or dissertation chapter. Covers its structure, ethnographic craft, and the conventions of your subfield or journal. |
+| academic-review | Helps you write peer reviews and respond to them. Covers writing the review itself, rebuttal letters, and your revision strategy. |
+| manuscript-markup | Helps you work through a manuscript that came back marked up with comments. Reads each comment in place, sorts them, works through them, and drafts your reply letter. |
+| conference-materials | Helps you prepare for a conference. Covers AAA abstracts, slide decks, posters, speaker notes, and how you will deliver the talk. |
+| public-engagement | Helps you write for a general audience. Covers op-eds, blog posts, policy briefs, and community reports. |
+| job-materials | Helps you prepare your job market materials. Covers your CV, cover letter, job talk, and overall application strategy. |
+| career-statements | Helps you write your career statements. Covers research, teaching, and diversity statements, and tenure narratives. |
+| teaching-materials | Helps you build your course materials. Covers syllabi, lesson plans, assignments, rubrics, and discussion guides. |
+| applied-practice | Helps you write client-facing deliverables. Covers statements of work, stakeholder readouts, insight synthesis, and workshop materials. |
+| repeated-work | Helps you decide whether work you keep repeating is actually worth turning into a tool. Only if it is, helps you figure out what kind of tool it should be. |
+| tool-building | Helps you build your own research tool, like a scraper, MCP server, skill, or agent. Works out a specification with you before writing any code. |
 
 ### Using the Skills in Other Agents
 

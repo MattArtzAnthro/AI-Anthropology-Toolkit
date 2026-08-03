@@ -15,30 +15,30 @@ markdown.
 
 | Skill | Phase | Covers |
 |-------|-------|--------|
-| research-question | Research Design | Question formulation: five-slot grammar, evaluation rubric, genre conventions |
-| literature-review | Research Design | Review genres (narrative, scoping, systematic), search strategy and logging, screening with audit trails, annotated bibliographies, literature matrices, theoretical and conceptual frameworks |
-| methodology-selection | Research Design | Method choice and justification, method-stance compatibility, multi-method design |
-| research-plan | Research Design | Standalone research plans: ten-section architecture, problem through feasibility |
-| dissertation-prospectus | Research Design | Prospectuses, qualifying exam and upgrade documents, committee expectations |
-| irb-protocol | Ethics & Compliance | IRB protocol narratives, risk assessment, digital ethnography ethics |
-| informed-consent | Ethics & Compliance | Consent modes (written, verbal, layered, community-based), cultural adaptation |
-| fieldwork-methods | Fieldwork | Interview guides, observation protocols, sampling, data management plans |
-| qualitative-analysis | Analysis | Codebooks, deductive/inductive/hybrid coding, thematic analysis, multi-lens comparison |
-| ethnographic-generalization | Analysis | Moving from confirmed findings to the broader claim they can support: kinds of generalization, emic-to-etic translation, disconfirmation and rivals, scope conditions, confidence calibration, the claim record |
-| digital-computational-methods | Data Collection & Analysis | Digital ethnography and netnography design, platform ethics, computational text methods (topic modeling, NER, text networks), AI-collaboration design |
-| grant-proposal | Funding | NSF CA-DDRIG, Wenner-Gren, Fulbright, ERC, SSHRC, Wellcome funder-specific guidance |
-| paper-planning | Writing & Review | Working out what a paper argues before drafting: claim extraction, the paper's position against the existing conversation, argument sequencing |
-| research-writing | Writing & Review | Journal articles, thesis and dissertation chapters, ethnographic craft |
-| academic-review | Writing & Review | Peer review writing, rebuttal letters, revision strategy |
-| manuscript-markup | Writing & Review | A manuscript returned marked up: comments read with their anchored spans, sorted, worked, and answered in a letter |
-| conference-materials | Dissemination | AAA abstracts, slide decks, posters, speaker notes |
-| public-engagement | Dissemination | Op-eds, blog posts, policy briefs, community reports, media preparation |
-| job-materials | Career | Academic CVs, cover letters, job talks, application strategy |
-| career-statements | Career | Research, teaching, and diversity statements; tenure narratives |
-| applied-practice | Applied Practice | Client deliverables for practicing anthropologists: SOWs, readouts, insight formulation, workshops, repositories, business translation without losing the anthropology |
-| teaching-materials | Career | Syllabi, lesson plans, assignments, rubrics, discussion guides |
-| repeated-work | Building | Whether work that keeps repeating should be encoded at all, and only then what kind of thing it wants |
-| tool-building | Building | Specifying and building a custom research instrument — scraper, MCP server, skill, or agent — before any code is written: sorting rule-following steps from judgment calls, declaring what counts as correct, a ratification gate, a decision record for a methods appendix. Repairs a broken instrument by reproducing the failure first, then patching with checks locked |
+| research-question | Research Design | Helps you turn a research interest into a clear, answerable research question. Walks through the five parts a good question needs and checks it against a rubric. |
+| literature-review | Research Design | Helps you plan and write a literature review, whether narrative, scoping, or systematic. Guides your search strategy, logs what you screened and why, and helps you build the bibliography or framework you need. |
+| methodology-selection | Research Design | Helps you choose and justify research methods that fit your question and your stance. Checks that your methods actually match what you are trying to find out, including when you need more than one. |
+| research-plan | Research Design | Helps you write a standalone research plan. Covers every section, from the problem statement through feasibility. |
+| dissertation-prospectus | Research Design | Helps you write your dissertation prospectus. Covers qualifying exam and upgrade documents and what your committee expects. |
+| irb-protocol | Ethics & Compliance | Helps you write your IRB protocol. Covers risk assessment and the specific ethics of digital ethnography, section by section. |
+| informed-consent | Ethics & Compliance | Helps you design your informed consent process. Covers different consent modes, like written, verbal, layered, or community-based, and how to adapt them to your cultural context. |
+| fieldwork-methods | Fieldwork | Helps you design your fieldwork instruments. Covers interview guides, observation protocols, sampling strategy, and how you will manage your data. |
+| qualitative-analysis | Analysis | Helps you analyze your qualitative data. Covers building a codebook, coding it, and pulling out themes, including comparing across more than one analytical lens. |
+| ethnographic-generalization | Analysis | Helps you figure out what your confirmed findings actually generalize to. Walks through the kind of claim you can make, tests it against disconfirming cases and rivals, and states its scope and how confident you can be. |
+| digital-computational-methods | Data Collection & Analysis | Helps you design digital or computational research methods. Covers digital ethnography, platform ethics, computational text methods like topic modeling and text networks, and working alongside AI tools. |
+| grant-proposal | Funding | Helps you write a grant proposal for a specific funder. Covers NSF CA-DDRIG, Wenner-Gren, Fulbright, ERC, SSHRC, and Wellcome, each with its own guidance. |
+| paper-planning | Writing & Review | Helps you work out what your paper actually argues before you draft it. Extracts your claim, positions it against existing work, and sequences your argument through questions rather than writing. |
+| research-writing | Writing & Review | Helps you write your journal article or thesis chapter. Covers ethnographic craft and the conventions of your subfield. |
+| academic-review | Writing & Review | Helps you write peer reviews and respond to them. Covers writing the review itself, rebuttal letters, and your revision strategy. |
+| manuscript-markup | Writing & Review | Helps you work through a manuscript that came back marked up with comments. Reads each comment in place, sorts them, works through them, and drafts your reply letter. |
+| conference-materials | Dissemination | Helps you prepare for a conference. Covers AAA abstracts, slide decks, posters, and speaker notes. |
+| public-engagement | Dissemination | Helps you write for a general audience. Covers op-eds, blog posts, policy briefs, and community reports. |
+| job-materials | Career | Helps you prepare your job market materials. Covers your CV, cover letter, job talk, and overall application strategy. |
+| career-statements | Career | Helps you write your career statements. Covers research, teaching, and diversity statements, and tenure narratives. |
+| applied-practice | Applied Practice | Helps you write client-facing deliverables for applied anthropology work. Covers statements of work, stakeholder readouts, insight synthesis, and workshops, without losing the anthropology in translation. |
+| teaching-materials | Career | Helps you build your course materials. Covers syllabi, lesson plans, assignments, rubrics, and discussion guides. |
+| repeated-work | Building | Helps you decide whether work you keep repeating is actually worth turning into a tool. Only if it is, helps you figure out what kind of tool it should be. |
+| tool-building | Building | Helps you build your own research tool, like a scraper, MCP server, skill, or agent. Works out a specification with you before writing any code. |
 
 ## Agents (autonomous, multi-step work across skills)
 
