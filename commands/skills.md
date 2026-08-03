@@ -38,7 +38,7 @@ markdown.
 | applied-practice | Applied Practice | Client deliverables for practicing anthropologists: SOWs, readouts, insight formulation, workshops, repositories, business translation without losing the anthropology |
 | teaching-materials | Career | Syllabi, lesson plans, assignments, rubrics, discussion guides |
 | repeated-work | Building | Whether work that keeps repeating should be encoded at all, and only then what kind of thing it wants |
-| tool-building | Building | Building your own research instruments: stating the outcome, sorting which steps a rule can settle and which need judgment, declaring what would count as correct, and keeping a decision record. Also repairs a broken instrument: reproduction before patch, checks locked, each defect closed as a rule |
+| tool-building | Building | Specifying and building a custom research instrument — scraper, MCP server, skill, or agent — before any code is written: sorting rule-following steps from judgment calls, declaring what counts as correct, a ratification gate, a decision record for a methods appendix. Repairs a broken instrument by reproducing the failure first, then patching with checks locked |
 
 ## Agents (autonomous, multi-step work across skills)
 

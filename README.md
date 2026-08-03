@@ -106,7 +106,7 @@ Research skills in the portable [SKILL.md format](https://agentskills.io) that a
 | teaching-materials | Syllabi, lesson plans, assignments, rubrics, discussion guides |
 | applied-practice | Client engagements: statements of work, stakeholder readouts, insight synthesis, workshop facilitation, research repositories |
 | repeated-work | Whether work that keeps repeating should be encoded at all, and only then what kind of thing it wants |
-| tool-building | Building your own research instruments: the outcome, which steps a rule can settle and which need judgment, what would count as correct, and a decision record for a methods appendix. Repairs broken instruments reproduction-first |
+| tool-building | Specifying and building a custom research instrument — scraper, MCP server, skill, or agent — before any code is written: sorting rule-following steps from judgment calls, declaring what counts as correct, a ratification gate, a decision record for a methods appendix. Repairs a broken instrument by reproducing the failure first, then patching with checks locked |
 
 ### Using the Skills in Other Agents
 
