@@ -38,6 +38,7 @@ Skills are organized conceptually by research lifecycle phase. Each row is a sep
 | Writing | [Research Writing](research-writing/) | `research-writing/` | Available |
 | Peer Review | [Academic Review & Manuscript Evaluation](academic-review/) | `academic-review/` | Available |
 | Peer Review | [Manuscript Markup & Editor Feedback](manuscript-markup/) | `manuscript-markup/` | Available |
+| Production | [Proof Review](proof-review/) | `proof-review/` | Available |
 | Conferences & Presentations | [Conference Materials & Presentations](conference-materials/) | `conference-materials/` | Available |
 | Public Engagement | [Public Engagement & Communication](public-engagement/) | `public-engagement/` | Available |
 | Teaching | [Teaching Materials](teaching-materials/) | `teaching-materials/` | Available |

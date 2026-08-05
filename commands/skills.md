@@ -31,6 +31,7 @@ markdown.
 | research-writing | Writing & Review | Helps you write your journal article or thesis chapter. Covers ethnographic craft and the conventions of your subfield. |
 | academic-review | Writing & Review | Helps you write peer reviews and respond to them. Covers writing the review itself, rebuttal letters, and your revision strategy. |
 | manuscript-markup | Writing & Review | Helps you work through a manuscript that came back marked up with comments. Reads each comment in place, sorts them, works through them, and drafts your reply letter. |
+| proof-review | Writing & Review | Helps you check a publisher's typeset proof against the manuscript you submitted. Compares them word by word, checks that your pseudonyms, quoted speech, and citations survived production, and writes the correction list you send back. |
 | conference-materials | Dissemination | Helps you prepare for a conference. Covers AAA abstracts, slide decks, posters, and speaker notes. |
 | public-engagement | Dissemination | Helps you write for a general audience. Covers op-eds, blog posts, policy briefs, and community reports. |
 | job-materials | Career | Helps you prepare your job market materials. Covers your CV, cover letter, job talk, and overall application strategy. |
