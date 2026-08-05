@@ -99,6 +99,7 @@ Research skills in the portable [SKILL.md format](https://agentskills.io) that a
 | research-writing | Helps you write your article or dissertation chapter. Covers its structure, ethnographic craft, and the conventions of your subfield or journal. |
 | academic-review | Helps you write peer reviews and respond to them. Covers writing the review itself, rebuttal letters, and your revision strategy. |
 | manuscript-markup | Helps you work through a manuscript that came back marked up with comments. Reads each comment in place, sorts them, works through them, and drafts your reply letter. |
+| proof-review | Helps you check a publisher's typeset proof against the manuscript you submitted. Compares them word by word, checks that your pseudonyms, quoted speech, and citations survived production, and writes the correction list you send back. |
 | conference-materials | Helps you prepare for a conference. Covers abstracts, slide decks, posters, speaker notes, and how you will deliver the talk. |
 | public-engagement | Helps you write for a general audience. Covers op-eds, blog posts, policy briefs, and community reports. |
 | job-materials | Helps you prepare your job market materials. Covers your CV, cover letter, job talk, and overall application strategy. |

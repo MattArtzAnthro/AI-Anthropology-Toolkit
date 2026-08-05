@@ -96,6 +96,42 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Claude Code Plugin
 
+### 1.20.0 — 2026-08-05
+- Added proof-review, the 25th skill: auditing a publisher's typeset proof against the manuscript
+  that was submitted. Four references cover the comparison method, the ethnographic integrity pass,
+  the citation and reference audit, and the report format. The skill closes the last gap in the
+  writing arc — paper-planning settles the argument, research-writing drafts it, academic-review
+  and manuscript-markup handle what comes back from reviewers and editors, and nothing until now
+  covered the stage where an error stops being correctable.
+- Two design commitments. Comparison runs on two channels, text extraction for the exact string
+  diff and rendered pages for everything extraction destroys or invents, and a finding from
+  extraction alone is confirmed visually before it enters the report — most false positives in a
+  proof audit are extraction artifacts, and a correction list containing them costs the author
+  credibility with the press. Normalization rules keep mechanical typesetting conversions out of
+  the report, with a stated exception for the hyphen and dash changes that alter a compound,
+  proper noun, citation, number, or spelling, because those arrive looking exactly like the noise
+  the rules exist to suppress.
+- The ethnographic integrity pass is what makes this an anthropology skill rather than a
+  proofreading procedure. A copyeditor's consistency sweep is the most dangerous thing that
+  happens to a pseudonymized manuscript, and a compositor's cleanup is the most dangerous thing
+  that happens to a transcribed quotation: regularized participant grammar, dropped brackets and
+  transcription notation, glottal stops converted by a smart-quotes pass, vernacular terms
+  re-italicized against an author's deliberate refusal, and figure renumbering that reattaches a
+  caption. Anything touching anonymization or consent is escalated individually and routed to
+  informed-consent, never resolved from the two files, because the consent agreement is in
+  neither.
+- Tier 2 under Friction by Design. The comparison is mechanical and runs in full; what a
+  difference means is not. The skill recommends a verdict on every discrepancy and on the proof as
+  a whole, and does not approve a proof, does not decide that an uncertain change is acceptable
+  house style, and does not convert an open question into a settled one under deadline pressure.
+  Category 6 exists so uncertainty reaches the author as uncertainty. Reports carry three
+  registers: Unresolved, Assembled rather than authored, and Not examined — the third because an
+  audit that does not say what it could not read is claiming a completeness it does not have.
+- writing-advisor orchestrates it. Routing evals extended: proof-review holds its four prompts by
+  0.27 to 0.49, and the corpus's tightest pre-existing pair (public-engagement vs
+  dissertation-prospectus) improved from 0.007 to 0.008 rather than degrading, so the 25th skill
+  needed no repair to a sibling description.
+
 ### 1.19.0 — 2026-08-02
 - Added the working principle to the repository's agent instructions (CLAUDE.md, AGENTS.md,
   GEMINI.md): be adversarial toward your own output; trust what survives an attempt to break it;

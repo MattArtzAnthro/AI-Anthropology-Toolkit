@@ -115,6 +115,12 @@ TRIGGER_PROMPTS = {
         "read the marked up file my advisor returned",
         "draft the letter to my editor saying what I changed",
     ],
+    "proof-review": [
+        "my page proofs arrived from the publisher",
+        "compare the typeset pdf proof against the manuscript I submitted",
+        "what corrections should I send the press about these proofs",
+        "is this proof safe to approve or did the compositor break something",
+    ],
     "repeated-work": [
         "I keep doing this same cleanup by hand every week",
         "there must be a better way to do this than doing it manually",
