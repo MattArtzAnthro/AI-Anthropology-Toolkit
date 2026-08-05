@@ -10,6 +10,7 @@ prompt templates must remain verbatim ports of the published notebooks.
 
 import asyncio
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -77,6 +78,45 @@ class TestNetworkHygiene(unittest.TestCase):
         self.assertEqual(offenders, [],
                          "requests calls without a timeout can hang forever: "
                          + ", ".join(offenders))
+
+
+class TestDependencyBounds(unittest.TestCase):
+    """A major release of a dependency can remove what the server imports.
+
+    mcp 2.0.0 dropped mcp.server.fastmcp. With an unbounded requirement, a
+    fresh resolve picks it up and ai-anthro-mcp dies at import — while this
+    suite stays green, because it runs against whatever mcp is already
+    installed rather than against what a new install would choose. Nothing
+    else here can see that, so the bound itself is the thing under test.
+    """
+
+    def _requirement(self, name: str) -> str:
+        text = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+        block = re.search(r"^dependencies\s*=\s*\[(.*?)^\]", text, re.S | re.M)
+        self.assertIsNotNone(block, "no dependencies array in pyproject.toml")
+        for spec in re.findall(r'"([^"]+)"', block.group(1)):
+            if re.match(rf"{name}\b", spec):
+                return spec
+        self.fail(f"{name} is not declared in dependencies")
+
+    def test_mcp_requirement_has_an_upper_bound(self):
+        spec = self._requirement("mcp")
+        self.assertTrue(
+            "<" in spec,
+            f"the mcp requirement is {spec!r}, with no upper bound. mcp 2.0.0 "
+            "removed mcp.server.fastmcp, so an unbounded requirement resolves "
+            "to a release the server cannot start under.",
+        )
+
+    def test_the_module_the_server_imports_still_exists(self):
+        try:
+            import mcp.server.fastmcp  # noqa: F401
+        except ModuleNotFoundError as exc:
+            self.fail(
+                f"mcp.server.fastmcp is not importable ({exc}). The installed "
+                "mcp is a release this server cannot run on; check the upper "
+                "bound in pyproject.toml.",
+            )
 
 
 class TestPromptParity(unittest.TestCase):

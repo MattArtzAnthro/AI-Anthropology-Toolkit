@@ -15,7 +15,10 @@ license-files = ["LICENSE"]
 authors = [{ name = "Matt Artz" }]
 keywords = ["anthropology", "qualitative-research", "ethnography", "mcp"]
 dependencies = [
-    "mcp>=1.2",
+    # Upper bound is load-bearing: mcp 2.0.0 removed mcp.server.fastmcp, which
+    # this server imports. An unbounded requirement resolves to it and the
+    # server fails at import.
+    "mcp>=1.2,<2",
     "requests>=2.31",
     "numpy>=1.26",
 ]
