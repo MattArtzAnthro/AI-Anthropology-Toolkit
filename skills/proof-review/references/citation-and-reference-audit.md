@@ -55,6 +55,22 @@ for by name:
   a Western given-name-then-surname pair will produce a wrong citation and
   a wrong alphabetical position, and it will do so consistently enough to
   look intentional.
+
+  The two failures compound, and the mechanism is worth checking for
+  directly: a hyphenated surname read as two authors adds a phantom author
+  to the citation, which can push a two-author citation over the press's
+  et al. threshold. The result is a citation that has both lost half a
+  surname and gained an et al. it was never entitled to, from one parsing
+  error. **Check every et al. in the proof against the author count in the
+  reference entry**, not against the author count in the manuscript's
+  citation, because that is where the phantom author becomes visible.
+
+- **Names that are correctly lowercase, spaced, or otherwise
+  unconventional.** Some scholars style their names in ways a
+  capitalization pass will treat as an error and correct. These survive or
+  fail silently, so verify each against the manuscript in both the
+  citation and the reference entry rather than assuming a consistent-
+  looking list is a correct one.
 - **Page references dropped** from citations of quoted material, which
   turns a locatable quotation into an unlocatable one.
 

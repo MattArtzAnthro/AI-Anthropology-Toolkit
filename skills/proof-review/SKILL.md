@@ -8,11 +8,11 @@ description: >
   five days," "did the copyeditor change my meaning," "answer the author
   queries," "what corrections should I send the publisher," "is this proof
   safe to approve." Covers comparing proof against manuscript word by
-  word, separating typesetting artifacts from real
-  discrepancies, auditing citations and the reference list, inspecting
-  rendered pages for production faults, checking that pseudonyms, quoted
-  speech, and orthography survived production, and producing a classified
-  discrepancy table plus a correction list written in proof-form language.
+  word, separating typesetting artifacts from real discrepancies, auditing
+  citations and the reference list, inspecting rendered pages for
+  production faults, checking that pseudonyms, quoted speech, and
+  orthography survived, and producing a classified discrepancy table plus
+  a correction list in proof-form language.
   Do NOT use for comments and tracked changes in a returned .docx (use
   manuscript-markup), for a reviewer report or rebuttal (use
   academic-review), or for drafting prose (use research-writing).
@@ -100,16 +100,32 @@ Collect, as facts rather than as decisions, and in one pass:
   shapes which findings can be sent, not which findings are reported.
 - The house style, if stated. An unstated house style is inferred from the
   proof and labeled as inferred.
+- **Any queries already in the manuscript**, as comments, marginal notes,
+  or a copyeditor's query list. Extract them in full before comparing
+  anything.
+
+That last item is a step of its own, and skipping it is the most
+consequential omission available at this stage. Queries raised on the
+manuscript are supposed to be answered by the time the proof exists, and
+the proof shows only the ones that were not. A query resolved differently
+from how it was asked, or dropped without being answered, leaves no trace
+on the page at all. Build the list from the manuscript, check each item
+against what the proof actually contains, and classify each as answered,
+answered differently than asked, or silently dropped. The second and third
+are findings, and the third will not be found any other way.
 
 ### Step 2: Set Up the Comparison
 
 Read [references/comparison-method.md](references/comparison-method.md).
 
-Use both channels. Text extraction gives the exact string comparison.
+Use all three reads. Text extraction gives the exact string comparison.
 Rendered pages give everything extraction destroys or invents: ligatures,
-discretionary hyphens, dropped glyphs, figure placement, clipped text.
-Neither channel alone is a proof audit, and a finding from extraction alone
-is confirmed against the rendered page before it enters the report.
+discretionary hyphens, dropped glyphs, figure placement, clipped text. The
+annotation layer gives the queries and marks that are in the file but not
+in the page content, including the author's own from an earlier sitting.
+
+No single read is a proof audit, and a finding from extraction alone is
+confirmed against the rendered page before it enters the report.
 
 Work the full scope inventory in the reference rather than the body text
 alone. Front matter, contributor biography, acknowledgments, running heads,
@@ -246,6 +262,9 @@ change they were never shown.
 | The correction list padded with house-style changes | Category 5 is reported and excluded from the list by rule |
 | Deadline pressure converting an open question into an approval | Named in the division of labour; the recommendation states unresolved items rather than absorbing them |
 | An audit called complete when three figures were illegible | The Not examined register, which is a required section rather than a caveat |
+| A manuscript query silently dropped instead of answered | Step 1 builds the query list from the manuscript and checks each against the proof; a dropped query leaves no mark on the page |
+| The author's own earlier annotations reported back to them as findings | The annotation layer is read first and attributed before the pages are read |
+| A URL "corrected" or "broken" on the strength of a line-break hyphen | URLs and DOIs are exempt from de-hyphenation and are resolved visually or not at all |
 
 ## Examples
 

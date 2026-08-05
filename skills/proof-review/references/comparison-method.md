@@ -20,12 +20,26 @@ the source text and the copyedit becomes evidence of when a change entered.
 A change the author accepted at copyedit is not a proof error, and saying
 so keeps the correction list credible.
 
-## The Two Channels
+## The Three Reads
 
-Use both:
+Use all three:
 
 - **Text extraction** for exact textual comparison.
 - **Rendered PDF pages** for visual and typesetting inspection.
+- **The PDF annotation layer**, read separately from the page content.
+
+The third is easy to forget and changes what the other two mean. A proof
+can carry annotations from two directions: the publisher's author queries,
+which some presses deliver as sticky notes rather than as printed marginal
+text, and the author's own in-progress corrections from an earlier sitting.
+Read the annotation layer before the pages, list what is there with its
+author, and keep the author's own marks out of the findings — a mark the
+author already made is not a discrepancy the audit discovered, and
+reporting it back to them as one wastes the review.
+
+Annotations that strike through or replace text also change what the
+rendered page appears to say, so an audit that reads the pages without
+reading the annotation layer will misread struck text as printed text.
 
 Do not rely solely on PDF text extraction. Line breaks, ligatures,
 discretionary hyphens, and embedded figures produce misleading results:
@@ -37,6 +51,25 @@ The rule that follows: **a finding produced by extraction alone is
 confirmed on the rendered page before it enters the report.** Most false
 positives in a proof audit are extraction artifacts, and a correction list
 containing them costs the author credibility with the press.
+
+Three extraction hazards recur and are worth handling before any diff
+rather than debugging afterwards:
+
+- **Running heads and folios.** There are usually two running heads, one
+  on the verso and one on the recto, and they carry different text: the
+  book or part title on one side, the chapter or author on the other.
+  Identify both and remove them along with the page numbers before
+  comparing, or every page boundary produces a phantom insertion.
+- **Marginal queries.** A query set in the margin extracts as text
+  interleaved into the body stream at whatever vertical position it sits,
+  which splits the sentence or reference it lands beside. Pull marginal
+  material out and audit it separately rather than letting it corrupt the
+  diff.
+- **Italics and bold do not survive plain-text extraction at all.** A
+  formatting comparison has to read the source document's run properties,
+  not its extracted text. Without that, a journal title the publisher
+  failed to italicize and one the author never italicized look identical,
+  and they are different findings with different corrections.
 
 The converse also holds. Extraction catches what the eye does not: a
 changed digit, a dropped article, a duplicated word across a page break.
@@ -162,6 +195,17 @@ to suppress noise. A double-barrelled surname collapsed to a single
 hyphenated form, a page range that became a date range, a compound whose
 meaning turns on the hyphen: each of these arrives looking exactly like
 the mechanical conversions above.
+
+**URLs and DOIs are exempt from the de-hyphenation rule.** Never resolve a
+line-break hyphen inside a URL or DOI from extraction. Suppressing it
+silently deletes a hyphen that may belong to the address, and reporting it
+invents a broken link that is not broken. Both errors are common and both
+are expensive: one lets a dead link reach print, the other puts a false
+finding in front of the press. Every URL or DOI that breaks across a line
+is resolved by reading the rendered page, character by character, and if it
+cannot be read reliably it goes in the **Not examined** register rather
+than being guessed either way. The same applies to the space that
+extraction inserts at a URL's wrap point.
 
 **Font substitution has a matching exception.** Suppress it as a
 difference in typeface. Report it when a glyph changed identity: a
