@@ -41,6 +41,17 @@ Annotations that strike through or replace text also change what the
 rendered page appears to say, so an audit that reads the pages without
 reading the annotation layer will misread struck text as printed text.
 
+**A PDF that has been annotated and re-saved carries incremental updates,
+and not every library reads the latest one.** A parser that resolves an
+earlier revision returns a stale annotation set with total confidence and
+no error, which reads as "nothing has changed since I last looked" when
+the author has in fact been working. Before concluding that a re-saved
+proof is unchanged, check the file for multiple end-of-file markers and
+confirm the annotation count against the raw bytes. Where the two
+disagree, the raw file wins and the library is reading the wrong revision.
+Telling an author their corrections did not save, when they did, destroys
+confidence in the rest of the audit.
+
 Do not rely solely on PDF text extraction. Line breaks, ligatures,
 discretionary hyphens, and embedded figures produce misleading results:
 extraction invents spaces, drops soft hyphens inconsistently, decomposes
