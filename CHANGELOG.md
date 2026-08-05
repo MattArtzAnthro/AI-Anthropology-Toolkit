@@ -25,6 +25,13 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 - Read-only by design. Writing edits and resolved comments back into a .docx is out of scope,
   because tracked-change XML is easy to write in a way that opens correctly in one reader and
   breaks in Word, and the author would find out at the editor's desk
+- Bounded the mcp requirement at `>=1.2,<2`. The 2.0.0 release of the MCP Python SDK removed
+  `mcp.server.fastmcp`, which this server imports, so the previously unbounded requirement
+  resolved to a version the server could not start under. A fresh install of any earlier release
+  hits the same wall, because the bound is what was missing rather than anything in the release
+- Added a tripwire for it in `tests/package/test_consistency.py`. The suite could not have caught
+  this on its own: it runs against whatever mcp is already installed rather than against what a
+  fresh resolve would pick, so the bound itself is now what is asserted
 
 ### 3.1.0 — 2026-07-27
 - toolkit_info now carries a companion_plugins field listing tools the toolkit hands off to
