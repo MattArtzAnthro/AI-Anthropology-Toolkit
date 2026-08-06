@@ -101,6 +101,36 @@ where the obvious reading of their specification was not their reading, and
 that gap is worth more to a methods appendix than the answers that were
 guessed correctly.
 
+## Showing that the instrument honours the answers
+
+Settling the five in a table records what the researcher intends. It does not
+show that the instrument does it, and an instrument that quietly disagrees
+with its own specification is worse than one with no specification at all.
+
+`ai_anthro_toolkit.checks.mutate` supplies one mutation per commitment — the
+input that would violate it — and a harness that runs a check against both
+the good records and the broken ones:
+
+```python
+from ai_anthro_toolkit.checks import mutate
+
+mutate.confirm_fires(check, records, "partial-presence", field="decided")
+mutate.confirm_all(check, records, field="decided")
+```
+
+A check that stays quiet on good records and fires on the mutation is
+guarding that commitment. A check that fires on both is not distinguishing
+anything, and a check that fires on neither is guarding nothing at all.
+Neither failure is visible without running the pair, which is why this is run
+rather than reasoned about.
+
+Two things it is not. Most checks guard one commitment and are correctly
+silent on the other four; read the results as a map of coverage, never as a
+score. And nothing here mutates code or reaches the network — mutating a
+collector's rate limit and re-running it is an unsandboxed adversarial run
+against someone else's server, and it can get a researcher blocked from the
+archive they are studying. Run these against records already in hand.
+
 ## Scope and limits
 
 **This reaches record-checkable steps.** For a step whose correctness depends
