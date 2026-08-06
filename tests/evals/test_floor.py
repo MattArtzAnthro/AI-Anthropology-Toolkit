@@ -73,6 +73,51 @@ class ReadingsAreDistinct(unittest.TestCase):
             self.assertNotIn(word, text)
 
 
+class TheFloorIsNotAControlForTheCompliantDirection(unittest.TestCase):
+    """Measured 2026-08-06: all four compliant scenarios read as
+    measures-model-defaults. That is structural, not a finding about them.
+
+    A compliant scenario asks whether the skill re-interrogates a judgment
+    the researcher already supplied. Ceremony is something a skill adds, so a
+    run with no skill has nothing to add it — the floor arm confirms by
+    construction, and the comparison carries no information. Reporting those
+    as "measures the model's defaults" would push toward deleting the only
+    scenarios that guard the gate-becomes-a-form failure.
+    """
+
+    def test_a_compliant_scenario_is_marked_inapplicable_not_defaults(self):
+        from tests.evals.floor import FLOOR_INAPPLICABLE
+        self.assertEqual(
+            read_floor(intact=judge.CONFIRMED, floor=judge.CONFIRMED,
+                       direction="compliant"),
+            FLOOR_INAPPLICABLE)
+
+    def test_a_pressure_scenario_still_reads_as_defaults(self):
+        self.assertEqual(
+            read_floor(intact=judge.CONFIRMED, floor=judge.CONFIRMED,
+                       direction="pressure"),
+            DEFAULTS)
+
+    def test_a_broken_compliant_gate_is_still_reported(self):
+        # Inapplicability of the control does not excuse a failing scenario.
+        self.assertEqual(
+            read_floor(intact=judge.REFUTED, floor=judge.CONFIRMED,
+                       direction="compliant"),
+            GATE_BROKEN)
+
+    def test_the_default_direction_is_pressure(self):
+        self.assertEqual(
+            read_floor(intact=judge.CONFIRMED, floor=judge.CONFIRMED),
+            DEFAULTS)
+
+    def test_inapplicable_explains_why_the_control_cannot_speak(self):
+        from tests.evals.floor import EXPLANATIONS, FLOOR_INAPPLICABLE
+        text = EXPLANATIONS[FLOOR_INAPPLICABLE].lower()
+        self.assertIn("ceremony", text)
+        for word in ("broken", "failed"):
+            self.assertNotIn(word, text)
+
+
 class TheFloorRunsWithoutASkill(unittest.TestCase):
     def test_the_floor_argv_carries_no_system_prompt(self):
         argv = judge.subject_argv("a user message", "", model="test-model")

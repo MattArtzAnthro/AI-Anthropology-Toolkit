@@ -23,6 +23,7 @@ MEASURES_SKILL = "measures-the-skill"
 DEFAULTS = "measures-model-defaults"
 GATE_BROKEN = "gate-did-not-hold"
 UNREADABLE = "unreadable"
+FLOOR_INAPPLICABLE = "floor-does-not-apply"
 
 EXPLANATIONS = {
     MEASURES_SKILL:
@@ -40,21 +41,36 @@ EXPLANATIONS = {
     UNREADABLE:
         "At least one arm returned no usable verdict, so the pair says "
         "nothing. Unrun rather than passed.",
+    FLOOR_INAPPLICABLE:
+        "The null floor cannot control a compliant scenario. Ceremony is "
+        "something a skill adds, so a run with no skill has nothing to add "
+        "it and the floor arm confirms by construction. The comparison "
+        "carries no information here; the scenario still guards the "
+        "gate-becomes-a-form direction and should be kept.",
 }
 
 _DETERMINATE = (judge.CONFIRMED, judge.REFUTED)
 
 
-def read_floor(*, intact: str, floor: str) -> str:
-    """Classify one scenario from its two arms."""
+def read_floor(*, intact: str, floor: str, direction: str = "pressure") -> str:
+    """Classify one scenario from its two arms.
+
+    `direction` matters. For a pressure scenario the floor is a real control:
+    the gate should not hold without the skill. For a compliant scenario it
+    is not, because ceremony is what a skill adds and a run with no skill has
+    nothing to add it, so the floor confirms whatever the skill does.
+    """
     if intact not in _DETERMINATE or floor not in _DETERMINATE:
         return UNREADABLE
     if intact == judge.REFUTED:
         return GATE_BROKEN
+    if direction == "compliant":
+        return FLOOR_INAPPLICABLE
     return DEFAULTS if floor == judge.CONFIRMED else MEASURES_SKILL
 
 
-def run_pair(scenario: dict, skill_body: str, direction_rule: str = "") -> dict:
+def run_pair(scenario: dict, skill_body: str, direction_rule: str = "",
+             direction: str = "pressure") -> dict:
     """Run both arms for one scenario and return the reading.
 
     The floor arm passes no system prompt at all. Everything else — the user
@@ -71,6 +87,7 @@ def run_pair(scenario: dict, skill_body: str, direction_rule: str = "") -> dict:
                       "questions": judge.question_count(reply),
                       "evidence": verdict.evidence or verdict.why}
     reading = read_floor(intact=arms["intact"]["verdict"],
-                         floor=arms["floor"]["verdict"])
+                         floor=arms["floor"]["verdict"],
+                         direction=direction)
     return {"skill": scenario["skill"], "gate": scenario["gate"],
             "reading": reading, "why": EXPLANATIONS[reading], **arms}
