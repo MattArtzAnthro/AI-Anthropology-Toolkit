@@ -67,6 +67,10 @@ The `ai-anthropology-toolkit` Python package ships in this repository (`pyprojec
 
 In environments with code execution but no MCP tools (agent sandboxes such as Claude Cowork, Codex CLI, Gemini CLI), the fallback chain is: `pip install "ai-anthropology-toolkit[data]"`, run `python -m ai_anthro_toolkit.doctor` to see which data sources the network allows, collect from reachable sources via the Python API, and route blocked sources to local execution or their Colab notebook. AGENTS.md and GEMINI.md at the repo root carry these instructions for non-Claude agents.
 
+## Releasing
+
+Two release tracks ship from one commit and the ordering matters: the package version is pinned inside `.mcp.json`, `AGENTS.md`, and `GEMINI.md`, so the package must be uploaded to PyPI **before** the commit is pushed, or every fresh install fails until it lands. A green test suite is not a release check — it runs against whatever is already installed and cannot see what a fresh resolve would pick. Full checklist, including why neither PyPI read path proves an upload landed, is in [RELEASING.md](RELEASING.md).
+
 ## Citation
 
 Artz, M. (2025). AI Anthropology Toolkit. DOI: https://doi.org/10.5281/zenodo.16728812

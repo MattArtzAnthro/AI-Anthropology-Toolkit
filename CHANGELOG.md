@@ -6,6 +6,26 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
+### 3.4.0 — 2026-08-05
+- Added `ai_anthro_toolkit.checks.mutate`: one mutation per commitment the `tool-building` Stage 4
+  table settles — emptiness, duplication, partial presence, unparseable values, ordering — plus a
+  harness that runs a check against both the good records and the broken ones. Settling a
+  commitment in a table records what the researcher intends; it does not show that the instrument
+  does it, and an instrument that quietly disagrees with its own specification is worse than one
+  with no specification at all.
+- A check that stays quiet on good input and fires on the mutation guards that commitment. A check
+  that fires on both distinguishes nothing, and one that fires on neither guards nothing. Neither
+  failure is visible without running the pair.
+- A raised exception counts as noticing: an instrument that crashes on a duplicate has registered
+  it, however rudely, and that is worth distinguishing from silence.
+- Input mutation only. Nothing mutates code, because rewriting a researcher's source produces
+  mutants that do not compile and mutants semantically identical to the original. Nothing reaches
+  the network, and a test asserts the module imports no network library: mutating a collector's
+  rate limit and re-running it is an unsandboxed adversarial run against someone else's server and
+  can get a researcher blocked from the archive they study.
+- Most checks guard one commitment and are correctly silent on the other four. Results are a map
+  of coverage, never a score.
+
 ### 3.3.0 — 2026-08-05
 - Added standing checks over durable artifacts (`ai_anthro_toolkit.checks`), the
   `get_artifact_checks` tool (27th), and the `ai-anthro-check` console script. Seven checks over
@@ -134,6 +154,52 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.23.1 — 2026-08-05
+- Added `tests/evals/judge.py` and known-bad anchors (`test_judge_anchors.py`), the first evidence
+  that the behavioural evals can detect a failure at all. Every gate scenario previously ran
+  against a skill whose gate language was present, so a suite that passed was equally consistent
+  with gates holding and with a judge that approves anything fluent.
+- Anchors are hand-authored replies whose correct verdict the author decides, which makes this the
+  one part of the eval program with an oracle outside the transcript. No skill is executed, so the
+  only variable is the judge.
+- Verdicts are three-valued — confirmed, refuted, cannot tell, plus insufficient context —
+  because grading a gate is interpretation-dependent and pass/fail claims are forbidden there. An
+  unparseable judge answer is now "cannot tell" rather than a refutation; it was previously scored
+  identically to a broken gate, which is an instrument that cannot say it does not know saying
+  something else instead.
+- The judge's cited evidence is now checked against the reply. A judge quoting something the reply
+  does not contain has not read what it graded, and the verdict is downgraded rather than trusted.
+- Judge and subject are separately configurable and no longer default to the same model. Grading
+  Claude-executed transcripts with the same Claude model is the maximum self-preference
+  configuration.
+- Replaced the `"?" not in reply` floor. It could only push a verdict toward broken, could not
+  fail an interrogation, penalised a gate routed as a table with an imperative prompt, and assumed
+  English orthography. Question count is retained as a signal for the interrogation failure mode
+  rather than as a verdict.
+- Measured result at k=5 on the interrogation anchor: the repo's existing criterion returns
+  "confirmed" 5/5 on one judge model and "refuted" 4/5 on another, while a criterion naming the
+  construct returns "refuted" 5/5 on both. The criterion is the defect, and verdicts are
+  model- and prompt-dependent wherever it is under-specified.
+
+### 1.23.0 — 2026-08-05
+- `tool-building`'s unstated-commitments reference now closes its own loop: the Stage 4 table
+  settles what the instrument should do, and `checks.mutate` shows whether it does, with one
+  mutation per commitment. States plainly that most checks guard one commitment and are correctly
+  silent on the rest, and that nothing may be pointed at anything making a network call.
+
+### 1.22.1 — 2026-08-05
+- Added `RELEASING.md`. The package version is pinned inside `.mcp.json`, `AGENTS.md`, and
+  `GEMINI.md`, which ship in the same commit as the code, so the upload must precede the push or
+  every fresh install fails until it lands. Three consecutive releases broke this way.
+- It also records that a green test suite is not a release check — the suite runs against whatever
+  is already installed and cannot see what a fresh resolve would pick — and that neither PyPI read
+  path proves an upload landed, since both are CDN-cached and lag by different amounts. The check
+  that settles it is `uvx --refresh` against the extras-qualified spec, because a bare `==X`
+  resolves before `[data]==X` does and the simplified form gives a false all-clear.
+- Two tests hold the document: one that it still carries the ordering rule, names all three pin
+  sites, and requires the extras-qualified verification; one that README.md and CLAUDE.md point at
+  it. Both verified to fire when the rule is removed.
 
 ### 1.22.0 — 2026-08-05
 - `tool-building` gains `references/unstated-commitments.md` and reads it at Stage 4: the

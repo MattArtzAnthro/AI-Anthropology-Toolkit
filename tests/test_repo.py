@@ -853,6 +853,38 @@ class TestRepoDocs(unittest.TestCase):
         self.assertIn('pip install "ai-anthropology-toolkit[data]"', readme)
         self.assertIn("ai_anthro_toolkit.doctor", readme)
 
+    def test_releasing_doc_carries_the_ordering_rule(self):
+        """The package version is pinned in files that ship in the same commit
+        as the code, so pushing before uploading publishes a pin to a version
+        that does not exist. Three releases have broken this way; the rule
+        lives in RELEASING.md and this holds it there."""
+        doc = REPO / "RELEASING.md"
+        self.assertTrue(doc.is_file(), "RELEASING.md missing from repo root")
+        text = doc.read_text(encoding="utf-8")
+        self.assertIn(
+            "before pushing", text,
+            "RELEASING.md no longer states that the upload precedes the push",
+        )
+        for pin_site in (".mcp.json", "AGENTS.md", "GEMINI.md"):
+            self.assertIn(
+                pin_site, text,
+                f"RELEASING.md does not name {pin_site} as carrying the pin",
+            )
+        self.assertIn(
+            "[data]==", text,
+            "RELEASING.md must require verifying the extras-qualified spec: "
+            "a bare ==X resolves before [data]==X does, so checking the "
+            "simplified form gives a false all-clear",
+        )
+
+    def test_releasing_doc_is_discoverable(self):
+        for name in ("README.md", "CLAUDE.md"):
+            text = (REPO / name).read_text(encoding="utf-8")
+            self.assertIn(
+                "RELEASING.md", text,
+                f"{name} does not point at RELEASING.md",
+            )
+
     def test_doctor_console_script_registered(self):
         pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
         self.assertIn('ai-anthro-doctor = "ai_anthro_toolkit.doctor:main"',

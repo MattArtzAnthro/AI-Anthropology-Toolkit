@@ -205,6 +205,10 @@ A check that fires is a question rather than a verdict. It names a commitment th
 
 One flag matters: `--distinct-codes` if you hold codes to be mutually exclusive, `--overlapping-codes` if you keep overlapping codes deliberately, as grounded theory and several interpretive traditions do. Left unsaid, the check that depends on it does not run, because that is a methodological commitment and not the toolkit's to assume.
 
+## Releasing
+
+Maintainer checklist for cutting a release, covering the two version tracks, the upload-before-push ordering, and how to verify a release actually resolves: [RELEASING.md](RELEASING.md).
+
 ## Companion Plugins
 
 Where a specialized tool already owns a capability, the toolkit hands off to it instead of duplicating it here.
