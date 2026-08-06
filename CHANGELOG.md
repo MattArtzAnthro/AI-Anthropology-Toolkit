@@ -155,6 +155,67 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Claude Code Plugin
 
+### 1.25.0 — 2026-08-06
+- The gate evals now run isolated: the skill is passed as a real `--system-prompt` rather than
+  wrapped in `<system>` XML inside the user turn, MCP servers are excluded with
+  `--strict-mcp-config`, file and shell tools are denied, and the subject runs in a scratch
+  directory outside the repository.
+- **Measured, both arms in one session, 13 scenarios: six verdicts changed.** An unisolated run
+  reaches the repo's CLAUDE.md, which restates the gates; the intact SKILL.md on disk; the MCP
+  server, whose `start_coding_job` refuses an unratified codebook server-side; and the installed
+  plugin. The previous "all thirteen confirm" result was measuring the repository as much as the
+  skill body it passed.
+- One pressure gate does not hold in isolation — `tool-building`'s sort. Two compliant scenarios
+  refuted, meaning the isolated skill re-interrogated judgments the researcher had already
+  supplied, which is the gate that becomes a form. Two pressure verdicts improved from cannot-tell
+  to confirmed, so isolation buys cleaner measurement as well as a valid one.
+- The four leak routes ship as a named inventory, each with the countermeasure that closes it, so
+  a new one is a decision rather than a surprise. Guards fire when any measure is removed, and a
+  separate guard fires if the evals revert to shelling out to `claude` directly.
+- Added the null-floor reading (`tests/evals/floor.py`): the same scenario with no skill body at
+  all. A gate that holds either way is measuring the model's defaults, which is a finding about
+  the scenario rather than a failure — deleting it would destroy the finding. Cheaper and stronger
+  than ablating gate sentences, because it cannot silently fail to remove something.
+
+### 1.24.1 — 2026-08-06
+- Eval Phase 1. All nine pressure criteria now name the construct they test: a reply must route
+  the withheld judgment back usably, with options or one question, rather than interrogating,
+  lecturing, or re-opening what the user already settled. The anchor experiment showed the old
+  criteria were the defect — a reply asking fifteen questions and offering nothing scored as
+  holding on one judge model, and the same criterion produced opposite verdicts on two models.
+- `test_gate_holding` now grades through `judge.py` rather than inline, so it inherits three-valued
+  verdicts, evidence checked against the reply, and a judge model separate from the subject. The
+  anchors are what establish that judge can detect a failure; grading inline put an unvalidated
+  judge back in the path.
+- Undetermined results are reported separately as unrun rather than passed, so a suite that could
+  not read its own judge no longer looks green.
+- Question count is reported per scenario. It is a signal for "the interrogation that exhausts",
+  not a verdict — the reverse of the old floor, which treated any question mark as evidence a gate
+  had held.
+- Measured after the change: all thirteen scenarios confirm under the stricter criteria.
+  `methodology-selection` asked twelve questions while confirming, which the old instrument could
+  not have surfaced and which is the one to watch.
+
+### 1.24.0 — 2026-08-06
+- Added `scripts/release.py`, which performs a release in the one order that works and refuses to
+  continue when a step fails. Four consecutive releases shipped version pins ahead of the upload
+  that would satisfy them — including the commit that added `RELEASING.md`, which documents the
+  ordering. A document does not enforce an order.
+- The script prints "safe to push" only after the uploaded version has been observed to resolve
+  through the extras-qualified spec the plugin actually invokes, because a bare `==X` resolves
+  minutes before `[data]==X` does.
+- It never re-uploads on a negative resolve. Both PyPI read paths are CDN-cached and lag by
+  different amounts, so a negative result means not yet visible rather than upload failed, and a
+  version number cannot be reclaimed if the first upload did land.
+- Live tests report rather than block. Tests reaching a network service or the `claude` CLI fail
+  intermittently under a long suite run and pass in isolation, so preflight re-runs a live failure
+  before treating it as real. A gate that cries wolf gets routed around, which is the gate that
+  becomes a form.
+- 28 tests in `tests/test_release.py` hold the parts that can be checked without a network call:
+  the pin-site list, that the resolve check is extras-qualified, and that upload cannot precede
+  verification or follow the push signal. Every ordering guard was verified to fire when the order
+  is undone.
+
 ### 1.23.1 — 2026-08-05
 - Added `tests/evals/judge.py` and known-bad anchors (`test_judge_anchors.py`), the first evidence
   that the behavioural evals can detect a failure at all. Every gate scenario previously ran

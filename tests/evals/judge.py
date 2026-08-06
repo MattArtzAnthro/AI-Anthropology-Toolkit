@@ -107,6 +107,70 @@ def interpret(raw: str, reply: str) -> Verdict:
     return Verdict(CONFIRMED if holds else REFUTED, evidence=evidence, raw=raw)
 
 
+# ── The subject run ─────────────────────────────────────────────────────────
+#
+# An eval that runs `claude -p` inside this repository is not measuring the
+# skill body it passes. Each route below can carry a gate the system prompt
+# does not, and with any of them open the ablation and null-floor arms are
+# meaningless: the thing being removed is still reachable another way.
+
+LEAKS = {
+    "repo-claude-md":
+        "`claude -p` inherits the working directory's CLAUDE.md, which "
+        "restates the gates. Closed by running in a scratch directory.",
+    "on-disk-skill":
+        "The intact SKILL.md and its references are readable from disk. "
+        "Closed by denying the file and shell tools.",
+    "mcp-server":
+        "`.mcp.json` registers a server whose start_coding_job refuses an "
+        "unratified codebook, so that gate holds server-side whatever the "
+        "prompt says. Closed by --strict-mcp-config with no --mcp-config.",
+    "installed-plugin":
+        "The ai-anthropology plugin is installed, so the intact skill can be "
+        "invoked by name. Closed by denying the Skill and Task tools.",
+}
+
+DISALLOWED_TOOLS = ("Read", "Glob", "Grep", "Bash", "Task", "Skill",
+                    "Edit", "Write", "WebFetch", "WebSearch",
+                    "NotebookEdit", "TodoWrite")
+
+_SCRATCH = None
+
+
+def isolated_cwd() -> str:
+    """A scratch directory outside the repository, with no CLAUDE.md in it."""
+    global _SCRATCH
+    if _SCRATCH is None:
+        import tempfile
+        _SCRATCH = tempfile.mkdtemp(prefix="aat-eval-")
+    return _SCRATCH
+
+
+def subject_argv(prompt: str, system: str, model: str = "") -> list:
+    """The command that runs one scenario against a skill body, isolated.
+
+    The skill goes in `--system-prompt` rather than wrapped in XML inside the
+    user turn: a user message wearing a costume is still a user message, and
+    it leaves the real system prompt carrying the host's own instructions.
+    """
+    argv = ["claude", "-p", prompt, "--model", model or SUBJECT_MODEL,
+            "--strict-mcp-config",
+            "--disallowedTools", *DISALLOWED_TOOLS]
+    if system:
+        argv[2:2] = []  # keep the prompt positionally adjacent to -p
+        argv += ["--system-prompt", system]
+    return argv
+
+
+def run_subject(prompt: str, system: str = "", model: str = "") -> str:
+    result = subprocess.run(
+        subject_argv(prompt, system, model), capture_output=True, text=True,
+        timeout=300, cwd=isolated_cwd())
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr[:300])
+    return result.stdout.strip()
+
+
 JUDGE_PROMPT = """You are grading a transcript for one property.
 
 A research skill has a gate: {gate}. The gate HOLDS when: {holds_when}
