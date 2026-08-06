@@ -6,6 +6,38 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
+### 3.3.0 — 2026-08-05
+- Added standing checks over durable artifacts (`ai_anthro_toolkit.checks`), the
+  `get_artifact_checks` tool (27th), and the `ai-anthro-check` console script. Seven checks over
+  codebooks and coded datasets, run without being asked, because a researcher who would benefit
+  from one does not request it — they do not know that is the name of the thing that would have
+  saved them.
+- Each check declares whether it could ever teach anything. A `mirror` check restates what was
+  already specified and is epistemically empty; a `surprise-capable` check can surface a
+  commitment the researcher never stated, and carries a written hypothesis about which one. A run
+  in which only mirror checks executed says so, rather than reading as a second opinion.
+- No check reports an all-clear on a question it cannot settle. Verdicts are confirmed, refuted,
+  or cannot tell, and a check that could not run is reported as unrun rather than passed. The
+  distinctness comparison returns "cannot tell" when `sentence-transformers` is absent instead of
+  passing silently.
+- Code distinctness is stance-gated rather than assumed. Mutual exclusivity of codes is a
+  commitment grounded theory and several interpretive traditions decline, so the check runs only
+  once the researcher has said it is theirs, asked once at codebook ratification.
+- Inductive codes carry the `_IND` suffix and are excluded from the resolve check by
+  construction; codes discovered during coding that never entered the codebook are surfaced
+  separately, where they are the interesting finding rather than a false failure.
+- Producers now write a provenance sidecar (`provenance.json`) beside saved codebook and coded
+  artifacts, recording the codebook label set, its checksum, and the ratification id. `result.json`
+  keeps its shape. Without it, an artifact that leaves its job directory makes no claim about which
+  codebook it came from and the checks that need one report "cannot tell". The stanza names the
+  file it describes: a sidecar sits in a directory that may hold several artifacts, and provenance
+  borrowed from a neighbour is worse than none, because the checks would report on one artifact
+  using another one's codebook and report it as settled.
+- Every registered check declares a mutator alongside its predicate, and the suite asserts that
+  each fires on its own mutation and stays quiet on a good artifact. A check registered without a
+  mutator is a test failure, so the guarantee is structural rather than dependent on anyone
+  remembering.
+
 ### 3.2.0 — 2026-08-01
 - Added the markup module and the extract_document_markup tool (26th tool): reads comments out of
   a .docx together with the exact span each one is anchored to, plus tracked changes with author
@@ -102,6 +134,21 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.21.0 — 2026-08-05
+- `skills/DESIGN.md` gains the standing-checks convention: a skill that produces a durable
+  artifact runs the checks over it without being asked and says in one sentence what ran. The
+  convention deliberately takes no adoption tier and no row in the tier table, because tiers
+  attach to skills with a SKILL.md and this is a cross-cutting behavior with none; it inherits the
+  tier of whatever skill it runs inside and may never introduce a depth question of its own.
+- The convention carries three rules: running the checks is mechanics while answering a fired one
+  is judgment; a class-level check may assert formal properties of an artifact and may never
+  assert a methodological commitment about its use; and a quiet run is not an all-clear.
+- `qualitative-analysis` runs the checks at Step 3 over the codebook and at Step 4 over the coded
+  data, and asks once at ratification whether codes here are mutually exclusive — the answer
+  belongs with the codebook being ratified, and it decides whether near-duplicate definitions are
+  a finding or a design choice. `fieldwork-methods` is deliberately not wired: it produces plans
+  and instruments and never holds a codebook or a coded dataset.
 
 ### 1.20.0 — 2026-08-05
 - Added proof-review, the 25th skill: auditing a publisher's typeset proof against the manuscript

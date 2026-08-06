@@ -59,6 +59,7 @@ class TestToolRegistry(ServerTestBase):
             "get_podcast_episodes",
                     "search_pubmed", "list_notebooks",
                     "list_lenses", "get_lens", "extract_document_markup",
+                    "get_artifact_checks",
                     "chunk_transcript",
                     "start_codebook_job", "ratify_codebook", "start_coding_job",
                     "get_next_batch",

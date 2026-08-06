@@ -272,6 +272,42 @@ The declarations, the table below, and the structural tests must agree.
 | conference-materials | 3 | Compressions of an argument decided elsewhere; limits and formats are rule-checkable |
 | teaching-materials | 3 | Instructor-corrected scaffolding; classroom iteration is the corrective loop |
 
+### Standing checks over durable artifacts
+
+A researcher who would benefit from a standing check over their codebook or
+their coded data does not ask for one, because they do not know that is the
+name of the thing that would have saved them. So a skill that produces a
+durable artifact runs the checks over it without being asked, and says in
+one sentence what ran. This is the same reasoning that already licenses
+test-first work in `tool-building`: judgment stops for the researcher, and
+mechanics run smoothly without them.
+
+**This convention takes no adoption tier and no row in the table above.**
+Tiers attach to skills with a `SKILL.md`, and this is a cross-cutting
+behavior with none. It inherits the tier of whatever skill it runs inside
+and may never introduce a depth question of its own.
+
+Three rules govern it.
+
+**Running the checks is mechanics; answering a fired one is judgment.** A
+fired check names a commitment the artifact implies. Whether that commitment
+is the researcher's is theirs to say, and a skill that answers for them has
+converted the finding back into a restatement of its own assumptions.
+
+**A class-level check may assert formal properties of an artifact and may
+never assert a methodological commitment about its use.** "Every code
+carries a definition" is a property of a codebook. "No two codes overlap" is
+a property of certain traditions' use of one, and grounded theory and
+several interpretive traditions decline it. Checks of the second kind are
+stance-gated: they run only once the researcher has said the commitment is
+theirs, and they name the stance as the reason they ran.
+
+**A quiet run is not an all-clear.** A check that could not run is reported
+as unrun rather than passed, and a run in which nothing capable of surprising
+anyone was executed is reported as such. What these are called, and why
+anyone writes them, is worth saying once at the moment one first fires, and
+not before.
+
 ## Canonical Epistemic Stances (42)
 
 Select a primary stance; most researchers combine a primary with one or two

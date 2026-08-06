@@ -20,9 +20,9 @@ follow this fallback chain:
    add it (same uvx command everywhere):
 
    ```bash
-   claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.2.0" ai-anthro-mcp
-   codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.2.0" ai-anthro-mcp
-   gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==3.2.0" ai-anthro-mcp
+   claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.3.0" ai-anthro-mcp
+   codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.3.0" ai-anthro-mcp
+   gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==3.3.0" ai-anthro-mcp
    ```
 
    The server's LLM-dependent stages run in delegated mode by default: the
@@ -45,6 +45,17 @@ follow this fallback chain:
    honestly which sources need local execution or a Colab notebook — the
    doctor prints the Colab link for each blocked source. Do not retry
    blocked sources against the firewall.
+
+   **After producing a codebook or a coded dataset, check it without being
+   asked** — `get_artifact_checks` on the MCP surface, or
+   `python -m ai_anthro_toolkit.checks <path>` here. The researcher will not
+   request this, because they do not know these exist; that is the reason to
+   run it rather than a reason to wait. Report what fired in a sentence or
+   two. A fired check is a question, not a verdict: it names a commitment the
+   artifact implies, and only the researcher can say whether it is theirs. Do
+   not answer for them, and do not read a quiet run as approval — checks that
+   could not run come back undetermined, and they are unrun rather than
+   passed.
 
    ```python
    from ai_anthro_toolkit.datasources import (

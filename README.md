@@ -193,6 +193,18 @@ AI coding agents — Claude Code and Claude Desktop's Cowork, OpenAI Codex CLI, 
    The doctor (`python -m ai_anthro_toolkit.doctor`, also installed as `ai-anthro-doctor`) probes every data source from the current network and reports which are reachable. Sandbox network policies typically allow the scholarly APIs (OpenAlex, CrossRef, PubMed) and block the Google/YouTube scraping endpoints — collect what is reachable and route each blocked source to local execution or its Colab notebook (the doctor prints the link). The collector functions live in `ai_anthro_toolkit.datasources`; transcript chunking (`ai_anthro_toolkit.chunking`, fully local) and the 42-lens registry (`ai_anthro_toolkit.lenses`) work in any environment. Agent-facing instructions for this fallback chain ship in this repository as [AGENTS.md](AGENTS.md) and [GEMINI.md](GEMINI.md).
 3. **No code execution either** → every capability runs in the browser through the Colab notebooks below.
 
+### Checking an artifact
+
+```bash
+ai-anthro-check path/to/codebook.json      # or: python -m ai_anthro_toolkit.checks <path>
+```
+
+Runs the standing checks over a codebook or a coded dataset and reports what they found. Most of these run on their own, without being asked, whenever the toolkit produces one of those artifacts; the command exists so you can re-run them later, on an artifact you were handed, without the pipeline that made it.
+
+A check that fires is a question rather than a verdict. It names a commitment the artifact implies — that codes were meant to be mutually exclusive, that every code in the book was meant to earn its place, that the codebook did not move mid-pass — and only you can say whether that commitment is yours. A check that could not run is reported as unrun, never as passed, and a run in which nothing capable of surprising you executed says so.
+
+One flag matters: `--distinct-codes` if you hold codes to be mutually exclusive, `--overlapping-codes` if you keep overlapping codes deliberately, as grounded theory and several interpretive traditions do. Left unsaid, the check that depends on it does not run, because that is a methodological commitment and not the toolkit's to assume.
+
 ## Companion Plugins
 
 Where a specialized tool already owns a capability, the toolkit hands off to it instead of duplicating it here.

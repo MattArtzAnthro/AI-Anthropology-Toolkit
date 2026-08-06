@@ -39,6 +39,7 @@ from ai_anthro_toolkit import lenses as _lenses
 from ai_anthro_toolkit import markup as _markup
 from ai_anthro_toolkit import themes as _themes
 from ai_anthro_toolkit import catalog as _catalog
+from ai_anthro_toolkit import checks as _checks
 from ai_anthro_toolkit import datasources as _data
 from ai_anthro_toolkit.datasources import search_crossref as _crossref
 from ai_anthro_toolkit.datasources import search_openalex as _openalex
@@ -111,6 +112,25 @@ def _codebook_checksum(records: list[dict]) -> str:
     ).hexdigest()[:16]
 
 
+def _save_provenance(job_id: str, artifact_class: str, labels: list,
+                     ratification_id: str = "",
+                     artifact_file: str = "result.json") -> None:
+    """Write the stanza that lets a saved artifact describe itself later.
+
+    A sidecar rather than a wrapper: ``result.json`` keeps its shape, so
+    nothing downstream has to change to read it. Without this, an artifact
+    that leaves the job directory makes no claim about which codebook it
+    came from, and a standing check has nothing to read.
+    """
+    _jobs.save_artifact(job_id, _checks.PROVENANCE_SIDECAR, json.dumps(
+        _checks.provenance_stanza(
+            produced_by=f"ai-anthropology-toolkit {__version__}",
+            codebook_labels=labels,
+            artifact_class=artifact_class,
+            ratification_id=ratification_id,
+            artifact_file=artifact_file)))
+
+
 # --------------------------------------------------------------- discovery
 
 @mcp.tool()
@@ -129,6 +149,7 @@ def toolkit_info() -> dict:
                                  "get_podcast_episodes", "list_notebooks"],
             "methodology": ["list_lenses", "get_lens"],
             "documents": ["extract_document_markup"],
+            "checks": ["get_artifact_checks"],
             "analysis": ["chunk_transcript", "start_codebook_job",
                           "ratify_codebook", "start_coding_job",
                           "get_next_batch", "submit_batch",
@@ -388,6 +409,52 @@ def extract_document_markup(path: str) -> dict:
     return result
 
 
+@mcp.tool()
+def get_artifact_checks(path: str, kind: str = "",
+                        expect_distinct_codes: str = "") -> dict:
+    """Run the standing checks over a codebook or a coded dataset.
+
+    Run this without being asked whenever one of those artifacts is produced
+    or handed over. The researcher will not request it, because they do not
+    know these exist; that is the reason to run it, not a reason to wait.
+
+    Report what fired in one or two sentences, in the researcher's terms. A
+    fired check is a question, never a verdict: it names a commitment the
+    artifact implies, and only the researcher can say whether the commitment
+    is theirs. Do not answer for them, and do not treat a quiet run as
+    approval — checks that could not run come back as ``undetermined`` and
+    are unrun rather than passed.
+
+    ``expect_distinct_codes`` gates the one check that would otherwise
+    impose a method: leave it empty unless the researcher has said whether
+    they hold codes to be mutually exclusive ("yes"/"no"). Read-only; no
+    artifact is modified.
+    """
+    from pathlib import Path
+
+    from ai_anthro_toolkit.checks import cli as _checks_cli
+
+    expect = {"yes": True, "true": True, "no": False, "false": False}.get(
+        expect_distinct_codes.strip().lower())
+    artifact = _checks_cli.load_artifact(Path(path))
+    report = _checks.run_checks(
+        artifact, artifact_class=kind or None,
+        expect_distinct_codes=expect, embedder=_checks_cli._embedder())
+    return {
+        "artifact_class": report.artifact_class,
+        "fired": [{"check": r.check, "says": r.message} for r in report.fired],
+        "passed": [r.check for r in report.passed],
+        "undetermined": [{"check": r.check, "why": r.message}
+                         for r in report.undetermined],
+        "mirror_only": report.mirror_only,
+        "note": ("Everything that ran only confirms what was already "
+                 "specified; nothing ran that could have surprised anyone."
+                 if report.mirror_only else
+                 "A fired check names a commitment, and whether it is the "
+                 "researcher's is theirs to say."),
+    }
+
+
 # --------------------------------------------------------------- jobs
 
 def _queue_packets(job_id: str, packets: list[dict]) -> None:
@@ -442,8 +509,10 @@ def start_codebook_job(documents: dict, lens_key: str,
                                             "similarity_threshold", "auto_merge")},
                 progress=lambda msg: _jobs.update(
                     job_id, processed=_jobs.read(job_id)["processed"] + 1))
-            _jobs.save_artifact(job_id, "result.json", json.dumps(
-                _codebook.codebook_to_records(cb, lens_key)))
+            built = _codebook.codebook_to_records(cb, lens_key)
+            _jobs.save_artifact(job_id, "result.json", json.dumps(built))
+            _save_provenance(job_id, _checks.CLASS_CODEBOOK,
+                             [r["code_label"] for r in built])
             _jobs.save_artifact(job_id, "quality.json", json.dumps(report))
         _run_api_job(job_id, worker)
         return {"job_id": job_id, "mode": "api",
@@ -579,6 +648,8 @@ def start_coding_job(chunks: list[dict], codebook: list[dict],
                     _jobs.save_artifact(job_id, "result.json", json.dumps(recs))))
             _jobs.update(job_id, processed=len(chunks))
             _jobs.save_artifact(job_id, "result.json", json.dumps(coded))
+            _save_provenance(job_id, _checks.CLASS_CODED, valid_codes,
+                             ratification_id)
         _run_api_job(job_id, worker)
         return {"job_id": job_id, "mode": "api",
                 "next": "poll get_job_status, then get_job_result"}
@@ -652,6 +723,7 @@ def submit_batch(job_id: str, results: list[dict]) -> dict:
             entry["Coding_Status"] = "Deductive_Only" if codes else "No_Codes"
             out.append(entry)
         _jobs.save_artifact(job_id, "result.json", json.dumps(out))
+        _save_provenance(job_id, _checks.CLASS_CODED, valid)
     elif kind == "codebook":
         merged = {e["label"]: CodeEntry(**e) for e in
                   (_load_records(job_id, "entries.json") or [])}
@@ -688,8 +760,10 @@ def submit_batch(job_id: str, results: list[dict]) -> dict:
                 min_frequency=state["payload"]["min_frequency"],
                 similarity_threshold=state["payload"]["similarity_threshold"],
                 auto_merge=state["payload"]["auto_merge"])
-            _jobs.save_artifact(job_id, "result.json", json.dumps(
-                _codebook.codebook_to_records(refined, lens_key)))
+            built = _codebook.codebook_to_records(refined, lens_key)
+            _jobs.save_artifact(job_id, "result.json", json.dumps(built))
+            _save_provenance(job_id, _checks.CLASS_CODEBOOK,
+                             [r["code_label"] for r in built])
             _jobs.save_artifact(job_id, "quality.json", json.dumps(report))
     else:
         raise ValueError(f"Unknown job kind '{kind}'")
