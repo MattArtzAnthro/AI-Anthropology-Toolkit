@@ -155,6 +155,29 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Claude Code Plugin
 
+### 1.26.0 — 2026-08-06
+- Ran the null floor across all 13 scenarios, both arms isolated. **Of the nine pressure
+  scenarios, three are evidence about the skills**: methodology-selection (stance),
+  academic-review (the recommendation), and tool-building (checks before code). Four would return
+  the same verdict with no skill loaded at all, and two were unreadable. Those four gates may
+  still be worth having — a model's habits are not a guarantee and change with a model release —
+  but these scenarios are not the evidence for them.
+- The floor reading is direction-aware, because the method corrected itself in the running. All
+  four compliant scenarios first read as "measures the model's defaults", which is structural
+  rather than a finding: a compliant scenario asks whether the skill *adds* ceremony, ceremony is
+  something a skill adds, so a run with no skill has nothing to add it and the floor confirms by
+  construction. Reported unchanged, that would have pushed toward deleting the only scenarios
+  guarding the gate-becomes-a-form direction. They now read "floor does not apply", and the
+  absence of a real control for that direction is recorded as a gap rather than papered over.
+- Added stance counterfactual pairs (`tests/evals/stance.py`). Epistemic stance is the toolkit's
+  declared first-class parameter and no scenario varied it, so the suite could not detect a skill
+  asserting one tradition's methodological commitment on a researcher who declines it. A pair runs
+  one scenario under two opposed lenses, and **invariance is the failure, not the pass** — an
+  inversion every other reading in the suite gets the other way round, and one the tests pin
+  explicitly.
+- Pairs name the commitment they encode, so the reading of a lens can be argued with rather than
+  buried in a threshold, and the lenses are asserted to exist in the shipped registry.
+
 ### 1.25.0 — 2026-08-06
 - The gate evals now run isolated: the skill is passed as a real `--system-prompt` rather than
   wrapped in `<system>` XML inside the user turn, MCP servers are excluded with
