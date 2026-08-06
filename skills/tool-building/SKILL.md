@@ -49,6 +49,7 @@ form of the sections below is defined in [skills/DESIGN.md](../DESIGN.md).
 | The question bank, the sort procedure, when the conditional passes fire | Read [references/elicitation-guide.md](references/elicitation-guide.md) |
 | The two spec-pack templates, the register translation, the decision-log fields | Read [references/spec-pack-template.md](references/spec-pack-template.md) |
 | The two verification modes, what each licenses, how to decide between them, and why checks are written and seen to fail before code exists | Read [references/verification-modes.md](references/verification-modes.md) |
+| Surfacing the behaviors a specification left open, the recurring five, and why they are stated as commitments rather than asked as questions | Read [references/unstated-commitments.md](references/unstated-commitments.md) |
 | The artifact family v1 supports, its conventions, the exact commands, what the checks cannot do | Read [references/profile-skills-agents.md](references/profile-skills-agents.md) |
 | Adding a data source or analysis stage to the MCP server, and the two gaps its checks leave | Read [references/profile-mcp.md](references/profile-mcp.md) |
 | Repairing an instrument that breaks in use: reproduction first, the triage, the repair loop, rules that compound | Read [references/repair-discipline.md](references/repair-discipline.md) |
@@ -198,6 +199,16 @@ may not claim to pass or fail. Read
 [references/verification-modes.md](references/verification-modes.md) before
 settling this, and where an artifact has steps of both kinds, declare it by its
 weakest step.
+
+Then surface the behaviors the specification has left open — what an empty
+result means, whether a duplicate identifier is an error or a fact about the
+source, what an unparseable value does. These decide what the data means and
+they get settled by accident if nobody states them. Read
+[references/unstated-commitments.md](references/unstated-commitments.md) and
+work from it: state each as a commitment the specification currently makes,
+not as a question, because a reconstruction can be wrong and a question
+cannot. One table, one confirm-or-revise question. The answers enter the
+specification before it is ratified, which is why this is here and not later.
 
 **Stage 5. Check that the specification was read, then ratify. Gate.** A
 specification that could have been written without looking at the researcher's

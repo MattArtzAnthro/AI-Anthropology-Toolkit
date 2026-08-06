@@ -135,6 +135,28 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Claude Code Plugin
 
+### 1.22.0 — 2026-08-05
+- `tool-building` gains `references/unstated-commitments.md` and reads it at Stage 4: the
+  behaviors a specification leaves open — what an empty result means, whether a duplicate
+  identifier is an error or a fact about the source, what an unparseable value does — decide what
+  the data means, and they get settled by accident if nobody states them.
+- They are surfaced as commitments the specification currently makes, not as questions. A
+  question carries no claim about the researcher, so there is nothing to recognize and nothing to
+  refute; a reconstruction can be wrong, and being told it is wrong is what surfaces a commitment
+  neither party had stated. Rows are marked `mirror` or `surprise-capable`, and each
+  surprise-capable row carries a hypothesis about what a rejection would reveal.
+- Presented as one table with one confirm-or-revise question, the shape the Stage 2 sort gate
+  already uses. Batching decisions is a form; a classification presented whole is not.
+- **Stage 4, not Stage 6.** The acceptance checks freeze at ratification, so a commitment settled
+  afterward is a change to a frozen specification. Stage 6 keeps "ask nothing of them" and gains
+  no questioning step; anything surfacing during implementation returns through the Stage 7 gate,
+  which already exists. Three tests in `tests/test_repo.py` hold that placement, each of them
+  verified to fire when the placement is undone.
+- Stage 3's Failure question now says what answering it shallowly costs, and points forward. A
+  commitment the researcher states during elicitation beats one proposed back to them later.
+- Every artifact family is in scope including the Colab notebooks, because a table of commitments
+  needs no filesystem, no runner, and no persistence between sessions.
+
 ### 1.21.0 — 2026-08-05
 - `skills/DESIGN.md` gains the standing-checks convention: a skill that produces a durable
   artifact runs the checks over it without being asked and says in one sentence what ran. The
