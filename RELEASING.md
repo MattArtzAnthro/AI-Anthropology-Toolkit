@@ -1,5 +1,20 @@
 # Releasing
 
+```bash
+python3 -m scripts.release --dry-run   # everything except the upload
+python3 -m scripts.release             # the real thing
+```
+
+**Use the script.** It performs the steps below in the one order that works,
+refuses to continue when a step fails, and prints "safe to push" only after
+the uploaded version has been observed to resolve. Four consecutive releases
+shipped pins ahead of the upload while this document existed and said not to,
+including the commit that added it. A checklist you have to remember is a gate
+that becomes a form.
+
+The rest of this file explains what the script does and why, which is what you
+need when a step fails or when the release is unusual enough to run by hand.
+
 This repository has two release tracks that ship from one commit:
 
 | Track | Version lives in | Consumers |
