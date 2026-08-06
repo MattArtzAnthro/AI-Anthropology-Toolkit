@@ -159,6 +159,22 @@ drift; codes without examples cannot be applied consistently.
   Present it as one table and ask one confirm-or-revise question before any
   coding pass runs — not code by code, which produces a researcher who stops
   reading, and not silently, which produces an analysis nobody decided.
+- **Ask once, at ratification, whether codes here are mutually exclusive.**
+  Some traditions hold that they are; grounded theory and several
+  interpretive traditions deliberately keep codes that overlap. The answer
+  belongs with the codebook the researcher is ratifying, and it decides
+  whether near-duplicate definitions are a finding or a design choice. Do
+  not infer it from the stance, and do not assume it.
+
+**Run the standing checks over the codebook and say what they found.** Do
+this without being asked: `get_artifact_checks`, or `ai-anthro-check <path>`
+outside an MCP session. Report what fired in a sentence or two. A fired
+check is a question, never a verdict — it names a commitment the codebook
+implies, and only the researcher can say whether it is theirs. Checks that
+could not run come back as undetermined, and they are unrun rather than
+passed. The first time one fires, say once what these are: checks like these
+are called linters, and they are worth having because the failures they
+catch are the ones you cannot see by reading.
 
 ### Step 4: Apply Codes
 
@@ -173,6 +189,13 @@ drift; codes without examples cannot be applied consistently.
   the same five-part structure.
 - Record co-occurrences: codes that repeatedly appear together are theme
   candidates.
+- **Run the standing checks over the coded data before building themes**,
+  unasked, the same way. Three of what they surface are worth pausing on: a
+  code discovered during coding that never entered the codebook, a code in
+  the codebook that was never applied, and a codebook that moved between
+  ratification and now. None of the three is an error on its face. Each one
+  names something the analysis is committed to that nobody wrote down, and
+  the researcher decides which.
 
 ### Step 5: Build Themes
 
