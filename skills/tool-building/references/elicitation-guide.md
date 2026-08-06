@@ -84,6 +84,13 @@ check first? If a colleague doubted the output, what would you show them?
 **Failure.** What should happen when it cannot do the thing? What is the worst
 plausible wrong answer, and would you notice it?
 
+Answered shallowly, this question produces "it should tell me," and the
+specification goes to ratification still silent on what an empty result, a
+duplicate identifier, or an unparseable value actually means. Press it until
+it names behaviors. What survives unanswered here is reconstructed at Stage 4
+from [unstated-commitments.md](unstated-commitments.md), but a commitment the
+researcher states now is better than one proposed back to them later.
+
 ## Stage 3a: categories and what they leave out
 
 **Fires if and only if** the artifact defines, stores, assigns, or counts

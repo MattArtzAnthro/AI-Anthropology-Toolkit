@@ -449,6 +449,55 @@ class TestFrictionConvention(unittest.TestCase):
             self.assertIsNotNone(m, f"{name}: missing adoption declaration")
             self.assertEqual("1", m.group(1), f"{name}: carrier must be Tier 1")
 
+    # Stage 6 of tool-building writes the acceptance checks and asks the
+    # researcher nothing. Surfacing the behaviors a specification left open
+    # therefore belongs at Stage 4, before ratification: a commitment settled
+    # after ratification is a change to a frozen specification. The three
+    # tests below hold that placement, because it is the kind of ruling a
+    # later edit undoes by accident.
+
+    def _tool_building_stages(self):
+        body = (SKILLS_DIR / "tool-building" / "SKILL.md").read_text(
+            encoding="utf-8")
+        marks = [(n, body.index(f"**Stage {n}.")) for n in ("4", "5", "6", "7")]
+        return body, dict(marks)
+
+    def test_unstated_commitments_surfaced_at_stage_four(self):
+        body, at = self._tool_building_stages()
+        where = body.index("references/unstated-commitments.md",
+                           at["4"])
+        self.assertLess(
+            where, at["5"],
+            "unstated-commitments must be read at Stage 4, before "
+            "ratification — a commitment settled after ratification is a "
+            "change to a frozen specification",
+        )
+
+    def test_stage_six_asks_the_researcher_nothing(self):
+        body, at = self._tool_building_stages()
+        stage_six = body[at["6"]:at["7"]]
+        self.assertIn(
+            "ask nothing of them", stage_six,
+            "Stage 6 runs the check-writing mechanics without the "
+            "researcher; losing this sentence loses the rule",
+        )
+        self.assertNotIn(
+            "unstated-commitments", stage_six,
+            "surfacing open commitments at Stage 6 would put a decision "
+            "gate in the one stage built to have none",
+        )
+
+    def test_unstated_commitments_states_rather_than_asks(self):
+        ref = (SKILLS_DIR / "tool-building" / "references"
+               / "unstated-commitments.md").read_text(encoding="utf-8")
+        self.assertIn(
+            "State the commitment, not the question", ref,
+            "the reference must keep the rule that a reconstruction can be "
+            "wrong and a question cannot",
+        )
+        for mark in ("mirror", "surprise-capable"):
+            self.assertIn(mark, ref, f"reference drops the {mark} mark")
+
 
 class TestAgents(unittest.TestCase):
     def test_agents_present(self):
