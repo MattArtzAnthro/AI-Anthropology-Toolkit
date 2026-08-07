@@ -6,6 +6,40 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
+### 3.5.0 — 2026-08-06
+- OpenAlex 429s now raise `RuntimeError` carrying the server's own explanation instead of a bare
+  `HTTPError`. OpenAlex answers an exhausted request budget with the same status it uses for
+  ordinary rate limiting, and only the body distinguishes them: an exhausted budget says
+  "Insufficient budget" and names a reset time. `raise_for_status` discards that body, so a
+  researcher who could not be helped by retrying was told nothing and retried.
+- The body is passed through rather than paraphrased, because the terms are OpenAlex's and have
+  changed at least once. The message names the polite pool only when `mailto` was not already
+  sent, since telling someone to do what they did is noise. Observed live: the budget refusal
+  cleared within the hour rather than at the reset time it named, so it is intermittent rather
+  than a daily wall, and the live tests skip with the reason rather than erroring.
+- Added `ai_anthro_toolkit.checks.generated`: standing checks built from the researcher's own
+  answers. `tool-building` Stage 4 already asks them to settle five commitments about what their
+  instrument should do; until now those answers went into the specification and nothing enforced
+  them. They now persist as `instrument-checks.json` beside the artifact and run whenever
+  `ai-anthro-check` is pointed at it — so the checks are about the researcher's artifact rather
+  than only the two classes the toolkit ships.
+- An unanswered commitment generates nothing. Silence is not consent to a default, and a check
+  nobody asked for is the toolkit asserting a methodological commitment about someone else's work.
+- An answer that cannot be checked from the data alone is recorded as unenforceable **with its
+  reason**, not dropped. Whether source order was preserved is a claim about the source and the
+  output together and only the source settles it; a skipped record is absent, and absence is
+  indistinguishable from a record the source never held. A researcher who settled five commitments
+  and received three checks is told which two and why.
+- Answers come from a fixed vocabulary, so nothing has to interpret prose to decide what a
+  researcher meant — that is the judgment Stage 4 exists to route to them. An answer outside the
+  vocabulary is refused, and a field-scoped answer with no field named is refused rather than
+  guessed.
+- The checks file is data and never code. A test asserts the module contains no `exec`, `eval`,
+  `importlib`, or `__import__`, because a loader that could run what it finds in a project
+  directory turns "check my data" into "run whatever is in that folder".
+- Every generated check carries the mutation that should make it fire, so the
+  registry-completeness guarantee extends to checks the toolkit did not write.
+
 ### 3.4.0 — 2026-08-05
 - Added `ai_anthro_toolkit.checks.mutate`: one mutation per commitment the `tool-building` Stage 4
   table settles — emptiness, duplication, partial presence, unparseable values, ordering — plus a
@@ -154,6 +188,95 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.29.0 — 2026-08-06
+- Added `rival-interpretations`, the 26th skill, and the `/test-claim` command. Tests one
+  load-bearing interpretive claim against rival readings argued from other analytical positions,
+  and hands back what stays open. It is a validity practice in the family of triangulation and
+  negative case analysis; that the objection it surfaces is usually the one a reviewer would have
+  raised is the payoff, not the framing, which keeps `academic-review` owning reviewer-facing work.
+- **It declines more often than it runs.** Four gate conditions, all required: the claim is a
+  reading rather than a fact, reversing it costs the argument something, the positions would
+  actually diverge, and the researcher has committed to it. A declined gate names which condition
+  failed, names the rival reading in a sentence anyway, and routes. A skill that always finds
+  something worth three readers is selling rather than testing.
+- **No reading is admitted without a falsifier drawn from the material** — not a theoretical
+  caveat, something checkable in the text, the data, or the instrument. This is the load-bearing
+  rule and it does two jobs. It separates argument from vocabulary, since a reading that cannot
+  say what would defeat it is usually the claim restated in the position's dialect. And it polices
+  the roster after the fact: a position with nothing at stake here cannot produce one, so it drops
+  out and the record names it. That is why no debate posture had to be authored for each of the 42
+  lenses, and why the registry and the notebook parity test are untouched.
+- Readers run in isolation and never see each other's readings. Three positions argued in one
+  context produce one context talking to itself in three registers. Rebuttals fire only where two
+  readings make incompatible claims about the same span, and never without quoting it.
+- The claim under test and the roster are proposed in one confirm-or-revise question, and
+  confirming the claim outranks confirming the roster: testing the wrong claim well is worse than
+  declining, because it arrives looking like a result. The contestable claims it is *not* testing
+  are reported, because that list is a map of where the argument is exposed.
+- The researcher is asked which of the three positions is their own, and asked for one rather than
+  a ranking. Its job is not tie-breaking. An objection arriving from inside their own commitment
+  cannot be answered by discounting where it came from, and the adjudication reports those
+  separately for that reason.
+- The worklist separates **defects**, which carry their evidence and are stated flatly, from
+  **decisions**, which are stated as the question plus what each answer costs. The adjudication may
+  never convert the second into the first, because the imperative mood is shorter and reads as more
+  useful while removing the researcher from their own judgment.
+- What stays open is stated and never dissolved, convergence is never reported as proof, and the
+  record is unfinished until the researcher's resolution is in it — "carried forward unresolved"
+  with a date being a legitimate finished state. The record discloses that the readings were
+  machine-argued, since a reader who assumes three colleagues read the chapter has been misled by
+  omission.
+- Owned by `writing-advisor` and `analysis-advisor`. The latter offers it with evidence rather than
+  as a hunch when a cross-lens run has already produced friction points on the chunks a theme rests
+  on, which is the strongest form the divergence condition takes: measured rather than predicted.
+- Sixteen structural invariants guard the rules above. Each was verified by deleting the rule it
+  names and confirming the suite goes red; all 40 mutations were killed.
+
+### 1.28.0 — 2026-08-06
+- `tool-building` writes the standing checks alongside the tests it already writes, unasked. The
+  acceptance checks verify an instrument once while it is being built; the commitments settled at
+  Stage 4 are what the researcher wants held months later, over data collected after the build is
+  forgotten.
+- The spec-pack template gains a `## Commitments` section recording the five answers and the field
+  each one scopes to. Nothing can generate a check from an answer that was never written down.
+
+### 1.27.0 — 2026-08-06
+- Fixed the three skill defects the evals found, and verified each one moved.
+- `ethnographic-generalization` and `qualitative-analysis` now carry the rule that a judgment
+  already supplied is not re-opened: when the stance is declared, the codebook ratified, or the
+  commitments decided, the work is assembly and assembly proceeds. Measured under an isolated run,
+  both had been re-interrogating settled judgments — 8 and 9 questions after the researcher had
+  already made the call. That is the gate becoming a form, and it spends exactly the attention the
+  real gates need.
+- `tool-building`'s sort gate now says a proposed classification is not a settled one. The failure
+  was never refusing to propose; it was proposing well and then continuing as though the proposal
+  had been answered.
+- All three verified after the fix: refuted → confirmed. `qualitative-analysis` now opens with
+  "Given that you've ratified these three codes, here's the operational framework" rather than
+  asking again.
+- Added `tests/evals/README.md`: what these evals can support (finding problems) and what they
+  cannot (certifying anything), with the five reading-layer defects that produced that limit and
+  a confidence ranking for the three current findings. The evals are maintainer tools; no
+  researcher runs them and nothing here reaches a skill.
+
+### 1.26.1 — 2026-08-06
+- Fixed the judge's evidence check, which was a false-negative machine. It required a cited quote
+  to appear verbatim, and rejected three kinds of legitimate re-quoting: an elided middle
+  (`...`), dropped markdown emphasis, and dropped or straightened punctuation. A stance run came
+  back "cannot tell" on arms that were perfectly determinate, which would have deflated every
+  result in the suite. Fragments either side of an ellipsis must now each appear **and appear in
+  order**, so elision cannot smuggle in text the reply never contained, and fabrication is still
+  caught.
+- Live test failures now report and never block a release. `TestDataSourcesLive` returned 429 on
+  every attempt including in isolation — someone else's rate limiter, indistinguishable from an
+  outage from here, and not a defect in this package. The previous rule blocked on a repeat, which
+  contradicted RELEASING.md's own ruling and would have taught the maintainer to bypass preflight.
+- Stance pairs: the reading was rebuilt around what the skill *did* with the question rather than
+  whether the two replies matched. The first version scored identical arms as failure on the
+  slogan that invariance is the failure, and reported that `qualitative-analysis` ignores stance —
+  when both arms had asked the researcher which approach fit, which is the gate holding under
+  either stance. Routing the judgment back under both stances is now explicitly not a failure.
 
 ### 1.26.0 — 2026-08-06
 - Ran the null floor across all 13 scenarios, both arms isolated. **Of the nine pressure

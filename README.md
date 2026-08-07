@@ -98,6 +98,7 @@ Research skills in the portable [SKILL.md format](https://agentskills.io) that a
 | paper-planning | Helps you work out what your paper actually argues before you draft it. Extracts your claim, positions it against existing work, and sequences your argument through questions rather than writing. |
 | research-writing | Helps you write your article or dissertation chapter. Covers its structure, ethnographic craft, and the conventions of your subfield or journal. |
 | academic-review | Helps you write peer reviews and respond to them. Covers writing the review itself, rebuttal letters, and your revision strategy. |
+| rival-interpretations | Helps you test a claim against rival readings before a reviewer does. Argues your material from three other analytical positions, separates what they agree on from what stays genuinely open, and leaves you a record for your methods section. |
 | manuscript-markup | Helps you work through a manuscript that came back marked up with comments. Reads each comment in place, sorts them, works through them, and drafts your reply letter. |
 | proof-review | Helps you check a publisher's typeset proof against the manuscript you submitted. Compares them word by word, checks that your pseudonyms, quoted speech, and citations survived production, and writes the correction list you send back. |
 | conference-materials | Helps you prepare for a conference. Covers abstracts, slide decks, posters, speaker notes, and how you will deliver the talk. |
@@ -150,6 +151,7 @@ Autonomous Claude Code subagents that orchestrate across multiple skills for com
 |:------|:------------|
 | `/ai-anthropology:new-project` | Scaffold a new research project through guided phases |
 | `/ai-anthropology:build-tool` | Build a research instrument, specification first |
+| `/ai-anthropology:test-claim` | Test one interpretive claim against rival readings, and record what stays open |
 | `/ai-anthropology:skills` | List the toolkit's skills, agents, and commands |
 
 ## MCP Server
@@ -202,6 +204,10 @@ ai-anthro-check path/to/codebook.json      # or: python -m ai_anthro_toolkit.che
 Runs the standing checks over a codebook or a coded dataset and reports what they found. Most of these run on their own, without being asked, whenever the toolkit produces one of those artifacts; the command exists so you can re-run them later, on an artifact you were handed, without the pipeline that made it.
 
 A check that fires is a question rather than a verdict. It names a commitment the artifact implies — that codes were meant to be mutually exclusive, that every code in the book was meant to earn its place, that the codebook did not move mid-pass — and only you can say whether that commitment is yours. A check that could not run is reported as unrun, never as passed, and a run in which nothing capable of surprising you executed says so.
+
+When you build an instrument through `tool-building`, it writes `instrument-checks.json` beside your data from the commitments you settled while specifying it — what an empty result means, whether a repeated identifier is an error, whether a field is required. `ai-anthro-check` picks that file up automatically, so the checks are about your artifact rather than only the toolkit's.
+
+The file says what it cannot do. A commitment that cannot be checked from the data alone — whether source order was preserved, for instance, which only the source can settle — is listed as unenforceable with the reason. If you settled five commitments and three became checks, it tells you which two did not and why.
 
 One flag matters: `--distinct-codes` if you hold codes to be mutually exclusive, `--overlapping-codes` if you keep overlapping codes deliberately, as grounded theory and several interpretive traditions do. Left unsaid, the check that depends on it does not run, because that is a methodological commitment and not the toolkit's to assume.
 

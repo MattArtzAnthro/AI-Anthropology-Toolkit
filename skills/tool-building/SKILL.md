@@ -177,6 +177,13 @@ step by step; a decomposition of nine steps becomes nine questions and the
 researcher stops reading. Do not offer "you decide" as an option, because that is
 the one answer this gate exists to refuse.
 
+**A proposed classification is not a settled one.** The failure here is not
+refusing to propose; it is proposing well, and then continuing as though the
+proposal had been answered. Nothing downstream of this gate — no
+specification, no check, no code — proceeds until the researcher has said the
+sort is right or moved a step. If they have not answered, the last thing on
+the screen is the question.
+
 **Stage 3. Elicit the specification.** One high-leverage question at a time,
 covering the outcome, what is in and out of scope, the constraints, prior
 decisions the artifact must respect, and what would count as correct.
@@ -232,6 +239,28 @@ development is exactly who the discipline protects. When implementation
 cannot reach green within a few attempts, stop — the specification and the
 checks disagree, or the sort misclassified a step, and either finding is
 the researcher's to rule on.
+
+**Write the standing checks alongside the tests, in the same breath.** The
+acceptance checks above verify the instrument once, while it is being built.
+The commitments settled at Stage 4 are things the researcher will want to
+hold months later, over data collected after the build is forgotten, so they
+persist as their own file:
+
+```python
+from ai_anthro_toolkit.checks import generated
+generated.to_document(answers, artifact="<their artifact>",
+                      instrument="<what it is>", fields=fields)
+```
+
+Write it as `instrument-checks.json` beside the artifact, and say in one
+sentence that `ai-anthro-check <their file>` re-runs it. Ask nothing.
+
+Two things this file must be honest about, and both are automatic. An
+unanswered commitment produces no check, because silence is not consent to a
+default. And an answer that cannot be checked from the data alone is recorded
+as unenforceable with its reason, so a researcher who settled five
+commitments and received three checks is told which two and why rather than
+being left to assume the other two are covered.
 
 **Stage 7. Verify, and reclassify. Gate.** Check the artifact against its
 conventions and its stated criteria — including that the suite has been made

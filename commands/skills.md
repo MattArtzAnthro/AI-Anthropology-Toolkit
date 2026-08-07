@@ -30,6 +30,7 @@ markdown.
 | paper-planning | Writing & Review | Helps you work out what your paper actually argues before you draft it. Extracts your claim, positions it against existing work, and sequences your argument through questions rather than writing. |
 | research-writing | Writing & Review | Helps you write your journal article or thesis chapter. Covers ethnographic craft and the conventions of your subfield. |
 | academic-review | Writing & Review | Helps you write peer reviews and respond to them. Covers writing the review itself, rebuttal letters, and your revision strategy. |
+| rival-interpretations | Writing & Review | Helps you test a claim against rival readings before a reviewer does. Argues your material from three other analytical positions, separates what they agree on from what stays genuinely open, and leaves you a record for your methods section. |
 | manuscript-markup | Writing & Review | Helps you work through a manuscript that came back marked up with comments. Reads each comment in place, sorts them, works through them, and drafts your reply letter. |
 | proof-review | Writing & Review | Helps you check a publisher's typeset proof against the manuscript you submitted. Compares them word by word, checks that your pseudonyms, quoted speech, and citations survived production, and writes the correction list you send back. |
 | conference-materials | Dissemination | Helps you prepare for a conference. Covers AAA abstracts, slide decks, posters, and speaker notes. |
@@ -59,6 +60,7 @@ markdown.
 
 - `/ai-anthropology:new-project` — scaffold a research project through guided lifecycle phases
 - `/ai-anthropology:build-tool` — build a research instrument, specification first
+- `/ai-anthropology:test-claim` — test one interpretive claim against rival readings, and record what stays open
 - `/ai-anthropology:skills` — this catalog
 
 ## Guidance

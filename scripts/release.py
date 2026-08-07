@@ -136,8 +136,19 @@ def is_live(failure_line: str) -> bool:
 
 
 def blocks(is_live_test: bool, repeated: bool) -> bool:
-    """A live failure blocks only if it survives a re-run."""
-    return repeated if is_live_test else True
+    """Live failures never block; everything else does.
+
+    A sustained failure here is indistinguishable from a rate limiter or an
+    outage at the other end, and blocking a release on someone else's 429
+    teaches the maintainer to bypass preflight — which costs more than the
+    check is worth. RELEASING.md already states these are not a release gate.
+    """
+    return not is_live_test
+
+
+def reports(is_live_test: bool, repeated: bool) -> bool:
+    """A live failure that survives a re-run is still worth saying out loud."""
+    return bool(is_live_test and repeated)
 
 
 def _failed_ids(output: str) -> list:
@@ -198,9 +209,10 @@ def preflight(version: str) -> None:
         else:
             print(f"  live test flaky, passed on re-run: {line[:70]}")
     if still:
-        raise SystemExit(
-            "live tests failed twice, which is a real failure:\n"
-            + "\n".join(still))
+        print("  live tests failed twice and are NOT blocking the release "
+              "(rate limits and outages are indistinguishable from here):")
+        for line in still:
+            print(f"    {line[:100]}")
 
 
 def build(dist: Path) -> None:

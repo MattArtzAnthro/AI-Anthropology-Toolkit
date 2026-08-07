@@ -46,7 +46,18 @@ class TestDataSourcesLive(unittest.TestCase):
     """Tiny real queries against the public APIs."""
 
     def test_openalex(self):
-        works = search_openalex("digital ethnography", limit=3)
+        """Either records come back or the refusal explains itself.
+
+        OpenAlex is metered: an exhausted daily budget returns 429 and no
+        amount of retrying refills it before midnight UTC. That is upstream
+        rather than ours, so it must not read as a broken package — but it
+        must also never pass silently, which is why the message is asserted.
+        """
+        try:
+            works = search_openalex("digital ethnography", limit=3)
+        except RuntimeError as e:
+            self.assertIn("OpenAlex refused the request", str(e))
+            self.skipTest(f"OpenAlex refused: {e}")
         self.assertGreaterEqual(len(works), 1)
         first = works[0]
         for field in ("title", "authors", "year", "cited_by_count"):
@@ -64,9 +75,13 @@ class TestDataSourcesLive(unittest.TestCase):
                 self.assertGreaterEqual(r["year"], 2024)
 
     def test_openalex_filters(self):
-        works = search_openalex("ethnography", limit=3,
-                                venue="Anthropological Forum",
-                                year_from=2024, sort="recent")
+        try:
+            works = search_openalex("ethnography", limit=3,
+                                    venue="Anthropological Forum",
+                                    year_from=2024, sort="recent")
+        except RuntimeError as e:
+            self.assertIn("OpenAlex refused the request", str(e))
+            self.skipTest(f"OpenAlex refused: {e}")
         self.assertGreaterEqual(len(works), 1)
         for w in works:
             self.assertEqual(w["venue"], "Anthropological Forum")

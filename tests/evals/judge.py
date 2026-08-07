@@ -55,7 +55,43 @@ class Verdict:
 
 
 def _normalise(text: str) -> str:
-    return re.sub(r"\s+", " ", text or "").strip().lower()
+    """Whitespace, case, and markdown emphasis do not change a quote.
+
+    A judge that re-quotes without the surrounding asterisks has still
+    quoted; rejecting that as fabrication would deflate every result.
+    """
+    text = text or ""
+    for fancy, plain in (("\u2019", "'"), ("\u2018", "'"),
+                         ("\u201c", '"'), ("\u201d", '"'),
+                         ("\u2014", "-"), ("\u2013", "-")):
+        text = text.replace(fancy, plain)
+    # Markdown emphasis and apostrophes vary between a reply and a re-quote
+    # of it. Dropping them cannot turn a fabricated sentence into a real one.
+    text = re.sub(r"[*_`#'\"]+", "", text)
+    return re.sub(r"\s+", " ", text).strip().lower()
+
+
+_ELLIPSIS = re.compile(r"\.{3,}|…")
+
+
+def evidence_supported(evidence: str, reply: str) -> bool:
+    """Whether the reply actually contains what the judge cited.
+
+    Judges elide the middle of a long quote. Each fragment either side of an
+    ellipsis must appear, and they must appear in order — otherwise the
+    ellipsis becomes a way to smuggle in text the reply never contained.
+    """
+    haystack = _normalise(reply)
+    cursor = 0
+    for fragment in _ELLIPSIS.split(evidence or ""):
+        piece = _normalise(fragment)
+        if not piece:
+            continue
+        found = haystack.find(piece, cursor)
+        if found < 0:
+            return False
+        cursor = found + len(piece)
+    return True
 
 
 def question_count(reply: str) -> int:
@@ -97,7 +133,7 @@ def interpret(raw: str, reply: str) -> Verdict:
         return Verdict(CANNOT_TELL,
                        why="the judge cited no evidence for its verdict",
                        raw=raw)
-    if _normalise(evidence) not in _normalise(reply):
+    if not evidence_supported(evidence, reply):
         return Verdict(
             CANNOT_TELL, evidence=evidence,
             why=("the judge's evidence does not appear in the reply, so it "

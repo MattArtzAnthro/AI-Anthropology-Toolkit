@@ -254,6 +254,7 @@ The declarations, the table below, and the structural tests must agree.
 | ethnographic-generalization | 1 | What a case is a case of, the kind of generalization, the scope conditions, and the confidence level are inferential commitments only the researcher can sign |
 | academic-review | 1 | A signed review is a non-delegable scholarly judgment |
 | manuscript-markup | 1 | Which comments to accept, which to contest, and what a structural comment implies for the argument are the author's; the sort by kind is an additional gate |
+| rival-interpretations | 1 | Which claim is under test, and how a genuine conflict between positions gets resolved, are the researcher's; proposing the claim is an additional hard gate, because testing the wrong claim well arrives looking like a result |
 | research-plan | 2 | Assembles judgments made upstream; what constitutes a finding, and the positionality statement, stay with the researcher |
 | dissertation-prospectus | 2 | The committee document, not the design judgments, is the product; theoretical positioning stays with the researcher |
 | grant-proposal | 2 | Funder compliance and genre rhetoric are legitimately assembled; aims and the contribution claim are not |

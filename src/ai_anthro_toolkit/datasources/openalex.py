@@ -5,6 +5,36 @@ import requests
 API = "https://api.openalex.org/works"
 SOURCES_API = "https://api.openalex.org/sources"
 
+
+def _check_refused(r) -> None:
+    """Turn a 429 into an error the researcher can act on.
+
+    OpenAlex answers an exhausted request budget with the same 429 it uses
+    for ordinary rate limiting, and only the response body distinguishes
+    them: an exhausted budget says "Insufficient budget" and names when it
+    resets. A bare `raise_for_status` discards that body, so a researcher
+    whose budget ran out sees a generic HTTP error and has no way to learn
+    that waiting will not help.
+
+    The body is passed through rather than paraphrased. The terms are
+    OpenAlex's, they have changed once already, and a summary written here
+    would go stale silently while sounding authoritative.
+    """
+    if r.status_code != 429:
+        return
+    detail = " ".join((r.text or "").split())[:400]
+    sent = getattr(getattr(r, "request", None), "url", "") or ""
+    raise RuntimeError(
+        "OpenAlex refused the request (HTTP 429). This is either ordinary "
+        "rate limiting, which retrying resolves, or an exhausted request "
+        "budget, which it does not. OpenAlex says: "
+        f"{detail or '(no detail returned)'}"
+        + ("" if "mailto" in sent else
+           " Passing a contact email as `mailto` uses OpenAlex's polite pool, "
+           "which is the cheaper path for automated queries.")
+    )
+
+
 _SORTS = {
     "relevance": None,  # OpenAlex default when `search` is used
     "recent": "publication_date:desc",
@@ -18,6 +48,7 @@ def _resolve_source_ids(venue: str, mailto: str | None = None) -> str:
     if mailto:
         params["mailto"] = mailto
     r = requests.get(SOURCES_API, params=params, timeout=30)
+    _check_refused(r)
     r.raise_for_status()
     ids = [s["id"].rsplit("/", 1)[-1] for s in r.json().get("results", [])]
     return "|".join(ids)
@@ -72,6 +103,7 @@ def search_openalex(query: str, limit: int = 10, mailto: str | None = None,
         params["mailto"] = mailto
 
     r = requests.get(API, params=params, timeout=30)
+    _check_refused(r)
     r.raise_for_status()
     results = []
     for w in r.json().get("results", []):
