@@ -77,6 +77,23 @@ CHECKED: exact commands, in backticks, that this project can actually run.
 - 
 - 
 
+## Commitments
+
+The five behaviours a specification leaves open, and what the researcher
+settled. Answers come from a fixed vocabulary so nothing has to interpret
+them later; the ones marked checkable become standing checks the researcher
+can re-run over their own data.
+
+| Commitment | Answer | Field |
+|---|---|---|
+| emptiness | failure / fact | — |
+| duplication | error / real | the identifier |
+| partial-presence | required / optional | the field |
+| unparseable | stop / skip / null | the field |
+| ordering | meaningful / incidental | — |
+
+An unanswered row generates nothing. Silence is not consent to a default.
+
 ## Acceptance examples
 Declarative. Given / When / Then.
 For an interpretation-dependent artifact these are adjudication samples and

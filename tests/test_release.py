@@ -146,8 +146,17 @@ class LiveTestsReportRatherThanBlock(unittest.TestCase):
         self.assertFalse(release.is_live(
             "test_codes_resolve (tests.package.test_checks.MutationRound)"))
 
-    def test_a_live_failure_that_repeats_still_blocks(self):
-        self.assertTrue(release.blocks(is_live_test=True, repeated=True))
+    def test_a_live_failure_never_blocks_even_when_it_repeats(self):
+        # Measured 2026-08-06: OpenAlex returned 429 on every attempt,
+        # including in isolation. That is someone else's rate limiter, not a
+        # defect in this package, and it is indistinguishable from a real
+        # outage from here. RELEASING.md already rules that these are not a
+        # release gate; blocking on a repeat would contradict it and teach
+        # the maintainer to bypass preflight.
+        self.assertFalse(release.blocks(is_live_test=True, repeated=True))
+
+    def test_a_repeated_live_failure_is_still_reported(self):
+        self.assertTrue(release.reports(is_live_test=True, repeated=True))
 
     def test_a_live_failure_that_clears_on_rerun_does_not_block(self):
         self.assertFalse(release.blocks(is_live_test=True, repeated=False))

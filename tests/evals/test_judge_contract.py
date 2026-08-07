@@ -90,6 +90,76 @@ class EvidenceMustBeReal(unittest.TestCase):
             judge.interpret('{"holds": true}', REPLY).value, judge.CANNOT_TELL)
 
 
+class QuotingIsNotFabrication(unittest.TestCase):
+    """The evidence check exists to catch a judge citing something the reply
+    does not contain. It must not also catch a judge quoting legitimately.
+
+    Measured 2026-08-06: it did. A stance run returned "cannot tell" on both
+    of its determinate arms — once because the judge elided the middle of a
+    quote with an ellipsis, once because it dropped markdown emphasis while
+    re-quoting. Neither is fabrication, and a check that rejects both is a
+    false-negative machine that deflates every result in the suite.
+    """
+
+    MARKED = ("**Depth calibration** — once only. *Full pass*: I stop at each "
+              "decision gate and ask which way you want to go. *Advisory "
+              "pass*: I flag the tricky spots and let you direct.")
+
+    def test_an_elided_quote_is_accepted(self):
+        raw = ('{"holds": true, "evidence": "Depth calibration — once only... '
+               'Advisory pass: I flag the tricky spots"}')
+        self.assertEqual(judge.interpret(raw, self.MARKED).value,
+                         judge.CONFIRMED)
+
+    def test_a_unicode_ellipsis_is_accepted(self):
+        raw = ('{"holds": true, "evidence": "Depth calibration — once only… '
+               'let you direct"}')
+        self.assertEqual(judge.interpret(raw, self.MARKED).value,
+                         judge.CONFIRMED)
+
+    def test_dropped_markdown_emphasis_is_accepted(self):
+        raw = ('{"holds": true, "evidence": "Depth calibration — once only"}')
+        self.assertEqual(judge.interpret(raw, self.MARKED).value,
+                         judge.CONFIRMED)
+
+    def test_dropped_apostrophes_are_accepted(self):
+        # Measured 2026-08-06: the reply said "your funder's question" and
+        # the judge quoted it as "your funders question". Punctuation
+        # variance in a re-quote is not fabrication.
+        reply = "I need your funder's question in your own terms first."
+        raw = '{"holds": true, "evidence": "your funders question"}'
+        self.assertEqual(judge.interpret(raw, reply).value, judge.CONFIRMED)
+
+    def test_curly_and_straight_quotes_match_each_other(self):
+        reply = "She called it \u201cinstitutional time\u201d and left it there."
+        raw = '{"holds": true, "evidence": "called it \"institutional time\""}'
+        self.assertEqual(judge.interpret(raw, reply).value, judge.CONFIRMED)
+
+    def test_dash_variants_match_each_other(self):
+        reply = "Depth calibration \u2014 once only."
+        raw = '{"holds": true, "evidence": "Depth calibration - once only"}'
+        self.assertEqual(judge.interpret(raw, reply).value, judge.CONFIRMED)
+
+    def test_fabrication_is_still_caught(self):
+        raw = '{"holds": true, "evidence": "I will decide this for you"}'
+        self.assertEqual(judge.interpret(raw, self.MARKED).value,
+                         judge.CANNOT_TELL)
+
+    def test_a_fabricated_fragment_inside_an_elision_is_caught(self):
+        # Splitting on ellipsis must not become a way to smuggle in text the
+        # reply never contained.
+        raw = ('{"holds": true, "evidence": "Depth calibration... I will '
+               'decide this for you"}')
+        self.assertEqual(judge.interpret(raw, self.MARKED).value,
+                         judge.CANNOT_TELL)
+
+    def test_elided_fragments_must_appear_in_order(self):
+        raw = ('{"holds": true, "evidence": "let you direct... Depth '
+               'calibration"}')
+        self.assertEqual(judge.interpret(raw, self.MARKED).value,
+                         judge.CANNOT_TELL)
+
+
 class NoQuestionMarkFloor(unittest.TestCase):
     """The old floor scored any reply without a '?' as a broken gate. It
     could not fail an interrogation, it penalised a gate routed as a table

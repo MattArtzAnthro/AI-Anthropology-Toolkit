@@ -74,6 +74,14 @@ Anything produced this way is marked in the output, so it stays visible
 later which commitments the researcher authored and which the machine
 assembled.
 
+**A judgment already supplied is not re-opened.** When the researcher has
+already made the call this skill would otherwise gate — the stance is
+declared, the codebook is ratified, the commitments are decided — the work
+is assembly, and assembly proceeds. Ask only for facts the assembly actually
+needs, and ask them together. Re-eliciting a settled judgment is not caution;
+it is the gate becoming a form, and it costs the researcher exactly the
+attention the real gates need.
+
 ## Calibrating the Depth
 
 Friction should be proportional to what the researcher could plausibly get

@@ -110,6 +110,15 @@ def notebook_files():
     return sorted(NOTEBOOKS_DIR.glob("*.ipynb"))
 
 
+
+def _flat(path):
+    """Skill text with line wrapping normalised away.
+
+    A phrase that spans a line break is still present in the skill; an
+    assertion that cannot see it is testing the wrapping, not the rule.
+    """
+    return re.sub(r"\s+", " ", path.read_text(encoding="utf-8"))
+
 class TestSkills(unittest.TestCase):
     def test_skills_present(self):
         self.assertGreaterEqual(len(skill_dirs()), 16)
@@ -129,6 +138,21 @@ class TestSkills(unittest.TestCase):
                 len(desc), 1024,
                 f"{d.name}: description is {len(desc)} chars (limit 1024)",
             )
+
+    def test_skills_readme_lists_every_skill(self):
+        """The catalog in skills/README.md had no enforcement and drifted.
+
+        `rival-interpretations` was missing from it while every other
+        catalog in the repo (commands/skills.md, README.md, CLAUDE.md) was
+        current, because those three are checked and this one was not. A
+        catalog nobody verifies is worse than no catalog: it reads as
+        complete.
+        """
+        text = (SKILLS_DIR / "README.md").read_text(encoding="utf-8")
+        missing = [s for s in sorted(skill_names())
+                   if f"{s}/" not in text]
+        self.assertFalse(
+            missing, f"skills/README.md catalog missing: {missing}")
 
     def test_no_references_to_nonexistent_skills(self):
         """Any '<kebab-name> skill' mention must name a real skill."""
@@ -853,6 +877,56 @@ class TestRepoDocs(unittest.TestCase):
         self.assertIn('pip install "ai-anthropology-toolkit[data]"', readme)
         self.assertIn("ai_anthro_toolkit.doctor", readme)
 
+    def test_tool_building_writes_standing_checks_not_only_tests(self):
+        """The acceptance checks verify an instrument once, while it is being
+        built. The commitments settled at Stage 4 are what the researcher
+        wants held months later, over data collected after the build is
+        forgotten, so Stage 6 persists them as their own file."""
+        body = _flat(SKILLS_DIR / "tool-building" / "SKILL.md")
+        self.assertIn("instrument-checks.json", body)
+        self.assertIn("ai-anthro-check", body)
+        self.assertIn("silence is not consent to a default", body)
+        self.assertIn("unenforceable with its reason", body)
+
+    def test_the_spec_pack_records_the_commitments(self):
+        """Nothing can generate a check from an answer that was never
+        written down."""
+        body = _flat(SKILLS_DIR / "tool-building" / "references"
+                     / "spec-pack-template.md")
+        self.assertIn("## Commitments", body)
+        for commitment in ("emptiness", "duplication", "partial-presence",
+                           "unparseable", "ordering"):
+            with self.subTest(commitment=commitment):
+                self.assertIn(commitment, body)
+
+    def test_assembly_skills_refuse_to_reopen_a_settled_judgment(self):
+        """Measured 2026-08-06 under an isolated run: both assembly scenarios
+        refuted, asking 8 and 9 questions after the researcher had already
+        supplied the judgment. Ceremony, not caution — the gate becoming a
+        form. These skills now carry the rule that says so."""
+        for name in ("ethnographic-generalization", "qualitative-analysis"):
+            body = _flat(SKILLS_DIR / name / "SKILL.md")
+            with self.subTest(skill=name):
+                self.assertIn(
+                    "already supplied is not re-opened", body,
+                    f"{name} lost the rule that assembly proceeds when the "
+                    f"judgment is already made",
+                )
+                self.assertIn(
+                    "ask them together", body,
+                    f"{name} lost the instruction to batch the facts "
+                    f"assembly needs rather than eliciting them one by one",
+                )
+
+    def test_the_sort_gate_says_a_proposal_is_not_an_answer(self):
+        """Measured 2026-08-06: tool-building's sort gate confirmed with the
+        repo reachable and refuted without it. The failure is not refusing to
+        propose; it is proposing and then continuing as though the proposal
+        had been answered."""
+        body = _flat(SKILLS_DIR / "tool-building" / "SKILL.md")
+        self.assertIn("proposed classification is not a settled one", body)
+        self.assertIn("the last thing on the screen is the question", body)
+
     def test_releasing_doc_carries_the_ordering_rule(self):
         """The package version is pinned in files that ship in the same commit
         as the code, so pushing before uploading publishes a pin to a version
@@ -911,6 +985,180 @@ class TestRepoDocs(unittest.TestCase):
         self.assertTrue(workflows, "no GitHub Actions workflow found")
         combined = "".join(w.read_text(encoding="utf-8") for w in workflows)
         self.assertIn("unittest", combined, "CI workflow does not run the validation suite")
+
+
+class TestRivalInterpretations(unittest.TestCase):
+    """The rules that make this skill a test rather than a critique.
+
+    Every rule below was arrived at by running the instrument against real
+    material and watching it go wrong, so each is the kind of thing a later
+    edit smooths away without noticing what it cost.
+    """
+
+    def setUp(self):
+        self.skill = SKILLS_DIR / "rival-interpretations"
+        self.body = _flat(self.skill / "SKILL.md")
+        self.brief = _flat(self.skill / "references" / "reading-brief.md")
+        self.adjudication = _flat(
+            self.skill / "references" / "adjudication.md")
+        self.roster = _flat(self.skill / "references" / "roster-selection.md")
+        self.command = _flat(COMMANDS_DIR / "test-claim.md")
+
+    def test_no_reading_is_admitted_without_a_falsifier(self):
+        """The load-bearing guardrail, and the only thing separating three
+        positions from three paraphrases. It also does the work that would
+        otherwise need an authored debate posture for each of the 42 lenses:
+        a position with nothing at stake cannot produce a falsifier, so it
+        drops out on its own. Losing this rule silently converts the skill
+        into a machine for manufacturing disagreement."""
+        for name, text in (("SKILL.md", self.body),
+                           ("reading-brief.md", self.brief)):
+            with self.subTest(file=name):
+                self.assertIn(
+                    "No reading is admitted without a falsifier", text)
+        self.assertIn("drawn from the material", self.body)
+        self.assertIn(
+            "cannot produce", self.brief,
+            "reading-brief no longer says what happens to a position that "
+            "cannot falsify itself here")
+
+    def test_a_falsifier_must_be_checkable_rather_than_theoretical(self):
+        """A falsifier that names a theoretical caveat rather than something
+        in the material passes the letter of the rule and defeats its point,
+        so the brief carries the inadmissible forms explicitly."""
+        self.assertIn("Not a theoretical objection", self.body)
+        self.assertIn("Not a theoretical caveat", self.brief)
+        self.assertIn("Do not substitute a theoretical objection", self.brief)
+        self.assertIn("Not admissible", self.brief)
+
+    def test_no_rebuttal_without_a_span(self):
+        """Arguing about a paraphrase of the anchor wastes the one advantage
+        this method has, and it is how a rebuttal round produces heat."""
+        self.assertIn("No rebuttal without a span", self.body)
+        self.assertIn("No rebuttal without a span", self.brief)
+
+    def test_rebuttals_are_targeted_rather_than_all_pairs(self):
+        """Firing every pair spends a full dispatch to produce one sentence
+        of agreement. Measured in the trial run: one pair out of three
+        actually collided."""
+        for text in (self.body, self.brief):
+            self.assertIn("same span", text)
+        self.assertIn("incompatible", self.brief)
+
+    def test_readers_never_see_each_other(self):
+        """Isolation is the entire reason this dispatches subagents. Three
+        positions argued in one context produce one context talking to
+        itself in three registers."""
+        self.assertIn("None sees the others' readings", self.brief)
+        self.assertRegex(
+            self.body,
+            r"[Nn]one sees the others' readings|never sees the others",
+            "SKILL.md no longer states that readers are isolated")
+
+    def test_the_home_position_is_asked_for_singly_not_ranked(self):
+        """A full ranking was the original request and is deliberately not
+        built: under a rule that filters nothing, only the first position is
+        ever used. This is exactly the kind of departure a later edit
+        'restores' without re-deriving why it was dropped."""
+        self.assertIn("Not a ranking", self.body)
+        self.assertIn(
+            "cannot be discounted by discounting its source", self.body,
+            "SKILL.md lost the reason the home position is asked for at all")
+
+    def test_the_claim_is_ratified_and_outranks_the_roster(self):
+        """Testing the wrong claim well is worse than declining, because it
+        arrives looking like a result. Mirrors tool-building's sort gate."""
+        self.assertIn("A proposed claim is not a settled one", self.body)
+        self.assertIn("the last thing on the screen is the question",
+                      self.body)
+        self.assertIn("outranks confirming the roster", self.body)
+
+    def test_declining_is_a_reported_outcome(self):
+        """A skill that always finds something worth three readers is
+        selling rather than testing, and the command must not promise a test
+        before the gate has run."""
+        self.assertIn("Declining is the common outcome", self.body)
+        self.assertIn("declines more often than it runs", self.body)
+        self.assertIn(
+            "A declined gate is a result", self.command,
+            "test-claim no longer reports a declined gate as a result")
+
+    def test_the_worklist_keeps_defects_and_decisions_apart(self):
+        """The failure mode is writing a decision as an instruction, because
+        the imperative mood is shorter and reads as more useful. The trial
+        run did it three times out of five."""
+        self.assertIn("Never convert a decision into a defect", self.body)
+        self.assertIn(
+            "may never convert one into the other", self.adjudication)
+        for required in ("## Defects", "## Decisions"):
+            with self.subTest(section=required):
+                self.assertIn(required, self.adjudication)
+
+    def test_what_stays_open_is_never_resolved_for_the_researcher(self):
+        """Naming a genuine conflict and then recommending a side converts
+        the researcher's decision into the machine's."""
+        self.assertIn("never dissolved", self.body)
+        self.assertIn("no recommended resolution", self.body)
+        self.assertIn("never recommend a side", self.adjudication)
+
+    def test_convergence_is_never_reported_as_proof(self):
+        """Three positions agreeing is evidence about the roster as much as
+        about the claim, and a roster built on one axis converges by
+        construction."""
+        self.assertIn("Convergence is never reported as proof",
+                      self.adjudication)
+        self.assertIn("Never present convergence as proof", self.body)
+        self.assertIn(
+            "Name the roster", self.adjudication,
+            "a convergence claim is uninterpretable without knowing what "
+            "agreed")
+
+    def test_the_record_closes_on_the_researcher(self):
+        """The record is what makes this a research artifact rather than a
+        critique, and an empty Resolution section presented as a completed
+        test reads as though the instrument settled something."""
+        self.assertIn("## Resolution", self.adjudication)
+        self.assertIn("Carried forward unresolved", self.adjudication)
+        self.assertIn("## Unresolved", self.adjudication)
+        self.assertIn(
+            "has usually been tidied rather than finished", self.body)
+
+    def test_the_record_discloses_that_the_readings_were_machine_argued(self):
+        """A reader who assumes three colleagues read the chapter has been
+        misled by omission, and the methods-section claim is the whole
+        reason the record exists."""
+        self.assertIn("machine-argued", self.adjudication)
+
+    def test_registry_entries_that_cannot_argue_are_named(self):
+        """Four registry entries are methodological or scope framings rather
+        than positions. Silently substituting something adjacent hides a true
+        thing about the researcher's own request."""
+        for entry in ("evaluation", "mixed_methods", "multi_sited",
+                      "historical_archival"):
+            with self.subTest(entry=entry):
+                self.assertIn(entry, self.roster)
+        self.assertIn("rather than silently substituting", self.roster)
+
+    def test_the_roster_is_bounded_by_the_registry(self):
+        """A position improvised outside the registry argues from a
+        literature nobody can check."""
+        self.assertIn("42-lens registry", self.roster)
+        self.assertIn("not a hole for this skill to patch", self.roster)
+
+    def test_the_coding_modifier_is_not_mistaken_for_a_debate_brief(self):
+        """Every one of the 42 prompt modifiers ends in a coding
+        instruction. Reusing one as an argumentative brief is the mistake
+        that makes a thin position sound confident."""
+        self.assertIn("Do not treat the coding modifier as a debate brief",
+                      self.roster)
+
+    def test_measured_divergence_outranks_predicted_divergence(self):
+        """The gate's third condition is a prediction everywhere except
+        where a cross-lens run has already measured it, and that is the
+        strongest form it takes."""
+        self.assertIn("evidence rather than prediction", self.body)
+        for text in (self.body, self.roster):
+            self.assertIn("friction points", text)
 
 
 if __name__ == "__main__":

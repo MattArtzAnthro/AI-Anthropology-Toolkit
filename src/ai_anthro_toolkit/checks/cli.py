@@ -17,7 +17,7 @@ import json
 import sys
 from pathlib import Path
 
-from . import registry
+from . import generated, registry
 from .registry import (AmbiguousArtifact, CANNOT_TELL, CLASS_CODEBOOK,
                        CLASS_CODED, FIRED, MARK_MIRROR, NOT_APPLICABLE, OK,
                        PROVENANCE_KEY, PROVENANCE_SIDECAR)
@@ -28,6 +28,27 @@ _TEACHING = (
 )
 
 _READABLE = {".json", ".csv"}
+
+# A project's own checks, written by tool-building from the researcher's
+# Stage 4 answers. Data, never code: it is validated against a fixed
+# vocabulary and nothing in it is executed.
+PROJECT_CHECKS = "instrument-checks.json"
+
+
+def load_project_checks(path: Path):
+    """Register a project's own checks, if it has any beside the artifact."""
+    document = path.parent / PROJECT_CHECKS
+    if not document.exists():
+        return None
+    try:
+        payload = json.loads(document.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        raise LoadError(f"{document} could not be read: {error}")
+    try:
+        built = generated.register_document(payload)
+    except ValueError as error:
+        raise LoadError(f"{document}: {error}")
+    return payload, built
 
 
 class LoadError(Exception):
@@ -168,9 +189,20 @@ def main(argv=None) -> int:
     try:
         artifact = load_artifact(args.path)
         codebook = load_artifact(args.codebook) if args.codebook else None
+        project = load_project_checks(args.path)
     except LoadError as error:
         print(error, file=sys.stderr)
         return 2
+
+    if project and not args.kind:
+        payload, built = project
+        args.kind = payload.get("artifact") or args.kind
+        if built.unenforceable:
+            print(f"{len(built.unenforceable)} commitment(s) you settled "
+                  f"cannot be checked from the data alone:")
+            for item in built.unenforceable:
+                print(f"  [-] {item.commitment}: {item.why}")
+            print()
 
     try:
         report = registry.run_checks(

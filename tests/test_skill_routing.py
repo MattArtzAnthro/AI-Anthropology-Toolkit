@@ -127,6 +127,12 @@ TRIGGER_PROMPTS = {
         "this is the third time I have written the same thing out",
         "should I automate this or just keep doing it",
     ],
+    "rival-interpretations": [
+        "is my reading of this material defensible",
+        "what is the strongest objection to this interpretation",
+        "test my claim against rival readings",
+        "is there another way to read this passage",
+    ],
     "ethnographic-generalization": [
         "can I generalize from one fieldsite to a broader insight",
         "what kind of generalization can my ethnography support",
