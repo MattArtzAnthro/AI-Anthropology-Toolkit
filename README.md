@@ -49,7 +49,7 @@ Gather scholarly, public, and media data through official APIs and structured co
 
 ### Qualitative Analysis Pipeline
 
-Four notebooks chain into a complete recording-to-themes workflow — transcribe, segment, build a codebook, code and construct themes. Each also works standalone.
+Four notebooks cover the path from recording to themes — transcribe, segment, build a codebook from your source literature, then code and construct themes. The transcript chunker and the codebook builder both feed coding and thematic analysis. Each also works standalone.
 
 | Notebook | Run | Description |
 |:---------|:---:|:------------|
@@ -121,7 +121,7 @@ cp -r AI-Anthropology-Toolkit/skills/qualitative-analysis AI-Anthropology-Toolki
 
 | Agent | Skills directory |
 |:------|:-----------------|
-| Claude Code | `~/.claude/skills/` (or install the plugin — all 24 at once) |
+| Claude Code | `~/.claude/skills/` (or install the plugin — all 26 at once) |
 | OpenAI Codex CLI | `~/.codex/skills/` |
 | Cursor | `~/.cursor/skills/` |
 | GitHub Copilot / VS Code | `~/.copilot/skills/` |
@@ -163,19 +163,19 @@ Installing the Claude Code plugin (above) bundles the server automatically. It a
 **Claude Code**
 
 ```
-claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.2.0" ai-anthro-mcp
+claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.5.0" ai-anthro-mcp
 ```
 
 **OpenAI Codex CLI**
 
 ```
-codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.2.0" ai-anthro-mcp
+codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.5.0" ai-anthro-mcp
 ```
 
 **Google Gemini CLI**
 
 ```
-gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==3.2.0" ai-anthro-mcp
+gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==3.5.0" ai-anthro-mcp
 ```
 
 The server is model-agnostic. With `ANTHROPIC_API_KEY` set, analysis runs autonomously (`api` mode). Without it, whichever model is orchestrating — Claude, GPT, or Gemini — performs each interpretive step itself through validated work packets (`delegated` mode): the analysis runs on your model, the methodology and validation run on the server, and every coding decision stays visible to the researcher.
@@ -272,7 +272,7 @@ This repository — notebooks, Python package, MCP server, plugin content, and d
 
 If you use this toolkit in your academic research, please cite:
 
-> Artz, Matt. 2026. AI Anthropology Toolkit. Software. Zenodo. https://doi.org/10.5281/zenodo.16728812
+> Artz, Matt. 2025. AI Anthropology Toolkit. Software. Zenodo. https://doi.org/10.5281/zenodo.16728812
 
 ## Research Behind the Toolkit
 
