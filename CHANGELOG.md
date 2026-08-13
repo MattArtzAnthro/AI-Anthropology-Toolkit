@@ -6,6 +6,55 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
+### 3.6.0 — 2026-08-12
+- `compare_lenses` overhauled so that every claim in its output is decidable from the data it
+  presents. `consensus_codes` now requires co-location — a code is consensus only where every
+  lens applied it to at least one common chunk, with those chunks reported in
+  `consensus_co_applied_chunks`. Previously the intersection was corpus-level: two lenses that
+  applied the same label to entirely disjoint chunks were reported as consensus, which is a
+  claim the data does not support. Labels every lens used without ever co-applying now report
+  as `shared_vocabulary_codes`. This changes the meaning of an existing key on purpose.
+- Agreement is now computed over deductive codes only. Inductive discoveries are per-lens:
+  the old math compared them across lenses as bare strings, so one lens's inductive TRUST
+  matched another's deductive TRUST — while the integrated code sets suffixed them apart.
+  They now report per lens in `inductive_codes_by_lens` and appear `_IND`-suffixed in point
+  payloads, never in scores or tiers.
+- An absent record is no longer scored as disagreement. A record present with no codes is a
+  reading ("nothing applies": 0 against a non-empty set, 1.0 against another empty set); a
+  lens with no record for a chunk was never asked, and that chunk's pairs involving it are
+  excluded, with per-lens `coverage` and total/compared/uncompared `chunks` counts keeping
+  the exclusions visible. Records without a `chunk_id` no longer collapse silently into a
+  pseudo-chunk; they are excluded and reported in structured `warnings`, alongside duplicate
+  `chunk_id`s (last record governs) and cross-lens text mismatches for the same `chunk_id` —
+  the last of which means the lenses may not have coded the same data.
+- Friction points now carry what adjudication requires: the chunk text (capped at 500
+  characters, flagged when truncated) and per-lens codes, with `code_definitions` resolved
+  per lens when codebooks are supplied. A friction point that hands the researcher bare
+  labels cannot support the judgment it exists to occasion.
+- New `convergence_points`: the highest-agreement chunks, same payload plus `code_count`,
+  surfaced for the same researcher inspection friction gets. Agreement reached too easily
+  may be two meanings under one label, and the old output never surfaced it anywhere.
+- Truncation is disclosed: `friction_total` and `convergence_total` report full counts,
+  `params` echoes `friction_threshold` and `top_n` (both now arguments), and ties order
+  lexicographically by `chunk_id`. The threshold selects attention, never existence.
+- The vocabulary regime is reported, never guessed: with per-lens codebooks supplied the
+  output states `shared` or `divergent` by content checksum; without them, `unknown` —
+  identical label sets are not evidence of a shared codebook. The checksum is the same one
+  that binds ratification to coding (`crosslens.codebook_checksum` now owns it; the server
+  delegates), and coding jobs now store their `ratification_id`, which the server's
+  `compare_lenses(job_ids=...)` path reports per lens.
+- Friction and convergence partition attention: convergence candidates sit at or above the
+  friction threshold, so no chunk is ever surfaced as both a friction finding and a
+  convergence finding. Caught by running the old design on a small corpus, where
+  top-N-descending returned the worst friction chunk inside `convergence_points`.
+- The Coding and Thematic Analysis notebook now installs the package and imports
+  `ai_anthro_toolkit.crosslens` instead of re-implementing the comparison — the cross-lens
+  functions in the comparison stage, the multi-lens merge's per-chunk agreement, and the
+  analyzer's overlap matrix all read the package result, and a drift-guard test asserts no
+  local Jaccard implementation remains anywhere in the notebook. The merge now returns the
+  package comparison alongside the merged frame and reports compared/uncompared chunk counts
+  and data-integrity warnings in its summary.
+
 ### 3.5.0 — 2026-08-06
 - OpenAlex 429s now raise `RuntimeError` carrying the server's own explanation instead of a bare
   `HTTPError`. OpenAlex answers an exhausted request budget with the same status it uses for
@@ -188,6 +237,21 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.30.0 — 2026-08-12
+- `qualitative-analysis` now says what cross-lens agreement measures: divergence in labeling,
+  which tracks divergence in reading only under a shared ratified codebook — and agreement earns
+  the same scrutiny divergence gets. Convergent chunks are spot-checked rather than waved
+  through, because two lenses posting the same code on the same chunk may hold two meanings
+  under one label. Whether a friction point is real interpretive daylight or two vocabularies
+  describing one reading is the researcher's adjudication, and the guidance now requires
+  presenting the chunk text and code definitions alongside the labels so that call can be made.
+- The MCP workflow guide instructs relaying the comparison's own honesty machinery (package
+  3.6.0): `vocabulary.regime` before interpreting agreement across per-lens codebooks,
+  `warnings` for missing or duplicate chunk ids and text mismatches, and `friction_total`
+  against the returned count, because the threshold selects attention, not existence. Friction
+  and convergence points are presented to the researcher, never resolved in narration.
+- MCP registration pins package 3.6.0.
 
 ### 1.29.0 — 2026-08-06
 - Added `rival-interpretations`, the 26th skill, and the `/test-claim` command. Tests one

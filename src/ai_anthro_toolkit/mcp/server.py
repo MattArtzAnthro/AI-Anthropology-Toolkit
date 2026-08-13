@@ -23,7 +23,6 @@ the server validates every submission against the codebook — keeping each
 interpretive move visible to, and contestable by, the researcher.
 """
 
-import hashlib
 import json
 import os
 import threading
@@ -96,20 +95,9 @@ def _load_records(job_id: str, name: str):
     return json.loads(raw) if raw else None
 
 
-def _codebook_checksum(records: list[dict]) -> str:
-    """Order-insensitive content checksum over (label, definition) pairs.
-
-    Field order, extra columns, and record order do not change the checksum;
-    changing, adding, or removing a code does.
-    """
-    canon = sorted(
-        (str(r.get("code_label") or r.get("label") or ""),
-         str(r.get("definition") or ""))
-        for r in records
-    )
-    return hashlib.sha256(
-        json.dumps(canon, ensure_ascii=False).encode("utf-8")
-    ).hexdigest()[:16]
+# One checksum algorithm binds ratification to coding to cross-lens regime
+# reporting; crosslens owns it so the package and server cannot drift.
+_codebook_checksum = _crosslens.codebook_checksum
 
 
 def _save_provenance(job_id: str, artifact_class: str, labels: list,
@@ -633,7 +621,8 @@ def start_coding_job(chunks: list[dict], codebook: list[dict],
     lens_context = _coding.build_lens_context(lens_key, research_context)
     job_id = _jobs.create("coding", {"lens_key": lens_key, "mode": mode,
                                      "approach": approach,
-                                     "valid_codes": valid_codes})
+                                     "valid_codes": valid_codes,
+                                     "ratification_id": ratification_id})
     _jobs.save_artifact(job_id, "chunks.json", json.dumps(chunks))
     _jobs.save_artifact(job_id, "codebook.json", json.dumps(records))
 
@@ -843,20 +832,54 @@ def build_themes(coded: list[dict] | None = None, job_id: str = "",
 
 @mcp.tool()
 def compare_lenses(results_by_lens: dict[str, list[dict]] | None = None,
-                   job_ids: dict[str, str] | None = None) -> dict:
+                   job_ids: dict[str, str] | None = None,
+                   friction_threshold: float = 0.3,
+                   top_n: int = 20) -> dict:
     """Compare coding results across analytical lenses (pure computation).
 
     Provide results_by_lens ({lens: coded records}) or job_ids ({lens:
-    coding job_id}). Returns per-chunk Jaccard agreement, pairwise agreement
-    matrix, friction points (agreement < 0.3), and consensus vs divergent
-    codes — sustaining interpretive divergence for the researcher to weigh.
+    coding job_id}). The job_ids path also loads each job's codebook, so
+    the output carries code definitions, the vocabulary regime (shared vs
+    per-lens codebooks, settled by checksum), and each lens's ratification
+    id. Returns per-chunk Jaccard agreement over deductive codes, per-lens
+    coverage, a pairwise agreement matrix, friction points (lowest
+    agreement, with chunk text and per-lens codes), convergence points
+    (highest agreement, same payload — easy consensus may be two meanings
+    under one label), co-location-backed consensus vs shared-vocabulary vs
+    divergent codes, and data-integrity warnings. Truncation is disclosed
+    via friction_total/convergence_total.
+
+    Friction and convergence points are findings for the RESEARCHER to
+    adjudicate: present them, quote them, and ask — never resolve them in
+    narration or average them away. Whether a friction point is real
+    interpretive daylight or two vocabularies describing one reading is
+    the researcher's call; the payload exists to equip it.
     """
+    codebooks_by_lens = None
+    ratification_ids = None
     if job_ids and not results_by_lens:
         results_by_lens = {lens: _load_records(jid, "result.json") or []
                            for lens, jid in job_ids.items()}
+        codebooks = {lens: _load_records(jid, "codebook.json")
+                     for lens, jid in job_ids.items()}
+        codebooks_by_lens = {lens: cb for lens, cb in codebooks.items()
+                             if cb} or None
+        ratification_ids = {}
+        for lens, jid in job_ids.items():
+            try:
+                payload = _jobs.read(jid).get("payload", {})
+            except FileNotFoundError:
+                payload = {}
+            ratification_ids[lens] = payload.get("ratification_id", "")
     if not results_by_lens or len(results_by_lens) < 2:
         raise ValueError("Provide coded results for at least two lenses.")
-    return _crosslens.compare_lenses(results_by_lens)
+    result = _crosslens.compare_lenses(results_by_lens,
+                                       codebooks_by_lens=codebooks_by_lens,
+                                       friction_threshold=friction_threshold,
+                                       top_n=top_n)
+    if ratification_ids is not None:
+        result["vocabulary"]["ratification_ids"] = ratification_ids
+    return result
 
 
 def main() -> None:
