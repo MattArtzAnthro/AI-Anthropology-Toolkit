@@ -67,7 +67,20 @@ or the Colab notebooks per the notebook-pipeline-guide.
   rather than averaging them away, and quote evidence verbatim from
   `get_job_result` records.
 - Multi-lens designs: run `start_coding_job` once per lens over the same
-  chunks, then `compare_lenses` with the collected job results.
+  chunks, then `compare_lenses` with the collected job ids (the job path
+  also resolves code definitions and the vocabulary regime into the
+  output).
+- Know what agreement measures: divergence in labeling, which tracks
+  divergence in reading only when the lenses share a ratified codebook —
+  check the output's `vocabulary.regime`, and treat agreement across
+  per-lens codebooks as structurally deflated rather than as findings.
+  Present friction points AND convergence points to the researcher with
+  their chunk text and code definitions; whether a friction point is real
+  interpretive daylight or two vocabularies describing one reading is the
+  researcher's call, and so is whether an easy consensus is real. Never
+  resolve either in narration. Relay `warnings` (missing or duplicate
+  chunk ids, text mismatches) and the `friction_total` versus returned
+  count — the threshold selects attention, not existence.
 - Data-collection tools can rate-limit or block (Google sources
   especially); their errors carry honest guidance — relay it instead of
   treating an error as "no data exists."

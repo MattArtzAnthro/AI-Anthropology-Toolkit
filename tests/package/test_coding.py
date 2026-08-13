@@ -368,40 +368,55 @@ class TestCompareLenses(unittest.TestCase):
          "All_Codes": "X"},
     ]
 
+    # Hand-computed values under the semantics ratified 2026-08-12
+    # (supersedes the original pins: agreement is deductive-only, a
+    # present-but-empty record is a reading rather than a gap, and
+    # consensus requires co-location).
+
     def test_hand_computed_jaccard_values(self):
         result = crosslens.compare_lenses({"A": self.LENS_A, "B": self.LENS_B})
 
         per_chunk = result["per_chunk_agreement"]
         # Chunk 1: {X,Y} vs {X,Z} -> |{X}| / |{X,Y,Z}| = 1/3.
         self.assertAlmostEqual(per_chunk["1"], 1 / 3)
-        # Chunk 2: {X,Q} vs {W} -> 0/3 = 0.
+        # Chunk 2: deductive only — {X} vs {W} -> 0. A's inductive Q is
+        # per-lens and never enters the score.
         self.assertAlmostEqual(per_chunk["2"], 0.0)
-        # Chunk 3: only one lens applied codes -> NaN.
-        self.assertTrue(math.isnan(per_chunk["3"]))
+        # Chunk 3: A's record is present with no codes — a reading of
+        # "nothing applies," which disagrees with B's {X}.
+        self.assertAlmostEqual(per_chunk["3"], 0.0)
 
-        # Matrix averages over chunks with a non-empty union (all three here):
-        # (1/3 + 0 + 0) / 3 = 0.111.
+        # Matrix averages over chunks both lenses hold with a non-empty
+        # union (all three here): (1/3 + 0 + 0) / 3 = 0.111.
         self.assertEqual(result["agreement_matrix"]["A"]["B"], 0.111)
         self.assertEqual(result["agreement_matrix"]["B"]["A"], 0.111)
         self.assertEqual(result["agreement_matrix"]["A"]["A"], 1.0)
 
-        # Mean over non-NaN per-chunk scores: (1/3 + 0) / 2 = 1/6.
-        self.assertAlmostEqual(result["mean_agreement"], 1 / 6)
+        # Mean over compared chunks: (1/3 + 0 + 0) / 3 = 1/9.
+        self.assertAlmostEqual(result["mean_agreement"], 1 / 9)
 
-    def test_friction_point_detected(self):
+    def test_friction_points_detected(self):
         result = crosslens.compare_lenses({"A": self.LENS_A, "B": self.LENS_B})
         friction = result["friction_points"]
-        self.assertEqual(len(friction), 1)  # only chunk 2 is < 0.3; NaN excluded
-        self.assertEqual(friction[0]["chunk_id"], "2")
-        self.assertAlmostEqual(friction[0]["agreement"], 0.0)
-        self.assertEqual(friction[0]["codes_by_lens"], {"A": ["Q", "X"], "B": ["W"]})
+        # Chunks 2 and 3 both score 0.0 < 0.3; ties order by chunk_id.
+        self.assertEqual([p["chunk_id"] for p in friction], ["2", "3"])
+        self.assertEqual(result["friction_total"], 2)
+        # The payload shows everything the lens applied, inductive marked.
+        self.assertEqual(friction[0]["codes_by_lens"],
+                         {"A": ["X", "Q_IND"], "B": ["W"]})
 
     def test_consensus_and_divergent_codes(self):
         result = crosslens.compare_lenses({"A": self.LENS_A, "B": self.LENS_B})
+        # X is consensus because both lenses applied it to chunk 1.
         self.assertEqual(result["consensus_codes"], ["X"])
+        self.assertEqual(result["consensus_co_applied_chunks"], {"X": ["1"]})
+        self.assertEqual(result["shared_vocabulary_codes"], [])
+        # Divergence is deductive-only; A's inductive Q reports separately.
         self.assertEqual(result["divergent_codes"],
-                         {"A": ["Q_IND", "Y"], "B": ["W", "Z"]})
+                         {"A": ["Y"], "B": ["W", "Z"]})
         self.assertEqual(result["partial_overlap"], [])
+        self.assertEqual(result["inductive_codes_by_lens"],
+                         {"A": {"Q": 1}, "B": {}})
 
 
 if __name__ == "__main__":

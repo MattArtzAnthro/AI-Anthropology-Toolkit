@@ -223,6 +223,15 @@ For multi-lens analysis, tag each theme by convergence: **convergent**
 are findings, not errors — they show where interpretive commitments do real
 work.
 
+Cross-lens agreement scores measure divergence in labeling, which tracks
+divergence in reading only when the lenses coded under a shared ratified
+codebook — and agreement earns the same scrutiny divergence gets. Two lenses
+posting the same code on the same chunk may hold two meanings under one
+label, so convergent chunks are spot-checked, not waved through. Whether a
+friction point is real interpretive daylight or two vocabularies describing
+one reading is the researcher's adjudication; present the chunk text and the
+code definitions alongside the labels so that call can actually be made.
+
 ### Step 6: Validate and Export
 
 - Spot-check: for a sample of coded segments, verify the code definitions
