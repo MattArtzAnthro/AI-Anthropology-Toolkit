@@ -97,6 +97,7 @@ Research skills in the portable [SKILL.md format](https://agentskills.io) that a
 | digital-computational-methods | Helps you design digital or computational research methods. Covers digital ethnography, platform ethics, large-scale text analysis, and working alongside AI tools. |
 | paper-planning | Helps you work out what your paper actually argues before you draft it. Extracts your claim, positions it against existing work, and sequences your argument through questions rather than writing. |
 | research-writing | Helps you write your article or dissertation chapter. Covers its structure, ethnographic craft, and the conventions of your subfield or journal. |
+| abstract-writing | Helps you write the abstract, title, and keywords for a journal or thesis submission. Builds the abstract from your manuscript's own claim, cuts it to the word limit and tells you what the cut cost, checks that it does not promise more than the manuscript delivers or name a site your anonymization protects, and picks keywords that index what the title leaves out. |
 | academic-review | Helps you write peer reviews and respond to them. Covers writing the review itself, rebuttal letters, and your revision strategy. |
 | rival-interpretations | Helps you test a claim against rival readings before a reviewer does. Argues your material from three other analytical positions, separates what they agree on from what stays genuinely open, and leaves you a record for your methods section. |
 | manuscript-markup | Helps you work through a manuscript that came back marked up with comments. Reads each comment in place, sorts them, works through them, and drafts your reply letter. |
@@ -121,7 +122,7 @@ cp -r AI-Anthropology-Toolkit/skills/qualitative-analysis AI-Anthropology-Toolki
 
 | Agent | Skills directory |
 |:------|:-----------------|
-| Claude Code | `~/.claude/skills/` (or install the plugin — all 26 at once) |
+| Claude Code | `~/.claude/skills/` (or install the plugin — all 27 at once) |
 | OpenAI Codex CLI | `~/.codex/skills/` |
 | Cursor | `~/.cursor/skills/` |
 | GitHub Copilot / VS Code | `~/.copilot/skills/` |

@@ -43,7 +43,11 @@ maintaining shared standards of argumentative clarity and evidentiary rigor.
 **Cross-references:** For responding to peer review and writing rebuttal
 letters, use the [academic-review](../academic-review/) skill. For conference
 abstracts and presentations, use the
-[conference-materials](../conference-materials/) skill.
+[conference-materials](../conference-materials/) skill. For the abstract,
+title, and keywords the finished manuscript is submitted with, use the
+[abstract-writing](../abstract-writing/) skill, which builds them against the
+draft and checks that the abstract promises nothing the draft does not
+deliver.
 
 ## Quick Reference
 

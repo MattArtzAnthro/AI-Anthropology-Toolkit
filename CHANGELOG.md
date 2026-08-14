@@ -238,6 +238,40 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Claude Code Plugin
 
+### 1.31.0 — 2026-08-14
+- Added `abstract-writing`, the 27th skill: the abstract, title, and keywords a finished
+  manuscript is submitted with. The library covered conference abstracts in depth and journal
+  abstracts as a checklist item inside `research-writing`, which left the highest-stakes
+  compression in the writing arc without a method. Tier 2 under the Friction by Design
+  conventions.
+- **The five moves are scene, problem, evidence, claim, and stake**, not the generic
+  background-methods-results-conclusions formula, which has no slot for two things an
+  anthropological abstract must carry: an evidence credential naming the kind and extent of the
+  fieldwork, and the definition of any coined term. A term named in an abstract without its
+  definition has spent the article's most valuable words advertising, and for most readers the
+  abstract is the only place that definition would ever have appeared.
+- **The abstract gets its own anonymization pass.** It is indexed permanently and circulates
+  without the article, so a scene move that triangulates region, institution type, and date
+  range can identify a site the manuscript pseudonymizes — the commitment breaks in the one
+  part of the submission that outlives every other. The pass also checks whether the fieldsite
+  identifies the author under double-anonymous review.
+- **Cuts are reported, never made silently.** Compression is where a scoped claim becomes a
+  general one, because the first casualties of a word limit are the qualifiers that kept the
+  claim true. The skill compresses against a fixed priority order, refuses to cut scope
+  conditions or the evidence move, and hands back the cut list so the author spends restored
+  words deliberately.
+- **The promise check** maps every abstract sentence to the manuscript section that delivers
+  it and reports the ones that map to nothing. Whether that means the abstract overclaims or
+  the manuscript is missing intended work is the author's call, not the skill's.
+- Carries no table of named journals and their word limits, by design. Limits and keyword
+  rules change between submission cycles, and a stale number in a reference file reads as
+  authoritative — the guide teaches typical ranges by venue type, and the procedure for
+  getting the current requirement, including what to do when publisher guidelines are blocked.
+- `writing-advisor` routes to it after the draft and never before, since an abstract written
+  ahead of the article is a plan the article will not match. Cross-references added from
+  `research-writing` and `conference-materials`, which keep conference, panel, and roundtable
+  abstracts.
+
 ### 1.30.0 — 2026-08-12
 - `qualitative-analysis` now says what cross-lens agreement measures: divergence in labeling,
   which tracks divergence in reading only under a shared ratified codebook — and agreement earns

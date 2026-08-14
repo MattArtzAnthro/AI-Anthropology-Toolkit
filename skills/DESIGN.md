@@ -263,6 +263,7 @@ The declarations, the table below, and the structural tests must agree.
 | irb-protocol | 2 | A regulated document the researcher signs; risk classification stays with the researcher |
 | literature-review | 2 | Search and matrices are procedure; inclusion criteria and the gap statement are the argument |
 | research-writing | 2 | Drafting prose from a decided argument is the work; the argument itself is gated in paper-planning |
+| abstract-writing | 2 | Compressing a finished manuscript, cutting to a limit, and building titles and keywords are assembly; which claim the abstract promises, whether the manuscript delivers it, and how much of the fieldsite may be named are not. Depth ceremony would be noise on a 150-word artifact, so what the skill cannot settle is reported as a fired check rather than as an interruption |
 | proof-review | 2 | Comparing proof against manuscript is mechanical verification and is run in full; whether a difference is an error, an acceptable house-style change, or a breach of an anonymization commitment, and whether the proof is approved, stay with the author. Depth ceremony would be noise on a diff, so uncertainty is routed to the author as a classification in the report rather than as an interruption mid-pass |
 | digital-computational-methods | 2 | Register diagnosis is proposed and confirmed; sessions are short and consultative, so depth ceremony would be noise |
 | applied-practice | 2 | The interpretation is the product the client bought; the so-what and what to withhold stay with the researcher |
