@@ -55,6 +55,11 @@ TRIGGER_PROMPTS = {
         "structure a journal article about my ethnographic findings",
         "prepare an anonymous version of my manuscript for blind peer review",
     ],
+    "abstract-writing": [
+        "cut my abstract down to the 150 word limit",
+        "write the abstract and pick keywords for my journal submission",
+        "my title is too vague and nobody will find this paper",
+    ],
     "academic-review": [
         "how do I respond to reviewer 2 in my revise and resubmit",
         "help me write a peer review report for a manuscript",

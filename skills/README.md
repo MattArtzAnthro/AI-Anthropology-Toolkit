@@ -37,6 +37,7 @@ Skills are organized conceptually by research lifecycle phase. Each row is a sep
 | Writing | [Paper Planning](paper-planning/) | `paper-planning/` | Available |
 | Writing | [Research Writing](research-writing/) | `research-writing/` | Available |
 | Writing | [Rival Interpretations](rival-interpretations/) | `rival-interpretations/` | Available |
+| Writing | [Abstract, Title & Keywords](abstract-writing/) | `abstract-writing/` | Available |
 | Peer Review | [Academic Review & Manuscript Evaluation](academic-review/) | `academic-review/` | Available |
 | Peer Review | [Manuscript Markup & Editor Feedback](manuscript-markup/) | `manuscript-markup/` | Available |
 | Production | [Proof Review](proof-review/) | `proof-review/` | Available |

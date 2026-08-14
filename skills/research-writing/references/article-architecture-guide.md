@@ -62,6 +62,8 @@ The title is the first thing readers, reviewers, and search algorithms encounter
 
 The abstract is a compressed version of your entire article. It must stand alone as an autonomous summary because many readers will encounter it in databases without access to the full text.
 
+The summary below covers what the article's architecture requires of the abstract. For building it — the five-move structure, compressing to a word limit without losing the scope conditions, checking that the abstract promises nothing the draft does not deliver, and the title and keywords that travel with it — use the [abstract-writing](../../abstract-writing/) skill.
+
 **Core requirements:**
 
 - Write a single paragraph of 100-150 words (always check the target journal's specific limit).

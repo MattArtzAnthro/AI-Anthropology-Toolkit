@@ -33,6 +33,13 @@ that must be scannable in two minutes. Speaker notes are timing instruments
 and transition maps, not scripts to read aloud. This skill treats each
 format as a distinct rhetorical genre with its own design logic.
 
+A conference abstract and a journal abstract are different genres, and the
+second is not a tidied version of the first. A conference abstract promises a
+talk, is often written before the analysis is finished, and answers to a
+program committee. For the abstract, title, and keywords that go into a
+journal or thesis submission alongside a finished manuscript, use the
+[abstract-writing](../abstract-writing/) skill.
+
 ## Quick Reference
 
 | Task | Reference |
