@@ -40,6 +40,9 @@ from ai_anthro_toolkit import themes as _themes
 from ai_anthro_toolkit import catalog as _catalog
 from ai_anthro_toolkit import checks as _checks
 from ai_anthro_toolkit import datasources as _data
+from ai_anthro_toolkit.datasources import format_citation as _format_citation
+from ai_anthro_toolkit.datasources import format_citation_batch as _format_batch
+from ai_anthro_toolkit.datasources import list_citation_styles as _citation_styles
 from ai_anthro_toolkit.datasources import search_crossref as _crossref
 from ai_anthro_toolkit.datasources import search_openalex as _openalex
 from ai_anthro_toolkit.datasources import search_pubmed as _pubmed
@@ -58,7 +61,13 @@ mcp = FastMCP(
         "search_google_patents, get_ngram_frequencies (Google Books word "
         "frequencies 1800-2022), search_youtube, get_youtube_transcript, and "
         "get_podcast_episodes. Some sources rate-limit or block; tool errors "
-        "carry honest guidance to relay. list_notebooks links Colab versions of "
+        "carry honest guidance to relay. Citations: format_citation "
+        "renders a bare DOI into a finished citation in any CSL style "
+        "(list_citation_styles finds the exact name, format_citation_batch "
+        "does a whole reference list in one call) — it formats "
+        "registrar metadata and does not verify it, so pass results on "
+        "as drafts to check against the source. "
+        "list_notebooks links Colab versions of "
         "these capabilities for users who want to run or customize them "
         "hands-on. Methodology: list_lenses / get_lens expose the 42-lens "
         "analytical registry. Documents: extract_document_markup reads the "
@@ -136,6 +145,8 @@ def toolkit_info() -> dict:
                                  "search_youtube", "get_youtube_transcript",
                                  "get_podcast_episodes", "list_notebooks"],
             "methodology": ["list_lenses", "get_lens"],
+            "citations": ["format_citation", "format_citation_batch",
+                           "list_citation_styles"],
             "documents": ["extract_document_markup"],
             "checks": ["get_artifact_checks"],
             "analysis": ["chunk_transcript", "start_codebook_job",
@@ -145,10 +156,17 @@ def toolkit_info() -> dict:
                           "compare_lenses"],
         },
         "llm_mode_default": _mode(None),
-        "notebooks": ("Every capability also exists as a hands-on Colab "
-                       "notebook for researchers who want to run, inspect, or "
-                       "customize it themselves — call list_notebooks for "
-                       "descriptions and links."),
+        # Not "every capability": the lens registry, document markup,
+        # standing checks, and citation formatting are server-side and have
+        # no notebook. The claim read "every" while four families lacked
+        # one, which is the kind of promise a researcher plans around.
+        "notebooks": ("Most data-collection and analysis capabilities also "
+                       "exist as a hands-on Colab notebook, for researchers "
+                       "who want to run, inspect, or customize one "
+                       "themselves; the methodology, documents, checks, and "
+                       "citations families are server-side only. Call "
+                       "list_notebooks for what exists, with descriptions "
+                       "and links."),
         "companion_plugins": [
             {
                 "name": "gephi-network-analysis",
@@ -214,6 +232,60 @@ def search_pubmed(query: str, limit: int = 10,
     return _pubmed(query, limit=limit,
                    year_from=year_from or None, year_to=year_to or None,
                    journal=journal or None)
+
+
+@mcp.tool()
+def format_citation(doi: str, style: str = "apa",
+                    locale: str = "en-US") -> dict:
+    """Format one DOI as a finished citation in a named journal style.
+
+    Use this when a source is not in the researcher's reference manager and
+    they need it rendered — a bare DOI in, a submission-ready citation out.
+    Covers Crossref, DataCite, and mEDRA DOIs and every CSL style, including
+    american-anthropological-association, chicago-notes-bibliography-17th-
+    edition, chicago-author-date-17th-edition, and journal-of-the-royal-
+    anthropological-institute. `style` must be an exact name, so call
+    list_citation_styles first rather than guessing; "bibtex" is also a
+    style here, for machine-readable output.
+
+    This formats, it does not verify. The rendering is only as good as the
+    registrar's metadata, which is often wrong in specific ways — mangled
+    titles, chapters carrying their book's title, deprecated dx.doi.org
+    URLs. Hand the result over as a draft to check against the source, and
+    never present it as evidence that the source says what a draft claims.
+    """
+    return _format_citation(doi, style=style, locale=locale)
+
+
+@mcp.tool()
+def format_citation_batch(dois: list[str], style: str = "apa",
+                          locale: str = "en-US") -> dict:
+    """Format many DOIs at once — use this for a reference list, not a loop.
+
+    Renders every DOI in the order given and returns `formatted` plus
+    `failed`, so one unresolvable DOI never discards the rest; report the
+    failures rather than quietly returning a short list. An unknown style
+    raises instead, because it would fail every entry.
+
+    This renders entries, it does not build a bibliography: it cannot sort
+    to a style's rules or disambiguate two works by one author in one year.
+    Say so when handing the output over, and carry the same caveat as
+    format_citation — this formats registrar metadata without verifying it.
+    """
+    return _format_batch(dois, style=style, locale=locale)
+
+
+@mcp.tool()
+def list_citation_styles(contains: str = "", limit: int = 50) -> dict:
+    """Find exact CSL style names accepted by format_citation.
+
+    The formatter ships thousands of styles and rejects near-misses, so look
+    the name up rather than guessing it. `contains` is a case-insensitive
+    substring ("anthropolog", "chicago", "taylor-and-francis"). Returns the
+    total shipped, how many matched, up to `limit` names, and whether the
+    list was truncated.
+    """
+    return _citation_styles(contains=contains, limit=limit)
 
 
 @mcp.tool()

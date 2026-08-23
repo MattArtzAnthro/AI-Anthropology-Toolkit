@@ -57,6 +57,8 @@ class TestToolRegistry(ServerTestBase):
             "search_youtube",
             "get_youtube_transcript",
             "get_podcast_episodes",
+            "format_citation", "format_citation_batch",
+            "list_citation_styles",
                     "search_pubmed", "list_notebooks",
                     "list_lenses", "get_lens", "extract_document_markup",
                     "get_artifact_checks",

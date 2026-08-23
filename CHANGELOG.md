@@ -6,6 +6,62 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
+### Unreleased
+- Citation formatting, as `format_citation` and `list_citation_styles` (MCP) and
+  `ai_anthro_toolkit.datasources.citation` (Python). Wraps the DOI Foundation's formatter at
+  citation.doi.org, which renders Crossref, DataCite, and mEDRA metadata through the Citation
+  Style Language. This closes a gap the toolkit had left open: `search_crossref` returns
+  metadata fields, and a reference manager formats what is already in the library, but nothing
+  rendered a finished citation from a bare DOI for a source the researcher does not hold.
+- The formatter ships thousands of styles and rejects near-misses rather than approximating,
+  so `list_citation_styles` is the lookup step, not a catalog: it filters by substring, reports
+  how many matched, and marks truncation rather than trimming silently. Anthropology's styles
+  are all present, `american-anthropological-association` and
+  `journal-of-the-royal-anthropological-institute` among them.
+- `format_citation` formats and does not verify, and both its docstring and the server
+  instructions say so. Registrar metadata is wrong in specific, recurring ways — titles mangled
+  by PDF extraction, chapters carrying their book's title, deprecated `dx.doi.org` URLs — so
+  the rendered text is returned verbatim apart from stripped surrounding whitespace, and is
+  handed on as a draft to check against the source rather than as evidence about it.
+- HTML entities are decoded before the citation is returned. The formatter escapes ampersands,
+  so a journal title such as *Science, Technology, & Human Values* arrives as `&amp;` and would
+  otherwise reach a manuscript that way. That decoding and a whitespace strip are the only
+  changes made to the formatter's rendering; deprecated `dx.doi.org` URLs are left as emitted,
+  because silently rewriting citation text is worse than reporting it.
+- `format_citation_batch` renders a whole reference list in one call, in input order, and
+  returns `formatted` alongside `failed` so one unresolvable DOI never discards the rest. It is
+  deliberately not called a bibliography: the formatter renders one DOI per request, so this
+  cannot sort to a style's rules or disambiguate two works by one author in one year, and both
+  the docstring and the tool description say so rather than letting the name imply it.
+- Whitespace runs collapse to single spaces. Registrar metadata routinely carries the newlines
+  and indentation of the XML it was pretty-printed into, so an openRxiv title arrives as
+  "Nearly Neutral Evolution Across the\\n                  Drosophila melanogaster\\n
+  Genome" and a `.strip()` leaves the break mid-title. Verified first that no CSL style emits an
+  internal newline of its own, annotated bibliographies included, so the collapse cannot destroy
+  a rendering the formatter meant.
+- Refusals now carry the formatter's own reason instead of a reason inferred from the status
+  code. The API returns 400 and 404 for several causes and does not evaluate DOI and style in a
+  fixed order — the same unsupported format name comes back as "Unknown style ris" for one DOI
+  and as a metadata error for another. The distinction that earns this: a DOI that is registered
+  but momentarily unformattable was being reported as unregistered, which tells a researcher a
+  real reference is fake. Rate limiting and 5xx now raise `RuntimeError` naming the formatter
+  rather than the DOI.
+- Unknown styles raise a typed `UnknownStyleError` rather than a `ValueError` the batch
+  identifies by searching its message. The string coupling broke the moment the wording changed,
+  and the batch silently began recording one style error as a per-row failure on every entry.
+- The two refusal paths stay distinguishable: an unregistered DOI and an unknown style raise
+  different messages, and the style error names the tool that returns exact names. DOIs are
+  accepted bare, `doi:`-prefixed, or wrapped in a doi.org or dx.doi.org URL; suffix case is
+  preserved, because registrar metadata does not always treat it as insignificant.
+- `toolkit_info` no longer claims that every capability also exists as a Colab notebook. It did
+  not: the methodology, documents, and checks families had none before this release and citations
+  makes a fourth, so a researcher choosing the toolkit because any capability can be inspected in
+  Colab was choosing on a false premise. The claim now states which families are server-side only,
+  and two tripwires in `tests/package/test_consistency.py` reject absolute quantifiers in it and
+  flag the day a notebook is added for one of those families.
+- `python -m ai_anthro_toolkit.doctor` now probes the formatter as a twelfth source, so a
+  sandboxed agent learns it is unreachable rather than discovering it mid-task.
+
 ### 3.6.0 — 2026-08-12
 - `compare_lenses` overhauled so that every claim in its output is decidable from the data it
   presents. `consensus_codes` now requires co-location — a code is consensus only where every

@@ -35,6 +35,9 @@ SOURCES = [
      _API_NOTE, ""),
     ("PubMed", "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/einfo.fcgi",
      _API_NOTE, ""),
+    ("DOI Citation Formatter",
+     "https://citation.doi.org/format?doi=10.5281/zenodo.16728812&style=apa",
+     _API_NOTE, ""),
     ("Books Ngram",
      "https://books.google.com/ngrams/json?content=culture"
      "&year_start=2000&year_end=2001",

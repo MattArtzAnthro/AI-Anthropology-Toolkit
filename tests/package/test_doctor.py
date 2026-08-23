@@ -30,12 +30,13 @@ def google_blocked(url, timeout):
 
 
 class TestEnvironmentReport(unittest.TestCase):
-    def test_covers_all_eleven_sources(self):
+    def test_covers_all_twelve_sources(self):
         report = doctor.environment_report(fetch=all_ok)
-        self.assertEqual(len(report["sources"]), 11)
+        self.assertEqual(len(report["sources"]), 12)
         names = {s["name"] for s in report["sources"]}
         for expected in ("OpenAlex", "CrossRef", "PubMed", "Google Trends",
-                         "Google Scholar", "YouTube transcripts"):
+                         "Google Scholar", "YouTube transcripts",
+                         "DOI Citation Formatter"):
             self.assertIn(expected, names)
         self.assertTrue(all(s["reachable"] for s in report["sources"]))
 

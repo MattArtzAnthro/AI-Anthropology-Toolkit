@@ -63,6 +63,33 @@ class TestNotebookCatalog(unittest.TestCase):
                          "notebooks on disk missing from the catalog")
 
 
+class TestNotebookParityClaim(unittest.TestCase):
+    def test_notebooks_claim_does_not_promise_universal_coverage(self):
+        """The claim read "Every capability also exists as a hands-on Colab
+        notebook" while four tool families had none — methodology, documents,
+        checks, and citations. A researcher choosing this toolkit because
+        every capability is inspectable in Colab would have been choosing on
+        a false premise, and nothing here could catch it."""
+        claim = server.toolkit_info()["notebooks"].lower()
+        for absolute in ("every capability", "all capabilities",
+                         "every tool", "each capability"):
+            self.assertNotIn(absolute, claim,
+                             f"notebooks claim promises {absolute!r}; "
+                             "verify it against catalog.NOTEBOOKS first")
+
+    def test_families_without_notebooks_are_still_without_notebooks(self):
+        """If a notebook is ever added for one of these, the claim above
+        should be revisited rather than left understating the coverage."""
+        families = server.toolkit_info()["tool_families"]
+        for family in ("methodology", "documents", "checks", "citations"):
+            self.assertIn(family, families)
+        names = " ".join(n["github_url"] for n in catalog.NOTEBOOKS).lower()
+        for absent in ("citation", "lens", "markup"):
+            self.assertNotIn(absent, names,
+                             f"a {absent} notebook now exists; update the "
+                             "server's notebooks claim to include it")
+
+
 class TestNetworkHygiene(unittest.TestCase):
     def test_every_requests_call_has_a_timeout(self):
         import re

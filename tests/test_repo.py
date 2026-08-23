@@ -853,6 +853,17 @@ class TestRepoDocs(unittest.TestCase):
             self.assertIn(marker, readme,
                           f"README skills install table lacks {marker}")
 
+    def test_readme_pins_the_current_package_version(self):
+        """The README's uvx pins drifted a release behind once already. A
+        stale pin sends every new reader to a superseded package."""
+        pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+        version = re.search(r'version = "([\d.]+)"', pyproject).group(1)
+        readme = (REPO / "README.md").read_text(encoding="utf-8")
+        pinned = set(re.findall(r"ai-anthropology-toolkit\[data\]==([\d.]+)",
+                                readme))
+        self.assertEqual(pinned, {version},
+                         f"README pins {sorted(pinned)}, pyproject is {version}")
+
     def test_agent_instruction_files_include_registration(self):
         pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
         version = re.search(r'version = "([\d.]+)"', pyproject).group(1)
