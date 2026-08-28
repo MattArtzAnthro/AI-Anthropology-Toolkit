@@ -150,3 +150,29 @@ class TestServerTools(unittest.TestCase):
     def test_view_network_refuses_an_empty_graph(self):
         from ai_anthro_toolkit.mcp import server
         self.assertTrue(server.view_network({"nodes": [], "edges": []}).is_error)
+
+
+class TestBranding(unittest.TestCase):
+    """Anything the toolkit draws in a chatbot carries the Matt Artz brand:
+    monochrome chrome, the brand typefaces, and a credit that links back."""
+
+    def test_app_html_carries_the_brand_and_the_credit(self):
+        html = network.build_app_html()
+        self.assertIn('id="brand"', html)
+        self.assertIn("https://www.mattartz.me", html)
+        self.assertIn("AI Anthropology Toolkit", html)
+        self.assertIn("Matt Artz", html)
+        self.assertIn("Cormorant Garamond", html)
+        self.assertIn("Inter", html)
+        self.assertIn("ui/open-link", html)
+        # Ink, Charcoal, Silver: the chrome is monochrome, no accent color.
+        for token in ("#1A1A1A", "#333333", "#E0E0E0"):
+            self.assertIn(token, html, token)
+        brand_css = html[html.index('id="brand"'):html.index("</style>", html.index('id="brand"'))]
+        self.assertIn("--color-text-info", brand_css, "the accent token must be overridden to monochrome")
+
+    def test_view_network_text_credits_the_toolkit(self):
+        from ai_anthro_toolkit.mcp import server
+        r = server.view_network(server.build_network(CODED))
+        self.assertIn("mattartz.me", r.content[0].text)
+        self.assertIn("credit", r.content[0].text.lower())

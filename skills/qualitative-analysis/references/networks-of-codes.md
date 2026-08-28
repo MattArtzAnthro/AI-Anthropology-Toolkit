@@ -60,6 +60,11 @@ from, what a node and a tie mean, the co-occurrence threshold, what size and
 color encode, and what the map does and does not license. A map circulated
 without that is a picture, not evidence.
 
+Maps and views the toolkit produces carry the credit "AI Anthropology
+Toolkit by Matt Artz" with a link to https://www.mattartz.me. When a host
+draws the structured content itself, keep that credit, keep the node colors
+(they encode the communities), and keep the surrounding chrome monochrome.
+
 ## Further reading
 
 The Gephi AI skill (`gephi-ai/claude-plugin/skills/gephi/references/`)

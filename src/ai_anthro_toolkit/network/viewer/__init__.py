@@ -45,6 +45,77 @@ def build_app_html() -> str:
     html = re.sub(r'\n\s*\$\("btn-gephi"\)\.onclick = [^\n]*\n', "\n", html)
     if "gephi_" in html:
         raise RuntimeError("viewer template still references a Gephi tool after re-pointing")
+    return _brand(html)
+
+
+# ── Matt Artz brand: monochrome chrome, brand typefaces, a credit that links back.
+# Data colors (node communities) are left alone: they encode the analysis and
+# must stay legible and colorblind-safe. Fonts fall back to system faces
+# because the sandboxed frame cannot reach Google Fonts.
+BRAND_URL = "https://www.mattartz.me"
+BRAND_CREDIT = "AI Anthropology Toolkit by Matt Artz"
+
+_BRAND_CSS = """
+<style id="brand">
+  :root {
+    --brand-ink: #1A1A1A; --brand-charcoal: #333333; --brand-graphite: #555555;
+    --brand-slate: #767676; --brand-ash: #B0B0B0; --brand-silver: #E0E0E0;
+    --brand-pearl: #F3F3F3; --brand-snow: #FAFAFA; --brand-white: #FFFFFF; --brand-black: #0D0D0D;
+    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --color-background-primary: light-dark(var(--brand-white), var(--brand-ink));
+    --color-background-secondary: light-dark(var(--brand-snow), var(--brand-charcoal));
+    --color-text-primary: light-dark(var(--brand-charcoal), var(--brand-pearl));
+    --color-text-secondary: light-dark(var(--brand-graphite), var(--brand-ash));
+    --color-border-primary: light-dark(var(--brand-silver), var(--brand-graphite));
+    --color-background-info: light-dark(var(--brand-pearl), var(--brand-charcoal));
+    --color-text-info: light-dark(var(--brand-ink), var(--brand-white));
+    --border-radius-md: 2px;
+  }
+  button { border-radius: 2px; background: transparent; border: 1px solid var(--brand-charcoal); color: var(--color-text-primary); font-weight: 500; }
+  button:hover { border-color: var(--brand-ink); filter: none; }
+  button.active { background: light-dark(var(--brand-ink), var(--brand-pearl)); color: light-dark(var(--brand-white), var(--brand-ink)); border-color: light-dark(var(--brand-ink), var(--brand-pearl)); }
+  button.active:hover { background: light-dark(var(--brand-charcoal), var(--brand-white)); }
+  .card { border-radius: 2px; box-shadow: none; }
+  #legend h4 { font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase; }
+  #panel h3 { font-family: var(--font-display); font-weight: 400; font-size: 18px; }
+  .caption { font-family: var(--font-display); font-weight: 600; letter-spacing: 0.08em; }
+  #credit { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 30; padding: 3px 10px;
+            font-family: var(--font-sans); font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--color-text-secondary); background: color-mix(in srgb, var(--color-background-primary) 90%, transparent);
+            border: 1px solid var(--color-border-primary); border-radius: 2px; white-space: nowrap; }
+  #credit a { color: inherit; text-decoration: none; border-bottom: 1px solid currentColor; cursor: pointer; }
+  #credit a:hover { color: var(--color-text-primary); }
+  body.compact #credit { display: none; }
+</style>
+"""
+
+_BRAND_HTML = (
+    '<div id="credit"><a id="credit-link" href="' + BRAND_URL + '" target="_blank" rel="noopener">'
+    + BRAND_CREDIT + '</a></div>\n'
+)
+
+_BRAND_JS = """
+<script>
+  // The credit link: hosts that can open links do so through ui/open-link;
+  // otherwise the anchor behaves as an ordinary link.
+  document.getElementById("credit-link").addEventListener("click", (ev) => {
+    if (hostCaps && hostCaps.openLinks) {
+      ev.preventDefault();
+      request("ui/open-link", { url: "%s" });
+    }
+  });
+</script>
+""" % BRAND_URL
+
+
+def _brand(html: str) -> str:
+    for needle in ("</style>\n</head>", '<div id="meta" class="card"></div>', "</body>"):
+        if needle not in html:
+            raise RuntimeError(f"viewer template drifted from gephi-ai: {needle!r} not found; revise _brand()")
+    html = html.replace("</style>\n</head>", "</style>\n" + _BRAND_CSS + "</head>", 1)
+    html = html.replace('<div id="meta" class="card"></div>', '<div id="meta" class="card"></div>\n' + _BRAND_HTML, 1)
+    html = html.replace("</body>", _BRAND_JS + "</body>", 1)
     return html
 
 

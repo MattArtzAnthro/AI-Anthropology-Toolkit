@@ -6,7 +6,19 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
-### 3.8.0 — 2026-08-28
+### 3.8.1 — 2026-08-28
+- **The in-chat network view carries the Matt Artz brand.** Monochrome chrome
+  (ink, charcoal, silver; no accent color), Inter for the interface and
+  Cormorant Garamond for captions and titles with system fallbacks (the
+  sandboxed frame cannot reach web fonts), and a credit at the foot, "AI
+  Anthropology Toolkit by Matt Artz," linking to https://www.mattartz.me
+  through the host's `ui/open-link` where it supports it. Node colors are
+  untouched: they encode the communities and stay colorblind-safe. The brand
+  is applied at build time over the viewer page shared with gephi-ai, so the
+  shared file stays verbatim. `view_network`'s text result asks hosts that
+  draw the structured content themselves to keep the credit and the
+  monochrome chrome.
+
 - **Networks of coded material, without Gephi.** A new `network` family of four
   tools. `build_network` turns the coding job's own records into a graph: codes
   that co-occur in a chunk, speakers tied to the codes they voice, or lenses
@@ -322,6 +334,11 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.33.1 — 2026-08-28
+- The network-analyst agent and the networks-of-codes reference carry the
+  credit and chrome rule for anything drawn in a chatbot. Registers the MCP
+  server at package 3.8.1.
 
 ### 1.33.0 — 2026-08-28
 - **`network-analyst` agent.** Runs the network tools (`build_network`,

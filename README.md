@@ -110,19 +110,19 @@ Installing the Claude Code plugin (above) bundles the server automatically. It a
 **Claude Code**
 
 ```
-claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.8.0" ai-anthro-mcp
+claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.8.1" ai-anthro-mcp
 ```
 
 **OpenAI Codex CLI**
 
 ```
-codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.8.0" ai-anthro-mcp
+codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.8.1" ai-anthro-mcp
 ```
 
 **Google Gemini CLI**
 
 ```
-gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==3.8.0" ai-anthro-mcp
+gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==3.8.1" ai-anthro-mcp
 ```
 
 The server also builds and reads networks of coded material with no Gephi installed: `build_network` (codes that co-occur, speakers to codes, lenses by agreement), `analyze_network` (layout, communities, centralities, a visual-QA reading), `view_network` (an interactive map in chat where the host renders MCP Apps), and `export_network` (GEXF for Gephi, where [Gephi AI](https://github.com/MattArtzAnthro/gephi-ai) takes over).
