@@ -108,13 +108,13 @@ class TestNetworkHygiene(unittest.TestCase):
 
 
 class TestDependencyBounds(unittest.TestCase):
-    """A major release of a dependency can remove what the server imports.
+    """The server is built on MCP Python SDK 2.x and must say so.
 
-    mcp 2.0.0 dropped mcp.server.fastmcp. With an unbounded requirement, a
-    fresh resolve picks it up and ai-anthro-mcp dies at import — while this
-    suite stays green, because it runs against whatever mcp is already
-    installed rather than against what a new install would choose. Nothing
-    else here can see that, so the bound itself is the thing under test.
+    mcp 2.0.0 removed mcp.server.fastmcp and renamed FastMCP to MCPServer.
+    The server migrated; the requirement has to follow it on both sides, or
+    a fresh resolve installs a 1.x SDK that lacks MCPServer (or, later, a
+    3.x that may rename again) while this suite stays green against whatever
+    mcp is already installed. The bound itself is the thing under test.
     """
 
     def _requirement(self, name: str) -> str:
@@ -126,25 +126,21 @@ class TestDependencyBounds(unittest.TestCase):
                 return spec
         self.fail(f"{name} is not declared in dependencies")
 
-    def test_mcp_requirement_has_an_upper_bound(self):
+    def test_mcp_requirement_is_the_v2_line(self):
         spec = self._requirement("mcp")
-        self.assertTrue(
-            "<" in spec,
-            f"the mcp requirement is {spec!r}, with no upper bound. mcp 2.0.0 "
-            "removed mcp.server.fastmcp, so an unbounded requirement resolves "
-            "to a release the server cannot start under.",
-        )
+        self.assertRegex(spec, r"mcp\s*>=\s*2(\.|,|$)",
+                         f"the mcp requirement is {spec!r}; the server uses MCPServer, "
+                         "which exists only in SDK 2.x")
+        self.assertIn("<3", spec.replace(" ", ""),
+                      f"the mcp requirement is {spec!r}, with no upper bound below 3")
 
-    def test_the_module_the_server_imports_still_exists(self):
-        try:
-            import mcp.server.fastmcp  # noqa: F401
-        except ModuleNotFoundError as exc:
-            self.fail(
-                f"mcp.server.fastmcp is not importable ({exc}). The installed "
-                "mcp is a release this server cannot run on; check the upper "
-                "bound in pyproject.toml.",
-            )
+    def test_the_server_is_an_mcpserver(self):
+        from mcp.server import MCPServer
+        self.assertIsInstance(server.mcp, MCPServer)
 
+    def test_server_reports_the_package_version(self):
+        from ai_anthro_toolkit import __version__
+        self.assertEqual(server.mcp.version, __version__)
 
 class TestPromptParity(unittest.TestCase):
     """The drift treaty: package prompts stay verbatim ports of the notebooks.

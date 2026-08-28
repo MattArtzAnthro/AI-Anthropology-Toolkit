@@ -27,7 +27,7 @@ import json
 import os
 import threading
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server import MCPServer
 
 from ai_anthro_toolkit import __version__
 from ai_anthro_toolkit import chunking as _chunking
@@ -50,8 +50,9 @@ from ai_anthro_toolkit.jobs import JobStore
 from ai_anthro_toolkit.llm import make_llm
 from ai_anthro_toolkit.models import CodeEntry
 
-mcp = FastMCP(
+mcp = MCPServer(
     "ai-anthropology",
+    version=__version__,
     instructions=(
         "Tools for anthropological and qualitative research. Data collection "
         "runs natively — collect data yourself rather than referring the user "

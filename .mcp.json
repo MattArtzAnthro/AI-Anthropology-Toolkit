@@ -4,7 +4,7 @@
       "command": "uvx",
       "args": [
         "--from",
-        "ai-anthropology-toolkit[data]==3.6.0",
+        "ai-anthropology-toolkit[data]==3.7.0",
         "ai-anthro-mcp"
       ]
     }

@@ -118,13 +118,14 @@ content changes at all, so the mismatch can never form.
 
 ## Standing constraints
 
-**`mcp` must stay bounded: `mcp>=1.2,<2`.** Version 2.0.0 removed
-`mcp.server.fastmcp`, which `src/ai_anthro_toolkit/mcp/server.py` imports, so
-an unbounded requirement resolves to a version where the server dies at
-import. `tests/package/test_consistency.py::TestDependencyBounds` asserts the
-bound and the import. The test suite alone cannot catch a regression here,
-because it runs against the already-installed `mcp`; the clean-venv step is
-what catches it.
+**`mcp` must stay bounded on both sides: `mcp>=2.1,<3`.** The server is built
+on MCP Python SDK 2.x (`MCPServer`, which SDK 1.x does not have; 2.0.0 removed
+`mcp.server.fastmcp`, which the server imported before 3.7.0). A requirement
+open at the top resolves to whatever the next major release removes or
+renames. `tests/package/test_consistency.py::TestDependencyBounds` asserts
+the bound and that the server is an `MCPServer`. The test suite alone cannot
+catch a regression here, because it runs against the already-installed
+`mcp`; the clean-venv step is what catches it.
 
 **`TestDataSourcesLive` is not a release gate.** Scholarly APIs return 503 and
 429 under repeated full-suite runs while passing when hit fresh. Read its

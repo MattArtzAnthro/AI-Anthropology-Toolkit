@@ -6,7 +6,15 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
-### Unreleased
+### 3.7.0 — 2026-08-28
+- **Migrated to MCP Python SDK 2.x** (`mcp>=2.1,<3`): `FastMCP` is now `MCPServer`, and the
+  server reports the package version in `serverInfo`. The SDK serves both the 2026-07-28
+  protocol and the 2025-era `initialize` handshake that Claude Code, Claude Desktop, Codex CLI,
+  and Gemini CLI send today, so clients need no change. Why now: SDK 2.0.0 removed
+  `mcp.server.fastmcp`, and any launcher that resolved the SDK freshly against an older
+  package series (for example a Claude Desktop entry still pinned to `2.0.*`) failed at import
+  with `No module named 'mcp.server.fastmcp'`. Releases from 3.6.0 back carried a `<2` bound and
+  keep working; this release moves the server onto the line the SDK maintains.
 - Citation formatting, as `format_citation` and `list_citation_styles` (MCP) and
   `ai_anthro_toolkit.datasources.citation` (Python). Wraps the DOI Foundation's formatter at
   citation.doi.org, which renders Crossref, DataCite, and mEDRA metadata through the Citation
@@ -293,6 +301,11 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.31.1 — 2026-08-28
+- Registers the MCP server at package 3.7.0 (SDK 2.x migration and citation formatting).
+  No other plugin content changed; the bump exists so the marketplace copy and the pin cannot
+  drift apart.
 
 ### 1.31.0 — 2026-08-14
 - Added `abstract-writing`, the 27th skill: the abstract, title, and keywords a finished
