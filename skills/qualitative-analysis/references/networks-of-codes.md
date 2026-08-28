@@ -64,7 +64,6 @@ without that is a picture, not evidence.
 
 The Gephi AI skill (`gephi-ai/claude-plugin/skills/gephi/references/`)
 carries the fuller craft: layout choice, statistics, claim verification, and
-reading network maps. For the network science itself: Jacomy, M. (2020),
-"Epistemic clashes in network science: mapping the argumentative structure
-of..." is the source of the scale-free caution; Blondel et al. (2008) for
-modularity.
+reading network maps. For the scale-free caution: Jacomy, M. (2020),
+"Epistemic Clashes in Network Science," Big Data & Society (open access). For
+modularity: Blondel et al. (2008).

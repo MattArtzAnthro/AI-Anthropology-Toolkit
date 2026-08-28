@@ -323,6 +323,10 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Claude Code Plugin
 
+### 1.32.1 — 2026-08-28
+- Corrects the Jacomy (2020) citation in `references/networks-of-codes.md` to
+  the full title and venue.
+
 ### 1.32.0 — 2026-08-28
 - The qualitative-analysis skill gains Step 7, "Networks of Codes," and a
   reference, `references/networks-of-codes.md`: when a network of codes helps,
