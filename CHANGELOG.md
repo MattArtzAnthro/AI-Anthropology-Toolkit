@@ -6,7 +6,28 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
-### 3.7.0 — 2026-08-28
+### 3.8.0 — 2026-08-28
+- **Networks of coded material, without Gephi.** A new `network` family of four
+  tools. `build_network` turns the coding job's own records into a graph: codes
+  that co-occur in a chunk, speakers tied to the codes they voice, or lenses
+  tied by the chunks on which they agree. `analyze_network` lays it out
+  (networkx spring layout), detects communities (Louvain modularity), computes
+  degree and betweenness, sizes by degree, colors by community with the
+  validated palette, and returns a one-sentence reading plus the same visual-QA
+  check Gephi AI runs (including whether the community partition is
+  topologically real). `view_network` shows the map as an interactive MCP App
+  in chat; hosts without that surface get the structured content to draw.
+  `export_network` writes GEXF or GraphML with positions, sizes, and colors,
+  so the network opens in Gephi laid out and Gephi AI can take it further.
+  The reading never calls a distribution scale-free. Adds `networkx` as a
+  dependency; no Java, no desktop application.
+- The in-chat viewer (`ai_anthro_toolkit.network.viewer`) is the page shipped
+  with gephi-ai, copied verbatim with the vendored graphology and sigma.js
+  builds and re-pointed at this package's tools at build time; gephi-ai is its
+  canonical source, and a build-time check refuses a copy that has drifted.
+- Server instructions, `toolkit_info` tool families, and the count in
+  `CLAUDE.md` now include the network family (34 tools).
+
 - **Migrated to MCP Python SDK 2.x** (`mcp>=2.1,<3`): `FastMCP` is now `MCPServer`, and the
   server reports the package version in `serverInfo`. The SDK serves both the 2026-07-28
   protocol and the 2025-era `initialize` handshake that Claude Code, Claude Desktop, Codex CLI,
@@ -301,6 +322,14 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.32.0 — 2026-08-28
+- The qualitative-analysis skill gains Step 7, "Networks of Codes," and a
+  reference, `references/networks-of-codes.md`: when a network of codes helps,
+  which tool does what, how to read the map (ties mean "applied to the same
+  chunk," check the partition before coloring by it, hub dominance is a
+  property of this corpus), and what a caption must carry. Registers the MCP
+  server at package 3.8.0.
 
 ### 1.31.1 — 2026-08-28
 - Registers the MCP server at package 3.7.0 (SDK 2.x migration and citation formatting).

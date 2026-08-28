@@ -124,6 +124,14 @@ class TestMcpServer(unittest.TestCase):
             "get_podcast_episodes",
             "format_citation", "format_citation_batch",
             "list_citation_styles",
+
+            "build_network",
+
+            "analyze_network",
+
+            "view_network",
+
+            "export_network",
             "list_notebooks", "list_lenses", "get_lens",
             "extract_document_markup",
             "get_artifact_checks",

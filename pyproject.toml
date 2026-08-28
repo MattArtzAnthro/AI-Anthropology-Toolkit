@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai-anthropology-toolkit"
-version = "3.7.0"
+version = "3.8.0"
 description = "Computational tools for anthropological and qualitative research: data collection and analysis as an MCP server and Python package"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -21,6 +21,7 @@ dependencies = [
     "mcp>=2.1,<3",
     "requests>=2.31",
     "numpy>=1.26",
+    "networkx>=3.2",
 ]
 
 [project.optional-dependencies]
@@ -47,3 +48,6 @@ Issues = "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"ai_anthro_toolkit.network.viewer" = ["template.html", "assets/*.js", "assets/VENDORED.md"]

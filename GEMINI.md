@@ -16,13 +16,14 @@ or qualitative analysis (transcript chunking, codebooks, coding, themes),
 follow this fallback chain:
 
 1. **MCP tools present** (tool names contain `ai-anthropology`): use them.
+   The `build_network`, `analyze_network`, `view_network`, and `export_network` tools turn coded records into a network of codes and read it without Gephi; export GEXF when the user wants the full Gephi instrument.
    If your agent supports MCP but the server is not registered, the user can
    add it (same uvx command everywhere):
 
    ```bash
-   claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.7.0" ai-anthro-mcp
-   codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.7.0" ai-anthro-mcp
-   gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==3.7.0" ai-anthro-mcp
+   claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.8.0" ai-anthro-mcp
+   codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.8.0" ai-anthro-mcp
+   gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==3.8.0" ai-anthro-mcp
    ```
 
    The server's LLM-dependent stages run in delegated mode by default: the

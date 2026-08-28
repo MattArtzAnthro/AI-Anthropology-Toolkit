@@ -252,6 +252,17 @@ code definitions alongside the labels so that call can actually be made.
   what conditions — hand off to the ethnographic-generalization skill,
   which takes confirmed themes as its input.
 
+### Step 7: Networks of Codes (optional)
+
+After coding, a co-occurrence network shows which codes travel together, a
+speaker-to-code network shows who voices what, and a lens-agreement network
+shows where lenses converge. Use `build_network` on the coding job's records,
+`analyze_network` for layout, communities, and a reading, `view_network` to
+show it in chat, and `export_network` for GEXF when Gephi is wanted. Read
+`references/networks-of-codes.md` before drawing conclusions from a map: ties
+mean "applied to the same chunk," communities must be checked before they are
+colored, and the caption carries the threshold and the encoding.
+
 ## Parameters
 
 - **Epistemic stance / analytical lens:** All 42 stances are relevant (see

@@ -28,6 +28,7 @@ import os
 import threading
 
 from mcp.server import MCPServer
+from mcp.types import CallToolResult, TextContent
 
 from ai_anthro_toolkit import __version__
 from ai_anthro_toolkit import chunking as _chunking
@@ -36,6 +37,7 @@ from ai_anthro_toolkit import coding as _coding
 from ai_anthro_toolkit import crosslens as _crosslens
 from ai_anthro_toolkit import lenses as _lenses
 from ai_anthro_toolkit import markup as _markup
+from ai_anthro_toolkit import network as _network
 from ai_anthro_toolkit import themes as _themes
 from ai_anthro_toolkit import catalog as _catalog
 from ai_anthro_toolkit import checks as _checks
@@ -68,6 +70,7 @@ mcp = MCPServer(
         "does a whole reference list in one call) — it formats "
         "registrar metadata and does not verify it, so pass results on "
         "as drafts to check against the source. "
+        "Networks: build_network turns coding output into a graph of codes, speakers, or lenses, analyze_network lays it out and reads it, view_network shows it in chat, and export_network writes GEXF for Gephi. "
         "list_notebooks links Colab versions of "
         "these capabilities for users who want to run or customize them "
         "hands-on. Methodology: list_lenses / get_lens expose the 42-lens "
@@ -150,6 +153,8 @@ def toolkit_info() -> dict:
                            "list_citation_styles"],
             "documents": ["extract_document_markup"],
             "checks": ["get_artifact_checks"],
+            "network": ["build_network", "analyze_network", "view_network",
+                        "export_network"],
             "analysis": ["chunk_transcript", "start_codebook_job",
                           "ratify_codebook", "start_coding_job",
                           "get_next_batch", "submit_batch",
@@ -953,6 +958,90 @@ def compare_lenses(results_by_lens: dict[str, list[dict]] | None = None,
     if ratification_ids is not None:
         result["vocabulary"]["ratification_ids"] = ratification_ids
     return result
+
+
+# ─── Networks of coded material ─────────────────────────────────────────
+
+@mcp.tool()
+def build_network(records: list[dict], kind: str = "code_cooccurrence",
+                  min_weight: float = 1.0,
+                  results_by_lens: dict | None = None) -> dict:
+    """Build a network from coded records, without Gephi.
+
+    kind "code_cooccurrence": nodes are codes; two codes are tied each time
+    they are applied to the same chunk, weighted by how many chunks. This is
+    the network of an analysis: which codes travel together. kind
+    "speaker_code": two-mode, speakers tied to the codes they voice. kind
+    "lens_agreement": lenses tied by the number of chunks on which they
+    applied a common code (pass results_by_lens={lens: coded records}).
+    records are the coding job's output records (get_job_result), which carry
+    All_Codes / Deductive_Codes / Inductive_Codes and speaker. Returns a graph
+    dict to pass to analyze_network. Pure computation; nothing leaves the
+    process.
+    """
+    return _network.build_network(records, kind=kind, min_weight=min_weight,
+                                  results_by_lens=results_by_lens)
+
+
+@mcp.tool()
+def analyze_network(graph: dict, seed: int = 0,
+                    community_resolution: float = 1.0) -> dict:
+    """Lay out, size, color, and read a network built by build_network.
+
+    Returns the graph with positions, sizes by degree, colors by modularity
+    community, and degree, weighted degree, betweenness, and community on
+    every node; a summary (density, components, isolates, community sizes,
+    top nodes, a one-sentence reading); and the visual-QA reading Gephi AI
+    uses (warnings and whether the community partition is topologically
+    real). The reading describes hub dominance as a property of this network
+    and never calls a distribution scale-free. Deterministic for a seed. Pass
+    the returned graph to view_network or export_network.
+    """
+    return _network.analyze_network(graph, seed=seed,
+                                    community_resolution=community_resolution)
+
+
+@mcp.resource("ui://ai-anthropology/network-view", name="network-view",
+              description="Interactive in-chat view of a network built from coded material (MCP App).",
+              mime_type="text/html;profile=mcp-app")
+def network_view_resource() -> str:
+    return _network.build_app_html()
+
+
+@mcp.tool(name="view_network", meta={"ui": {"resourceUri": "ui://ai-anthropology/network-view"}})
+def view_network(graph: dict, title: str = "Code network",
+                 caption_names: dict[str, str] | None = None) -> CallToolResult:
+    """Show an analyzed network as an interactive map in chat (MCP App).
+
+    Pass the graph returned by analyze_network. Hosts that render MCP Apps
+    (Claude Desktop, claude.ai) show the map inline: pan, zoom, hover a node's
+    neighborhood, search, a legend of communities to click, and "Ask about
+    it" on a node. caption_names labels communities ({"0": "Care work"}).
+    If no visual appears in this client, render structuredContent yourself
+    as an interactive visualization: every node carries x, y, size, color,
+    label, and attributes.
+    """
+    nodes = graph.get("nodes") or []
+    if not nodes:
+        return CallToolResult(content=[TextContent(type="text", text="The graph has no nodes; build and analyze one first.")],
+                              is_error=True)
+    if "x" not in nodes[0] or "community" not in (nodes[0].get("attributes") or {}):
+        graph = _network.analyze_network(graph)["graph"]
+    structured = {**graph, "title": title,
+                  "captions": {"column": "community", "names": caption_names or {}}}
+    summary = (f"Interactive view rendered: {len(nodes)} nodes and {len(graph.get('edges') or [])} ties. "
+               "If no visual appeared in this client, render structuredContent yourself as an "
+               "interactive visualization (nodes have x, y, color, size).")
+    return CallToolResult(content=[TextContent(type="text", text=summary)], structured_content=structured)
+
+
+@mcp.tool()
+def export_network(graph: dict, path: str, fmt: str = "gexf") -> dict:
+    """Write a network to GEXF (default) or GraphML with positions, sizes,
+    and colors, so it opens in Gephi as a laid-out map and Gephi AI can take
+    it further. Writes the file at path. Returns path, format, and counts.
+    """
+    return _network.export_network(graph, path, fmt=fmt)
 
 
 def main() -> None:
