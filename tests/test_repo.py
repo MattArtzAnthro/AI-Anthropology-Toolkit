@@ -566,9 +566,17 @@ class TestAgents(unittest.TestCase):
                               f"{f.stem}: writes files but cannot run checks")
 
     def test_agents_carry_skill_tool(self):
-        """Agents orchestrate skills, so each must be able to invoke them."""
+        """Agents orchestrate skills, so each must be able to invoke them.
+
+        An agent that declares no `tools` field inherits every tool, Skill and
+        the MCP tools included; that is the only way an agent can call this
+        package's own MCP tools, whose runtime names are host-prefixed and so
+        cannot be listed in the closed vocabulary. Such an agent passes here.
+        """
         for f in agent_files():
             fields, _ = parse_frontmatter(f)
+            if fields.get("tools") is None:
+                continue
             tools = parse_tools_field(fields.get("tools"))
             self.assertIn("Skill", tools, f"{f.name}: 'Skill' missing from tools")
 

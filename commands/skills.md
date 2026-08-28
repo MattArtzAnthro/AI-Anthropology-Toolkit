@@ -55,6 +55,7 @@ markdown.
 | writing-advisor | Articles, chapters, and the peer review / R&R process |
 | dissemination-advisor | Conference materials and public-facing writing |
 | career-advisor | Application packages, career statements, course design |
+| network-analyst | Building and reading a network of coded material (co-occurrence, speaker-to-code, lens agreement) with the MCP network tools; no Gephi required |
 | tool-builder | Building a research instrument, or a skill, agent, or MCP tool for this toolkit. The only agent here that writes files |
 
 ## Commands

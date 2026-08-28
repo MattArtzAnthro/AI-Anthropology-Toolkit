@@ -17,7 +17,7 @@ AI-Anthropology-Toolkit/
 ├── .claude-plugin/plugin.json    # Plugin manifest (bundles the MCP server via .mcp.json)
 ├── .mcp.json                     # uvx registration for the bundled MCP server
 ├── AGENTS.md / GEMINI.md         # Instructions for non-Claude coding agents
-├── agents/                       # 9 agents (8 lifecycle advisors + tool-builder)
+├── agents/                       # 10 agents (8 lifecycle advisors + network-analyst + tool-builder)
 ├── commands/                     # Slash commands
 ├── notebooks/                    # 23 Colab notebooks (data collection + analysis)
 ├── pyproject.toml                # ai-anthropology-toolkit package (PyPI)
@@ -34,7 +34,7 @@ AI-Anthropology-Toolkit/
 
 **Skills (27):** Auto-activated based on user context. Each has a `SKILL.md` with YAML frontmatter (`name`, `description`) and a `references/` directory with detailed guides. Shared conventions and the canonical stance list live in `skills/DESIGN.md`.
 
-**Agents (9):** Eight phase-specific advisors covering research design, ethics, fieldwork, analysis, proposals, writing, dissemination, and career development, all carrying the `Skill` tool plus read-only file tools. The ninth, `tool-builder`, is the only agent that writes files: it runs the `tool-building` workflow, whose three gates stop for the researcher at the sort, at ratification of the specification, and at any verification finding that requires deciding what the artifact should do. All use `model: inherit`.
+**Agents (10):** Eight phase-specific advisors, a network-analyst that builds and reads networks of coded material with the MCP network tools, covering research design, ethics, fieldwork, analysis, proposals, writing, dissemination, and career development, all carrying the `Skill` tool plus read-only file tools. The ninth, `tool-builder`, is the only agent that writes files: it runs the `tool-building` workflow, whose three gates stop for the researcher at the sort, at ratification of the specification, and at any verification finding that requires deciding what the artifact should do. All use `model: inherit`.
 
 **Commands (4):** `/ai-anthropology:new-project` — scaffolds a research project through guided lifecycle phases; `/ai-anthropology:build-tool` — builds a research instrument, specification first; `/ai-anthropology:test-claim` — tests one interpretive claim against rival readings argued from other analytical positions, and records what stays open; `/ai-anthropology:skills` — lists the catalog of skills, agents, and commands.
 

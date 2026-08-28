@@ -323,6 +323,19 @@ This project has two release tracks: the `ai-anthropology-toolkit` Python packag
 
 ## Claude Code Plugin
 
+### 1.33.0 — 2026-08-28
+- **`network-analyst` agent.** Runs the network tools (`build_network`,
+  `analyze_network`, `view_network`, `export_network`) in its own context so
+  graph data and intermediate readings stay out of the conversation, chooses
+  the network the question needs, checks the community partition before
+  coloring by it, and returns the map, the numbers, a reading in the
+  researcher's vocabulary, and a caption. Reads
+  `references/networks-of-codes.md` as its authority.
+- README leads with the AI surfaces (skills, agents, commands, MCP server) and
+  places the notebooks after them; Getting Started opens with the Claude Code
+  plugin. The notebooks are the technical path for researchers who want to
+  work closer to the code.
+
 ### 1.32.1 — 2026-08-28
 - Corrects the Jacomy (2020) citation in `references/networks-of-codes.md` to
   the full title and venue.
