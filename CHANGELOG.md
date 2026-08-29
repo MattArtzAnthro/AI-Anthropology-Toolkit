@@ -2,7 +2,14 @@
 
 All notable changes to the AI Anthropology Toolkit are documented here. Dates are UTC.
 
-This project has two release tracks: the `ai-anthropology-toolkit` Python package (notebooks, MCP server, data-collection tools; published to PyPI) and the Claude Code plugin (skills, agents, MCP registration). Versions are tracked separately below.
+This project has three release tracks: the `ai-anthropology-toolkit` Python package, the Claude Code plugin, and the Codex plugin. Versions are tracked separately below.
+
+## Codex Plugin
+
+### 1.33.1 — 2026-08-29
+- Added a native Codex plugin with all 27 portable research skills, a Codex-specific router, and the exactly pinned 34-tool MCP server.
+- Added adversarial parity checks: mirrored content and MCP configuration must stay byte-identical to their canonical sources; intentional Codex-only content must be classified; and the tool reference must contain every registered tool with no phantom tools.
+- Added repository-local marketplace metadata and a live-host release checklist covering first- and second-task discovery, MCP App resource discovery, desktop `uvx` resolution, and the resource-without-tools failure mode.
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 

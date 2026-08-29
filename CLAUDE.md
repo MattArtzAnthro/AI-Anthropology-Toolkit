@@ -1,6 +1,6 @@
 # AI Anthropology Toolkit
 
-Computational tools for anthropological research: a Claude Code plugin (skills, agents, commands), a Python package with an MCP server, and Colab notebooks — one repository, one release lineage.
+Computational tools for anthropological research: Claude Code and Codex plugins, a Python package with an MCP server, and Colab notebooks — one repository, one release lineage.
 
 **Working principle.** Be adversarial toward your own output. Trust what
 survives an attempt to break it, and be most suspicious of what arrived
@@ -15,12 +15,14 @@ blanket qualification, or refusing to decide.
 ```
 AI-Anthropology-Toolkit/
 ├── .claude-plugin/plugin.json    # Plugin manifest (bundles the MCP server via .mcp.json)
+├── .agents/plugins/marketplace.json # Repo-local Codex marketplace
 ├── .mcp.json                     # uvx registration for the bundled MCP server
 ├── AGENTS.md / GEMINI.md         # Instructions for non-Claude coding agents
 ├── agents/                       # 10 agents (8 lifecycle advisors + network-analyst + tool-builder)
 ├── commands/                     # Slash commands
 ├── notebooks/                    # 23 Colab notebooks (data collection + analysis)
 ├── pyproject.toml                # ai-anthropology-toolkit package (PyPI)
+├── plugins/ai-anthropology/      # Codex plugin: mirrored skills, router, exact MCP pin
 ├── src/ai_anthro_toolkit/        # Package: datasources, analysis pipeline, MCP server, doctor
 ├── tests/                        # Repo validation + skill routing evals
 │   └── package/                  # Package behavior, consistency, and parity tests
@@ -38,7 +40,7 @@ AI-Anthropology-Toolkit/
 
 **Commands (4):** `/ai-anthropology:new-project` — scaffolds a research project through guided lifecycle phases; `/ai-anthropology:build-tool` — builds a research instrument, specification first; `/ai-anthropology:test-claim` — tests one interpretive claim against rival readings argued from other analytical positions, and records what stays open; `/ai-anthropology:skills` — lists the catalog of skills, agents, and commands.
 
-**Tests:** `python3 -m unittest discover -s tests -t .` runs everything: `tests/test_repo.py` (plugin structure, notebook hygiene, documentation consistency), `tests/test_skill_routing.py` (deterministic routing evals — each skill description must win its typical prompts; description-collision ceiling), and `tests/package/` (package behavior, server consistency, notebook-prompt parity). A fourth tier, `tests/evals/` (behavioral gate-holding evals for the Friction by Design conventions), runs only locally with `AAT_RUN_GATE_EVALS=1` and the `claude` CLI — model behavior is nondeterministic and costs tokens, so CI never runs it. CI runs two jobs on every push: `validate` (repo + routing suites, stdlib only) and `package` (installs the package with extras and runs `tests/package/`; live scraper tests are skipped there via `AAT_SKIP_LIVE_SCRAPERS` because datacenter IPs are the blocked class and can hang in library retry loops).
+**Tests:** `python3 -m unittest discover -s tests -t .` runs everything: `tests/test_repo.py` (plugin structure, notebook hygiene, documentation consistency), `tests/test_skill_routing.py` (deterministic routing evals), `tests/test_codex_plugin.py` (manifest, exact mirrored-skill and MCP parity, and registered-tool/reference parity), and `tests/package/` (package behavior, server consistency, notebook-prompt parity). A fourth tier, `tests/evals/` (behavioral gate-holding evals for the Friction by Design conventions), runs only locally with `AAT_RUN_GATE_EVALS=1` and the `claude` CLI — model behavior is nondeterministic and costs tokens, so CI never runs it. CI runs two jobs on every push: `validate` (repo, routing, specification-pack, and Codex-plugin suites; stdlib only) and `package` (installs the package with extras and runs `tests/package/`; live scraper tests are skipped there via `AAT_SKIP_LIVE_SCRAPERS` because datacenter IPs are the blocked class and can hang in library retry loops).
 
 ## Conventions
 
@@ -69,7 +71,7 @@ In environments with code execution but no MCP tools (agent sandboxes such as Cl
 
 ## Releasing
 
-Two release tracks ship from one commit and the ordering matters: the package version is pinned inside `.mcp.json`, `AGENTS.md`, and `GEMINI.md`, so the package must be uploaded to PyPI **before** the commit is pushed, or every fresh install fails until it lands. A green test suite is not a release check — it runs against whatever is already installed and cannot see what a fresh resolve would pick. Full checklist, including why neither PyPI read path proves an upload landed, is in [RELEASING.md](RELEASING.md).
+Three release tracks ship from one commit and the ordering matters: the package version is pinned inside both MCP registrations, `AGENTS.md`, and `GEMINI.md`, so the package must be uploaded to PyPI **before** the commit is pushed, or every fresh install fails until it lands. A green test suite is not a release check — it runs against whatever is already installed and cannot see what a fresh resolve or a desktop host would discover. Full checklist is in [RELEASING.md](RELEASING.md).
 
 ## Citation
 

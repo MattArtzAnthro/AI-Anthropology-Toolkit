@@ -40,6 +40,7 @@ PIN_SITES = (
     "pyproject.toml",
     "src/ai_anthro_toolkit/__init__.py",
     ".mcp.json",
+    "plugins/ai-anthropology/.mcp.json",
     "AGENTS.md",
     "GEMINI.md",
 )
@@ -330,6 +331,9 @@ def main(argv=None) -> int:
     print(f"\nSafe to push. Then:")
     print("  claude plugin marketplace update ai-anthropology")
     print("  claude plugin update ai-anthropology@ai-anthropology")
+    print("  codex plugin marketplace add .")
+    print("  codex plugin add ai-anthropology@personal")
+    print("  start a new Codex task before testing the updated plugin")
     return 0
 
 

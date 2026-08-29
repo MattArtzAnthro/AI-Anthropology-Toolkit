@@ -1,0 +1,359 @@
+---
+name: qualitative-analysis
+description: >
+  Use this skill whenever a user needs help coding qualitative data, building
+  a codebook, or conducting thematic analysis for anthropological research.
+  Triggers include: "code my interviews," "qualitative coding," "codebook,"
+  "thematic analysis," "themes," "deductive coding," "inductive coding,"
+  "hybrid coding," "code frequencies," "co-occurrence," "intercoder
+  reliability," "analyze my transcripts," "analyze my field notes,"
+  "AI-assisted coding," "NVivo," "MAXQDA," "QDPX," or "how do I analyze my
+  qualitative data." Covers codebook development from literature or data,
+  applying codes (deductive, inductive, hybrid), building themes from coded
+  data, multi-lens parallel analysis, and quality validation. Bridges to the
+  toolkit's computational notebooks (Semantic Chunker, Codebook Builder,
+  Coding and Thematic Analysis). Do NOT use for designing data collection
+  instruments (use fieldwork-methods skill), method selection (use
+  methodology-selection skill), or writing up findings (use research-writing
+  skill).
+---
+
+# Qualitative Analysis & Coding
+
+Guide qualitative coding, codebook development, and thematic analysis for
+anthropological research — from raw transcripts and field notes to themes
+ready for writing. Analysis in this tradition is an interpretive act, not a
+counting exercise: codes are claims about what matters in the data, and the
+epistemic stance (or analytical lens) governing the analysis shapes what the
+coder attends to. Treat AI assistance as a way to scale and systematize
+interpretation while keeping interpretive authority with the researcher.
+
+This skill adopts the Friction by Design conventions at Tier 1; the canonical
+form of the framework sections is defined in [skills/DESIGN.md](../DESIGN.md).
+
+## Quick Reference
+
+| Task | Reference |
+|------|-----------|
+| Codebook construction, coding passes, theme building, quality validation | Read [references/coding-workflow-guide.md](references/coding-workflow-guide.md) |
+| Driving the pipeline through the ai-anthropology MCP tools (when available in the session) | Read [references/mcp-workflow-guide.md](references/mcp-workflow-guide.md) |
+| The toolkit's Colab notebooks (Semantic Chunker → Codebook Builder → Coding and Thematic Analysis) | Read [references/notebook-pipeline-guide.md](references/notebook-pipeline-guide.md) |
+| Canonical stance/lens list | See DESIGN.md (skills library root) |
+
+## What This Skill Will and Will Not Do
+
+Some of analysis is mechanical and some is interpretive judgment. The
+division is the point: the pipeline can scale coding across hundreds of
+segments precisely because the claims that govern it stay with the
+researcher.
+
+**Will not do, under any setting.** Choose which lens governs the analysis.
+Ratify a codebook — machine-generated codes enter the codebook in force only
+when the researcher ratifies them. Declare a theme confirmed, or decide what
+counts as significance in the data. Adjudicate friction between lenses —
+friction points are presented as findings, never resolved on the
+researcher's behalf. These are the interpretive claims that make the
+analysis the researcher's, and an analysis whose claims came from elsewhere
+is one they cannot defend to a committee or in review.
+
+When asked for any of these directly, propose options and ask which. Do not
+decide, and do not lecture about why not.
+
+**Will do, on request.** Draft candidate codes as five-part entries for
+ratification. Run coding passes against a ratified codebook and report code
+status. Compute frequencies, co-occurrences, and agreement scores. Assemble
+theme drafts from ratified codes for the researcher to confirm, revise, or
+reject. Format codebooks, coded data, and reports for export. Anything
+produced this way is marked in the output, so it stays visible later which
+claims the researcher authored and which the machine assembled.
+
+**A judgment already supplied is not re-opened.** When the researcher has
+already made the call this skill would otherwise gate — the stance is
+declared, the codebook is ratified, the commitments are decided — the work
+is assembly, and assembly proceeds. Ask only for facts the assembly actually
+needs, and ask them together. Re-eliciting a settled judgment is not caution;
+it is the gate becoming a form, and it costs the researcher exactly the
+attention the real gates need.
+
+## Calibrating the Depth
+
+Friction should be proportional to what the researcher could plausibly get
+wrong, not applied at uniform depth to everyone. Ask once, at the start of
+the engagement — not again at each pipeline stage:
+
+**Full pass.** The skill stops at each interpretive gate: the lens choice,
+codebook ratification, and theme confirmation. For a first analysis, an
+unfamiliar lens, or data the researcher does not yet know well.
+
+**Advisory pass.** For a researcher who has coded before and knows their
+data. Raise what applies and let them direct. Codebook ratification remains
+a hard gate in both — an unratified codebook never governs a coding pass,
+because every downstream claim inherits its authority from that decision.
+
+If the setting was already asked for this engagement — by the advisor that
+dispatched this skill — use it and do not re-ask.
+
+Default to asking. Do not infer the setting from how confident someone
+sounds.
+
+## Workflow
+
+### Step 1: Identify the Analysis Task
+
+Determine which of these the user needs — they are distinct tasks with
+different workflows:
+
+1. **Codebook development.** Building a structured set of codes (labels,
+   definitions, inclusion/exclusion criteria, examples) from source
+   literature, prior theory, or the data itself.
+2. **Coding.** Applying codes to data segments — deductively (from an
+   existing codebook), inductively (discovering codes from the data), or
+   hybrid (deductive first, then inductive discovery, then integration).
+3. **Thematic analysis.** Synthesizing coded data into themes — patterned
+   meanings that answer the research question — with constituent codes,
+   sub-themes, and supporting evidence.
+4. **Multi-lens analysis.** Running the same data through more than one
+   stance/lens in parallel and comparing where the lenses converge, diverge,
+   or productively conflict.
+
+If the user says "analyze my data" without specifying, walk them through the
+full arc: chunk → codebook → code → themes.
+
+### Step 2: Gather Context
+
+Collect before starting (ask only for what is missing):
+
+- **Data state.** What exists: raw audio, transcripts, field notes, already
+  segmented chunks, an existing codebook, partially coded data? Data format
+  (PDF, DOCX, TXT, CSV) and volume (how many interviews or documents)?
+- **Epistemic stance / analytical lens.** Which lens(es) will govern the
+  analysis (see DESIGN.md for the canonical list). A single lens is the
+  default; multi-lens parallel analysis is warranted when the project's
+  claims depend on epistemic pluralism.
+- **Coding approach.** Deductive, inductive, or hybrid — and why. The
+  approach should follow from the research design, not from convenience.
+- **Research context.** Project name, governing research question, and a
+  short study description — these ground every analytic judgment.
+- **Tooling mode.** Check for the ai-anthropology MCP tools first (names
+  contain `ai-anthropology`): when present, drive chunking, codebook
+  generation, coding, themes, and cross-lens comparison directly — read
+  [references/mcp-workflow-guide.md](references/mcp-workflow-guide.md)
+  before starting. In a session with code execution but no MCP tools (a
+  sandbox), install the package and drive the same pipeline through its
+  Python API — see "When the MCP Tools Are Absent" in
+  [references/mcp-workflow-guide.md](references/mcp-workflow-guide.md).
+  Otherwise choose between conversational analysis (working
+  through data together in this session), the toolkit's Colab notebooks (for
+  hands-on or customized runs — read
+  [references/notebook-pipeline-guide.md](references/notebook-pipeline-guide.md)),
+  or export to QDA software (NVivo, MAXQDA, ATLAS.ti via QDPX).
+
+### Step 3: Build or Refine the Codebook
+
+Read [references/coding-workflow-guide.md](references/coding-workflow-guide.md)
+before drafting codes.
+
+Every code needs five parts: a short label, a definition, inclusion criteria,
+exclusion criteria, and at least one example. Codes without exclusion criteria
+drift; codes without examples cannot be applied consistently.
+
+- Derive deductive codes from the literature and theoretical framework the
+  stance makes relevant.
+- Keep the codebook small enough to hold in mind — 15-40 codes for most
+  projects. Consolidate semantic near-duplicates before coding begins.
+- Version the codebook. Analysis decisions must be traceable to the codebook
+  version in force when they were made.
+- **Ratification is a gate.** A machine-generated codebook is a proposal.
+  Present it as one table and ask one confirm-or-revise question before any
+  coding pass runs — not code by code, which produces a researcher who stops
+  reading, and not silently, which produces an analysis nobody decided.
+- **Ask once, at ratification, whether codes here are mutually exclusive.**
+  Some traditions hold that they are; grounded theory and several
+  interpretive traditions deliberately keep codes that overlap. The answer
+  belongs with the codebook the researcher is ratifying, and it decides
+  whether near-duplicate definitions are a finding or a design choice. Do
+  not infer it from the stance, and do not assume it.
+
+**Run the standing checks over the codebook and say what they found.** Do
+this without being asked: `get_artifact_checks`, or `ai-anthro-check <path>`
+outside an MCP session. Report what fired in a sentence or two. A fired
+check is a question, never a verdict — it names a commitment the codebook
+implies, and only the researcher can say whether it is theirs. Checks that
+could not run come back as undetermined, and they are unrun rather than
+passed. The first time one fires, say once what these are: checks like these
+are called linters, and they are worth having because the failures they
+catch are the ones you cannot see by reading.
+
+### Step 4: Apply Codes
+
+- Code at the level of meaning units (a claim, an exchange, an episode), not
+  fixed word counts. If the data is not yet segmented, segment first — by
+  topic shift, preserving speaker turns.
+- Track code status per segment: deductive-only, inductive-only, both, or no
+  codes. Segments with no codes are analytically informative — inspect them
+  before dismissing them.
+- For hybrid coding: complete the deductive pass first, then ask what the
+  codebook failed to see. Inductive candidates must earn codebook entry with
+  the same five-part structure.
+- Record co-occurrences: codes that repeatedly appear together are theme
+  candidates.
+- **Run the standing checks over the coded data before building themes**,
+  unasked, the same way. Three of what they surface are worth pausing on: a
+  code discovered during coding that never entered the codebook, a code in
+  the codebook that was never applied, and a codebook that moved between
+  ratification and now. None of the three is an error on its face. Each one
+  names something the analysis is committed to that nobody wrote down, and
+  the researcher decides which.
+
+### Step 5: Build Themes
+
+Themes are not piles of codes, and they are not frequency rankings. A theme
+is an analytical claim about patterned meaning that answers (part of) the
+research question. For each theme, state: the claim, the constituent codes,
+representative evidence (verbatim quotes with source identifiers), and what
+the theme contributes to the argument.
+
+Themes are presented for confirmation, not announced. A theme draft the
+researcher has not confirmed, revised, or rejected stays a draft in every
+export.
+
+For multi-lens analysis, tag each theme by convergence: **convergent**
+(appears across lenses), **lens-specific** (visible only under one lens), or
+**friction** (lenses actively disagree about the same data). Friction points
+are findings, not errors — they show where interpretive commitments do real
+work.
+
+Cross-lens agreement scores measure divergence in labeling, which tracks
+divergence in reading only when the lenses coded under a shared ratified
+codebook — and agreement earns the same scrutiny divergence gets. Two lenses
+posting the same code on the same chunk may hold two meanings under one
+label, so convergent chunks are spot-checked, not waved through. Whether a
+friction point is real interpretive daylight or two vocabularies describing
+one reading is the researcher's adjudication; present the chunk text and the
+code definitions alongside the labels so that call can actually be made.
+
+### Step 6: Validate and Export
+
+- Spot-check: for a sample of coded segments, verify the code definitions
+  actually license the assignments.
+- Search for disconfirming evidence for each theme before accepting it.
+- Report saturation honestly: when did new data stop producing new codes?
+- Export in the format the downstream workflow needs: tabular (CSV/Excel)
+  for audit and co-analysis, QDPX for QDA software, structured summaries for
+  writing. Every export must preserve segment-to-source traceability.
+- Theme reports carry two registers. **Unresolved:** questions raised during
+  analysis and not settled — thin evidence, unadjudicated friction points,
+  no-code segments not yet inspected. Keep the list; an analysis with
+  nothing unresolved has usually been tidied rather than finished.
+  **Assembled rather than authored:** which codes and theme drafts the
+  machine proposed, as distinct from what the researcher decided.
+- When the researcher asks what the confirmed themes amount to beyond the
+  case — what kind of broader claim the fieldwork can support, and under
+  what conditions — hand off to the ethnographic-generalization skill,
+  which takes confirmed themes as its input.
+
+### Step 7: Networks of Codes (optional)
+
+After coding, a co-occurrence network shows which codes travel together, a
+speaker-to-code network shows who voices what, and a lens-agreement network
+shows where lenses converge. Use `build_network` on the coding job's records,
+`analyze_network` for layout, communities, and a reading, `view_network` to
+show it in chat, and `export_network` for GEXF when Gephi is wanted. Read
+`references/networks-of-codes.md` before drawing conclusions from a map: ties
+mean "applied to the same chunk," communities must be checked before they are
+colored, and the caption carries the threshold and the encoding.
+
+## Parameters
+
+- **Epistemic stance / analytical lens:** All 42 stances are relevant (see
+  DESIGN.md). The lens governs what codes are salient, how themes are framed,
+  and what counts as evidence.
+- **Coding approach:** Deductive, inductive, hybrid.
+- **Tooling mode:** Conversational, toolkit notebooks, QDA software export.
+- **Granularity:** Segment size (meaning units), codebook size cap, theme
+  count target.
+- **Output format:** Codebook (CSV/Markdown), coded data table, theme
+  report, cross-lens comparison.
+
+## Guardrails
+
+- **Interpretive authority stays with the researcher.** AI assistance
+  proposes; the researcher disposes. Never present machine-generated codes or
+  themes as final without human review checkpoints built into the workflow.
+- **Never fabricate quotes.** Every quoted segment must come verbatim from
+  the user's data with a source identifier. If evidence for a theme is thin,
+  say so — do not improvise illustrative material.
+- **Provenance throughout.** Every code assignment must be traceable to a
+  segment, a codebook version, and an analysis decision. An analysis that
+  cannot be audited cannot be defended.
+- **Frequency is not significance.** A code appearing often is not
+  automatically a theme; a code appearing once may matter enormously.
+  Interpretive weight, not counts, drives theme claims.
+- **Privacy is a design decision.** Sending data to an API is a disclosure
+  event. For sensitive data, prefer local processing and flag consent-scope
+  questions to the irb-protocol and informed-consent skills.
+
+## Common Failure Modes
+
+**Generic codes.** Codes like "communication" or "challenges" that could come
+from any qualitative project in any discipline. Anthropological codes name
+cultural and relational processes with the specificity the stance demands.
+
+**Themes that restate codes.** "Theme: Trust issues (codes: trust,
+distrust)." A theme must add an analytical claim beyond its constituent
+codes' labels.
+
+**Codebook sprawl.** Sixty codes with overlapping definitions guarantee
+inconsistent application. Consolidate before coding, not after.
+
+**Single-lens defaults.** Running everything through an unexamined
+interpretive default when the project's stance is actually critical,
+feminist, STS, or plural. Ask which lens governs — the answer changes the
+codes.
+
+**Coding to confirm.** Applying the codebook only where it fits and ignoring
+what it misses. The inductive pass and the no-code segments are where the
+data pushes back.
+
+**The gate that becomes a form.** A researcher who ratifies a forty-code
+codebook without reading it has not ratified anything, and the coding pass
+that follows carries no more authority than an unratified one. When
+ratification arrives instantly on a large codebook, ask which code they
+would delete — a researcher who cannot name one has not yet read it.
+
+## Examples
+
+**Example 1: Full arc, single lens**
+
+Input: "I have 12 interview transcripts from my fieldwork with community
+health workers in Nairobi. Interpretivist project. How do I analyze them?"
+
+Output approach: Confirm the research question and data format. Recommend the
+notebook pipeline for 12 transcripts (chunking, then codebook, then coding)
+or conversational analysis if the user prefers working through them together.
+Build a hybrid codebook grounded in the interpretivist literature the user
+is in conversation with; code with status tracking; build themes with
+verbatim evidence; validate against disconfirming cases.
+
+**Example 2: Multi-lens comparison**
+
+Input: "My committee wants to see how my analysis would differ under a
+critical lens versus an interpretivist one."
+
+Output approach: Read the notebook-pipeline-guide reference. Use the
+Codebook Builder to generate one codebook per lens with lens-specific
+prompting, run a coding pass per codebook, and compare the results:
+per-segment agreement, consensus codes, divergent codes, friction points.
+Present convergent themes and lens-specific themes separately — the
+divergence is the finding.
+
+**Example 3: Rescue an existing analysis**
+
+Input: "I coded everything in NVivo but my themes feel flat — they're just
+my code names with more words."
+
+Output approach: Diagnose theme-restates-code failure. Work upward from
+co-occurrence patterns and downward from the research question: what claim
+about patterned meaning would answer it? Rebuild themes as analytical claims,
+attach constituent codes and disconfirming evidence, and check each theme
+against the stance's account of what counts as significance.

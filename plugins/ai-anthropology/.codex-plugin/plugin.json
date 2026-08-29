@@ -1,0 +1,30 @@
+{
+  "name": "ai-anthropology",
+  "version": "1.33.1",
+  "description": "Anthropology-specific research design, ethics, fieldwork, qualitative analysis, writing, and computational research tools.",
+  "author": {
+    "name": "Matt Artz",
+    "url": "https://github.com/MattArtzAnthro"
+  },
+  "homepage": "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit",
+  "repository": "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "keywords": ["anthropology", "qualitative-research", "ethnography", "research-design", "fieldwork"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "AI Anthropology Toolkit",
+    "shortDescription": "Anthropology research across the full lifecycle",
+    "longDescription": "Design anthropological research, plan ethical fieldwork, analyze qualitative material, collect research data, test interpretations, and prepare scholarly or public-facing outputs with explicit epistemic commitments and researcher-controlled judgment gates.",
+    "developerName": "Matt Artz",
+    "category": "Education",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "websiteURL": "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit",
+    "defaultPrompt": [
+      "Help me refine an anthropological research question.",
+      "Build and ratify a qualitative codebook.",
+      "Test my interpretive claim against rival readings."
+    ],
+    "brandColor": "#7A4E2D"
+  }
+}

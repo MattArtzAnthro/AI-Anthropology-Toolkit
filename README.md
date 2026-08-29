@@ -10,7 +10,7 @@ A suite of AI anthropology tools for qualitative research
 
 The **AI Anthropology Toolkit** provides computational tools for anthropological and qualitative research. Every component is grounded in the conventions, debates, and craft knowledge of anthropology and cognate qualitative social sciences. Epistemic stance (interpretivist, critical, STS, feminist, applied, etc.) is treated as a first-class design parameter that shapes methods, writing, and analysis.
 
-The toolkit is a Claude Code plugin with research lifecycle skills and agents, an MCP server that lets Claude, Codex, or Gemini run the full pipeline — from data collection through coding, thematic analysis, and networks of codes — directly, and, for researchers who want to work closer to the code, standalone notebooks for data collection and qualitative analysis.
+The toolkit ships as plugins for Claude Code and Codex, an MCP server that lets Claude, Codex, or Gemini run the full pipeline — from data collection through coding, thematic analysis, and networks of codes — directly, and, for researchers who want to work closer to the code, standalone notebooks for data collection and qualitative analysis.
 
 ## What is AI Anthropology?
 
@@ -105,7 +105,7 @@ Autonomous Claude Code subagents that orchestrate across multiple skills for com
 
 The toolkit also ships as a Python package ([`ai-anthropology-toolkit` on PyPI](https://pypi.org/project/ai-anthropology-toolkit/)) with an MCP server, so Claude (and other MCP clients) can drive the full research pipeline conversationally: data collection (OpenAlex, CrossRef, PubMed, Google Scholar, Google Trends, Google News, Google Patents, Books Ngram, YouTube search and transcripts, podcast RSS), citation formatting (a bare DOI rendered in any CSL style, including the anthropology journal styles), and analysis (transcript chunking, lens-configured codebook generation, qualitative coding with per-code validation, thematic analysis, and cross-lens comparison).
 
-Installing the Claude Code plugin (above) bundles the server automatically. It also registers in any other MCP-capable agent — the command is the same everywhere:
+Installing either bundled plugin registers the server automatically. It can also be registered directly in another MCP-capable agent:
 
 **Claude Code**
 
@@ -217,7 +217,7 @@ Standalone notebooks for analyzing text corpora at scale.
 
 ## Releasing
 
-Maintainer checklist for cutting a release, covering the two version tracks, the upload-before-push ordering, and how to verify a release actually resolves: [RELEASING.md](RELEASING.md).
+Maintainer checklist for cutting a release, covering the three version tracks, the upload-before-push ordering, and how to verify both dependency resolution and live-host discovery: [RELEASING.md](RELEASING.md).
 
 ## Companion Plugins
 
@@ -241,6 +241,17 @@ Install the plugin in Claude Code:
 ```
 
 Skills activate automatically when Claude detects relevant context. Agents handle multi-step tasks across skills. Commands are invoked with slash syntax.
+
+### Codex Plugin
+
+Clone this repository, then add it as a local marketplace and install the bundle:
+
+```bash
+codex plugin marketplace add /absolute/path/to/AI-Anthropology-Toolkit
+codex plugin add ai-anthropology@personal
+```
+
+Start a new Codex task after installation. The plugin includes all 27 portable research skills, a Codex-specific router, and the same exactly pinned 34-tool MCP server registration as the repository root.
 
 ### Notebooks (Colab)
 

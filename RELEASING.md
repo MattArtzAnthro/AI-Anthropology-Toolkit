@@ -15,12 +15,13 @@ that becomes a form.
 The rest of this file explains what the script does and why, which is what you
 need when a step fails or when the release is unusual enough to run by hand.
 
-This repository has two release tracks that ship from one commit:
+This repository has three release tracks that ship from one commit:
 
 | Track | Version lives in | Consumers |
 |---|---|---|
-| Package `ai-anthropology-toolkit` | `pyproject.toml`, `src/ai_anthro_toolkit/__init__.py`, `.mcp.json`, `AGENTS.md`, `GEMINI.md` | PyPI, and the MCP server the plugin registers |
+| Package `ai-anthropology-toolkit` | `pyproject.toml`, `src/ai_anthro_toolkit/__init__.py`, both `.mcp.json` files, `AGENTS.md`, `GEMINI.md` | PyPI, and the MCP server both plugins register |
 | Claude Code plugin `ai-anthropology` | `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` | The marketplace clone and every installed copy |
+| Codex plugin `ai-anthropology` | `plugins/ai-anthropology/.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json` | Codex plugin installs and their bundled skills/MCP registration |
 
 They are versioned independently. Bump whichever changed, and both when both did.
 
@@ -48,6 +49,7 @@ plugin whose MCP server cannot resolve its own dependency.
 - [ ] A CHANGELOG entry exists for every version being bumped. No bump without one.
 - [ ] All package-version references agree. `tests/test_repo.py::test_package_version_consistency` checks this; run it rather than trusting a grep.
 - [ ] Any new MCP tool is registered in `toolkit_info()["tool_families"]` and in the tool-name sets in `tests/package/`, and the stated tool count in `CLAUDE.md` matches.
+- [ ] `tests/test_codex_plugin.py` confirms every mirrored skill and the MCP registration are byte-identical to their canonical source, and that the tool reference names exactly the registered tools.
 
 ## Verifying the build
 
@@ -104,6 +106,26 @@ all-clear on the exact thing that is still broken.
 - [ ] `claude plugin update ai-anthropology@ai-anthropology`
 - [ ] Restart for the plugin change to apply.
 - [ ] Run the drift check. It should be silent.
+- [ ] Configure this repository as a local Codex marketplace if needed: `codex plugin marketplace add .`
+- [ ] Install or refresh it: `codex plugin add ai-anthropology@personal`
+- [ ] Start a new Codex task; plugin skills and tools are discovered at task startup.
+
+## Codex live-host smoke test
+
+Unit tests prove the bundle is internally consistent. They cannot prove that
+Codex Desktop can launch `uvx`, complete MCP discovery, or surface the MCP App.
+Run this check in the actual desktop host after installing the plugin:
+
+- [ ] On the first new task after install, the server initializes and `tools/list` exposes exactly 34 tools (not only the resource).
+- [ ] `resources/list` includes `ui://ai-anthropology/network-view`.
+- [ ] Call `toolkit_info` and one small non-network tool successfully.
+- [ ] Start a second new task and repeat tool discovery. This catches startup/cache behavior that an in-process retry hides.
+- [ ] If the resource appears but tools do not, restart Codex and retest before changing the server; record whether failure was first-run-only.
+- [ ] Confirm the desktop host can resolve the exact bundled `uvx --from "ai-anthropology-toolkit[data]==X"` command. Success in an interactive shell is not evidence that the desktop process has the same PATH or environment.
+
+These are manual release checks, not silently skipped unit tests. A host outage
+or permission prompt should be reported as such rather than converted into a
+passing result.
 
 ## Same-version content drift
 

@@ -26,7 +26,8 @@ class PinSites(unittest.TestCase):
         self.assertEqual(
             set(release.PIN_SITES),
             {"pyproject.toml", "src/ai_anthro_toolkit/__init__.py",
-             ".mcp.json", "AGENTS.md", "GEMINI.md"},
+             ".mcp.json", "plugins/ai-anthropology/.mcp.json",
+             "AGENTS.md", "GEMINI.md"},
         )
 
     def test_all_pin_sites_exist_in_the_repo(self):
