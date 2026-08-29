@@ -859,6 +859,43 @@ class TestRepoDocs(unittest.TestCase):
             "rather than letting the check silently pass over nothing",
         )
 
+    def test_every_live_test_class_is_gated(self):
+        """A test that calls a third-party service must be skippable.
+
+        These fail for reasons unrelated to the code — a slow endpoint, a brief
+        outage, a rate-limited runner — and a red build nobody trusts is worse
+        than a check that runs at release time instead. CI sets
+        AAT_SKIP_LIVE_SCRAPERS.
+
+        The defect this prevents is not a missing mechanism but a file that
+        never got wired to it: the citation and collector suites called out to
+        the network for months while CI believed the switch covered them, and
+        one transient DOI outage failed a push that had changed nothing.
+
+        Any gate counts. `TestApiModeLiveViaCli` is correctly gated on the
+        `claude` CLI being present rather than on this flag, because that is
+        what it actually depends on.
+        """
+        package_tests = REPO / "tests" / "package"
+        ungated = []
+        for path in sorted(package_tests.glob("test_*.py")):
+            source = path.read_text(encoding="utf-8")
+            tree = ast.parse(source)
+            # A module that opts out wholesale at import time covers everything in it.
+            if "SkipTest" in source:
+                continue
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.ClassDef) or "Live" not in node.name:
+                    continue
+                if not node.decorator_list:
+                    ungated.append(f"{path.name}::{node.name}")
+        self.assertEqual(
+            ungated, [],
+            "live test classes with no skip gate: "
+            + ", ".join(ungated)
+            + " — add @SKIP_LIVE (or a gate on what the test actually needs)",
+        )
+
     def test_claude_md_mcp_claim_accurate(self):
         text = (REPO / "CLAUDE.md").read_text(encoding="utf-8")
         self.assertNotIn(

@@ -10,7 +10,19 @@ accepted when it is wrong.
     python3.12 -m unittest tests.package.test_datasources_citation -v
 """
 
+import os
 import unittest
+
+# CI sets AAT_SKIP_LIVE_SCRAPERS. Classes below whose names end in "Live" call
+# a third-party service, so they can fail for reasons that have nothing to do
+# with this code — a slow endpoint, a brief outage, a rate-limited runner. A
+# red build nobody trusts is worse than a check that runs at release time, so
+# these skip in CI and still run locally. The offline classes stay in CI,
+# because those are the ones that can catch a bug here.
+SKIP_LIVE = unittest.skipIf(
+    os.environ.get("AAT_SKIP_LIVE_SCRAPERS"),
+    "AAT_SKIP_LIVE_SCRAPERS set — skipping live third-party queries",
+)
 
 from ai_anthro_toolkit.datasources import (
     UnknownStyleError,
@@ -59,6 +71,7 @@ class TestClean(unittest.TestCase):
         self.assertEqual(_clean(text), text)
 
 
+@SKIP_LIVE
 class TestFormatCitationLive(unittest.TestCase):
     def test_renders_a_crossref_doi(self):
         rec = format_citation(NATURE_DOI, style="apa")
@@ -130,6 +143,7 @@ class TestFormatCitationLive(unittest.TestCase):
         self.assertNotIn("is registered", str(e.exception))
 
 
+@SKIP_LIVE
 class TestRaggedMetadataLive(unittest.TestCase):
     def test_embedded_newlines_do_not_reach_the_citation(self):
         """The registrar's XML indentation is not part of the title, and a
@@ -155,6 +169,7 @@ class TestRaggedMetadataLive(unittest.TestCase):
         self.assertTrue(rec["citation"].startswith("@misc"))
 
 
+@SKIP_LIVE
 class TestFormatCitationBatchLive(unittest.TestCase):
     def test_formats_every_doi_in_input_order(self):
         result = format_citation_batch([NATURE_DOI, TOOLKIT_DOI], style="apa")
@@ -197,6 +212,7 @@ class TestFormatCitationBatchLive(unittest.TestCase):
         self.assertTrue(issubclass(UnknownStyleError, ValueError))
 
 
+@SKIP_LIVE
 class TestListCitationStylesLive(unittest.TestCase):
     def test_filter_finds_the_anthropology_styles(self):
         result = list_citation_styles("anthropolog", limit=50)

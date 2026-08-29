@@ -6,7 +6,16 @@ and the MCP tool registry.
 
 import json
 import re
+import os
 import unittest
+
+# See test_datasources_citation.py: classes named *Live call a third-party
+# service and skip in CI, where a transient outage would otherwise read as a
+# broken build.
+SKIP_LIVE = unittest.skipIf(
+    os.environ.get("AAT_SKIP_LIVE_SCRAPERS"),
+    "AAT_SKIP_LIVE_SCRAPERS set — skipping live third-party queries",
+)
 from pathlib import Path
 
 from ai_anthro_toolkit import lenses
@@ -42,6 +51,7 @@ class TestLensRegistry(unittest.TestCase):
                          "lens registry drifted from the published notebook")
 
 
+@SKIP_LIVE
 class TestDataSourcesLive(unittest.TestCase):
     """Tiny real queries against the public APIs."""
 

@@ -4,7 +4,19 @@ offline coverage of the OpenAlex refusal path.
     python3.12 -m unittest tests.package.test_datasources_collectors -v
 """
 
+import os
 import unittest
+
+# CI sets AAT_SKIP_LIVE_SCRAPERS. Classes below whose names end in "Live" call
+# a third-party service, so they can fail for reasons that have nothing to do
+# with this code — a slow endpoint, a brief outage, a rate-limited runner. A
+# red build nobody trusts is worse than a check that runs at release time, so
+# these skip in CI and still run locally. The offline classes stay in CI,
+# because those are the ones that can catch a bug here.
+SKIP_LIVE = unittest.skipIf(
+    os.environ.get("AAT_SKIP_LIVE_SCRAPERS"),
+    "AAT_SKIP_LIVE_SCRAPERS set — skipping live third-party queries",
+)
 
 from ai_anthro_toolkit.datasources import (
     get_ngram_frequencies,
@@ -16,6 +28,7 @@ from ai_anthro_toolkit.datasources import openalex
 NPR_FEED = "https://feeds.npr.org/510289/podcast.xml"
 
 
+@SKIP_LIVE
 class TestNgramLive(unittest.TestCase):
     def test_single_term(self):
         rows = get_ngram_frequencies("culture", year_from=1950, year_to=2000)
@@ -34,6 +47,7 @@ class TestNgramLive(unittest.TestCase):
         self.assertGreaterEqual(n_insensitive, n_sensitive)
 
 
+@SKIP_LIVE
 class TestPodcastLive(unittest.TestCase):
     def test_npr_feed(self):
         try:
@@ -50,6 +64,7 @@ class TestPodcastLive(unittest.TestCase):
             self.assertLessEqual(len(ep["description"]), 500)
 
 
+@SKIP_LIVE
 class TestPatentsLive(unittest.TestCase):
     def test_search_or_honest_block_error(self):
         """A live call must either return records or raise the block message —

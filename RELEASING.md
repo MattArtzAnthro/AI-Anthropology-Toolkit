@@ -111,6 +111,31 @@ all-clear on the exact thing that is still broken.
 - [ ] Install or refresh it: `codex plugin add ai-anthropology@personal`
 - [ ] Start a new Codex task; plugin skills and tools are discovered at task startup.
 
+## Live data-source check
+
+CI skips every test that calls a third-party service (`AAT_SKIP_LIVE_SCRAPERS`),
+because those fail for reasons unrelated to the code and a red build nobody
+trusts is worse than no build. That trade moves the check here rather than
+removing it: nothing else verifies that the registrars and scrapers still
+answer the way the toolkit expects.
+
+Run the live suites once, without the flag, before uploading:
+
+```bash
+python3 -m unittest tests.package.test_datasources_citation \
+                    tests.package.test_datasources_collectors \
+                    tests.package.test_datasources_scrapers \
+                    tests.package.test_datasources_youtube
+```
+
+- [ ] They pass, or each failure is understood as upstream rather than ours.
+- [ ] A metered refusal (OpenAlex 429, a rate-limited scraper) is upstream and
+      does not block the release. A changed response *shape* does: that is the
+      toolkit reading a source wrong, and it will reach users.
+
+Re-running a transient failure is legitimate here. Suppressing a persistent one
+is not — if a source has genuinely changed, the release is what carries the fix.
+
 ## Codex live-host smoke test
 
 Unit tests prove the bundle is internally consistent. They cannot prove that
