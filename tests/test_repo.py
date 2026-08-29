@@ -7,6 +7,7 @@ run with:
     python3 -m unittest tests/test_repo.py -v
 """
 
+import ast
 import json
 import re
 import unittest
@@ -17,6 +18,25 @@ SKILLS_DIR = REPO / "skills"
 AGENTS_DIR = REPO / "agents"
 COMMANDS_DIR = REPO / "commands"
 NOTEBOOKS_DIR = REPO / "notebooks"
+
+
+def registered_tool_count() -> int:
+    """Count MCP tools from the server's decorators, not from prose.
+
+    The same derivation `tests/test_codex_plugin.py` uses. A count taken from
+    documentation cannot detect documentation drift, which is the whole point.
+    """
+    tree = ast.parse(
+        (REPO / "src" / "ai_anthro_toolkit" / "mcp" / "server.py").read_text(
+            encoding="utf-8"
+        )
+    )
+    return sum(
+        1
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and any("tool" in ast.unparse(d) for d in node.decorator_list)
+    )
 
 # Current Anthropic model aliases. Dateless aliases only, so notebooks track
 # model updates without breaking when dated snapshots retire.
@@ -810,6 +830,34 @@ class TestRepoDocs(unittest.TestCase):
         self.assertIsNotNone(agents_claim)
         self.assertEqual(int(skills_claim.group(1)), len(skill_dirs()), "CLAUDE.md skill count stale")
         self.assertEqual(int(agents_claim.group(1)), len(agent_files()), "CLAUDE.md agent count stale")
+
+    def test_stated_tool_counts_match_the_registered_tools(self):
+        """Every "N tools" claim in prose agrees with the server.
+
+        The count is stated three ways across three files ("34 tools",
+        "34-tool", "exactly 34 tools"), so the pattern matches the variant
+        forms rather than the one phrasing that happens to be in front of you.
+        Skill and agent counts are already guarded; the tool count was not, and
+        adding a tool silently falsified three documents at once.
+        """
+        expected = registered_tool_count()
+        pattern = re.compile(r"(\d+)[- ]tools?\b")
+        found = 0
+        for name in ("README.md", "CLAUDE.md", "AGENTS.md", "GEMINI.md", "RELEASING.md"):
+            path = REPO / name
+            if not path.is_file():
+                continue
+            for claim in pattern.findall(path.read_text(encoding="utf-8")):
+                found += 1
+                self.assertEqual(
+                    int(claim), expected,
+                    f"{name} claims {claim} tools; {expected} are registered",
+                )
+        self.assertGreater(
+            found, 0,
+            "no tool-count claim found — if the wording changed, update this pattern "
+            "rather than letting the check silently pass over nothing",
+        )
 
     def test_claude_md_mcp_claim_accurate(self):
         text = (REPO / "CLAUDE.md").read_text(encoding="utf-8")
