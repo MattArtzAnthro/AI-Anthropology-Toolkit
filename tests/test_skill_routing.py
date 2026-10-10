@@ -53,7 +53,12 @@ TRIGGER_PROMPTS = {
     "research-writing": [
         "help me write the methods chapter of my dissertation",
         "structure a journal article about my ethnographic findings",
+    ],
+    "review-anonymization": [
         "prepare an anonymous version of my manuscript for blind peer review",
+        "remove my name and self-citations before double-blind review",
+        "the journal wants an anonymous main document and a separate title page",
+        "strip the author name from my Word file metadata before I submit",
     ],
     "abstract-writing": [
         "cut my abstract down to the 150 word limit",
@@ -145,6 +150,18 @@ TRIGGER_PROMPTS = {
     ],
 }
 
+# Near misses: prompts that share vocabulary with review-anonymization but
+# concern participants, proofs, or abstracts. Each must route to the named
+# skill and never to review-anonymization, because hiding an author and
+# protecting a participant are different jobs that pull in opposite
+# directions.
+NEAR_MISS_PROMPTS = {
+    "how do I anonymize my interview participants with pseudonyms in the consent form": "informed-consent",
+    "describe the de-identification plan for participant data in my IRB protocol": "irb-protocol",
+    "check that the pseudonyms survived in the typeset page proofs": "proof-review",
+    "does my journal abstract name the fieldsite my manuscript pseudonymizes": "abstract-writing",
+}
+
 STOPWORDS = frozenset(
     ("a an and are as at be but by for from has have how i in into is it my "
      "of on or should that the this to use used when whether which will "
@@ -219,6 +236,17 @@ class TestSkillRouting(unittest.TestCase):
                         f"top3: {[(s, round(v, 3)) for v, s in ranked[:3]]})")
         self.assertEqual(failures, [],
                          "prompts misrouted:\n" + "\n".join(failures))
+
+    def test_near_misses_route_away_from_review_anonymization(self):
+        failures = []
+        for prompt, wanted in NEAR_MISS_PROMPTS.items():
+            ranked = self._rank(prompt)
+            if ranked[0][1] != wanted:
+                failures.append(
+                    f"{prompt!r} -> {ranked[0][1]} (wanted {wanted}; "
+                    f"top3: {[(s, round(v, 3)) for v, s in ranked[:3]]})")
+        self.assertEqual(failures, [],
+                         "near misses misrouted:\n" + "\n".join(failures))
 
     def test_no_two_descriptions_near_collide(self):
         skills = sorted(self.vectors)

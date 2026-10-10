@@ -7,12 +7,12 @@ description: >
   section," "findings section," "thick description," "ethnographic vignette,"
   "thesis chapter," "dissertation chapter," "article structure,"
   "manuscript draft," "using quotes in my paper,"
-  "participant voice," "anonymize my manuscript," "blind review version,"
-  "anonymous version for submission," or writing for anthropology journals.
+  "participant voice," or writing for anthropology journals.
   Covers full research articles and their sections, thesis and dissertation
-  chapters, section-level drafting and revision, and preparing anonymized
-  manuscripts for blind peer review submission, across all subfields. Do NOT use for peer review or reviewer responses (use
-  academic-review skill), conference abstracts or presentations (use
+  chapters, and section-level drafting and revision, across all subfields.
+  Do NOT use for peer review or reviewer responses (use
+  academic-review skill), the anonymized copy for double-anonymized review
+  (use review-anonymization), conference abstracts or presentations (use
   conference-materials skill), grant proposals (use grant-proposal skill), or
   public-facing writing (use public-engagement skill).
 ---
@@ -47,7 +47,8 @@ abstracts and presentations, use the
 title, and keywords the finished manuscript is submitted with, use the
 [abstract-writing](../abstract-writing/) skill, which builds them against the
 draft and checks that the abstract promises nothing the draft does not
-deliver.
+deliver. For the anonymized copy a double-anonymized venue requires, use
+the [review-anonymization](../review-anonymization/) skill.
 
 ## Quick Reference
 
@@ -56,7 +57,6 @@ deliver.
 | Section-by-section article guide, structural templates, word counts, thesis adaptations, checklists | Read [references/article-architecture-guide.md](references/article-architecture-guide.md) |
 | Subfield-specific conventions, journal requirements, comparative guidance | Read [references/subfield-conventions-guide.md](references/subfield-conventions-guide.md) |
 | Style, voice, ethnographic craft, participant quotes, literature integration, citations, ethics statements | Read [references/writing-craft-guide.md](references/writing-craft-guide.md) |
-| Preparing an anonymous manuscript for blind review — identity scan, redaction worklist, restoration map | Read [references/anonymization-guide.md](references/anonymization-guide.md) |
 
 ## What This Skill Will and Will Not Do
 
@@ -75,7 +75,7 @@ When asked for any of these directly, propose options and ask which.
 **Will do, on request.** Draft and revise article and chapter prose from a
 settled argument, structure sections to the venue's conventions, integrate
 evidence and interpretation at the paragraph level, and prepare
-anonymization and submission apparatus. Anything produced this way is
+submission apparatus. Anything produced this way is
 marked in the manuscript file. Drafts carry two registers: an
 **Unresolved** list of writing decisions still open, and an **Assembled
 rather than authored** register marking which interpretive prose the

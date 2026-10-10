@@ -14,7 +14,7 @@ Use the narrowest specialist skill that fits the request. Preserve the researche
 - Research questions, literature reviews, methodology, plans, and prospectuses: use the matching research-design skill.
 - IRB, consent, fieldwork instruments, sampling, and data management: use the matching ethics or fieldwork skill.
 - Codebooks, coding, themes, computational methods, and networks of codes: use `qualitative-analysis` or `digital-computational-methods`.
-- Claims, generalization, paper planning, drafting, review, proofs, and abstracts: use the matching analysis or writing skill.
+- Claims, generalization, paper planning, drafting, review, anonymized review copies, proofs, and abstracts: use the matching analysis or writing skill.
 - Conferences, public engagement, applied deliverables, teaching, and career materials: use the matching dissemination or career skill.
 - Repeated work and new research instruments: use `repeated-work` or `tool-building`; specification and researcher-ratification gates remain mandatory.
 

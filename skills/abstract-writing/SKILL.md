@@ -205,8 +205,9 @@ Say which parameter drove an output when it drove one.
 - **The abstract may not exceed the manuscript.** No claim, no scope, no
   method that is not in the manuscript.
 - **Anonymization is checked in the abstract, not only in the article.**
-  Cross-check against the manuscript's own commitments; the
-  research-writing skill carries the anonymization guide.
+  Cross-check against the manuscript's own commitments; for the authors'
+  side of a double-anonymized submission, the review-anonymization skill
+  makes the anonymized copy.
 - **No citations.** An abstract stands alone; it names positions rather than
   citing them.
 - **Generalization claims stay scoped.** If the manuscript's scope

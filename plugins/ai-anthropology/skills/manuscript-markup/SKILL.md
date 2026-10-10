@@ -13,8 +13,8 @@ description: >
   carry judgment against the text they point at, and producing a decision
   record plus a cover letter in the author's voice. Never modifies the
   document file. Do NOT use for a numbered reviewer report or a rebuttal
-  to a journal decision letter (use academic-review), for drafting or
-  anonymizing prose (use research-writing), or for an argument that keeps
+  to a journal decision letter (use academic-review), for drafting prose
+  (use research-writing), or for an argument that keeps
   breaking in the same place (use paper-planning).
 ---
 
@@ -211,7 +211,10 @@ it before it is sent, because it carries their name.
 ### Step 7: Hand Off
 
 - **Drafting the actual revisions**: the research-writing skill owns article
-  architecture, ethnographic craft, and anonymization.
+  architecture and ethnographic craft.
+- **A revised manuscript going back to double-anonymized review**: the
+  review-anonymization skill makes the anonymized copy from the revised
+  master.
 - **A structural objection that keeps recurring**: the paper-planning skill,
   because six patched sections will not settle an unsettled argument.
 - **What a consent agreement permits**: the informed-consent skill.

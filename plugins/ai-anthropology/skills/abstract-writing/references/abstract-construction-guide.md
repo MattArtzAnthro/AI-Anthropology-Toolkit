@@ -136,8 +136,9 @@ Check three things:
 3. **Blind review.** For double-anonymous submission, check whether the scene
    move identifies the author by way of a fieldsite they are known for.
 
-The research-writing skill carries the full anonymization guide, including the
-restoration map for the accepted version.
+The review-anonymization skill carries the full method for removing the
+authors from a double-anonymized submission, including the restoration map
+for the accepted version.
 
 ## Compression
 

@@ -98,8 +98,10 @@ Handling, and it does not vary:
    evasion and an explained one usually ends the matter.
 
 Where the question is what the consent actually permits, that is the
-informed-consent skill's work. Where the question is which details are
-identifying, that is the research-writing skill's anonymization guide.
+informed-consent skill's work. Where the question is which details
+identify the author to a reviewer, that is the review-anonymization skill;
+which details identify a participant is the author's judgment, made
+against what participants were told.
 
 ## The sort table
 

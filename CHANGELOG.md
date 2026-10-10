@@ -6,6 +6,11 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 
 ## Codex Plugin
 
+### 1.34.0 — 2026-10-10
+- Mirrors the new `review-anonymization` skill (28 portable research
+  skills) and the updated research-writing, manuscript-markup, and
+  abstract-writing skills. The router names anonymized review copies.
+
 ### 1.33.1 — 2026-08-29
 - Added a native Codex plugin with all 27 portable research skills, a Codex-specific router, and the exactly pinned 34-tool MCP server.
 - Added adversarial parity checks: mirrored content and MCP configuration must stay byte-identical to their canonical sources; intentional Codex-only content must be classified; and the tool reference must contain every registered tool with no phantom tools.
@@ -341,6 +346,29 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.34.0 — 2026-10-10
+- **`review-anonymization` skill (28 skills).** Prepares the copy of a
+  manuscript that goes to double-anonymized peer review: the full author
+  version stays the master, a separate copy takes numbered author
+  placeholders without any rewording, self-citations are masked in text
+  and in place in the reference list (non-author co-authors become
+  "co-author"), identity goes to a separate title page, and the leaks a
+  placeholder cannot fix (role descriptors, repository handles, fieldwork
+  history, interlocutors, permit, protocol, and grant numbers, photographs,
+  kin terms) go to the author as one decision list. Clears hidden Word
+  metadata and runs a standard-library search of every part of the saved
+  copy, including checks for placeholders that swallowed neighbouring text.
+  Never weakens a participant protection to hide an author. Friction by
+  Design Tier 2.
+- Author anonymization for review moves from research-writing to the new
+  skill; research-writing's `references/anonymization-guide.md` is retired
+  and its content reconciled into the new skill's references.
+  research-writing, manuscript-markup, and abstract-writing now route there,
+  and the writing-advisor agent draws on it.
+- Routing evals cover the new skill, plus near-miss prompts about
+  participant anonymization, proofs, and abstracts that must route away
+  from it.
 
 ### 1.33.1 — 2026-08-28
 - The network-analyst agent and the networks-of-codes reference carry the
