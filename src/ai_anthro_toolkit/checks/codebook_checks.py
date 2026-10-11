@@ -17,9 +17,19 @@ from __future__ import annotations
 
 import copy
 
-from .registry import (CANNOT_TELL, CLASS_CODEBOOK, FIRED, MARK_MIRROR,
-                       MARK_STANCE, NOT_APPLICABLE, OK, Check, CheckResult,
-                       records_of, register)
+from .registry import (
+    CANNOT_TELL,
+    CLASS_CODEBOOK,
+    FIRED,
+    MARK_MIRROR,
+    MARK_STANCE,
+    NOT_APPLICABLE,
+    OK,
+    Check,
+    CheckResult,
+    records_of,
+    register,
+)
 
 DISTINCTNESS_THRESHOLD = 0.85
 

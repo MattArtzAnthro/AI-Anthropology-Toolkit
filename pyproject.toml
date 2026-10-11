@@ -34,7 +34,7 @@ data = [
     "scrapetube>=2.5",
     "youtube-transcript-api>=1.0",
 ]
-test = ["pandas>=2.0"]
+test = ["pandas>=2.0", "ruff>=0.15"]
 
 [project.scripts]
 ai-anthro-mcp = "ai_anthro_toolkit.mcp.server:main"
@@ -51,3 +51,28 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "ai_anthro_toolkit.network.viewer" = ["template.html", "assets/*.js", "assets/VENDORED.md"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["build", "dist", "dist_build"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+# E741: `l` is this codebase's name for a lens. N818: WorkPacket and AmbiguousArtifact are
+# public names that callers catch; renaming them would break those callers.
+ignore = ["E501", "E741", "N818"]
+
+[tool.ruff.lint.per-file-ignores]
+# G and U are networkx's conventional graph names; the dense GEXF writer is kept as written.
+"src/ai_anthro_toolkit/network/__init__.py" = ["N806", "E702", "E731"]
+# Copied from gephi-ai, where it is canonical; edit it there, not here.
+"src/ai_anthro_toolkit/network/viewer/*" = ["N806", "UP031"]
+# These tests set sys.path or skip markers before importing the package.
+"tests/package/*" = ["E402"]
+# The check modules import last, after the registry, so importing them registers their checks.
+"src/ai_anthro_toolkit/checks/__init__.py" = ["I001"]
+"tests/test_skill_routing.py" = ["N806"]
+# Each notebook's first cell runs `!pip install` before its imports, as Colab requires.
+# G is networkx's conventional graph name; the two import aliases avoid clashes.
+"notebooks/*" = ["E402", "N803", "N806", "N811", "N814"]

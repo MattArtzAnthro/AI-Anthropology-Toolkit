@@ -21,9 +21,9 @@ SKIP_LIVE = unittest.skipIf(
 from ai_anthro_toolkit.datasources import (
     get_ngram_frequencies,
     get_podcast_episodes,
+    openalex,
     search_google_patents,
 )
-from ai_anthro_toolkit.datasources import openalex
 
 NPR_FEED = "https://feeds.npr.org/510289/podcast.xml"
 

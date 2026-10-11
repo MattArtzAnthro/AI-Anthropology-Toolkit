@@ -4,6 +4,16 @@ All notable changes to the AI Anthropology Toolkit are documented here. Dates ar
 
 This project has three release tracks: the `ai-anthropology-toolkit` Python package, the Claude Code plugin, and the Codex plugin. Versions are tracked separately below.
 
+## Unreleased
+
+- **Notebooks.** Google Scholar Explorer installs `bibtexparser<2`; `scholarly`
+  fails to import against bibtexparser 2.x. Audio Transcription (Whisper) keeps
+  transcription working when pyannote.audio cannot load against the installed
+  torchaudio, and reports why speaker diarization is unavailable. Five
+  f-strings that only parsed on Python 3.12 now parse on 3.10 and later.
+  Unused imports and variables are removed throughout.
+- **Linting.** Ruff checks the package, tests, scripts, and notebooks in CI.
+
 ## Codex Plugin
 
 ### 1.34.0 — 2026-10-10

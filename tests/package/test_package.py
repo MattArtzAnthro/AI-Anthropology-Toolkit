@@ -5,8 +5,8 @@ and the MCP tool registry.
 """
 
 import json
-import re
 import os
+import re
 import unittest
 
 # See test_datasources_citation.py: classes named *Live call a third-party

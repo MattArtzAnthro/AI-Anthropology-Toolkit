@@ -20,9 +20,20 @@ from __future__ import annotations
 
 import copy
 
-from .registry import (CANNOT_TELL, CLASS_CODED, FIRED, MARK_MIRROR,
-                       MARK_SURPRISE, OK, Check, CheckResult,
-                       codebook_checksum, records_of, register, stanza_of)
+from .registry import (
+    CANNOT_TELL,
+    CLASS_CODED,
+    FIRED,
+    MARK_MIRROR,
+    MARK_SURPRISE,
+    OK,
+    Check,
+    CheckResult,
+    codebook_checksum,
+    records_of,
+    register,
+    stanza_of,
+)
 
 _INDUCTIVE_SUFFIX = "_IND"
 

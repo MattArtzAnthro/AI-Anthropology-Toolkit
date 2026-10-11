@@ -17,8 +17,7 @@ reason to delete it: deleting it would destroy the finding.
 import unittest
 
 from tests.evals import judge
-from tests.evals.floor import (DEFAULTS, GATE_BROKEN, MEASURES_SKILL,
-                               UNREADABLE, read_floor)
+from tests.evals.floor import DEFAULTS, GATE_BROKEN, MEASURES_SKILL, UNREADABLE, read_floor
 
 
 class ReadingTheArms(unittest.TestCase):

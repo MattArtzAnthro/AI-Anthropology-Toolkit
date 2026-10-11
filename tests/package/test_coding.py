@@ -3,7 +3,6 @@
     python3.12 -m unittest tests.package.test_coding -v
 """
 
-import math
 import unittest
 
 from ai_anthro_toolkit import coding, crosslens, themes

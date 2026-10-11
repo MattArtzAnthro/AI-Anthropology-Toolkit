@@ -12,7 +12,6 @@ from ai_anthro_toolkit import codebook as cb
 from ai_anthro_toolkit.llm import DelegatedLLM, WorkPacket
 from ai_anthro_toolkit.models import CodeEntry
 
-
 DOCUMENTS = {
     "interview_1.txt": (
         "The nurses described the new triage system as opaque. "

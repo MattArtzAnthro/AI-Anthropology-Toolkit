@@ -12,8 +12,9 @@ the package can be used without them until chunking is invoked.
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Optional
+from typing import Any
 
 from .models import Chunk
 
@@ -160,7 +161,7 @@ def chunk_transcript(text: str, *,
                      min_sentences: int = 1,
                      preserve_speakers: bool = True,
                      embedder: Any = None,
-                     progress: Optional[Callable[[str], None]] = None) -> list[Chunk]:
+                     progress: Callable[[str], None] | None = None) -> list[Chunk]:
     """Segment a transcript into semantically coherent chunks.
 
     Sentences are encoded once; chunk boundaries are placed where the

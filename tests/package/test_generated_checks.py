@@ -23,9 +23,7 @@ who answered five and got three checks should be told which two and why.
 import json
 import unittest
 
-from ai_anthro_toolkit.checks import generated
-from ai_anthro_toolkit.checks import registry
-
+from ai_anthro_toolkit.checks import generated, registry
 
 RECORDS = [
     {"case_id": "1904-A", "decided": "1904-03-11"},

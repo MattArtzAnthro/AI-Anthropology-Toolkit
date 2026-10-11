@@ -29,5 +29,7 @@ jobs:
           python-version: "3.12"
       - name: Install package with data extra
         run: pip install -e ".[data,test]" nltk
+      - name: Lint
+        run: ruff check .
       - name: Run package suite
         run: python3 -m unittest discover -s tests/package -t . -v

@@ -13,7 +13,6 @@ import unittest
 
 from ai_anthro_toolkit import checks
 
-
 # ── Canonical-good artifacts ────────────────────────────────────────────────
 #
 # One per class. Every red case in this file is produced by applying a

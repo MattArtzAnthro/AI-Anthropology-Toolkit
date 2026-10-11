@@ -31,17 +31,17 @@ from mcp.server import MCPServer
 from mcp.types import CallToolResult, TextContent
 
 from ai_anthro_toolkit import __version__
+from ai_anthro_toolkit import catalog as _catalog
+from ai_anthro_toolkit import checks as _checks
 from ai_anthro_toolkit import chunking as _chunking
 from ai_anthro_toolkit import codebook as _codebook
 from ai_anthro_toolkit import coding as _coding
 from ai_anthro_toolkit import crosslens as _crosslens
+from ai_anthro_toolkit import datasources as _data
 from ai_anthro_toolkit import lenses as _lenses
 from ai_anthro_toolkit import markup as _markup
 from ai_anthro_toolkit import network as _network
 from ai_anthro_toolkit import themes as _themes
-from ai_anthro_toolkit import catalog as _catalog
-from ai_anthro_toolkit import checks as _checks
-from ai_anthro_toolkit import datasources as _data
 from ai_anthro_toolkit.datasources import format_citation as _format_citation
 from ai_anthro_toolkit.datasources import format_citation_batch as _format_batch
 from ai_anthro_toolkit.datasources import list_citation_styles as _citation_styles

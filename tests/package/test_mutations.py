@@ -20,7 +20,6 @@ import unittest
 
 from ai_anthro_toolkit.checks import mutate
 
-
 RECORDS = [
     {"case_id": "1904-A", "decided": "1904-03-11", "judge": "Okonkwo"},
     {"case_id": "1904-B", "decided": "1904-05-02", "judge": "Bello"},

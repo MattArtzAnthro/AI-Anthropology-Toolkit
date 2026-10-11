@@ -131,6 +131,7 @@ class TestServerTools(unittest.TestCase):
 
     def test_view_network_returns_structured_content_for_the_app(self):
         from mcp.types import CallToolResult
+
         from ai_anthro_toolkit.mcp import server
         graph = server.analyze_network(server.build_network(CODED))["graph"]
         result = server.view_network(graph, title="Codes", caption_names={"0": "Money"})

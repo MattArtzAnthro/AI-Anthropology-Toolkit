@@ -26,9 +26,16 @@ the two replies matched:
 import unittest
 
 from tests.evals import judge
-from tests.evals.stance import (ADAPTED, DECIDED_IDENTICALLY, EXPLANATIONS,
-                                ROUTED_BACK, UNREADABLE, DECIDED, ROUTED,
-                                read_pair)
+from tests.evals.stance import (
+    ADAPTED,
+    DECIDED,
+    DECIDED_IDENTICALLY,
+    EXPLANATIONS,
+    ROUTED,
+    ROUTED_BACK,
+    UNREADABLE,
+    read_pair,
+)
 
 
 class WhatTheSkillDidWithTheQuestion(unittest.TestCase):

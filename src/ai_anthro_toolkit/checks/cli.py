@@ -18,9 +18,17 @@ import sys
 from pathlib import Path
 
 from . import generated, registry
-from .registry import (AmbiguousArtifact, CANNOT_TELL, CLASS_CODEBOOK,
-                       CLASS_CODED, FIRED, MARK_MIRROR, NOT_APPLICABLE, OK,
-                       PROVENANCE_KEY, PROVENANCE_SIDECAR)
+from .registry import (
+    CANNOT_TELL,
+    CLASS_CODEBOOK,
+    CLASS_CODED,
+    FIRED,
+    NOT_APPLICABLE,
+    OK,
+    PROVENANCE_KEY,
+    PROVENANCE_SIDECAR,
+    AmbiguousArtifact,
+)
 
 _TEACHING = (
     "\nChecks like these are called linters. They are worth having because "

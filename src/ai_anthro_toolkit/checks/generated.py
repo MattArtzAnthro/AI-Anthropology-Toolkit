@@ -32,8 +32,7 @@ from __future__ import annotations
 import copy
 from dataclasses import dataclass, field
 
-from .registry import (FIRED, MARK_SURPRISE, OK, Check, CheckResult,
-                       records_of, register)
+from .registry import FIRED, MARK_SURPRISE, OK, Check, CheckResult, records_of, register
 
 DOCUMENT_VERSION = 1
 

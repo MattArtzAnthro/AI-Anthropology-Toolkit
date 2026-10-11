@@ -11,7 +11,6 @@ import re
 import unittest
 from pathlib import Path
 
-
 REPO = Path(__file__).resolve().parent.parent
 SOURCE_SKILLS = REPO / "skills"
 PLUGIN = REPO / "plugins" / "ai-anthropology"

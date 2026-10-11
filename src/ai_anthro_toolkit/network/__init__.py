@@ -14,7 +14,7 @@ Graph dicts follow the viewer contract: ``nodes`` carry ``key``, ``label``,
 from __future__ import annotations
 
 import math
-from collections import Counter, defaultdict
+from collections import Counter
 from itertools import combinations
 
 import networkx as nx

@@ -4,7 +4,7 @@ These mirror the structures used by the toolkit's Colab notebooks so that
 package outputs and notebook outputs remain interchangeable.
 """
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 
 
 @dataclass

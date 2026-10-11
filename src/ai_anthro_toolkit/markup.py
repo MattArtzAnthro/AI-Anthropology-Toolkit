@@ -15,10 +15,9 @@ dependency to the package.
 from __future__ import annotations
 
 import re
+import xml.etree.ElementTree as ET
 import zipfile
 from collections import Counter
-
-import xml.etree.ElementTree as ET
 
 _MAIN = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 _W14 = "http://schemas.microsoft.com/office/word/2010/wordml"

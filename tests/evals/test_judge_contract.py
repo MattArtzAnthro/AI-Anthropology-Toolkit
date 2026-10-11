@@ -19,7 +19,6 @@ import unittest
 
 from tests.evals import judge
 
-
 REPLY = (
     "Before I code anything I should show you the codebook as a proposal. "
     "Here are the eight codes I drafted from your literature. Do you want "

@@ -328,7 +328,7 @@ def main(argv=None) -> int:
                       f'"{resolve_spec(version)}" python -c "import ai_anthro_toolkit"')
                 return 1
 
-    print(f"\nSafe to push. Then:")
+    print("\nSafe to push. Then:")
     print("  claude plugin marketplace update ai-anthropology")
     print("  claude plugin update ai-anthropology@ai-anthropology")
     print("  codex plugin marketplace add .")
