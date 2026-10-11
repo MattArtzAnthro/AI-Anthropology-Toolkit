@@ -164,7 +164,7 @@ def analyze_network(graph: dict, seed: int = 0, community_resolution: float = 1.
     for key, node in by_key.items():
         a = node["attributes"]
         a["degree"] = degree[key]
-        a["weighted_degree"] = round(weighted[key], 3)
+        a["weighted_degree"] = float(round(weighted[key], 3))
         a["betweenness"] = round(betweenness[key], 4)
         a["community"] = community[key]
         node["x"] = round(float(pos[key][0]) * 1000, 2)
