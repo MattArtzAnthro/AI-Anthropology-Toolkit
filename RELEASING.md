@@ -31,7 +31,7 @@ They are versioned independently. Bump whichever changed, and both when both did
 
 The package version is pinned inside files that ship in the same commit as the
 code: `.mcp.json` registers the MCP server through `uvx --from
-"ai-anthropology-toolkit[data]==X"`, and `AGENTS.md` and `GEMINI.md` repeat
+"ai-anthropology-toolkit[data,api]==X"`, and `AGENTS.md` and `GEMINI.md` repeat
 that pin. Pushing first publishes a pin to a version that does not exist yet,
 and every fresh install fails until the upload lands.
 
@@ -90,12 +90,12 @@ The check that settles it is a real resolve **against the extras-qualified
 spec the plugin actually invokes**:
 
 ```bash
-uvx --refresh --from "ai-anthropology-toolkit[data]==X" \
+uvx --refresh --from "ai-anthropology-toolkit[data,api]==X" \
   python -c "from ai_anthro_toolkit.mcp.server import main; print('ok')"
 ```
 
 Verify the extras-qualified form specifically. A bare `==X` resolves earlier
-than `[data]==X` does, so checking the simplified spec produces a false
+than `[data,api]==X` does, so checking the simplified spec produces a false
 all-clear on the exact thing that is still broken.
 
 - [ ] The extras-qualified spec resolves and the MCP server imports from it.
@@ -152,7 +152,7 @@ Run this check in the actual desktop host after installing the plugin:
 - [ ] Call `toolkit_info` and one small non-network tool successfully.
 - [ ] Start a second new task and repeat tool discovery. This catches startup/cache behavior that an in-process retry hides.
 - [ ] If the resource appears but tools do not, restart Codex and retest before changing the server; record whether failure was first-run-only.
-- [ ] Confirm the desktop host can resolve the exact bundled `uvx --from "ai-anthropology-toolkit[data]==X"` command. Success in an interactive shell is not evidence that the desktop process has the same PATH or environment.
+- [ ] Confirm the desktop host can resolve the exact bundled `uvx --from "ai-anthropology-toolkit[data,api]==X"` command. Success in an interactive shell is not evidence that the desktop process has the same PATH or environment.
 
 These are manual release checks, not silently skipped unit tests. A host outage
 or permission prompt should be reported as such rather than converted into a

@@ -12,6 +12,7 @@ the upload cannot happen before verification or after the push signal.
 
 import contextlib
 import io
+import json
 import re
 import shutil
 import subprocess
@@ -34,7 +35,7 @@ class PinSites(unittest.TestCase):
             set(release.PIN_SITES),
             {"pyproject.toml", "src/ai_anthro_toolkit/__init__.py",
              ".mcp.json", "plugins/ai-anthropology/.mcp.json",
-             "AGENTS.md", "GEMINI.md"},
+             "AGENTS.md", "GEMINI.md", "README.md", ".gemini/settings.json"},
         )
 
     def test_all_pin_sites_exist_in_the_repo(self):
@@ -60,7 +61,33 @@ class ResolveSpec(unittest.TestCase):
     simplified form gives a false all-clear on the thing still broken."""
 
     def test_the_resolve_check_is_extras_qualified(self):
-        self.assertIn("[data]", release.resolve_spec("9.9.9"))
+        self.assertIn("[data", release.resolve_spec("9.9.9"))
+
+    def test_the_resolve_check_uses_the_plugins_exact_extras(self):
+        """Resolving a different extras set from the one the plugin installs
+        checks a spec nobody runs. It is read from the plugin's .mcp.json."""
+        mcp = json.loads((REPO / "plugins" / "ai-anthropology" / ".mcp.json")
+                         .read_text(encoding="utf-8"))
+        args = mcp["mcpServers"]["ai-anthropology"]["args"]
+        spec = args[args.index("--from") + 1]
+        version = release.read_version(REPO)
+        self.assertEqual(release.resolve_spec(version), spec)
+        self.assertEqual(release.resolve_spec("9.9.9"),
+                         spec.replace(f"=={version}", "==9.9.9"))
+
+    def test_a_pin_site_with_the_right_version_but_wrong_extras_disagrees(self):
+        version = release.read_version(REPO)
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, True)
+        for site in release.PIN_SITES:
+            (tmp / site).parent.mkdir(parents=True, exist_ok=True)
+            (tmp / site).write_text((REPO / site).read_text(encoding="utf-8"),
+                                    encoding="utf-8")
+        (tmp / "README.md").write_text(
+            f'uvx --from "ai-anthropology-toolkit[data]=={version}" ai-anthro-mcp',
+            encoding="utf-8")
+        with mock.patch.object(release, "REPO", tmp):
+            self.assertEqual(release.disagreeing_pins(tmp, version), ["README.md"])
 
     def test_the_resolve_check_pins_the_exact_version(self):
         self.assertIn("==9.9.9", release.resolve_spec("9.9.9"))
@@ -205,10 +232,16 @@ class _FakeRepo(unittest.TestCase):
     def setUp(self):
         self.repo = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, self.repo, True)
+        spec = f"ai-anthropology-toolkit[data,api]=={self.VERSION}"
         for site in release.PIN_SITES:
             path = self.repo / site
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(f'version = "{self.VERSION}"\n', encoding="utf-8")
+            if site.endswith(".mcp.json"):
+                path.write_text(json.dumps({"mcpServers": {"ai-anthropology": {
+                    "command": "uvx", "args": ["--from", spec, "ai-anthro-mcp"]}}}),
+                    encoding="utf-8")
+            else:
+                path.write_text(f'version = "{self.VERSION}"\n', encoding="utf-8")
         (self.repo / "CHANGELOG.md").write_text(f"### {self.VERSION} - today\n",
                                                 encoding="utf-8")
         patcher = mock.patch.object(release, "REPO", self.repo)
@@ -347,7 +380,7 @@ class AwaitResolve(unittest.TestCase):
         self.assertEqual(sleep.call_count, 1)
         for call in run.call_args_list:
             self.assertNotIn("upload", call.args[0])
-            self.assertIn("ai-anthropology-toolkit[data]==9.9.9", call.args[0])
+            self.assertIn(release.resolve_spec("9.9.9"), call.args[0])
 
     def test_gives_up_to_a_human_after_the_budget(self):
         with mock.patch.object(release, "_run", return_value=_completed(1)), \

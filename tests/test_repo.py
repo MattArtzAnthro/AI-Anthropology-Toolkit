@@ -126,6 +126,14 @@ def command_files():
     return sorted(COMMANDS_DIR.glob("*.md"))
 
 
+def plugin_mcp_spec() -> str:
+    """The exact `uvx --from` requirement the plugin's .mcp.json installs."""
+    cfg = json.loads((REPO / "plugins" / "ai-anthropology" / ".mcp.json")
+                     .read_text(encoding="utf-8"))
+    args = cfg["mcpServers"]["ai-anthropology"]["args"]
+    return args[args.index("--from") + 1]
+
+
 def notebook_files():
     return sorted(NOTEBOOKS_DIR.glob("*.ipynb"))
 
@@ -925,6 +933,26 @@ class TestRepoDocs(unittest.TestCase):
                            encoding="utf-8")
             self.assertEqual(self._paid_cli_ungated([bad]), ["test_bad.py"])
 
+    def test_every_pinned_install_spec_is_the_plugins_exact_spec(self):
+        """Registration commands in the docs and the Gemini settings file
+        install what the plugin installs: same extras, same version. One
+        settings file sat at 2.2.0 for a dozen releases."""
+        spec = plugin_mcp_spec()
+        tracked = [REPO / name for name in (
+            "README.md", "AGENTS.md", "GEMINI.md", ".mcp.json",
+            ".gemini/settings.json", "plugins/ai-anthropology/.mcp.json")]
+        for path in tracked:
+            text = path.read_text(encoding="utf-8")
+            found = re.findall(r"ai-anthropology-toolkit\[[^\]]*\]==[\w.]+", text)
+            with self.subTest(file=path.name):
+                self.assertTrue(found, f"{path} carries no pinned spec")
+                self.assertEqual(set(found), {spec})
+
+    def test_plugin_installs_the_api_extra(self):
+        """api mode needs the anthropic client; it is opt-in (AAT_MODE=api),
+        so installing it spends nothing by itself."""
+        self.assertRegex(plugin_mcp_spec(), r"\[data,api\]")
+
     def test_ci_enforces_the_coverage_floor(self):
         """The floor is only a floor if CI runs the report that applies it."""
         pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
@@ -1001,7 +1029,7 @@ class TestRepoDocs(unittest.TestCase):
         pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
         version = re.search(r'version = "([\d.]+)"', pyproject).group(1)
         readme = (REPO / "README.md").read_text(encoding="utf-8")
-        pinned = set(re.findall(r"ai-anthropology-toolkit\[data\]==([\d.]+)",
+        pinned = set(re.findall(r"ai-anthropology-toolkit\[[\w,]+\]==([\d.]+)",
                                 readme))
         self.assertEqual(pinned, {version},
                          f"README pins {sorted(pinned)}, pyproject is {version}")
@@ -1009,7 +1037,8 @@ class TestRepoDocs(unittest.TestCase):
     def test_agent_instruction_files_include_registration(self):
         pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
         version = re.search(r'version = "([\d.]+)"', pyproject).group(1)
-        pin = f"ai-anthropology-toolkit[data]=={version}"
+        pin = plugin_mcp_spec()
+        self.assertTrue(pin.endswith(f"=={version}"), pin)
         for name in ("AGENTS.md", "GEMINI.md"):
             text = (REPO / name).read_text(encoding="utf-8")
             for snippet in ("codex mcp add", "gemini mcp add", pin):
@@ -1098,7 +1127,7 @@ class TestRepoDocs(unittest.TestCase):
                 f"RELEASING.md does not name {pin_site} as carrying the pin",
             )
         self.assertIn(
-            "[data]==", text,
+            f"{plugin_mcp_spec().split('==')[0]}==X", text,
             "RELEASING.md must require verifying the extras-qualified spec: "
             "a bare ==X resolves before [data]==X does, so checking the "
             "simplified form gives a false all-clear",
@@ -1123,8 +1152,9 @@ class TestRepoDocs(unittest.TestCase):
         args = " ".join(mcp_cfg["mcpServers"]["ai-anthropology"]["args"])
         pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
         version = re.search(r'version = "([\d.]+)"', pyproject)
-        pin = f"ai-anthropology-toolkit[data]=={version.group(1)}"
-        self.assertIn(pin, args, ".mcp.json uvx pin does not match pyproject version")
+        pin = plugin_mcp_spec()
+        self.assertTrue(pin.endswith(f"=={version.group(1)}"), pin)
+        self.assertIn(pin, args, ".mcp.json uvx pin does not match the plugin's")
         plugin = json.loads((REPO / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
         self.assertEqual(plugin.get("mcpServers"), "./.mcp.json")
 

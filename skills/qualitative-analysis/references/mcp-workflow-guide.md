@@ -27,10 +27,12 @@ Are Absent" below.
 
 Check `toolkit_info` for the session's default mode.
 
-- **api mode** (ANTHROPIC_API_KEY set on the server): jobs run autonomously;
+- **api mode** (only when the researcher has set `AAT_MODE=api` and
+  ANTHROPIC_API_KEY on the server; never request it on their behalf, since
+  it bills their account): jobs run autonomously;
   poll `get_job_status`, then fetch `get_job_result`. Suited to unattended
   runs and larger corpora.
-- **delegated mode** (default without a key): the server never calls a
+- **delegated mode** (the default, with or without a key): the server never calls a
   model — you are the analyst's model. Loop `get_next_batch`, complete each
   packet's prompt with genuine interpretive care (the prompts carry the
   codebook and lens framing), and `submit_batch`. The server validates every

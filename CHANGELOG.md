@@ -6,6 +6,11 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 
 ## Codex Plugin
 
+### 1.35.0 — 2026-10-12
+- Installs the MCP server as `ai-anthropology-toolkit[data,api]==3.9.0`. Api mode
+  now needs an explicit `AAT_MODE=api` in the server's environment; delegated
+  mode is the default even when `ANTHROPIC_API_KEY` is set.
+
 ### 1.34.1 — 2026-10-12
 - Pins the MCP server to package 3.8.2, whose `[data]` extra installs nltk and a
   compatible bibtexparser, so codebook jobs and `search_google_scholar` work
@@ -22,6 +27,29 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 - Added repository-local marketplace metadata and a live-host release checklist covering first- and second-task discovery, MCP App resource discovery, desktop `uvx` resolution, and the resource-without-tools failure mode.
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
+
+### 3.9.0 — 2026-10-12
+- **Api mode needs an explicit opt-in.** The server used to switch to api
+  mode, which calls the Anthropic API and bills the researcher, whenever
+  `ANTHROPIC_API_KEY` was in its environment. Delegated mode is now the default
+  in every case, and api mode runs only when the researcher sets `AAT_MODE=api`
+  in the server's environment. A per-job `llm_mode="api"` without the opt-in is
+  refused, so the orchestrating model cannot turn spending on by itself.
+- **The plugins install `[data,api]`.** Both `.mcp.json` files, the
+  registration commands in README, AGENTS.md, and GEMINI.md, and
+  `.gemini/settings.json` (which still pinned 2.2.0) now name the same spec, so
+  api mode works from a plugin install once opted into. The release script
+  reads the extras from the plugin's `.mcp.json`, checks that every pin site
+  carries that exact spec, and resolves it after upload.
+- **Codebook refinement without sentence-transformers.** When
+  sentence-transformers is not installed, as in a plugin install, refinement
+  compares codes by shared words (TF-IDF) instead of failing. Because word
+  overlap cannot tell a duplicate from a disagreement, this fallback never
+  merges codes: possible duplicates come back as `merge_suggestions` for the
+  researcher, at a threshold calibrated for it (0.45). The quality report, the
+  job result, and the provenance sidecar carry
+  `similarity_method: "lexical-fallback"`. With sentence-transformers installed,
+  nothing changes. Transcript chunking still requires the `[chunking]` extra.
 
 ### 3.8.2 — 2026-10-12
 - **Notebooks.** Google Scholar Explorer installs `bibtexparser<2`; `scholarly`
@@ -411,6 +439,11 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.35.0 — 2026-10-12
+- Installs the MCP server as `ai-anthropology-toolkit[data,api]==3.9.0`. Api mode
+  now needs an explicit `AAT_MODE=api` in the server's environment; delegated
+  mode is the default even when `ANTHROPIC_API_KEY` is set.
 
 ### 1.34.1 — 2026-10-12
 - Pins the MCP server to package 3.8.2, whose `[data]` extra installs nltk and a

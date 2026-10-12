@@ -27,6 +27,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 
 import numpy as np
 
+from . import lexical
 from .lenses import STANCE_DEFINITIONS, find_lens
 from .llm import WorkPacket
 from .models import CodeEntry
@@ -168,6 +169,19 @@ def _default_embedder(texts: Sequence[str]) -> np.ndarray:
             "Codebook refinement (duplicate detection and example selection)")
         _embedding_model = model_class("all-MiniLM-L6-v2")
     return _embedding_model.encode(list(texts), show_progress_bar=False)
+
+
+SENTENCE_TRANSFORMERS = "sentence-transformers"
+CALLER_SUPPLIED = "caller-supplied"
+
+
+def _sentence_transformers_installed() -> bool:
+    import importlib.util
+    import sys
+
+    if "sentence_transformers" in sys.modules:
+        return sys.modules["sentence_transformers"] is not None
+    return importlib.util.find_spec("sentence_transformers") is not None
 
 
 def _cosine_similarity(a, b) -> float:
@@ -837,7 +851,12 @@ def refine_codebook(codebook: dict[str, CodeEntry], lens_key: str, *,
         max_examples: Maximum examples retained per code.
         soft_cap: Keep at most this many codes, by descending frequency.
         embedder: Callable mapping a list of texts to embedding vectors;
-            defaults to lazy sentence-transformers all-MiniLM-L6-v2.
+            defaults to lazy sentence-transformers all-MiniLM-L6-v2 when it
+            is installed. Without it, the lexical fallback
+            (:mod:`ai_anthro_toolkit.lexical`) is used: its own calibrated
+            threshold replaces ``similarity_threshold`` and duplicates are
+            only suggested (``auto_merge`` is off). The report's
+            ``similarity_method`` and ``similarity_threshold`` say what ran.
         progress: Optional callback receiving status strings.
 
     Returns:
@@ -846,11 +865,25 @@ def refine_codebook(codebook: dict[str, CodeEntry], lens_key: str, *,
         code-group tallies, and any unapplied merge suggestions.
     """
     key, lens = _resolve_lens(lens_key)
-    embed = embedder if embedder is not None else _default_embedder
+    if embedder is not None:
+        embed, method = embedder, CALLER_SUPPLIED
+    elif _sentence_transformers_installed():
+        embed, method = _default_embedder, SENTENCE_TRANSFORMERS
+    else:
+        # Word overlap cannot tell a duplicate from a disagreement, so on the
+        # fallback nothing is merged: pairs come back as suggestions.
+        embed, method = lexical.tfidf_embed, lexical.METHOD
+        similarity_threshold = lexical.SUGGEST_THRESHOLD
+        auto_merge = False
     codebook = dict(codebook)
     initial_count = len(codebook)
 
     _notify(progress, f"Refining codebook [{lens['name']}]: {initial_count} codes")
+    if method == lexical.METHOD:
+        _notify(progress, "sentence-transformers is not installed: comparing codes "
+                          "by shared words (lexical fallback). Possible duplicates "
+                          "are suggested, not merged; install the chunking extra "
+                          "for meaning-based comparison.")
 
     # Step 1: Frequency filtering
     codes_below_frequency = [
@@ -922,6 +955,8 @@ def refine_codebook(codebook: dict[str, CodeEntry], lens_key: str, *,
         },
         'groups': dict(group_counts),
         'merge_suggestions': merge_suggestions,
+        'similarity_method': method,
+        'similarity_threshold': similarity_threshold,
     }
 
     _notify(progress, f"Refinement complete [{lens['name']}]: {initial_count} -> "

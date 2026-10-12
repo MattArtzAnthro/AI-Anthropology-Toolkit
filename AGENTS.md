@@ -21,15 +21,17 @@ follow this fallback chain:
    add it (same uvx command everywhere):
 
    ```bash
-   claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.8.2" ai-anthro-mcp
-   codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data]==3.8.2" ai-anthro-mcp
-   gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data]==3.8.2" ai-anthro-mcp
+   claude mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data,api]==3.9.0" ai-anthro-mcp
+   codex mcp add ai-anthropology -- uvx --from "ai-anthropology-toolkit[data,api]==3.9.0" ai-anthro-mcp
+   gemini mcp add -s user ai-anthropology uvx -- --from "ai-anthropology-toolkit[data,api]==3.9.0" ai-anthro-mcp
    ```
 
    The server's LLM-dependent stages run in delegated mode by default: the
    orchestrating model (whichever one you are) performs the interpretive
    work and the server validates every coding decision against the
-   codebook.
+   codebook. Api mode, where the server calls Claude and bills the user's
+   Anthropic account, runs only if the user sets `AAT_MODE=api` in the
+   server's environment; do not request it for them.
 
 2. **Code execution available** (including sandboxed environments): install
    the package and probe the network before collecting anything:

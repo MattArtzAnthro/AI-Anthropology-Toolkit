@@ -43,6 +43,8 @@ PIN_SITES = (
     "plugins/ai-anthropology/.mcp.json",
     "AGENTS.md",
     "GEMINI.md",
+    "README.md",
+    ".gemini/settings.json",
 )
 
 # How long to keep checking for the upload to become visible before asking
@@ -98,9 +100,20 @@ def read_version(repo: Path = REPO) -> str:
 
 
 def disagreeing_pins(repo: Path, version: str) -> list:
-    """Which pin sites do not carry this version."""
-    return [name for name in PIN_SITES
-            if version not in (repo / name).read_text(encoding="utf-8")]
+    """Which pin sites do not carry this version, or pin a different spec.
+
+    A site that pins the package (`ai-anthropology-toolkit[...]==X`) must pin
+    exactly what the plugin installs: the right version with other extras
+    resolves, and installs something else.
+    """
+    spec = resolve_spec(version, repo)
+    bad = []
+    for name in PIN_SITES:
+        text = (repo / name).read_text(encoding="utf-8")
+        pins = re.findall(r"ai-anthropology-toolkit\[[^\]]*\]==[\w.]+", text)
+        if version not in text or any(pin != spec for pin in pins):
+            bad.append(name)
+    return bad
 
 
 def changelog_has_entry(repo: Path, version: str) -> bool:
@@ -108,9 +121,24 @@ def changelog_has_entry(repo: Path, version: str) -> bool:
     return bool(re.search(rf"^###\s+{re.escape(version)}\b", text, re.M))
 
 
-def resolve_spec(version: str) -> str:
+PLUGIN_MCP = "plugins/ai-anthropology/.mcp.json"
+
+
+def plugin_extras(repo: Path = REPO) -> str:
+    """The extras the plugin's .mcp.json installs, as written there."""
+    import json
+
+    cfg = json.loads((repo / PLUGIN_MCP).read_text(encoding="utf-8"))
+    args = cfg["mcpServers"]["ai-anthropology"]["args"]
+    match = re.search(r"\[([^\]]+)\]", args[args.index("--from") + 1])
+    if not match:
+        raise RuntimeError(f"{PLUGIN_MCP} installs the package with no extras")
+    return match.group(1)
+
+
+def resolve_spec(version: str, repo: Path = REPO) -> str:
     """The exact spec the plugin's .mcp.json invokes, extras and all."""
-    return f"ai-anthropology-toolkit[data]=={version}"
+    return f"ai-anthropology-toolkit[{plugin_extras(repo)}]=={version}"
 
 
 def classify_resolve(succeeded: bool, elapsed: float, budget: float) -> str:

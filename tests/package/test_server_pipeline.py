@@ -321,6 +321,9 @@ class TestApiModeLiveViaCli(ServerTestBase):
 
         old = server._api_llm
         server._api_llm = lambda model=None: cli_llm
+        env = mock.patch.dict(os.environ, {"AAT_MODE": "api"})
+        env.start()
+        self.addCleanup(env.stop)
         try:
             start = server.start_coding_job(CHUNKS[:2], CODEBOOK,
                                             ratification_id=_ratified(CODEBOOK),

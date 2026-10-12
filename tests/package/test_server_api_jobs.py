@@ -73,7 +73,12 @@ def scripted_llm(route):
 
 
 class ApiJobBase(unittest.TestCase):
+    """API mode is opted into here, as a researcher would in the server's env."""
+
     def setUp(self):
+        env = mock.patch.dict(os.environ, {"AAT_MODE": "api"})
+        env.start()
+        self.addCleanup(env.stop)
         self._tmp = tempfile.mkdtemp()
         self._old_jobs = server._jobs
         server._jobs = JobStore(self._tmp)
@@ -156,14 +161,64 @@ class TestApiModeWithoutKey(ApiJobBase):
         # Before the fix the error was the bare KeyError text "'ANTHROPIC_API_KEY'".
         self.assertIn("delegated", status["error"])
 
-    def test_default_mode_follows_the_environment(self):
-        with mock.patch.dict(os.environ, {"ANTHROPIC_API_KEY": "sk-test"}):
+    def test_opted_in_default_is_api_and_delegated_can_still_be_chosen(self):
+        self.assertEqual(server._mode(""), "api")
+        self.assertEqual(server._mode("delegated"), "delegated")
+        self.assertEqual(server.toolkit_info()["llm_mode_default"], "api")
+
+
+class TestApiModeNeedsAnExplicitOptIn(unittest.TestCase):
+    """A key in the environment is not consent to spend it. Only AAT_MODE=api,
+    set by the researcher in the server's configuration, turns api mode on;
+    the orchestrating model cannot turn it on per job by itself."""
+
+    def setUp(self):
+        self._tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self._tmp, True)
+        jobs = mock.patch.object(server, "_jobs", JobStore(self._tmp))
+        jobs.start()
+        self.addCleanup(jobs.stop)
+        env = mock.patch.dict(os.environ, {"ANTHROPIC_API_KEY": "sk-test"})
+        env.start()
+        self.addCleanup(env.stop)
+        os.environ.pop("AAT_MODE", None)
+
+    def test_a_key_alone_leaves_the_default_delegated(self):
+        self.assertEqual(server._mode(""), "delegated")
+        self.assertEqual(server._mode(None), "delegated")
+        self.assertEqual(server.toolkit_info()["llm_mode_default"], "delegated")
+
+    def test_a_key_alone_never_calls_the_model(self):
+        rid = server.ratify_codebook(codebook=CODEBOOK)["ratification_id"]
+        with mock.patch.object(server, "_api_llm") as api:
+            start = server.start_coding_job(CHUNKS, CODEBOOK, ratification_id=rid)
+            server.start_codebook_job({"a.txt": "Members pool money."}, "interpretive")
+            server.build_themes(coded=TestApiThemes.CODED)
+        self.assertEqual(start["mode"], "delegated")
+        api.assert_not_called()
+
+    def test_asking_for_api_per_job_without_the_opt_in_is_refused(self):
+        rid = server.ratify_codebook(codebook=CODEBOOK)["ratification_id"]
+        calls = [
+            lambda: server.start_coding_job(CHUNKS, CODEBOOK, ratification_id=rid,
+                                            llm_mode="api"),
+            lambda: server.start_codebook_job({"a.txt": "x"}, "interpretive",
+                                              llm_mode="api"),
+            lambda: server.build_themes(coded=TestApiThemes.CODED, llm_mode="api"),
+        ]
+        for call in calls:
+            with mock.patch.object(server, "_api_llm") as api:
+                with self.assertRaises(ValueError) as ctx:
+                    call()
+            self.assertIn("AAT_MODE=api", str(ctx.exception))
+            api.assert_not_called()
+
+    def test_other_values_of_the_variable_do_not_opt_in(self):
+        for value in ("", "delegated", "yes", "1"):
+            with mock.patch.dict(os.environ, {"AAT_MODE": value}):
+                self.assertEqual(server._mode(""), "delegated", value)
+        with mock.patch.dict(os.environ, {"AAT_MODE": " API "}):
             self.assertEqual(server._mode(""), "api")
-            self.assertEqual(server.toolkit_info()["llm_mode_default"], "api")
-        with mock.patch.dict(os.environ, {}, clear=False):
-            os.environ.pop("ANTHROPIC_API_KEY", None)
-            self.assertEqual(server._mode(None), "delegated")
-            self.assertEqual(server._mode("api"), "api")
 
 
 class TestApiCodingJob(ApiJobBase):

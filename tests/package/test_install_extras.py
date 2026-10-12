@@ -38,8 +38,9 @@ REPO = Path(__file__).resolve().parents[2]
 PACKAGE = REPO / "src" / "ai_anthro_toolkit"
 
 # Deliberately not installed by the plugin. Each maps to the extra its
-# actionable error names.
-OPTIONAL = {"sentence_transformers": "chunking", "anthropic": "api"}
+# actionable error names. (anthropic is installed through [api] now; its
+# error still names the extra for pip users who left it out.)
+OPTIONAL = {"sentence_transformers": "chunking"}
 
 # Import name -> distribution name, where they differ beyond _ and -.
 DISTRIBUTION = {"yaml": "pyyaml", "docx": "python-docx", "PIL": "pillow"}
@@ -113,6 +114,7 @@ class TestPluginExtrasCoverToolImports(unittest.TestCase):
         self.assertTrue(spec.startswith("ai-anthropology-toolkit["), spec)
         self.assertEqual(plugin_spec(REPO / ".mcp.json"), spec)
         self.assertIn("data", plugin_extras(spec))
+        self.assertIn("api", plugin_extras(spec))
 
     def test_every_tool_import_is_installed_by_the_plugin(self):
         imports = third_party_imports()
@@ -152,29 +154,15 @@ class TestOptionalModulesFailWithTheirExtra(unittest.TestCase):
                 codebook._default_embedder(["a", "b"])
         self.assert_names_extra(ctx, "chunking")
 
-    def test_delegated_codebook_job_with_two_codes_reports_the_extra(self):
-        import tempfile
-
+    def test_codebook_jobs_fall_back_instead_of_failing(self):
+        # Refinement no longer needs sentence-transformers: without it a job
+        # completes on the lexical fallback and says so (covered in
+        # test_lexical_similarity). Only a direct call to the embedder
+        # still names the extra, as tested above.
         from ai_anthro_toolkit import codebook
-        from ai_anthro_toolkit.jobs import JobStore
-        from ai_anthro_toolkit.mcp import server
 
-        tmp = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, tmp, True)
-        with mock.patch.object(server, "_jobs", JobStore(tmp)), \
-                mock.patch.dict(sys.modules, {"sentence_transformers": None}), \
-                mock.patch.object(codebook, "_embedding_model", None):
-            start = server.start_codebook_job(
-                {"notes.txt": "Members pool money. The clinic closed."},
-                "interpretive", llm_mode="delegated", min_frequency=1)
-            batch = server.get_next_batch(start["job_id"], batch_size=10)
-            two_codes = json.dumps([
-                {"label": "pooling", "definition": "Pooling household money."},
-                {"label": "closure", "definition": "Public services withdrawn."}])
-            with self.assertRaises(ImportError) as ctx:
-                server.submit_batch(start["job_id"], [
-                    {"id": p["id"], "response": two_codes} for p in batch["packets"]])
-        self.assert_names_extra(ctx, "chunking")
+        with mock.patch.dict(sys.modules, {"sentence_transformers": None}):
+            self.assertFalse(codebook._sentence_transformers_installed())
 
     def test_chunk_transcript_without_sentence_transformers(self):
         from ai_anthro_toolkit import chunking
@@ -205,6 +193,7 @@ class TestOptionalModulesFailWithTheirExtra(unittest.TestCase):
 # embedder fails with its extra rather than a bare ModuleNotFoundError.
 PROBE = """
 import gnews, pytrends.request, scholarly, scrapetube, youtube_transcript_api, feedparser, nltk
+import anthropic
 from ai_anthro_toolkit.mcp import server
 from ai_anthro_toolkit.codebook import chunk_text, _default_embedder
 assert chunk_text("Members pool money. The clinic closed.")

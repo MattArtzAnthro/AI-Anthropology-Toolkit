@@ -14,10 +14,11 @@ Tool families:
   confirm-or-revise decision and start_coding_job refuses a codebook with no
   matching ratification (sequence enforced; sincerity cannot be).
 
-Analysis LLM work supports two modes. In **api** mode (requires
-ANTHROPIC_API_KEY in the environment) the server calls the Anthropic API
-itself, with notebook-parity prompts. In **delegated** mode (the default when
-no key is present) the server never calls a model: jobs queue work packets,
+Analysis LLM work supports two modes. In **api** mode the server calls the
+Anthropic API itself, with notebook-parity prompts; it needs ANTHROPIC_API_KEY
+and an explicit opt-in, AAT_MODE=api, because a key in the environment is not
+consent to spend it. In **delegated** mode (the default) the server never
+calls a model: jobs queue work packets,
 the orchestrating model completes them via get_next_batch/submit_batch, and
 the server validates every submission against the codebook — keeping each
 interpretive move visible to, and contestable by, the researcher.
@@ -78,8 +79,9 @@ mcp = MCPServer(
         "comments, anchored spans, and tracked changes out of a marked-up "
         ".docx, read-only. Analysis pipeline: transcript chunking, codebook "
         "generation, coding, thematic analysis, and cross-lens comparison. "
-        "LLM-dependent stages run in 'api' mode when ANTHROPIC_API_KEY is set, "
-        "otherwise in 'delegated' mode: start a job, loop get_next_batch -> "
+        "LLM-dependent stages run in 'delegated' mode unless the researcher "
+        "has set AAT_MODE=api for the server (never request llm_mode='api' "
+        "on their behalf): start a job, loop get_next_batch -> "
         "complete each prompt -> submit_batch, then get_job_result. Coding is "
         "gated: present the codebook to the researcher as one table, ask one "
         "confirm-or-revise question, call ratify_codebook with what they "
@@ -92,10 +94,30 @@ mcp = MCPServer(
 _jobs = JobStore()
 
 
+# API mode spends the researcher's money, so it is never inferred from a key
+# that happens to be in the environment, and the orchestrating model cannot
+# switch it on per job: the researcher sets AAT_MODE=api in the server's own
+# configuration (the "env" block of .mcp.json). Delegated is the default.
+API_OPT_IN = "AAT_MODE"
+
+
+def _api_opted_in() -> bool:
+    return os.environ.get(API_OPT_IN, "").strip().lower() == "api"
+
+
 def _mode(llm_mode: str | None) -> str:
-    if llm_mode in ("api", "delegated"):
-        return llm_mode
-    return "api" if os.environ.get("ANTHROPIC_API_KEY") else "delegated"
+    if llm_mode == "delegated":
+        return "delegated"
+    if llm_mode == "api" and not _api_opted_in():
+        raise ValueError(
+            "api mode calls the Anthropic API with the researcher's key and "
+            "bills them, so it runs only when they have turned it on by "
+            f"setting {API_OPT_IN}=api in the server's environment. It is not "
+            "on here. Run this job in delegated mode (the default), or ask "
+            "the researcher whether they want to enable api mode.")
+    if llm_mode == "api":
+        return "api"
+    return "api" if _api_opted_in() else "delegated"
 
 
 def _api_llm(model: str | None = None):
@@ -117,7 +139,8 @@ _codebook_checksum = _crosslens.codebook_checksum
 
 def _save_provenance(job_id: str, artifact_class: str, labels: list,
                      ratification_id: str = "",
-                     artifact_file: str = "result.json") -> None:
+                     artifact_file: str = "result.json",
+                     similarity_method: str = "") -> None:
     """Write the stanza that lets a saved artifact describe itself later.
 
     A sidecar rather than a wrapper: ``result.json`` keeps its shape, so
@@ -125,13 +148,18 @@ def _save_provenance(job_id: str, artifact_class: str, labels: list,
     that leaves the job directory makes no claim about which codebook it
     came from, and a standing check has nothing to read.
     """
-    _jobs.save_artifact(job_id, _checks.PROVENANCE_SIDECAR, json.dumps(
-        _checks.provenance_stanza(
-            produced_by=f"ai-anthropology-toolkit {__version__}",
-            codebook_labels=labels,
-            artifact_class=artifact_class,
-            ratification_id=ratification_id,
-            artifact_file=artifact_file)))
+    stanza = _checks.provenance_stanza(
+        produced_by=f"ai-anthropology-toolkit {__version__}",
+        codebook_labels=labels,
+        artifact_class=artifact_class,
+        ratification_id=ratification_id,
+        artifact_file=artifact_file)
+    if similarity_method:
+        # How duplicate codes were found: "lexical-fallback" means by shared
+        # words, without sentence-transformers, and that merges were only
+        # suggested.
+        stanza["similarity_method"] = similarity_method
+    _jobs.save_artifact(job_id, _checks.PROVENANCE_SIDECAR, json.dumps(stanza))
 
 
 # --------------------------------------------------------------- discovery
@@ -580,7 +608,8 @@ def start_codebook_job(documents: dict, lens_key: str,
             built = _codebook.codebook_to_records(cb, lens_key)
             _jobs.save_artifact(job_id, "result.json", json.dumps(built))
             _save_provenance(job_id, _checks.CLASS_CODEBOOK,
-                             [r["code_label"] for r in built])
+                             [r["code_label"] for r in built],
+                             similarity_method=report.get("similarity_method", ""))
             _jobs.save_artifact(job_id, "quality.json", json.dumps(report))
         _run_api_job(job_id, worker)
         return {"job_id": job_id, "mode": "api",
@@ -833,7 +862,8 @@ def submit_batch(job_id: str, results: list[dict]) -> dict:
             built = _codebook.codebook_to_records(refined, lens_key)
             _jobs.save_artifact(job_id, "result.json", json.dumps(built))
             _save_provenance(job_id, _checks.CLASS_CODEBOOK,
-                             [r["code_label"] for r in built])
+                             [r["code_label"] for r in built],
+                             similarity_method=report.get("similarity_method", ""))
             _jobs.save_artifact(job_id, "quality.json", json.dumps(report))
     else:
         raise ValueError(f"Unknown job kind '{kind}'")
@@ -876,6 +906,8 @@ def get_job_result(job_id: str) -> dict:
     quality = _load_records(job_id, "quality.json")
     if quality:
         out["quality_report"] = quality
+        if quality.get("similarity_method"):
+            out["similarity_method"] = quality["similarity_method"]
     return out
 
 
