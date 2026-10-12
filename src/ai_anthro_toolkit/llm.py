@@ -30,7 +30,17 @@ class ClaudeLLM:
     """Thin Anthropic wrapper with exponential-backoff retries (api mode)."""
 
     def __init__(self, api_key: str, model: str = DEFAULT_MODEL, max_retries: int = 3):
-        import anthropic
+        # max_retries counts attempts, so below one no request is ever sent
+        # and there is no error to report; refuse it here, where the cause
+        # is visible, rather than failing later with nothing to raise.
+        if max_retries < 1:
+            raise ValueError(f"max_retries must be at least 1, got {max_retries}")
+        try:
+            import anthropic
+        except ImportError:
+            from ._extras import missing
+            raise missing("anthropic", "api", "Api mode (the server calling "
+                          "Claude itself)") from None
 
         self.client = anthropic.Anthropic(api_key=api_key)
         self.model = model

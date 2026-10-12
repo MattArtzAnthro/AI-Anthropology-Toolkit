@@ -47,6 +47,9 @@ def get_podcast_episodes(feed_url: str, limit: int = 50) -> list[dict]:
     Returns records with: title, published (ISO date, or the feed's raw date
     string if unparseable), duration (H:MM:SS), audio_url, description
     (plain text, truncated to 500 characters), link.
+
+    Raises RuntimeError when the feed answers with an HTTP error or cannot
+    be read as a feed at all, rather than returning an empty list.
     """
     try:
         import feedparser
@@ -55,6 +58,22 @@ def get_podcast_episodes(feed_url: str, limit: int = 50) -> list[dict]:
             'Install the data extra: pip install "ai-anthropology-toolkit[data]"'
         ) from None
     feed = feedparser.parse(feed_url)
+    status = feed.get("status")
+    if status is not None and status >= 400:
+        raise RuntimeError(
+            f"The feed at {feed_url!r} returned HTTP {status}. Check the URL; "
+            "podcast hosts move feeds, and the current address is usually "
+            "linked from the show's page.")
+    if not feed.entries and feed.get("bozo"):
+        # feedparser reports an unreachable URL or a page that is not a feed
+        # as an empty feed. An empty list would read as "this show has no
+        # episodes", which is a different finding.
+        reason = feed.get("bozo_exception")
+        raise RuntimeError(
+            f"Could not read a podcast feed from {feed_url!r}"
+            + (f" ({type(reason).__name__}: {reason})" if reason else "")
+            + ". The address may be unreachable from here or may not be an "
+            "RSS/Atom feed.")
     episodes = []
     for e in feed.entries[:max(1, int(limit))]:
         enclosures = e.get("enclosures") or [{}]

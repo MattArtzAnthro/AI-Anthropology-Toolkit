@@ -121,8 +121,9 @@ def _get_default_embedder() -> Any:
     """Load and cache the all-MiniLM-L6-v2 sentence-transformer model."""
     global _default_embedder
     if _default_embedder is None:
-        from sentence_transformers import SentenceTransformer
-        _default_embedder = SentenceTransformer('all-MiniLM-L6-v2')
+        from ._extras import sentence_transformer
+        model_class = sentence_transformer("Transcript chunking (sentence embeddings)")
+        _default_embedder = model_class('all-MiniLM-L6-v2')
     return _default_embedder
 
 

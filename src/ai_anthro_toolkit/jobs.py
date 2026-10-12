@@ -7,11 +7,30 @@ driving model can process them batch by batch.
 """
 
 import json
+import os
+import tempfile
 import time
 import uuid
 from pathlib import Path
 
 DEFAULT_ROOT = Path.home() / ".ai-anthro-toolkit" / "jobs"
+
+
+def _write_atomic(path: Path, content: str) -> None:
+    """Replace `path` in one step.
+
+    API-mode jobs write from a worker thread while get_job_status and
+    get_job_result read from the server's, so a plain truncate-and-write
+    lets a reader see an empty or half-written file.
+    """
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(content)
+        os.replace(tmp, path)
+    except BaseException:
+        Path(tmp).unlink(missing_ok=True)
+        raise
 
 
 class JobStore:
@@ -27,7 +46,7 @@ class JobStore:
     def create(self, kind: str, payload: dict) -> str:
         job_id = f"{kind}-{uuid.uuid4().hex[:8]}"
         d = self._dir(job_id)
-        (d / "job.json").write_text(json.dumps({
+        _write_atomic(d / "job.json", json.dumps({
             "job_id": job_id,
             "kind": kind,
             "created": time.strftime("%Y-%m-%dT%H:%M:%S"),
@@ -35,7 +54,7 @@ class JobStore:
             "processed": 0,
             "total": payload.get("total", 0),
             "payload": payload,
-        }, indent=2), encoding="utf-8")
+        }, indent=2))
         return job_id
 
     def read(self, job_id: str) -> dict:
@@ -44,8 +63,7 @@ class JobStore:
     def update(self, job_id: str, **fields) -> dict:
         state = self.read(job_id)
         state.update(fields)
-        (self._dir(job_id) / "job.json").write_text(
-            json.dumps(state, indent=2), encoding="utf-8")
+        _write_atomic(self._dir(job_id) / "job.json", json.dumps(state, indent=2))
         return state
 
     def status(self, job_id: str) -> dict:
@@ -63,7 +81,7 @@ class JobStore:
 
     def save_artifact(self, job_id: str, name: str, content: str) -> Path:
         p = self._dir(job_id) / name
-        p.write_text(content, encoding="utf-8")
+        _write_atomic(p, content)
         return p
 
     def load_artifact(self, job_id: str, name: str) -> str | None:

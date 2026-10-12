@@ -19,6 +19,7 @@ complete the prompt and resume.
 
 from __future__ import annotations
 
+import copy
 import json
 import re
 from collections import Counter
@@ -162,8 +163,10 @@ def _default_embedder(texts: Sequence[str]) -> np.ndarray:
     """Embed texts with sentence-transformers all-MiniLM-L6-v2 (lazy load)."""
     global _embedding_model
     if _embedding_model is None:
-        from sentence_transformers import SentenceTransformer
-        _embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+        from ._extras import sentence_transformer
+        model_class = sentence_transformer(
+            "Codebook refinement (duplicate detection and example selection)")
+        _embedding_model = model_class("all-MiniLM-L6-v2")
     return _embedding_model.encode(list(texts), show_progress_bar=False)
 
 
@@ -626,7 +629,7 @@ def _select_diverse_examples(codebook: dict[str, CodeEntry], max_examples: int,
         remaining = list(range(1, len(embeddings)))
 
         while len(selected_indices) < max_examples and remaining:
-            best_idx = None
+            best_idx = remaining[0]
             best_max_sim = None
 
             for idx in remaining:
@@ -686,7 +689,9 @@ def _ai_consolidation_pass(codebook: dict[str, CodeEntry], stance_name: str,
     source documents, with frequency divided among them and examples
     distributed by similarity. The response is parsed with the hardened
     parser; on any failure other than :class:`WorkPacket` the codebook is
-    returned unchanged.
+    returned unchanged, including when the failure comes part-way through
+    applying the recommendations. A merge that names one code as both
+    ``keep`` and ``absorb`` is ignored.
     """
     code_summary = []
     for label, code in sorted(codebook.items(), key=lambda x: x[1].frequency, reverse=True):
@@ -705,6 +710,7 @@ def _ai_consolidation_pass(codebook: dict[str, CodeEntry], stance_name: str,
         codebook_json=json.dumps(code_summary, indent=2),
     )
 
+    original = codebook
     try:
         response_text = llm(prompt, temperature=0.3, max_tokens=DEFAULT_MAX_TOKENS)
 
@@ -716,13 +722,17 @@ def _ai_consolidation_pass(codebook: dict[str, CodeEntry], stance_name: str,
             return codebook
 
         recommendations = parsed[0]
+        # Work on a copy: a malformed recommendation part-way through must
+        # leave the codebook as it was, not half-consolidated.
+        codebook = copy.deepcopy(codebook)
 
         # Apply merges
         merge_count = 0
         for merge in recommendations.get('merges', []):
             keep = merge.get('keep', '')
             absorb = merge.get('absorb', '')
-            if keep in codebook and absorb in codebook:
+            # keep == absorb would delete the code it names, not merge it.
+            if keep in codebook and absorb in codebook and keep != absorb:
                 _notify(progress, f"Consolidation merge: '{absorb}' -> '{keep}' "
                                   f"({merge.get('rationale', '')})")
                 codebook = _merge_codes(codebook, keep, absorb)
@@ -788,7 +798,9 @@ def _ai_consolidation_pass(codebook: dict[str, CodeEntry], stance_name: str,
     except WorkPacket:
         raise
     except Exception as exc:
-        _notify(progress, f"Consolidation pass skipped (error: {str(exc)[:60]})")
+        _notify(progress, f"Consolidation pass skipped (error: {str(exc)[:60]}) "
+                          "— no changes applied")
+        return original
 
     return codebook
 

@@ -44,8 +44,13 @@ PROJECT_CHECKS = "instrument-checks.json"
 
 
 def load_project_checks(path: Path):
-    """Register a project's own checks, if it has any beside the artifact."""
-    document = path.parent / PROJECT_CHECKS
+    """Register a project's own checks, if it has any beside the artifact.
+
+    `path` is what the researcher pointed at: an artifact file, or a job
+    directory holding one. For a directory, "beside the artifact" means
+    inside it, not next to it.
+    """
+    document = (path if path.is_dir() else path.parent) / PROJECT_CHECKS
     if not document.exists():
         return None
     try:
@@ -85,11 +90,15 @@ def load_artifact(path: Path) -> object:
             f"of those and point me at it; I would rather say this than "
             f"read it badly.")
 
-    if suffix == ".csv":
-        with path.open(newline="", encoding="utf-8") as handle:
-            records = list(csv.DictReader(handle))
-    else:
-        records = json.loads(path.read_text(encoding="utf-8"))
+    try:
+        if suffix == ".csv":
+            with path.open(newline="", encoding="utf-8") as handle:
+                records = list(csv.DictReader(handle))
+        else:
+            records = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        # ValueError covers malformed JSON and text that is not UTF-8.
+        raise LoadError(f"{path} could not be read: {error}") from None
 
     stanza = _sidecar_for(path)
     if stanza is not None:

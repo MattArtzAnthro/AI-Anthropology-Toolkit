@@ -358,6 +358,281 @@ class TestRecordsContract(unittest.TestCase):
         self.assertEqual(records[1]["inclusion_criteria"], "inc one; inc two")
 
 
+CONSOLIDATION_MARKER = "You are reviewing a qualitative codebook"
+SYNTHESIS_MARKER = "You are refining code definitions"
+
+
+def _four_code_codebook():
+    """Four distinct codes: enough for the consolidation pass (more than 3)."""
+    ex = lambda text, src: {"text": text, "source": src}  # noqa: E731
+    return {
+        "MUTUAL_AID": make_entry(
+            "MUTUAL_AID", "Pooling money or labor so households can meet obligations.",
+            frequency=5, sources=["d1.txt", "d2.txt"],
+            examples=[ex("we pool money every month", "d1.txt"),
+                      ex("the women share childcare", "d2.txt")],
+            inclusion=["Use for pooled resources"], group="Economy"),
+        "STATE_ABSENCE": make_entry(
+            "STATE_ABSENCE", "Withdrawal or failure of government services felt locally.",
+            frequency=4, sources=["d1.txt"],
+            examples=[ex("the clinic closed last spring", "d1.txt")],
+            group="Politics"),
+        "RECIPROCITY": make_entry(
+            "RECIPROCITY", "Recurring exchange of goods or favors grounded in trust.",
+            frequency=3, sources=["d2.txt"],
+            examples=[ex("vegetables for fish every week", "d2.txt")],
+            group="Economy"),
+        "KIN_OBLIGATION": make_entry(
+            "KIN_OBLIGATION", "Duties owed to relatives that shape spending and time.",
+            frequency=2, sources=["d1.txt"],
+            examples=[ex("my cousin's school fees come first", "d1.txt")],
+            group="Kinship"),
+    }
+
+
+def _consolidate(recommendations, codebook=None, embedder=None):
+    """Run refine_codebook with a scripted consolidation response."""
+    response = (recommendations if isinstance(recommendations, str)
+                else json.dumps(recommendations))
+    llm = FakeLLM(routes=[(SYNTHESIS_MARKER, "[]"),
+                          (CONSOLIDATION_MARKER, response)])
+    messages = []
+    refined, report = cb.refine_codebook(
+        codebook or _four_code_codebook(), "critical", llm=llm,
+        min_frequency=1, similarity_threshold=0.99,
+        embedder=embedder or StubEmbedder(), progress=messages.append)
+    return refined, report, messages, llm
+
+
+class TestConsolidationPass(unittest.TestCase):
+    """The LLM consolidation step rewrites the codebook before the researcher
+    ratifies it, so every recommendation it applies has to be the one the
+    model made, and a bad response has to leave the codebook alone."""
+
+    def test_consolidation_runs_only_above_three_codes(self):
+        three = dict(list(_four_code_codebook().items())[:3])
+        _, _, _, llm = _consolidate({"merges": []}, codebook=three)
+        self.assertFalse(any(CONSOLIDATION_MARKER in c for c in llm.calls))
+        _, _, _, llm = _consolidate({"merges": []})
+        self.assertTrue(any(CONSOLIDATION_MARKER in c for c in llm.calls))
+
+    def test_merge_absorbs_one_code_into_another(self):
+        refined, _, messages, _ = _consolidate({"merges": [
+            {"keep": "MUTUAL_AID", "absorb": "RECIPROCITY", "rationale": "overlap"}]})
+        self.assertNotIn("RECIPROCITY", refined)
+        self.assertEqual(refined["MUTUAL_AID"].frequency, 8)
+        self.assertIn("d2.txt", refined["MUTUAL_AID"].source_documents)
+        self.assertTrue(any("1 merges" in m for m in messages))
+
+    def test_merge_naming_one_code_twice_does_not_delete_it(self):
+        refined, _, _, _ = _consolidate({"merges": [
+            {"keep": "STATE_ABSENCE", "absorb": "STATE_ABSENCE"}]})
+        self.assertIn("STATE_ABSENCE", refined)
+        self.assertEqual(refined["STATE_ABSENCE"].frequency, 4)
+
+    def test_merge_with_unknown_label_is_ignored(self):
+        refined, _, _, _ = _consolidate({"merges": [
+            {"keep": "MUTUAL_AID", "absorb": "NOT_A_CODE"}]})
+        self.assertEqual(set(refined), set(_four_code_codebook()))
+
+    def test_split_creates_children_and_removes_parent(self):
+        embedder = StubEmbedder({
+            "MONEY POOLING: Rotating savings groups.": [1.0, 0.0],
+            "LABOR SHARING: Shared childcare and work.": [0.0, 1.0],
+            "we pool money every month": [0.9, 0.1],
+            "the women share childcare": [0.1, 0.9],
+        }, dim=2)
+        # Definitions for the four parents must not collide with the mapping.
+        embedder.dim = 16
+        refined, _, messages, _ = _consolidate({"splits": [{
+            "label": "MUTUAL_AID", "rationale": "too broad",
+            "into": [{"label": "money pooling", "definition": "Rotating savings groups."},
+                     {"label": "LABOR_SHARING", "definition": "Shared childcare and work."}],
+        }]}, embedder=embedder)
+        self.assertNotIn("MUTUAL_AID", refined)
+        money, labor = refined["MONEY_POOLING"], refined["LABOR_SHARING"]
+        self.assertEqual(money.code_group, "Economy")
+        self.assertEqual(money.frequency, 2)  # 5 // 2
+        self.assertEqual(money.inclusion_criteria, ["Use for pooled resources"])
+        self.assertEqual([e["text"] for e in money.examples],
+                         ["we pool money every month"])
+        self.assertEqual([e["text"] for e in labor.examples],
+                         ["the women share childcare"])
+        self.assertTrue(any("split" in m for m in messages))
+
+    def test_split_into_one_code_is_not_applied(self):
+        refined, _, _, _ = _consolidate({"splits": [{
+            "label": "MUTUAL_AID",
+            "into": [{"label": "ONLY_ONE", "definition": "x"}]}]})
+        self.assertIn("MUTUAL_AID", refined)
+        self.assertNotIn("ONLY_ONE", refined)
+
+    def test_split_examples_fall_back_to_copies_when_embedding_fails(self):
+        class FailingOnChildren(StubEmbedder):
+            def __call__(self, texts):
+                if any(":" in t for t in texts):
+                    raise RuntimeError("model unavailable")
+                return super().__call__(texts)
+
+        refined, _, _, _ = _consolidate({"splits": [{
+            "label": "MUTUAL_AID",
+            "into": [{"label": "A_PART", "definition": "first"},
+                     {"label": "B_PART", "definition": "second"}]}]},
+            embedder=FailingOnChildren())
+        self.assertEqual(len(refined["A_PART"].examples), 2)
+        self.assertEqual(len(refined["B_PART"].examples), 2)
+
+    def test_regroup_and_improved_definition(self):
+        refined, _, messages, _ = _consolidate({
+            "regroups": [{"label": "KIN_OBLIGATION", "new_group": "Economy"},
+                         {"label": "NOT_A_CODE", "new_group": "X"}],
+            "improved_definitions": [
+                {"label": "RECIPROCITY",
+                 "definition": "Balanced exchange sustained over time by mutual trust."},
+                {"label": "STATE_ABSENCE", "definition": ""}],
+        })
+        self.assertEqual(refined["KIN_OBLIGATION"].code_group, "Economy")
+        self.assertEqual(refined["RECIPROCITY"].definition,
+                         "Balanced exchange sustained over time by mutual trust.")
+        self.assertEqual(refined["STATE_ABSENCE"].definition,
+                         _four_code_codebook()["STATE_ABSENCE"].definition)
+        self.assertTrue(any("1 regroups, 1 improved definitions" in m
+                            for m in messages))
+
+    def test_empty_recommendations_change_nothing(self):
+        refined, _, messages, _ = _consolidate(
+            {"merges": [], "splits": [], "regroups": [], "improved_definitions": []})
+        self.assertEqual(set(refined), set(_four_code_codebook()))
+        self.assertTrue(any("no changes recommended" in m for m in messages))
+
+    def test_unparseable_response_changes_nothing(self):
+        refined, _, messages, _ = _consolidate("I would merge a few of these.")
+        self.assertEqual(set(refined), set(_four_code_codebook()))
+        self.assertTrue(any("could not be parsed" in m for m in messages))
+
+    def test_malformed_recommendation_midway_leaves_codebook_untouched(self):
+        # A valid merge followed by a split entry that is not an object: the
+        # merge must not survive on its own.
+        original = _four_code_codebook()
+        refined, _, messages, _ = _consolidate({
+            "merges": [{"keep": "MUTUAL_AID", "absorb": "RECIPROCITY"}],
+            "improved_definitions": [{"label": "STATE_ABSENCE",
+                                      "definition": "Rewritten before the failure."}],
+            "splits": ["MUTUAL_AID"],
+        }, codebook=original)
+        self.assertEqual(set(refined), set(_four_code_codebook()))
+        self.assertEqual(refined["MUTUAL_AID"].frequency, 5)
+        self.assertEqual(refined["STATE_ABSENCE"].definition,
+                         _four_code_codebook()["STATE_ABSENCE"].definition)
+        self.assertTrue(any("skipped" in m and "no changes applied" in m
+                            for m in messages))
+
+    def test_llm_error_skips_the_pass(self):
+        def llm(prompt, **kwargs):
+            if CONSOLIDATION_MARKER in prompt:
+                raise ConnectionError("upstream reset")
+            return "[]"
+        messages = []
+        refined, _ = cb.refine_codebook(
+            _four_code_codebook(), "critical", llm=llm, min_frequency=1,
+            similarity_threshold=0.99, embedder=StubEmbedder(),
+            progress=messages.append)
+        self.assertEqual(set(refined), set(_four_code_codebook()))
+        self.assertTrue(any("upstream reset" in m for m in messages))
+
+    def test_work_packet_propagates_in_delegated_mode(self):
+        with self.assertRaises(WorkPacket):
+            cb.refine_codebook(_four_code_codebook(), "critical",
+                               llm=DelegatedLLM(), min_frequency=1,
+                               similarity_threshold=0.99,
+                               embedder=StubEmbedder())
+
+
+class TestDefinitionSynthesis(unittest.TestCase):
+    def _codebook(self):
+        ex = [{"text": "first quote", "source": "d1.txt"},
+              {"text": "second quote", "source": "d2.txt"}]
+        return {
+            "MUTUAL_AID": make_entry("MUTUAL_AID", "Pooling resources.",
+                                     frequency=3, examples=ex),
+            "ONE_OFF": make_entry("ONE_OFF", "Seen once only, in a single place.",
+                                  frequency=1, examples=ex[:1]),
+        }
+
+    def test_refined_definition_replaces_the_old_one(self):
+        llm = FakeLLM(routes=[(SYNTHESIS_MARKER, json.dumps([
+            {"label": "MUTUAL_AID",
+             "definition": "Pooling money or labor among households to meet shared needs."},
+            {"label": "NOT_A_CODE", "definition": "ignored"},
+            "not an object",
+        ]))])
+        refined, _ = cb.refine_codebook(self._codebook(), "critical", llm=llm,
+                                        min_frequency=1, similarity_threshold=0.99,
+                                        embedder=StubEmbedder())
+        self.assertTrue(refined["MUTUAL_AID"].definition.startswith("Pooling money"))
+        # Only multi-occurrence codes with several examples are sent.
+        prompt = next(c for c in llm.calls if SYNTHESIS_MARKER in c)
+        self.assertNotIn("ONE_OFF", prompt)
+
+    def test_failed_batch_keeps_existing_definitions(self):
+        def llm(prompt, **kwargs):
+            raise TimeoutError("slow")
+        refined, _ = cb.refine_codebook(self._codebook(), "critical", llm=llm,
+                                        min_frequency=1, similarity_threshold=0.99,
+                                        embedder=StubEmbedder())
+        self.assertEqual(refined["MUTUAL_AID"].definition, "Pooling resources.")
+
+    def test_nothing_to_synthesize_makes_no_call(self):
+        llm = FakeLLM()
+        codebook = {"ONE_OFF": self._codebook()["ONE_OFF"]}
+        cb.refine_codebook(codebook, "critical", llm=llm, min_frequency=1,
+                           embedder=StubEmbedder())
+        self.assertEqual(llm.calls, [])
+
+
+class TestRefineCodebookReport(unittest.TestCase):
+    def test_soft_cap_keeps_most_frequent(self):
+        codebook = {f"CODE_{i}": make_entry(f"CODE_{i}", f"Distinct definition number {i}.",
+                                            frequency=i + 1,
+                                            examples=[{"text": f"q{i}", "source": "d"}])
+                    for i in range(6)}
+        messages = []
+        refined, report = cb.refine_codebook(codebook, "critical", llm=None,
+                                             min_frequency=1, soft_cap=4,
+                                             embedder=StubEmbedder(),
+                                             progress=messages.append)
+        self.assertEqual(set(refined), {"CODE_5", "CODE_4", "CODE_3", "CODE_2"})
+        self.assertEqual(report["validation"]["initial_count"], 6)
+        self.assertTrue(any("Soft cap" in m for m in messages))
+
+    def test_quality_report_counts_definition_and_example_gaps(self):
+        codebook = {
+            "MISSING": make_entry("MISSING", "No definition provided", frequency=2),
+            "SHORT": make_entry("SHORT", "Too short.", frequency=2,
+                                examples=[{"text": "q", "source": "d"}]),
+            "FINE": make_entry("FINE", "A definition long enough to pass validation.",
+                               frequency=2, examples=[{"text": "q2", "source": "d"}]),
+        }
+        _, report = cb.refine_codebook(codebook, "critical", llm=None,
+                                       min_frequency=1, embedder=StubEmbedder())
+        summary = report["validation"]["summary"]
+        self.assertEqual(summary, {"missing_definitions": 1,
+                                   "short_definitions": 1,
+                                   "missing_examples": 1})
+        self.assertAlmostEqual(report["validation"]["quality_score"], 0.5)
+
+    def test_frequency_filter_can_empty_the_codebook(self):
+        codebook = {"RARE": make_entry("RARE", "Seen only once in the corpus.")}
+        refined, report = cb.refine_codebook(codebook, "critical", llm=None,
+                                             min_frequency=2, embedder=StubEmbedder())
+        self.assertEqual(refined, {})
+        self.assertEqual(report["validation"]["quality_score"], 0)
+
+    def test_unknown_lens_is_refused(self):
+        with self.assertRaises(KeyError):
+            cb.refine_codebook({}, "not-a-lens", llm=None)
+
+
 class TestBuildCodebook(unittest.TestCase):
     def test_extract_then_refine_end_to_end(self):
         llm = FakeLLM(routes=[

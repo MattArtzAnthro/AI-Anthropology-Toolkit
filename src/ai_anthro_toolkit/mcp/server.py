@@ -99,7 +99,9 @@ def _mode(llm_mode: str | None) -> str:
 
 
 def _api_llm(model: str | None = None):
-    return make_llm("api", api_key=os.environ["ANTHROPIC_API_KEY"],
+    # .get, not [...]: a missing key must reach make_llm, whose error says
+    # what to do, rather than surface as a bare KeyError naming the variable.
+    return make_llm("api", api_key=os.environ.get("ANTHROPIC_API_KEY"),
                     model=model or "claude-sonnet-5")
 
 
@@ -790,7 +792,8 @@ def submit_batch(job_id: str, results: list[dict]) -> dict:
             entry["Coding_Status"] = "Deductive_Only" if codes else "No_Codes"
             out.append(entry)
         _jobs.save_artifact(job_id, "result.json", json.dumps(out))
-        _save_provenance(job_id, _checks.CLASS_CODED, valid)
+        _save_provenance(job_id, _checks.CLASS_CODED, valid,
+                         state["payload"].get("ratification_id", ""))
     elif kind == "codebook":
         merged = {e["label"]: CodeEntry(**e) for e in
                   (_load_records(job_id, "entries.json") or [])}
@@ -856,11 +859,19 @@ def get_job_status(job_id: str) -> dict:
 
 @mcp.tool()
 def get_job_result(job_id: str) -> dict:
-    """Final output of a completed job: codebook records or coded chunk records."""
+    """Final output of a completed job: codebook records or coded chunk records.
+
+    A job that is still running or has failed is not ready, even when it has
+    written a checkpoint: partial records are never returned as the result.
+    """
     result = _load_records(job_id, "result.json")
-    if result is None:
-        return {"job_id": job_id, "ready": False,
-                "status": _jobs.status(job_id)}
+    status = _jobs.status(job_id)
+    if result is None or status["status"] != "complete":
+        out = {"job_id": job_id, "ready": False, "status": status}
+        error = _jobs.read(job_id).get("error")
+        if error:
+            out["error"] = error
+        return out
     out = {"job_id": job_id, "ready": True, "records": result}
     quality = _load_records(job_id, "quality.json")
     if quality:

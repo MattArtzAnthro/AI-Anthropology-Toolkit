@@ -4,17 +4,12 @@ All notable changes to the AI Anthropology Toolkit are documented here. Dates ar
 
 This project has three release tracks: the `ai-anthropology-toolkit` Python package, the Claude Code plugin, and the Codex plugin. Versions are tracked separately below.
 
-## Unreleased
-
-- **Notebooks.** Google Scholar Explorer installs `bibtexparser<2`; `scholarly`
-  fails to import against bibtexparser 2.x. Audio Transcription (Whisper) keeps
-  transcription working when pyannote.audio cannot load against the installed
-  torchaudio, and reports why speaker diarization is unavailable. Five
-  f-strings that only parsed on Python 3.12 now parse on 3.10 and later.
-  Unused imports and variables are removed throughout.
-- **Linting.** Ruff checks the package, tests, scripts, and notebooks in CI.
-
 ## Codex Plugin
+
+### 1.34.1 — 2026-10-12
+- Pins the MCP server to package 3.8.2, whose `[data]` extra installs nltk and a
+  compatible bibtexparser, so codebook jobs and `search_google_scholar` work
+  from a fresh plugin install.
 
 ### 1.34.0 — 2026-10-10
 - Mirrors the new `review-anonymization` skill (28 portable research
@@ -27,6 +22,66 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 - Added repository-local marketplace metadata and a live-host release checklist covering first- and second-task discovery, MCP App resource discovery, desktop `uvx` resolution, and the resource-without-tools failure mode.
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
+
+### 3.8.2 — 2026-10-12
+- **Notebooks.** Google Scholar Explorer installs `bibtexparser<2`; `scholarly`
+  fails to import against bibtexparser 2.x. Audio Transcription (Whisper) keeps
+  transcription working when pyannote.audio cannot load against the installed
+  torchaudio, and reports why speaker diarization is unavailable. Five
+  f-strings that only parsed on Python 3.12 now parse on 3.10 and later.
+  Unused imports and variables are removed throughout.
+- **Linting.** Ruff checks the package, tests, scripts, and notebooks in CI.
+- **The plugin's install now runs codebook jobs and Google Scholar.** The
+  `[data]` extra, which the plugin installs, adds nltk (codebook jobs split
+  documents into sentences with it and failed with `No module named 'nltk'`)
+  and pins `bibtexparser<2` (scholarly fails to import against bibtexparser 2,
+  so `search_google_scholar` failed). Plugin users get this only with the next
+  package release, since the plugin pins the published version.
+- **Missing optional dependencies name their extra.** Transcript chunking and
+  codebook refinement with two or more codes need sentence-transformers, which
+  stays in `[chunking]` because of its size; api mode needs anthropic, now in a
+  new `[api]` extra. Each raises an error naming the extra to install and how to
+  add it to the plugin's `.mcp.json`, instead of a bare `ModuleNotFoundError`.
+- **Job results are final or not ready.** `get_job_result` no longer returns a
+  coding job's checkpoint as its result while the job is still running or after
+  it has failed; it reports `ready: false` with the status, and the error for a
+  failed job. The job store writes its files atomically, so `get_job_status`
+  polled during an api-mode job can no longer read a half-written file.
+- **Api mode without a key** fails the job with the guidance to use delegated
+  mode, instead of the bare error text `'ANTHROPIC_API_KEY'`.
+- **Delegated coding records its ratification.** The provenance sidecar of a
+  delegated coding job now carries the `ratification_id` it was coded under,
+  as api-mode jobs already did.
+- **Codebook consolidation.** A consolidation recommendation that names one
+  code as both `keep` and `absorb` is ignored; it used to delete that code. A
+  malformed recommendation part-way through the pass now leaves the codebook as
+  it was, rather than half-consolidated.
+- **`ClaudeLLM(max_retries=0)`** is refused with a clear error; it used to fail
+  on first use with `TypeError: exceptions must derive from BaseException`.
+- **Data sources.** `get_podcast_episodes` raises when the feed answers with an
+  HTTP error or cannot be read as a feed, instead of returning an empty list
+  that reads as "no episodes". `get_google_trends` gives its rate-limit
+  guidance when the block comes while connecting, not only during the query.
+- **`ai-anthro-check`** reports a malformed JSON or non-UTF-8 CSV artifact as a
+  readable refusal (exit 2) instead of a traceback, and finds a project's
+  `instrument-checks.json` inside a job directory when pointed at the directory.
+- **Notebooks.** PubMed Literature Harvester names the network failure when
+  every NCBI request fails, instead of `UnboundLocalError`. Google Trends
+  Explorer reports a block raised while connecting with its usual guidance.
+- **Release script.** Preflight treats every test class named `*Live*` as live,
+  as the repository convention says, so one rate-limited endpoint no longer
+  blocks a release.
+- **Tests and CI.** The paid `claude -p` test runs only with
+  `AAT_RUN_LIVE_CLAUDE=1`, never merely because the CLI is installed. New
+  offline suites cover the api-mode job workers, the Anthropic client wrapper,
+  every data-source parser, the `ai-anthro-check` command, the release and
+  mirror scripts, and a smoke run of the widget notebooks with the network
+  closed. CI measures line and branch coverage of the package suite and fails
+  below the floor in `pyproject.toml`, and now runs the release-script tests.
+- **Network export.** `weighted_degree` is written as a float in every node.
+  A whole-number weighted degree used to stay an int, and networkx 3.7 refuses
+  to write a GEXF attribute that mixes ints and floats, so `export_network`
+  failed.
 
 ### 3.8.1 — 2026-08-28
 - **The in-chat network view carries the Matt Artz brand.** Monochrome chrome
@@ -356,6 +411,11 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.34.1 — 2026-10-12
+- Pins the MCP server to package 3.8.2, whose `[data]` extra installs nltk and a
+  compatible bibtexparser, so codebook jobs and `search_google_scholar` work
+  from a fresh plugin install.
 
 ### 1.34.0 — 2026-10-10
 - **`review-anonymization` skill (28 skills).** Prepares the copy of a

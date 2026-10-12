@@ -15,7 +15,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Run validation suite
-        run: python3 -m unittest tests.test_repo tests.test_skill_routing tests.test_spec_pack tests.test_codex_plugin tests.test_sync_codex_mirror -v
+        run: python3 -m unittest tests.test_repo tests.test_skill_routing tests.test_spec_pack tests.test_codex_plugin tests.test_sync_codex_mirror tests.test_release -v
 
   package:
     runs-on: ubuntu-latest
@@ -28,8 +28,30 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install package with data extra
-        run: pip install -e ".[data,test]" nltk
+        run: pip install -e ".[data,test]"
       - name: Lint
         run: ruff check .
-      - name: Run package suite
-        run: python3 -m unittest discover -s tests/package -t . -v
+      - name: Run package suite under coverage
+        run: python3 -m coverage run -m unittest discover -s tests/package -t . -v
+      - name: Coverage floor (line and branch, see [tool.coverage] in pyproject.toml)
+        run: python3 -m coverage report
+
+  plugin-install:
+    # Installs the working tree with exactly the extras the plugin's .mcp.json
+    # names, in an isolated environment, and runs the tools' imports there.
+    # The other jobs install every extra, so they cannot see a module the
+    # plugin lacks.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install uv
+        run: pip install uv
+      - name: Isolated install with the plugin's extras
+        env:
+          AAT_RUN_INSTALL_CHECK: "1"
+          PYTHONPATH: src
+        run: python3 -m unittest tests.package.test_install_extras.TestWorkingTreeInstall -v

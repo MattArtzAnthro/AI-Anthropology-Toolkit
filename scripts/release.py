@@ -125,15 +125,20 @@ def classify_resolve(succeeded: bool, elapsed: float, budget: float) -> str:
 # failure here is not evidence of a broken release. A gate that cries wolf
 # gets routed around, which is the gate that becomes a form; these report,
 # and only block when the failure repeats.
+#
+# The repository convention (enforced in tests/test_repo.py) is that every
+# such class has "Live" in its name, so the convention is what is matched;
+# a hand-kept list had already fallen behind a dozen of them.
 LIVE_TESTS = (
     "TestApiModeLiveViaCli",
     "TestDataSourcesLive",
-    "TestScrapersLive",
 )
+_LIVE_CLASS = re.compile(r"\.[A-Z]\w*Live\w*(?:[.)]|$)")
 
 
 def is_live(failure_line: str) -> bool:
-    return any(name in failure_line for name in LIVE_TESTS)
+    return (any(name in failure_line for name in LIVE_TESTS)
+            or _LIVE_CLASS.search(failure_line) is not None)
 
 
 def blocks(is_live_test: bool, repeated: bool) -> bool:

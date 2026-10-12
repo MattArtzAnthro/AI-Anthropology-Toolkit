@@ -11,9 +11,11 @@ import os
 import re
 import unittest
 
-if os.environ.get("AAT_SKIP_LIVE_SCRAPERS"):
-    raise unittest.SkipTest(
-        "AAT_SKIP_LIVE_SCRAPERS set — skipping live YouTube queries")
+# The live classes skip when AAT_SKIP_LIVE_SCRAPERS is set; the offline
+# TestParseVideoId still runs, so CI keeps the one part that needs no network.
+SKIP_LIVE = unittest.skipIf(
+    os.environ.get("AAT_SKIP_LIVE_SCRAPERS"),
+    "AAT_SKIP_LIVE_SCRAPERS set — skipping live YouTube queries")
 
 from ai_anthro_toolkit.datasources import get_youtube_transcript, search_youtube
 from ai_anthro_toolkit.datasources.youtube import _parse_video_id
@@ -54,6 +56,7 @@ class TestParseVideoId(unittest.TestCase):
             _parse_video_id("not a video id")
 
 
+@SKIP_LIVE
 @unittest.skipUnless(HAVE_SCRAPETUBE, "scrapetube not installed")
 class TestSearchYouTubeLive(unittest.TestCase):
     def test_search_micro_run(self):
@@ -73,6 +76,7 @@ class TestSearchYouTubeLive(unittest.TestCase):
             self.assertTrue(rec["title"])
 
 
+@SKIP_LIVE
 @unittest.skipUnless(HAVE_TRANSCRIPT_API, "youtube-transcript-api not installed")
 class TestGetYouTubeTranscriptLive(unittest.TestCase):
     def test_ted_talk_transcript(self):

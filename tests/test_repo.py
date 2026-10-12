@@ -872,9 +872,9 @@ class TestRepoDocs(unittest.TestCase):
         the network for months while CI believed the switch covered them, and
         one transient DOI outage failed a push that had changed nothing.
 
-        Any gate counts. `TestApiModeLiveViaCli` is correctly gated on the
-        `claude` CLI being present rather than on this flag, because that is
-        what it actually depends on.
+        Any gate counts here. `TestApiModeLiveViaCli` is gated on the
+        AAT_RUN_LIVE_CLAUDE opt-in rather than on this flag, because it spends
+        real tokens; test_paid_cli_tests_need_an_explicit_opt_in holds that.
         """
         package_tests = REPO / "tests" / "package"
         ungated = []
@@ -895,6 +895,55 @@ class TestRepoDocs(unittest.TestCase):
             + ", ".join(ungated)
             + " — add @SKIP_LIVE (or a gate on what the test actually needs)",
         )
+
+    @staticmethod
+    def _paid_cli_ungated(paths):
+        """Test files that run `claude -p` without the explicit opt-in."""
+        offenders = []
+        for path in paths:
+            source = path.read_text(encoding="utf-8")
+            if '"claude", "-p"' in source and "AAT_RUN_LIVE_CLAUDE" not in source:
+                offenders.append(path.name)
+        return offenders
+
+    def test_paid_cli_tests_need_an_explicit_opt_in(self):
+        """A package test that shells out to `claude -p` spends real money.
+
+        Having the CLI on PATH is not consent: every developer machine has
+        it. Such a test must name the AAT_RUN_LIVE_CLAUDE opt-in.
+        """
+        paths = sorted((REPO / "tests" / "package").glob("test_*.py"))
+        self.assertEqual(self._paid_cli_ungated(paths), [])
+
+    def test_paid_cli_tripwire_can_fire(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            bad = Path(tmp) / "test_bad.py"
+            bad.write_text('import shutil\n'
+                           '@unittest.skipUnless(shutil.which("claude"), "")\n'
+                           'def f(): subprocess.run(["claude", "-p", "hi"])\n',
+                           encoding="utf-8")
+            self.assertEqual(self._paid_cli_ungated([bad]), ["test_bad.py"])
+
+    def test_ci_enforces_the_coverage_floor(self):
+        """The floor is only a floor if CI runs the report that applies it."""
+        pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+        floor = re.search(r"^fail_under\s*=\s*(\d+)", pyproject, re.M)
+        self.assertIsNotNone(floor, "pyproject.toml sets no coverage fail_under")
+        self.assertGreaterEqual(int(floor.group(1)), 80)
+        self.assertRegex(pyproject, r"(?m)^branch\s*=\s*true")
+        workflow = (REPO / ".github" / "workflows" / "validate.yml").read_text(
+            encoding="utf-8")
+        self.assertIn("coverage run -m unittest discover -s tests/package", workflow)
+        self.assertIn("coverage report", workflow)
+
+    def test_ci_runs_every_top_level_suite(self):
+        """A test file CI never runs protects nothing on push."""
+        workflow = (REPO / ".github" / "workflows" / "validate.yml").read_text(
+            encoding="utf-8")
+        for path in sorted((REPO / "tests").glob("test_*.py")):
+            with self.subTest(suite=path.stem):
+                self.assertIn(f"tests.{path.stem}", workflow)
 
     def test_claude_md_mcp_claim_accurate(self):
         text = (REPO / "CLAUDE.md").read_text(encoding="utf-8")

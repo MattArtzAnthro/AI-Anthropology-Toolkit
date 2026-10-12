@@ -119,6 +119,11 @@ trusts is worse than no build. That trade moves the check here rather than
 removing it: nothing else verifies that the registrars and scrapers still
 answer the way the toolkit expects.
 
+The api-mode job test in `tests/package/test_server_pipeline.py` is separate:
+it routes completions through `claude -p` and spends tokens, so it runs only
+when `AAT_RUN_LIVE_CLAUDE=1` is set, never because the CLI happens to be
+installed. Preflight does not set it.
+
 Run the live suites once, without the flag, before uploading:
 
 ```bash

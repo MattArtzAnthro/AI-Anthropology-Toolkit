@@ -189,7 +189,7 @@ def _description(skill: str) -> str:
     return match.group(1)
 
 
-def _load_vectors() -> dict[str, Counter]:
+def _load_vectors() -> tuple[dict[str, Counter], dict[str, float]]:
     docs = {skill: Counter(_tokens(_description(skill)))
             for skill in TRIGGER_PROMPTS}
     n = len(docs)

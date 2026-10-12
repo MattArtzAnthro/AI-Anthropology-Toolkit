@@ -59,8 +59,10 @@ def search_google_scholar(query: str, limit: int = 5,
     """
     try:
         from scholarly import scholarly
-    except ImportError:
-        raise RuntimeError(_INSTALL_MSG) from None
+    except ImportError as e:
+        # Name the cause too: an installed but broken scholarly (it once
+        # broke against bibtexparser 2) is not fixed by reinstalling the extra.
+        raise RuntimeError(f"{_INSTALL_MSG} (import failed: {e})") from None
 
     limit = max(1, min(int(limit), 20))
     search_kwargs = {}

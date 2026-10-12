@@ -10,10 +10,13 @@ alive would reintroduce the stale copy the mirror tests exist to catch.
 content: it says the generator was run before the commit.
 """
 
+import contextlib
+import io
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from scripts import sync_codex_mirror as mirror
 
@@ -92,6 +95,76 @@ class Generator(unittest.TestCase):
         (self.source / "references" / "notes.md").write_text("x\n", encoding="utf-8")
         mirror.sync(self.source, self.plugin)
         self.assertFalse((self.plugin / "references").exists())
+
+
+class CommandLine(unittest.TestCase):
+    """`main()` against a throwaway repository, so nothing real is rewritten."""
+
+    def setUp(self):
+        self.repo = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.repo, ignore_errors=True)
+        self.source = self.repo / "skills"
+        self.plugin = self.repo / "plugins" / "ai-anthropology"
+        (self.source / "alpha").mkdir(parents=True)
+        (self.source / "alpha" / "SKILL.md").write_text("alpha\n", encoding="utf-8")
+        (self.plugin / "skills").mkdir(parents=True)
+        (self.repo / ".mcp.json").write_text('{"pin": "1.0.0"}\n', encoding="utf-8")
+        for name, value in (("REPO", self.repo), ("SOURCE_SKILLS", self.source),
+                            ("PLUGIN", self.plugin),
+                            ("PLUGIN_SKILLS", self.plugin / "skills")):
+            patcher = mock.patch.object(mirror, name, value)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def run_main(self, *argv):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = mirror.main(list(argv))
+        return code, out.getvalue(), err.getvalue()
+
+    def test_check_fails_on_drift_and_writes_nothing(self):
+        code, _, err = self.run_main("--check")
+        self.assertEqual(code, 1)
+        self.assertIn("missing from the plugin: skills/alpha", err)
+        self.assertIn("missing from the plugin: .mcp.json", err)
+        self.assertFalse((self.plugin / "skills" / "alpha").exists())
+
+    def test_sync_then_check_passes(self):
+        code, out, _ = self.run_main()
+        self.assertEqual(code, 0)
+        self.assertIn("wrote skills/alpha", out)
+        self.assertIn("wrote .mcp.json", out)
+        self.assertEqual(self.run_main("--check")[0], 0)
+        code, out, _ = self.run_main()
+        self.assertIn("nothing written", out)
+
+    def test_a_changed_pin_is_drift(self):
+        self.run_main()
+        (self.repo / ".mcp.json").write_text('{"pin": "1.0.1"}\n', encoding="utf-8")
+        code, _, err = self.run_main("--check")
+        self.assertEqual(code, 1)
+        self.assertIn("content differs: .mcp.json", err)
+
+    def test_a_missing_source_file_is_reported(self):
+        self.run_main()
+        (self.repo / ".mcp.json").unlink()
+        code, _, err = self.run_main("--check")
+        self.assertEqual(code, 1)
+        self.assertIn("source file is missing: .mcp.json", err)
+
+    def test_no_source_skills_is_an_error(self):
+        shutil.rmtree(self.source)
+        code, _, err = self.run_main("--check")
+        self.assertEqual(code, 2)
+        self.assertIn("no source skills", err)
+
+    def test_unchanged_skills_are_not_rewritten(self):
+        self.run_main()
+        (self.source / "beta").mkdir()
+        (self.source / "beta" / "SKILL.md").write_text("beta\n", encoding="utf-8")
+        code, out, _ = self.run_main()
+        self.assertIn("wrote skills/beta", out)
+        self.assertNotIn("wrote skills/alpha", out)
 
 
 if __name__ == "__main__":

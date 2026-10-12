@@ -54,8 +54,10 @@ def get_google_trends(terms: str | list[str], timeframe: str = "today 12-m",
     if not terms:
         raise ValueError("Provide at least one search term.")
 
-    pytrends = TrendReq(hl="en-US", tz=0)
     try:
+        # Creating the client already contacts Google (it fetches cookies),
+        # so a block can surface here as well as in build_payload.
+        pytrends = TrendReq(hl="en-US", tz=0)
         pytrends.build_payload(kw_list=terms, geo=geo, timeframe=timeframe, cat=0)
     except Exception as e:
         raise RuntimeError(

@@ -1,19 +1,21 @@
 """End-to-end tests for the MCP server's analysis pipeline tools.
 
-Covers the delegated batch loop (scripted orchestrator responses) and, when
-the Claude CLI is available, a live api-mode coding job with completions
-routed through `claude -p`.
+Covers the delegated batch loop (scripted orchestrator responses) and, only
+when AAT_RUN_LIVE_CLAUDE=1 is set and the Claude CLI is available, a live
+api-mode coding job with completions routed through `claude -p`.
 
     python3.12 -m unittest tests.package.test_server_pipeline -v
 """
 
 import asyncio
 import json
+import os
 import shutil
 import subprocess
 import tempfile
 import time
 import unittest
+from unittest import mock
 
 import numpy as np
 
@@ -270,13 +272,42 @@ class TestThemesAndCrossLens(ServerTestBase):
         self.assertIn("mean_agreement", out)
 
 
-def _claude_cli_available() -> bool:
-    return shutil.which("claude") is not None
+LIVE_CLAUDE_ENV = "AAT_RUN_LIVE_CLAUDE"
 
 
-@unittest.skipUnless(_claude_cli_available(), "claude CLI not available")
+def _live_claude_enabled() -> bool:
+    """The live test spends real tokens, so having `claude` on PATH is not
+    enough: it runs only when AAT_RUN_LIVE_CLAUDE=1 is set as well."""
+    return (os.environ.get(LIVE_CLAUDE_ENV) == "1"
+            and shutil.which("claude") is not None)
+
+
+class TestPaidClaudeOptIn(unittest.TestCase):
+    def test_claude_on_path_alone_does_not_enable_the_paid_test(self):
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop(LIVE_CLAUDE_ENV, None)
+            with mock.patch.object(shutil, "which", return_value="/usr/bin/claude"):
+                self.assertFalse(_live_claude_enabled())
+
+    def test_opt_in_without_the_cli_stays_off(self):
+        with mock.patch.dict(os.environ, {LIVE_CLAUDE_ENV: "1"}):
+            with mock.patch.object(shutil, "which", return_value=None):
+                self.assertFalse(_live_claude_enabled())
+
+    def test_opt_in_with_the_cli_enables_it(self):
+        with mock.patch.dict(os.environ, {LIVE_CLAUDE_ENV: "1"}):
+            with mock.patch.object(shutil, "which", return_value="/usr/bin/claude"):
+                self.assertTrue(_live_claude_enabled())
+
+
+@unittest.skipUnless(_live_claude_enabled(),
+                     f"spends real tokens; set {LIVE_CLAUDE_ENV}=1 with the claude CLI on PATH")
 class TestApiModeLiveViaCli(ServerTestBase):
-    """Live api-mode job with completions routed through `claude -p`."""
+    """Live api-mode job with completions routed through `claude -p`.
+
+    Opt-in only: AAT_RUN_LIVE_CLAUDE=1 python3 -m unittest
+    tests.package.test_server_pipeline.TestApiModeLiveViaCli -v
+    """
 
     def test_api_mode_coding_job_live(self):
         def cli_llm(prompt, *, system=None, temperature=0.3, max_tokens=4096):
