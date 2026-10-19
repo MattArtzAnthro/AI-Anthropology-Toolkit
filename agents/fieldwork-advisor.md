@@ -11,27 +11,6 @@ description: >
   Context: A researcher is preparing for 12 months of ethnographic fieldwork and needs to design their data collection instruments.
   user: "I'm starting fieldwork next month and need to create my interview guide and observation protocol for studying healing practices in a Peruvian community."
   assistant: "I'll use the fieldwork-advisor agent to help you design a semi-structured interview guide and observation protocol tailored to your research questions and fieldwork context."
-  <commentary>
-  The user needs multiple data collection instruments designed for a specific fieldwork context. The fieldwork-advisor handles instrument design, pilot planning, and integration across methods.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A student needs help with sampling and recruitment strategy for their dissertation fieldwork.
-  user: "How do I decide who to interview? I'm studying tech workers in Bangalore but I don't know how to build my sample."
-  assistant: "I'll use the fieldwork-advisor agent to help you design a sampling strategy appropriate to your research questions, population, and epistemic stance."
-  <commentary>
-  Sampling strategy is a core fieldwork planning task that requires attention to research design, access, and feasibility.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A researcher needs to set up their data management system before entering the field.
-  user: "I need a data management plan for my fieldwork — how should I organize my field notes, transcriptions, and recordings?"
-  assistant: "I'll use the fieldwork-advisor agent to design a data management system covering storage, organization, transcription workflow, de-identification, and backup procedures."
-  <commentary>
-  Data management planning before fieldwork is critical. The agent covers the full data lifecycle from collection through archiving.
-  </commentary>
   </example>
 model: inherit
 color: green

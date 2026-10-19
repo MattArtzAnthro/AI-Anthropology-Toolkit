@@ -6,6 +6,10 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 
 ## Codex Plugin
 
+### 1.35.1 — 2026-10-19
+- Trims agent descriptions to one example each, without commentary, so the
+  installed agents fit Claude Code's agent-description token budget.
+
 ### 1.35.0 — 2026-10-12
 - Installs the MCP server as `ai-anthropology-toolkit[data,api]==3.9.0`. Api mode
   now needs an explicit `AAT_MODE=api` in the server's environment; delegated

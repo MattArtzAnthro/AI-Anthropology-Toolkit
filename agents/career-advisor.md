@@ -11,27 +11,6 @@ description: >
   Context: A PhD candidate is preparing applications for tenure-track positions.
   user: "I'm going on the job market this fall and need to prepare my full application package — CV, cover letter, and statements."
   assistant: "I'll use the career-advisor agent to help you build your complete application package, coordinating across your CV, cover letter, research statement, teaching statement, and diversity statement for a coherent narrative."
-  <commentary>
-  Job market preparation requires coordinated materials that tell a consistent story. The career-advisor ensures all components reinforce each other.
-  </commentary>
-  </example>
-
-  <example>
-  Context: An assistant professor is preparing their tenure file.
-  user: "I need to write my tenure narrative and update my CV for my third-year review."
-  assistant: "I'll use the career-advisor agent to help you draft your tenure narrative and recalibrate your CV to emphasize the trajectory and impact that tenure committees evaluate."
-  <commentary>
-  Tenure materials require different framing than job market materials — the agent calibrates to career stage and evaluation context.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A new faculty member is designing their first course.
-  user: "I'm teaching Introduction to Cultural Anthropology for the first time next semester. I need a syllabus and some lesson plans."
-  assistant: "I'll use the career-advisor agent to help you design your course using backward design principles, create a syllabus, and develop lesson plans for key class sessions."
-  <commentary>
-  Course design is a career development task — new faculty often need structured guidance on syllabus design, assignment creation, and lesson planning.
-  </commentary>
   </example>
 model: inherit
 color: yellow

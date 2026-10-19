@@ -14,27 +14,6 @@ description: >
   Context: A researcher needs to submit an abstract for the AAA annual meeting.
   user: "I need to write my AAA abstract — it's a 250-word individual paper for the anthropology of technology section."
   assistant: "I'll use the dissemination-advisor agent to help you draft a 250-word AAA abstract that effectively communicates your argument within the word limit."
-  <commentary>
-  AAA abstracts have strict conventions (250 words, specific structure). The dissemination-advisor provides format-specific guidance.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A researcher wants to write an op-ed about their findings for a general audience.
-  user: "I want to write a piece for The Conversation about my research on food sovereignty. How do I translate my academic findings for a public audience?"
-  assistant: "I'll use the dissemination-advisor agent to help you translate your research into a public-facing article, adapting your register, structure, and evidence presentation for a non-academic audience."
-  <commentary>
-  Register translation from academic to public writing is a specialized skill. The agent handles the craft of making research accessible without oversimplifying.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A researcher is preparing a 20-minute conference talk with slides.
-  user: "I have a 20-minute slot at AAA and I need to design my slides and speaker notes."
-  assistant: "I'll use the dissemination-advisor agent to help you design a slide deck using the assertion-evidence model and create timed speaker notes for your 20-minute talk."
-  <commentary>
-  Conference presentation design combines visual design (slides/posters) with oral delivery preparation. The agent covers both.
-  </commentary>
   </example>
 model: inherit
 color: magenta

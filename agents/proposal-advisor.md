@@ -15,27 +15,6 @@ description: >
   Context: A PhD student is writing an NSF CA-DDRIG proposal for dissertation fieldwork.
   user: "I need to write my NSF DDRIG proposal. I have my research plan but I'm struggling with the project description and broader impacts."
   assistant: "I'll use the proposal-advisor agent to help you structure your NSF CA-DDRIG project description and broader impacts statement following NSF-specific requirements and conventions."
-  <commentary>
-  NSF CA-DDRIG has specific formatting, page limits, and evaluation criteria. The proposal-advisor provides funder-specific guidance that goes beyond generic grant writing advice.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A researcher is writing their dissertation prospectus for committee review.
-  user: "My prospectus defense is in two months and I need help structuring the document. My department wants 20-25 pages."
-  assistant: "I'll use the proposal-advisor agent to help you structure your prospectus with the right section architecture, length calibration, and committee-oriented framing."
-  <commentary>
-  Prospectus development requires section-by-section guidance calibrated to institutional norms. The agent handles structure, content, and strategic framing.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A postdoc is applying for a Wenner-Gren Post-PhD Research Grant.
-  user: "I'm applying for a Wenner-Gren grant to extend my dissertation research into a new field site. Can you help with the application?"
-  assistant: "I'll use the proposal-advisor agent to guide your Wenner-Gren application, ensuring it meets their specific evaluation criteria and framing expectations."
-  <commentary>
-  Different funders have different expectations. The agent provides Wenner-Gren-specific guidance distinct from NSF or Fulbright conventions.
-  </commentary>
   </example>
 model: inherit
 color: yellow

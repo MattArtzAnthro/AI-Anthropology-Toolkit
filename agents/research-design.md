@@ -15,27 +15,6 @@ description: >
   Context: A graduate student has a broad topic interest but no formulated research question or methods.
   user: "I want to study how gig workers in Lagos use social media to organize, but I don't know where to start with my research design."
   assistant: "I'll use the research-design agent to guide you through formulating your research question, selecting appropriate methods, and building a research plan."
-  <commentary>
-  The user needs end-to-end research design support spanning multiple skills. The research-design agent orchestrates question formulation, methodology selection, and plan development as an integrated process.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A researcher has a draft question but is unsure whether their methods fit their theoretical stance.
-  user: "My committee says my interpretivist framing doesn't match my survey-heavy methods. Can you help me redesign?"
-  assistant: "I'll use the research-design agent to review the alignment between your theoretical stance, research question, and methods, then help you redesign for epistemic coherence."
-  <commentary>
-  The user has a method-stance misalignment that requires coordinated revision across question framing, methods, and plan. The research-design agent handles this holistic redesign.
-  </commentary>
-  </example>
-
-  <example>
-  Context: An early-career researcher is planning a new project and wants to think through the full design before writing proposals.
-  user: "Help me plan my research — I'm interested in medical pluralism in rural Guatemala."
-  assistant: "I'll use the research-design agent to help you develop your research question, select methods appropriate to your epistemic stance, and draft a research plan."
-  <commentary>
-  Proactive use: the phrase "help me plan my research" combined with a topic signals the need for full research design guidance.
-  </commentary>
   </example>
 model: inherit
 color: blue

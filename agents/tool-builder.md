@@ -15,36 +15,6 @@ description: >
   Context: A researcher needs an instrument no shipped notebook covers.
   user: "The archive I work with has no API and I need to pull 4,000 case files out of it."
   assistant: "I'll use the tool-builder agent to specify this with you before any code is written, starting with which steps a rule can settle and which need your judgment on every record."
-  <commentary>
-  A bespoke instrument for one source. The sort comes first, because deciding what counts as the same case file is judgment rather than a rule, and that is the step most likely to be automated by mistake.
-  </commentary>
-  </example>
-
-  <example>
-  Context: Someone has code a model produced and no way to check it.
-  user: "The model wrote me a script that cleans my interview metadata but I have no idea if it is doing the right thing."
-  assistant: "I'll use the tool-builder agent to reconstruct the specification the script should have had, establish what would count as correct here, and check the script against it."
-  <commentary>
-  Retrospective work. Every entry produced this way is marked as recognized after the fact rather than decided in advance, because a reconstructed record that reads as though the commitments were held all along is worse than no record.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A contributor wants to extend this toolkit.
-  user: "I want to add a skill for visual anthropology to the toolkit."
-  assistant: "I'll use the tool-builder agent, which reads skills/DESIGN.md as the governing conventions and treats the routing evals as the gate the new skill has to pass."
-  <commentary>
-  A toolkit artifact, where the conventions are written down and the tests can genuinely reject the work. The gate cannot judge whether the content is specific to the discipline, which stays with the contributor.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A working instrument failed mid-project.
-  user: "My scraper ran fine for months and now it crashes on the new records. Can you just patch it?"
-  assistant: "I'll use the tool-builder agent, which starts a repair by reproducing the failure as a check that fails for the observed reason — then patches, with the existing checks locked."
-  <commentary>
-  Repair re-enters the build discipline. The triage matters: an assertion failure means a defect, a setup error means the environment changed, and a reproduction that passes means the source may have changed — which is a specification question for the researcher, not a patch.
-  </commentary>
   </example>
 model: inherit
 color: cyan

@@ -21,45 +21,6 @@ description: >
   Context: A researcher has fieldwork data and needs to write their first journal article.
   user: "I've finished my fieldwork and I want to write an article for American Ethnologist. Where do I start?"
   assistant: "I'll use the writing-advisor agent to help you structure your article following American Ethnologist conventions, from outline through full draft."
-  <commentary>
-  First article writing requires end-to-end guidance: structure, voice, evidence integration, and journal-specific conventions. The writing-advisor handles the full arc.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A researcher received an R&R decision and needs help with the revision and rebuttal.
-  user: "I got an R&R from Cultural Anthropology with three reviewers. One loves it, one wants major theory changes, and one questions my methods. How do I handle the rebuttal?"
-  assistant: "I'll use the writing-advisor agent to help you draft a point-by-point rebuttal letter and plan your revisions, including strategies for handling contradictory reviewer feedback."
-  <commentary>
-  R&R management requires both review interpretation skills (academic-review) and writing craft (research-writing) working together.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A volume editor returned a chapter marked up in Word.
-  user: "My editor sent the chapter back with 54 comments and a long email. I do not know where to start."
-  assistant: "I'll use the writing-advisor agent to read the email first, then pull the comments out of the file with the span each one points at, sort them by what each demands, and work the ones that carry judgment."
-  <commentary>
-  Feedback as document marks, not a reviewer report. manuscript-markup reads the anchors and sorts before any comment is answered, so 54 comments do not become 54 exchanges.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A publisher has sent typeset proofs of a chapter with a short turnaround.
-  user: "The press sent proofs of my chapter and I have five days. How do I check them?"
-  assistant: "I'll use the writing-advisor agent to compare the proof against your submitted manuscript word by word, check that your pseudonyms, quoted speech, and diacritics survived production, audit the citations, and produce a correction list you can send as it stands."
-  <commentary>
-  Proofs are a comparison task, not a reading task. proof-review runs the mechanical diff in full and routes what it cannot resolve to the author as a classification rather than approving anything on their behalf.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A graduate student is writing their dissertation methods chapter.
-  user: "I'm stuck on my methods chapter — I don't know how to write up participant observation as a method without it sounding vague."
-  assistant: "I'll use the writing-advisor agent to help you write a methods chapter that presents participant observation with the specificity and credibility that dissertation committees expect."
-  <commentary>
-  Methods writing for dissertations is a common pain point that requires discipline-specific craft knowledge.
-  </commentary>
   </example>
 model: inherit
 color: cyan

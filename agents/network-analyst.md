@@ -17,27 +17,6 @@ description: >
   Context: A researcher has finished a coding pass and wants to see how the codes relate.
   user: "I've coded all 40 interviews. Which codes tend to show up together?"
   assistant: "I'll use the network-analyst agent to build a code co-occurrence network from your coded records, read its communities and hubs, and show you the map."
-  <commentary>
-  Co-occurrence across chunks is the network of an analysis. The agent builds it, checks whether the communities are real before coloring by them, and reports what the ties mean.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A researcher suspects one informant is coded differently from the others.
-  user: "Is Ben talking about different things than everyone else?"
-  assistant: "I'll use the network-analyst agent to build the speaker-to-code network and read where Ben sits relative to the other speakers."
-  <commentary>
-  A two-mode network answers a comparative question about speakers without a table of counts; the agent says whether the difference is a finding or a coding artifact to check.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A committee asked how two theoretical lenses relate on the same corpus.
-  user: "Show me where the critical and interpretivist codings agree."
-  assistant: "I'll use the network-analyst agent to build a lens-agreement network from both coding passes and report the convergent and lens-specific regions."
-  <commentary>
-  Lens agreement is a network of lenses tied by shared codes per chunk; weak ties are the lens-specific findings the analysis-advisor's multi-lens work is looking for.
-  </commentary>
   </example>
 model: inherit
 color: cyan

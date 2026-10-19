@@ -12,27 +12,6 @@ description: >
   Context: A PhD student is preparing an IRB application for ethnographic fieldwork with undocumented migrants.
   user: "I need to write my IRB protocol for fieldwork with undocumented communities. I'm worried about the consent process and data security."
   assistant: "I'll use the ethics-reviewer agent to help you design an ethics protocol that addresses the specific risks of working with vulnerable populations, including consent approaches and data security planning."
-  <commentary>
-  The user needs both IRB protocol writing and consent process design for a sensitive population. The ethics-reviewer agent combines both skills for comprehensive ethics support.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A researcher received IRB feedback requesting revisions to their consent process.
-  user: "The IRB wants me to revise my consent forms — they said verbal consent isn't sufficient for my digital ethnography project."
-  assistant: "I'll use the ethics-reviewer agent to review the IRB feedback and help you redesign your consent process to satisfy the board while remaining appropriate for your research context."
-  <commentary>
-  IRB revision requests require coordinated work across protocol narrative and consent documents. The ethics-reviewer handles both.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A researcher is designing a study and wants to think through ethics proactively before submitting to the IRB.
-  user: "Can you review my research plan for ethics issues before I write my IRB application?"
-  assistant: "I'll use the ethics-reviewer agent to conduct a comprehensive ethics review of your research design, identifying risks and recommending appropriate protections."
-  <commentary>
-  Proactive ethics review before IRB submission — the agent identifies issues early rather than after institutional review.
-  </commentary>
   </example>
 model: inherit
 color: red

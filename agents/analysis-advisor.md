@@ -15,36 +15,6 @@ description: >
   Context: A researcher has finished fieldwork and has a corpus of interview transcripts to analyze.
   user: "I have 15 interview transcripts from my fieldwork and I don't know how to start analyzing them."
   assistant: "I'll use the analysis-advisor agent to guide you through the full analysis arc — segmenting your transcripts, building a codebook, coding, and constructing themes."
-  <commentary>
-  End-to-end qualitative analysis support. The analysis-advisor covers segmentation, codebook development, coding passes, and theme building as an integrated workflow.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A PhD student needs a codebook grounded in their theoretical framework.
-  user: "I need to build a codebook from my literature review before I start coding my data."
-  assistant: "I'll use the analysis-advisor agent to help you derive candidate codes from your sources, write five-part code entries, and validate the codebook for distinctness before you code."
-  <commentary>
-  Codebook development from literature is a distinct analysis task with its own quality checks. The analysis-advisor handles derivation, definition writing, and validation.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A researcher's committee wants the analysis run under more than one theoretical lens.
-  user: "My committee asked how my findings would change under a critical lens versus an interpretivist one. Can I actually compare that?"
-  assistant: "I'll use the analysis-advisor agent to design a multi-lens analysis — parallel lens-specific codebooks, per-lens coding passes, and a comparison of where the lenses converge, diverge, or conflict."
-  <commentary>
-  Multi-lens parallel analysis operationalizes epistemic pluralism. The analysis-advisor designs the comparison and interprets convergence, lens-specific, and friction findings.
-  </commentary>
-  </example>
-
-  <example>
-  Context: A researcher has confirmed themes and faces the "so what beyond the case" question.
-  user: "My themes are solid, but my committee keeps asking whether any of this generalizes beyond my fieldsite."
-  assistant: "I'll use the analysis-advisor agent to work out what kind of generalization your findings can support — analytic, transferable, or middle-range — and to build the warrant, scope conditions, and confidence statement that claim needs."
-  <commentary>
-  Moving from confirmed findings to a defensible broader claim is the analysis arc's exit. The analysis-advisor dispatches the ethnographic-generalization skill for the kind selection, warrant building, and claim record.
-  </commentary>
   </example>
 model: inherit
 color: blue
