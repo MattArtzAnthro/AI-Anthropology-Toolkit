@@ -54,6 +54,12 @@ TRIGGER_PROMPTS = {
         "help me write the methods chapter of my dissertation",
         "structure a journal article about my ethnographic findings",
     ],
+    "chicago-manual-of-style": [
+        "convert my footnotes to Chicago author-date",
+        "how do I cite my field notes and interviews in Chicago style",
+        "format my References Cited in AAA style for American Anthropologist",
+        "does the 18th edition of the Chicago Manual still require place of publication",
+    ],
     "review-anonymization": [
         "prepare an anonymous version of my manuscript for blind peer review",
         "remove my name and self-citations before double-blind review",

@@ -48,6 +48,7 @@ Research skills in the portable [SKILL.md format](https://agentskills.io) that a
 | manuscript-markup | Helps you work through a manuscript that came back marked up with comments. Reads each comment in place, sorts them, works through them, and drafts your reply letter. |
 | review-anonymization | Helps you prepare the anonymized copy of your manuscript for double-blind peer review. Keeps your full version as the master, swaps author names and self-citations for placeholders without rewording anything, finds the leaks a placeholder cannot fix, such as your fieldsite and fieldwork history or a grant number, clears the hidden metadata in your Word file, and searches the finished copy for anything that still names you. Never touches your participants' pseudonyms. |
 | proof-review | Helps you check a publisher's typeset proof against the manuscript you submitted. Compares them word by word, checks that your pseudonyms, quoted speech, and citations survived production, and writes the correction list you send back. |
+| chicago-manual-of-style | Helps you write, check, and convert citations in Chicago style. Covers author-date and notes and bibliography at the 18th edition, the edition changes that make old examples wrong, what "AAA style" means for a given venue, and how to cite field notes, interviews you conducted, archives, and participants' posts without identifying anyone their consent does not cover. |
 | conference-materials | Helps you prepare for a conference. Covers abstracts, slide decks, posters, speaker notes, and how you will deliver the talk. |
 | public-engagement | Helps you write for a general audience. Covers op-eds, blog posts, policy briefs, and community reports. |
 | job-materials | Helps you prepare your job market materials. Covers your CV, cover letter, job talk, and overall application strategy. |
@@ -68,7 +69,7 @@ cp -r AI-Anthropology-Toolkit/skills/qualitative-analysis AI-Anthropology-Toolki
 
 | Agent | Skills directory |
 |:------|:-----------------|
-| Claude Code | `~/.claude/skills/` (or install the plugin — all 28 at once) |
+| Claude Code | `~/.claude/skills/` (or install the plugin — all 29 at once) |
 | OpenAI Codex CLI | `~/.codex/skills/` |
 | Cursor | `~/.cursor/skills/` |
 | GitHub Copilot / VS Code | `~/.copilot/skills/` |
@@ -252,7 +253,7 @@ codex plugin marketplace add /absolute/path/to/AI-Anthropology-Toolkit
 codex plugin add ai-anthropology@personal
 ```
 
-Start a new Codex task after installation. The plugin includes all 28 portable research skills, a Codex-specific router, and the same exactly pinned 34-tool MCP server registration as the repository root.
+Start a new Codex task after installation. The plugin includes all 29 portable research skills, a Codex-specific router, and the same exactly pinned 34-tool MCP server registration as the repository root.
 
 ### Notebooks (Colab)
 

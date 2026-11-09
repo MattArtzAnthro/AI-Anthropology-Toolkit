@@ -6,6 +6,11 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 
 ## Codex Plugin
 
+### 1.36.0 — 2026-11-09
+- Mirrors the new `chicago-manual-of-style` skill (29 portable research
+  skills) and the updated research-writing skill. The router names Chicago
+  citation form.
+
 ### 1.35.1 — 2026-10-19
 - Trims agent descriptions to one example each, without commentary, so the
   installed agents fit Claude Code's agent-description token budget.
@@ -443,6 +448,17 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.36.0 — 2026-11-09
+- Adds `chicago-manual-of-style`, the 29th skill: Chicago author-date and
+  notes and bibliography at the 18th edition, the 17th/18th changes that make
+  old examples wrong, what "AAA style" means for a venue, the citation
+  formatter's CSL styles and registrar artifacts (including the legacy form
+  the `american-anthropological-association` style renders), and citation of
+  field notes, interviews, archives, community knowledge, and participants'
+  posts within what consent covers. Tier 3 under Friction by Design. All
+  content is original; no publisher text is reproduced. writing-advisor draws
+  on it, research-writing points to it, and routing evals add four prompts.
 
 ### 1.35.0 — 2026-10-12
 - Installs the MCP server as `ai-anthropology-toolkit[data,api]==3.9.0`. Api mode

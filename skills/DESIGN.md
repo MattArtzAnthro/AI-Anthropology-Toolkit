@@ -273,6 +273,7 @@ The declarations, the table below, and the structural tests must agree.
 | public-engagement | 2 | Public words appear under the scholar's byline; the take and the consent scope are the scholar's |
 | job-materials | 3 | Genre mechanics over a factual record; honesty and voice guardrails already do the boundary work |
 | conference-materials | 3 | Compressions of an argument decided elsewhere; limits and formats are rule-checkable |
+| chicago-manual-of-style | 3 | Citation form is rule-checkable genre mechanics over a factual record; the fabrication and participant-naming guardrails do the boundary work, and how a participant may be named is routed to informed-consent rather than gated here |
 | teaching-materials | 3 | Instructor-corrected scaffolding; classroom iteration is the corrective loop |
 
 ### Standing checks over durable artifacts

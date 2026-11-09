@@ -220,7 +220,7 @@ Before presenting output, verify:
       hypothesis for bioanthro; material description for archaeology)
 - [ ] Word count is appropriate for the target venue
 - [ ] Ethics statement is included (IRB, consent, confidentiality)
-- [ ] Citations follow author-date format consistently
+- [ ] Citations follow author-date format consistently (for Chicago or a venue's AAA variant, use the `chicago-manual-of-style` skill)
 - [ ] No section is doing another section's work (findings don't contain
       discussion; discussion doesn't introduce new evidence)
 - [ ] Transitions between sections are explicit — the reader always knows

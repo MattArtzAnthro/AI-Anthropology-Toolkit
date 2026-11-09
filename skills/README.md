@@ -42,6 +42,7 @@ Skills are organized conceptually by research lifecycle phase. Each row is a sep
 | Peer Review | [Manuscript Markup & Editor Feedback](manuscript-markup/) | `manuscript-markup/` | Available |
 | Peer Review | [Review Anonymization](review-anonymization/) | `review-anonymization/` | Available |
 | Production | [Proof Review](proof-review/) | `proof-review/` | Available |
+| Writing | [Chicago Style for Anthropologists](chicago-manual-of-style/) | `chicago-manual-of-style/` | Available |
 | Conferences & Presentations | [Conference Materials & Presentations](conference-materials/) | `conference-materials/` | Available |
 | Public Engagement | [Public Engagement & Communication](public-engagement/) | `public-engagement/` | Available |
 | Teaching | [Teaching Materials](teaching-materials/) | `teaching-materials/` | Available |
