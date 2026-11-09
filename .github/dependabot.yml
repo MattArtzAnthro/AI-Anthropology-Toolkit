@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # The workflows pin each action to a commit SHA; this keeps the pins current.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # Wait a week after a release before proposing it, so a hijacked tag has time to be caught.
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
