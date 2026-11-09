@@ -54,13 +54,8 @@ def _registered_tools():
         for decorator in node.decorator_list:
             if not isinstance(decorator, ast.Call):
                 continue
-            func = decorator.func
-            if not (
-                isinstance(func, ast.Attribute)
-                and func.attr == "tool"
-                and isinstance(func.value, ast.Name)
-                and func.value.id == "mcp"
-            ):
+            # @mcp.tool(...) or the server's relaying wrapper, @_tool(...).
+            if ast.unparse(decorator.func) not in ("mcp.tool", "_tool"):
                 continue
             explicit = None
             for keyword in decorator.keywords:

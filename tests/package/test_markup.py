@@ -220,6 +220,27 @@ class TestTrackedChanges(unittest.TestCase):
         self.assertEqual(c["anchor"], "kept")
 
 
+class TestHostileXml(unittest.TestCase):
+    def test_a_dtd_in_utf16_is_refused(self):
+        # A byte search for "<!DOCTYPE" cannot see it in UTF-16.
+        from ai_anthro_toolkit import markup
+        doc = '<?xml version="1.0" encoding="UTF-16"?><!DOCTYPE d [<!ENTITY a "aaaa">]><d>&a;</d>'
+        with self.assertRaises(ValueError):
+            markup._parse_xml(doc.encode("utf-16"))
+
+    def test_ordinary_utf16_xml_still_parses(self):
+        from ai_anthro_toolkit import markup
+        doc = '<?xml version="1.0" encoding="UTF-16"?><d>ok</d>'
+        self.assertEqual(markup._parse_xml(doc.encode("utf-16")).text, "ok")
+
+    def test_a_dtd_after_a_long_prolog_is_still_refused(self):
+        from ai_anthro_toolkit import markup
+        padded = (b'<?xml version="1.0"?><!--' + b"x" * 8000 + b'-->'
+                  b'<!DOCTYPE d [<!ENTITY a "aaaa">]><d>&a;</d>')
+        with self.assertRaises(ValueError):
+            markup._parse_xml(padded)
+
+
 class TestSummary(unittest.TestCase):
     def test_counts_by_author_and_section(self):
         body = (

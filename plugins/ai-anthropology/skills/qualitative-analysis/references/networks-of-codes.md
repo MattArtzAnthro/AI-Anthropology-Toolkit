@@ -25,14 +25,17 @@ draw).
 
 ## The tools
 
-`build_network(records, kind)` takes the coding job's records
-(`get_job_result`) and builds `code_cooccurrence`, `speaker_code`, or
-`lens_agreement` (the last needs `results_by_lens`). `analyze_network(graph)`
+`build_network(job_id=..., kind=...)` reads a finished coding job's records
+on the server (or takes `records` directly) and builds `code_cooccurrence`,
+`speaker_code`, or `lens_agreement` (the last needs `results_by_lens`). It
+returns a `network_id`, and the other three tools take that ID, so the graph
+never has to pass through the conversation. `analyze_network(network_id=...)`
 lays it out, colors it by modularity community, sizes by degree, and returns
-a summary and a visual-QA reading. `view_network(graph)` shows it in chat
-where the host renders MCP Apps; otherwise draw `structuredContent` yourself.
-`export_network(graph, path)` writes GEXF, which opens in Gephi laid out and
-colored, and from there Gephi AI's full instrument applies.
+a summary and a visual-QA reading. `view_network(network_id=...)` shows it in
+chat where the host renders MCP Apps; otherwise draw `structuredContent`
+yourself. `export_network(path, network_id=...)` writes GEXF, which opens in
+Gephi laid out and colored, and from there Gephi AI's full instrument
+applies; it will not replace an existing file unless told to.
 
 ## Reading the map
 

@@ -156,8 +156,8 @@ def analyze_network(graph: dict, seed: int = 0, community_resolution: float = 1.
     weighted = dict(G.degree(weight="weight"))
     betweenness = nx.betweenness_centrality(G, weight=None, seed=seed) if n > 2 else {k: 0.0 for k in G}
     U = G.to_undirected() if G.is_directed() else G
-    parts = nx.community.louvain_communities(U, weight="weight", resolution=community_resolution, seed=seed) if m else [{k} for k in U]
-    parts = sorted((sorted(p) for p in parts), key=lambda p: (-len(p), p[0]))
+    found = nx.community.louvain_communities(U, weight="weight", resolution=community_resolution, seed=seed) if m else [{k} for k in U]
+    parts = sorted((sorted(p) for p in found), key=lambda p: (-len(p), p[0]))
     community = {k: i for i, p in enumerate(parts) for k in p}
     pos = nx.spring_layout(U, weight="weight", seed=seed, k=None)
     dmax = max(degree.values()) or 1

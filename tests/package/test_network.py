@@ -127,13 +127,34 @@ if __name__ == "__main__":
     unittest.main()
 
 
-class TestServerTools(unittest.TestCase):
+class _TempJobStore(unittest.TestCase):
+    """Network tools keep graphs in the job store; never the real one."""
+
+    def setUp(self):
+        import tempfile
+
+        from ai_anthro_toolkit.jobs import JobStore
+        from ai_anthro_toolkit.mcp import server
+        self._tmp = tempfile.mkdtemp()
+        self._old_jobs = server._jobs
+        server._jobs = JobStore(self._tmp)
+
+    def tearDown(self):
+        import shutil
+
+        from ai_anthro_toolkit.mcp import server
+        server._jobs = self._old_jobs
+        shutil.rmtree(self._tmp, ignore_errors=True)
+
+
+class TestServerTools(_TempJobStore):
 
     def test_view_network_returns_structured_content_for_the_app(self):
         from mcp.types import CallToolResult
 
         from ai_anthro_toolkit.mcp import server
-        graph = server.analyze_network(server.build_network(CODED))["graph"]
+        graph = server.analyze_network(server.build_network(CODED),
+                                       include_graph=True)["graph"]
         result = server.view_network(graph, title="Codes", caption_names={"0": "Money"})
         self.assertIsInstance(result, CallToolResult)
         self.assertFalse(result.is_error)
@@ -152,8 +173,88 @@ class TestServerTools(unittest.TestCase):
         from ai_anthro_toolkit.mcp import server
         self.assertTrue(server.view_network({"nodes": [], "edges": []}).is_error)
 
+    def test_network_id_carries_the_graph_between_tools(self):
+        from ai_anthro_toolkit.mcp import server
+        built = server.build_network(CODED)
+        self.assertEqual((built["node_count"], built["edge_count"]), (4, 3))
+        self.assertNotIn("graph", built)
+        analyzed = server.analyze_network(network_id=built["network_id"])
+        self.assertEqual(analyzed["network_id"], built["network_id"])
+        self.assertNotIn("graph", analyzed)
+        self.assertEqual(analyzed["summary"]["nodes"], 4)
+        view = server.view_network(network_id=built["network_id"])
+        self.assertFalse(view.is_error)
+        # The stored graph is the analyzed one: positions survive the round trip.
+        self.assertTrue(all("x" in n for n in view.structured_content["nodes"]))
 
-class TestBranding(unittest.TestCase):
+    def test_build_network_reads_a_coding_job(self):
+        from ai_anthro_toolkit.mcp import server
+        job_id = server._jobs.create("coding", {})
+        server._jobs.save_artifact(job_id, "result.json", json.dumps(CODED))
+        built = server.build_network(job_id=job_id)
+        self.assertEqual(built["node_count"], 4)
+
+    def test_lens_agreement_needs_no_records(self):
+        from ai_anthro_toolkit.mcp import server
+        built = server.build_network(kind="lens_agreement", results_by_lens={
+            "a": CODED, "b": CODED})
+        self.assertEqual(built["node_count"], 2)
+
+    def test_build_from_an_unfinished_job_is_refused(self):
+        from ai_anthro_toolkit.mcp import server
+        job_id = server._jobs.create("coding", {})
+        with self.assertRaises(ValueError) as ctx:
+            server.build_network(job_id=job_id)
+        self.assertIn("no result yet", str(ctx.exception))
+
+    def test_a_job_without_a_graph_is_not_a_network(self):
+        from ai_anthro_toolkit.mcp import server
+        job_id = server._jobs.create("coding", {})
+        with self.assertRaises(ValueError) as ctx:
+            server.analyze_network(network_id=job_id)
+        self.assertIn("holds no graph", str(ctx.exception))
+
+    def test_view_lays_out_an_unanalyzed_network(self):
+        from ai_anthro_toolkit.mcp import server
+        nid = server.build_network(CODED)["network_id"]
+        view = server.view_network(network_id=nid)
+        self.assertTrue(all("x" in n and "community" in n["attributes"]
+                            for n in view.structured_content["nodes"]))
+
+    def test_unknown_network_id_is_an_error(self):
+        from ai_anthro_toolkit.mcp import server
+        with self.assertRaises(ValueError):
+            server.analyze_network(network_id="network-0badc0de")
+        self.assertTrue(server.view_network(network_id="network-0badc0de").is_error)
+
+    def test_export_refuses_to_overwrite_and_reports_an_absolute_path(self):
+        import os
+        import tempfile
+
+        from ai_anthro_toolkit.mcp import server
+        nid = server.analyze_network(server.build_network(CODED))["network_id"]
+        with tempfile.TemporaryDirectory() as d:
+            target = os.path.join(d, "codes.gexf")
+            with open(target, "w") as fh:
+                fh.write("KEEP-ME")
+            with self.assertRaises(ValueError) as ctx:
+                server.export_network(target, network_id=nid)
+            self.assertIn("overwrite", str(ctx.exception))
+            with open(target) as fh:
+                self.assertEqual(fh.read(), "KEEP-ME")
+            out = server.export_network(target, network_id=nid, overwrite=True)
+            self.assertTrue(os.path.isabs(out["path"]))
+            self.assertEqual(out["nodes"], 4)
+            with open(target) as fh:
+                self.assertIn("<gexf", fh.read())
+            graphml = server.export_network(os.path.join(d, "codes.graphml"),
+                                            network_id=nid, fmt="graphml")
+            self.assertEqual(graphml["format"], "graphml")
+            with self.assertRaises(ValueError):
+                server.export_network(os.path.join(d, "missing", "x.gexf"), network_id=nid)
+
+
+class TestBranding(_TempJobStore):
     """Anything the toolkit draws in a chatbot carries the Matt Artz brand:
     monochrome chrome, the brand typefaces, and a credit that links back."""
 

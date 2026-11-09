@@ -35,7 +35,8 @@ def registered_tool_count() -> int:
         1
         for node in ast.walk(tree)
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-        and any("tool" in ast.unparse(d) for d in node.decorator_list)
+        and any(isinstance(d, ast.Call) and ast.unparse(d.func) in ("mcp.tool", "_tool")
+                for d in node.decorator_list)
     )
 
 # Current Anthropic model aliases. Dateless aliases only, so notebooks track

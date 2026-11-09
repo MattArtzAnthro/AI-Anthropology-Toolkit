@@ -8,12 +8,24 @@ driving model can process them batch by batch.
 
 import json
 import os
+import re
 import tempfile
 import time
 import uuid
 from pathlib import Path
 
 DEFAULT_ROOT = Path.home() / ".ai-anthro-toolkit" / "jobs"
+
+# What create() issues: a lowercase kind, a hyphen, eight hex digits. Anything
+# else came from a typo or an invention, and must not become a path.
+_JOB_ID = re.compile(r"[a-z][a-z_]*-[0-9a-f]{8}")
+_ID_HELP = ("Job IDs look like coding-1a2b3c4d and come back from "
+            "start_codebook_job, start_coding_job, or ratify_codebook; pass "
+            "the one those returned.")
+
+
+class UnknownJobError(ValueError):
+    """A well-formed job ID this store never issued (or has since lost)."""
 
 
 def _write_atomic(path: Path, content: str) -> None:
@@ -38,14 +50,27 @@ class JobStore:
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
 
-    def _dir(self, job_id: str) -> Path:
+    def _dir(self, job_id: str, create: bool = False) -> Path:
+        """The job's directory, refusing IDs this store did not issue.
+
+        Reads never create: a mistyped ID used to leave an empty directory
+        behind and surface a bare FileNotFoundError, and an ID containing
+        "../" reached outside the root.
+        """
+        if not isinstance(job_id, str) or not _JOB_ID.fullmatch(job_id):
+            raise ValueError(f"{job_id!r} is not a job ID. {_ID_HELP}")
         d = self.root / job_id
-        d.mkdir(parents=True, exist_ok=True)
+        if create:
+            d.mkdir(parents=True, exist_ok=True)
+        elif not (d / "job.json").is_file():
+            raise UnknownJobError(
+                f"No job {job_id!r} in this server's job store "
+                f"({self.root}). {_ID_HELP}")
         return d
 
     def create(self, kind: str, payload: dict) -> str:
         job_id = f"{kind}-{uuid.uuid4().hex[:8]}"
-        d = self._dir(job_id)
+        d = self._dir(job_id, create=True)
         _write_atomic(d / "job.json", json.dumps({
             "job_id": job_id,
             "kind": kind,

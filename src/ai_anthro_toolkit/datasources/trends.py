@@ -79,6 +79,7 @@ def get_google_trends(terms: str | list[str], timeframe: str = "today 12-m",
         ibr = None
 
     related = {term: {"top": [], "rising": []} for term in terms}
+    related_note = ""
     try:
         rq = pytrends.related_queries()
         for term in terms:
@@ -87,8 +88,11 @@ def get_google_trends(terms: str | list[str], timeframe: str = "today 12-m",
                 df = data.get(kind)
                 if df is not None and not df.empty:
                     related[term][kind] = json.loads(df.to_json(orient="records"))
-    except Exception:
-        pass  # related queries are frequently unavailable upstream
+    except Exception as exc:
+        # Related queries are often unavailable upstream; say so rather than
+        # return empty lists that read as "nobody searched anything related".
+        related_note = ("Related queries were unavailable from Google "
+                        f"({type(exc).__name__}); the empty lists are not data.")
 
     if (iot is None or iot.empty) and (ibr is None or ibr.empty):
         raise RuntimeError(
@@ -100,4 +104,5 @@ def get_google_trends(terms: str | list[str], timeframe: str = "today 12-m",
         "interest_over_time": _records(iot) if iot is not None and not iot.empty else [],
         "interest_by_region": _records(ibr) if ibr is not None and not ibr.empty else [],
         "related_queries": related,
+        **({"related_queries_note": related_note} if related_note else {}),
     }

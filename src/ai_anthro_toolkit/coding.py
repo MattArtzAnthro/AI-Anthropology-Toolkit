@@ -380,7 +380,7 @@ def _sample_chunks(records: list[dict], sample_size: int) -> list[dict]:
     k = min(sample_size, len(candidates))
     if k == len(candidates):
         return candidates
-    return random.Random(42).sample(candidates, k)
+    return random.Random(42).sample(candidates, k)  # reproducible, not security.  # nosec B311
 
 
 def code_chunks(chunks: list[dict], codebook: list[dict] | dict, *,

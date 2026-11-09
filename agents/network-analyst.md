@@ -32,10 +32,11 @@ the map stated plainly.
 1. Choose the network the question needs: code co-occurrence (which codes
    travel together), speaker-to-code (who voices what), or lens agreement
    (where lenses converge). Say which you chose and why.
-2. Build it with `build_network` from the coding job's records
-   (`get_job_result`), analyze it with `analyze_network`, show it with
-   `view_network` where the host renders MCP Apps, and offer `export_network`
-   (GEXF) when the researcher wants Gephi or Gephi AI.
+2. Build it with `build_network(job_id=...)` from the finished coding job,
+   then pass the returned `network_id` on: analyze it with
+   `analyze_network`, show it with `view_network` where the host renders MCP
+   Apps, and offer `export_network` (GEXF) when the researcher wants Gephi or
+   Gephi AI.
 3. Read the result: communities as candidate themes, bridges as candidates
    for splitting or for a theme of their own, isolates and components as
    findings to ask about before removing.

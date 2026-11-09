@@ -413,6 +413,17 @@ class TestTrendsParser(unittest.TestCase):
         self.assertEqual([r["geoName"] for r in out["interest_by_region"]], ["Poland"])
         self.assertEqual(out["related_queries"]["kinship"]["top"][0]["query"], "kinship terms")
         self.assertEqual(out["related_queries"]["reciprocity"], {"top": [], "rising": []})
+        self.assertNotIn("related_queries_note", out)
+
+    def test_unavailable_related_queries_are_flagged_not_silent(self):
+        import pandas as pd
+        iot = pd.DataFrame({"kinship": [40]}, index=pd.Index(["2024-01-07"], name="date"))
+        cls = self._fake_trendreq(iot=iot, related=None)  # related_queries raises
+        with self._patch(cls):
+            out = trends.get_google_trends("kinship")
+        self.assertEqual(out["related_queries"]["kinship"], {"top": [], "rising": []})
+        self.assertIn("related_queries_note", out)
+        self.assertIn("not data", out["related_queries_note"])
 
     def test_five_term_cap_and_empty_terms(self):
         import pandas as pd

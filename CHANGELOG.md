@@ -6,6 +6,12 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 
 ## Codex Plugin
 
+### 1.37.0 — 2026-11-09
+- Installs the MCP server as `ai-anthropology-toolkit[data,api]==3.10.0`:
+  job IDs are checked, error messages reach the model again, and networks
+  travel by `network_id`. The mirrored qualitative-analysis skill describes
+  the `network_id` flow.
+
 ### 1.36.0 — 2026-11-09
 - Mirrors the new `chicago-manual-of-style` skill (29 portable research
   skills) and the updated research-writing skill. The router names Chicago
@@ -36,6 +42,45 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 - Added repository-local marketplace metadata and a live-host release checklist covering first- and second-task discovery, MCP App resource discovery, desktop `uvx` resolution, and the resource-without-tools failure mode.
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
+
+### 3.10.0 — 2026-11-09
+- **Job IDs are checked.** A mistyped or invented job ID used to create an
+  empty directory in the job store, surface a bare `FileNotFoundError`, and,
+  with `../` in it, reach outside the store. `get_next_batch` answered a typo
+  with `done: true`, which reads as "finished". Every job tool now refuses an
+  ID the store did not issue, with an error that says what a real one looks
+  like. `compare_lenses` refuses a missing job instead of counting it as a
+  lens that coded nothing, which had skewed every agreement figure.
+- **Networks travel by ID.** `build_network` takes a coding `job_id` and
+  returns a `network_id`; `analyze_network`, `view_network`, and
+  `export_network` take it, so the graph no longer crosses the conversation
+  four times. `include_graph=true` returns it when wanted, and a graph dict
+  is still accepted. `export_network` refuses to replace an existing file
+  without `overwrite=true` and returns the absolute path it wrote.
+- **`start_coding_job` reads the ratified codebook itself.** Pass the
+  `ratification_id` alone; passing `codebook` still works and is still
+  checked against the ratified checksum.
+- **`get_job_result` pages** (`offset`, `limit`, default 100, with
+  `total` and `next_offset`), so a large coded dataset does not overrun a
+  client's tool-response cap. A coded result carries `coding_status_counts`
+  over every record, and `include_text=false` drops chunk text for tallying.
+- **Error messages reach the model again.** Since mcp 2.x the SDK forwards
+  an exception's text only for a `ToolError`; every `ValueError` and
+  `RuntimeError` this server raised (unknown lens, unratified codebook,
+  blocked scraper with its retry guidance) reached the model as a bare
+  "Error executing tool <name>". Tools now relay these anticipated errors;
+  programming errors still stay on the server.
+- **Schemas say what they accept.** Fixed value sets are enums (`sort`,
+  `kind`, `approach`, `llm_mode`, `fmt`, `corpus`, `category`), non-obvious
+  parameters carry descriptions, and every tool carries MCP annotations
+  (read-only, open-world, or destructive for `export_network`).
+- `get_google_trends` says when related queries were unavailable rather than
+  returning empty lists that read as data. The .docx reader refuses a DTD
+  anywhere in a part and in any encoding (an expat pre-pass, where the byte
+  search missed UTF-16 and anything past the first 4 KB).
+- Dependencies carry upper bounds below their next major version;
+  `pydantic` is declared. The gate and CI add mypy (core modules) and
+  bandit, check a minimum test count, and compare coverage unrounded.
 
 ### 3.9.0 — 2026-10-12
 - **Api mode needs an explicit opt-in.** The server used to switch to api
@@ -448,6 +493,12 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.37.0 — 2026-11-09
+- Registers the MCP server as `ai-anthropology-toolkit[data,api]==3.10.0`
+  (see the package entry). The network-analyst agent and the
+  qualitative-analysis skill build networks from a coding job's ID and pass
+  the returned `network_id` on, so graphs stay out of the conversation.
 
 ### 1.36.0 — 2026-11-09
 - Adds `chicago-manual-of-style`, the 29th skill: Chicago author-date and

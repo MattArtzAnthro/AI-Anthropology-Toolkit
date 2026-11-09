@@ -24,12 +24,17 @@ the server validates every submission against the codebook — keeping each
 interpretive move visible to, and contestable by, the researcher.
 """
 
+import functools
 import json
 import os
 import threading
+from pathlib import Path
+from typing import Annotated, Literal
 
 from mcp.server import MCPServer
-from mcp.types import CallToolResult, TextContent
+from mcp.server.mcpserver.exceptions import ToolError
+from mcp.types import CallToolResult, TextContent, ToolAnnotations
+from pydantic import Field
 
 from ai_anthro_toolkit import __version__
 from ai_anthro_toolkit import catalog as _catalog
@@ -43,6 +48,8 @@ from ai_anthro_toolkit import lenses as _lenses
 from ai_anthro_toolkit import markup as _markup
 from ai_anthro_toolkit import network as _network
 from ai_anthro_toolkit import themes as _themes
+from ai_anthro_toolkit._extras import MissingExtra
+from ai_anthro_toolkit.checks.cli import LoadError
 from ai_anthro_toolkit.datasources import format_citation as _format_citation
 from ai_anthro_toolkit.datasources import format_citation_batch as _format_batch
 from ai_anthro_toolkit.datasources import list_citation_styles as _citation_styles
@@ -71,7 +78,10 @@ mcp = MCPServer(
         "does a whole reference list in one call) — it formats "
         "registrar metadata and does not verify it, so pass results on "
         "as drafts to check against the source. "
-        "Networks: build_network turns coding output into a graph of codes, speakers, or lenses, analyze_network lays it out and reads it, view_network shows it in chat, and export_network writes GEXF for Gephi. "
+        "Networks: build_network turns a coding job into a graph of codes, "
+        "speakers, or lenses and returns a network_id; analyze_network lays it "
+        "out and reads it, view_network shows it in chat, and export_network "
+        "writes GEXF for Gephi, each taking that network_id. "
         "list_notebooks links Colab versions of "
         "these capabilities for users who want to run or customize them "
         "hands-on. Methodology: list_lenses / get_lens expose the 42-lens "
@@ -85,13 +95,69 @@ mcp = MCPServer(
         "complete each prompt -> submit_batch, then get_job_result. Coding is "
         "gated: present the codebook to the researcher as one table, ask one "
         "confirm-or-revise question, call ratify_codebook with what they "
-        "approved, and pass its ratification_id to start_coding_job — the "
-        "server refuses unratified codebooks. Never ratify on the "
+        "approved, and pass its ratification_id to start_coding_job (the "
+        "server holds the ratified codebook, so it need not be sent again) — "
+        "the server refuses unratified codebooks. Never ratify on the "
         "researcher's behalf."
     ),
 )
 
 _jobs = JobStore()
+
+# Since mcp 2.x the SDK forwards an exception's text to the model only when it
+# is a ToolError; anything else counts as a crash and the model reads just
+# "Error executing tool <name>". Every message this server writes for the
+# model (an unknown job, a blocked scraper, an unratified codebook) is one of
+# these anticipated types, so they are relayed at the MCP boundary. The Python
+# functions keep raising their own types for direct callers. Programming
+# errors (TypeError, KeyError, ...) still stay on the server.
+_RELAYED = (ValueError, RuntimeError, OSError, LoadError, MissingExtra)
+
+
+def _tool(**kwargs):
+    """Register a tool whose anticipated errors reach the model verbatim."""
+    def register(fn):
+        @functools.wraps(fn)
+        def relay(*args, **kw):
+            try:
+                return fn(*args, **kw)
+            except ToolError:
+                raise
+            except _RELAYED as exc:
+                raise ToolError(str(exc)) from exc
+        mcp.tool(**kwargs)(relay)
+        return fn
+    return register
+
+# Tool annotations. Hints, not guarantees: they tell a host which calls are
+# safe to run without asking. The jobs tools write only to the local job
+# store; their open-world reach depends on the mode, so it is left unstated.
+_LOCAL_READ = ToolAnnotations(read_only_hint=True, open_world_hint=False)
+_WEB_READ = ToolAnnotations(read_only_hint=True, open_world_hint=True)
+_LOCAL_WRITE = ToolAnnotations(read_only_hint=False, destructive_hint=False,
+                               open_world_hint=False)
+_JOB_WRITE = ToolAnnotations(read_only_hint=False, destructive_hint=False)
+_FILE_WRITE = ToolAnnotations(read_only_hint=False, destructive_hint=True,
+                              idempotent_hint=True, open_world_hint=False)
+
+# Parameter types shared by several tools, so each carries one description.
+LlmMode = Annotated[Literal["", "delegated", "api"], Field(
+    description="Leave empty. The server runs delegated unless the researcher "
+                "set AAT_MODE=api; never pass 'api' on their behalf.")]
+YearFrom = Annotated[int, Field(description="Earliest publication year; 0 for no lower bound.")]
+YearTo = Annotated[int, Field(description="Latest publication year; 0 for no upper bound.")]
+JobId = Annotated[str, Field(
+    description="An ID a start_* tool or ratify_codebook returned, e.g. coding-1a2b3c4d.")]
+LensKey = Annotated[str, Field(
+    description="A lens key from list_lenses, e.g. 'interpretive'; empty for none.")]
+NetworkId = Annotated[str, Field(
+    description="The network_id build_network returned, e.g. network-1a2b3c4d.")]
+GraphArg = Annotated[dict | None, Field(
+    description="A graph dict, for networks built outside this server. "
+                "Prefer network_id.")]
+IncludeGraph = Annotated[bool, Field(
+    description="Also return the full graph (nodes and edges). Off by default: "
+                "it is large, and network_id carries it between tools.")]
 
 
 # API mode spends the researcher's money, so it is never inferred from a key
@@ -164,7 +230,7 @@ def _save_provenance(job_id: str, artifact_class: str, labels: list,
 
 # --------------------------------------------------------------- discovery
 
-@mcp.tool()
+@_tool(annotations=_LOCAL_READ)
 def toolkit_info() -> dict:
     """Describe this server: version, tool families, and execution modes."""
     return {
@@ -220,10 +286,11 @@ def toolkit_info() -> dict:
     }
 
 
-@mcp.tool()
+@_tool(annotations=_WEB_READ)
 def search_openalex(query: str, limit: int = 10,
-                    year_from: int = 0, year_to: int = 0,
-                    venue: str = "", sort: str = "relevance",
+                    year_from: YearFrom = 0, year_to: YearTo = 0,
+                    venue: str = "",
+                    sort: Literal["relevance", "recent", "cited"] = "relevance",
                     open_access_only: bool = False) -> list[dict]:
     """Search OpenAlex for scholarly works across all disciplines.
 
@@ -239,9 +306,9 @@ def search_openalex(query: str, limit: int = 10,
                      open_access_only=open_access_only)
 
 
-@mcp.tool()
+@_tool(annotations=_WEB_READ)
 def search_crossref(query: str, limit: int = 10,
-                    year_from: int = 0, year_to: int = 0,
+                    year_from: YearFrom = 0, year_to: YearTo = 0,
                     journal: str = "") -> list[dict]:
     """Search CrossRef for published works (canonical DOI metadata, very current).
 
@@ -254,9 +321,9 @@ def search_crossref(query: str, limit: int = 10,
                      journal=journal or None)
 
 
-@mcp.tool()
+@_tool(annotations=_WEB_READ)
 def search_pubmed(query: str, limit: int = 10,
-                  year_from: int = 0, year_to: int = 0,
+                  year_from: YearFrom = 0, year_to: YearTo = 0,
                   journal: str = "") -> list[dict]:
     """Search PubMed for biomedical and health literature specifically.
 
@@ -270,7 +337,7 @@ def search_pubmed(query: str, limit: int = 10,
                    journal=journal or None)
 
 
-@mcp.tool()
+@_tool(annotations=_WEB_READ)
 def format_citation(doi: str, style: str = "apa",
                     locale: str = "en-US") -> dict:
     """Format one DOI as a finished citation in a named journal style.
@@ -293,7 +360,7 @@ def format_citation(doi: str, style: str = "apa",
     return _format_citation(doi, style=style, locale=locale)
 
 
-@mcp.tool()
+@_tool(annotations=_WEB_READ)
 def format_citation_batch(dois: list[str], style: str = "apa",
                           locale: str = "en-US") -> dict:
     """Format many DOIs at once — use this for a reference list, not a loop.
@@ -311,7 +378,7 @@ def format_citation_batch(dois: list[str], style: str = "apa",
     return _format_batch(dois, style=style, locale=locale)
 
 
-@mcp.tool()
+@_tool(annotations=_LOCAL_READ)
 def list_citation_styles(contains: str = "", limit: int = 50) -> dict:
     """Find exact CSL style names accepted by format_citation.
 
@@ -324,8 +391,9 @@ def list_citation_styles(contains: str = "", limit: int = 50) -> dict:
     return _citation_styles(contains=contains, limit=limit)
 
 
-@mcp.tool()
-def list_notebooks(category: str = "") -> list[dict]:
+@_tool(annotations=_LOCAL_READ)
+def list_notebooks(category: Literal["", "data_collection", "analysis", "text_analysis",
+                                    "multimodal"] = "") -> list[dict]:
     """List the toolkit's Colab notebooks — hands-on versions of these capabilities.
 
     The data-collection and analysis tools here run natively; point users at
@@ -337,7 +405,7 @@ def list_notebooks(category: str = "") -> list[dict]:
     return _catalog.list_notebooks(category)
 
 
-@mcp.tool()
+@_tool(annotations=_WEB_READ)
 def get_google_trends(terms: list[str] | str, timeframe: str = "today 12-m",
                       geo: str = "") -> dict:
     """Google Trends interest for up to five terms (relative 0-100 scale).
@@ -350,7 +418,7 @@ def get_google_trends(terms: list[str] | str, timeframe: str = "today 12-m",
     return _data.get_google_trends(terms, timeframe=timeframe, geo=geo)
 
 
-@mcp.tool()
+@_tool(annotations=_WEB_READ)
 def search_google_news(query: str, limit: int = 10, period: str = "7d",
                        country: str = "US", language: str = "en") -> list[dict]:
     """Search Google News. period examples: "1d", "7d", "1m", "6m", "1y".
@@ -361,9 +429,9 @@ def search_google_news(query: str, limit: int = 10, period: str = "7d",
                                     country=country, language=language)
 
 
-@mcp.tool()
+@_tool(annotations=_WEB_READ)
 def search_google_scholar(query: str, limit: int = 5,
-                          year_from: int = 0, year_to: int = 0) -> list[dict]:
+                          year_from: YearFrom = 0, year_to: YearTo = 0) -> list[dict]:
     """Search Google Scholar (unofficial; keep limits small, blocks fast).
 
     Returns title, authors, year, venue, cited_by_count, url for up to 20
@@ -374,7 +442,7 @@ def search_google_scholar(query: str, limit: int = 5,
                                        year_to=year_to or None)
 
 
-@mcp.tool()
+@_tool(annotations=_WEB_READ)
 def search_google_patents(query: str, limit: int = 10) -> list[dict]:
     """Search Google Patents for patent metadata.
 
@@ -385,9 +453,11 @@ def search_google_patents(query: str, limit: int = 10) -> list[dict]:
     return _data.search_google_patents(query, limit=limit)
 
 
-@mcp.tool()
+@_tool(annotations=_WEB_READ)
 def get_ngram_frequencies(terms: list[str] | str, year_from: int = 1900,
-                          year_to: int = 2022, corpus: str = "en",
+                          year_to: int = 2022,
+                          corpus: Literal["en", "en-fiction", "en-us", "en-gb", "fr", "de",
+                                          "es", "it", "zh", "he", "ru"] = "en",
                           case_insensitive: bool = False) -> list[dict]:
     """Historical word frequencies from Google Books Ngram (1800-2022).
 
@@ -399,7 +469,7 @@ def get_ngram_frequencies(terms: list[str] | str, year_from: int = 1900,
                                        case_insensitive=case_insensitive)
 
 
-@mcp.tool()
+@_tool(annotations=_WEB_READ)
 def search_youtube(query: str, limit: int = 10) -> list[dict]:
     """Search YouTube video metadata.
 
@@ -408,7 +478,7 @@ def search_youtube(query: str, limit: int = 10) -> list[dict]:
     return _data.search_youtube(query, limit=limit)
 
 
-@mcp.tool()
+@_tool(annotations=_WEB_READ)
 def get_youtube_transcript(video_id: str,
                            languages: list[str] | None = None) -> dict:
     """Fetch a YouTube video's transcript (accepts a URL or bare video ID).
@@ -420,7 +490,7 @@ def get_youtube_transcript(video_id: str,
     return _data.get_youtube_transcript(video_id, languages=languages)
 
 
-@mcp.tool()
+@_tool(annotations=_WEB_READ)
 def get_podcast_episodes(feed_url: str, limit: int = 50) -> list[dict]:
     """Pull episode metadata from any podcast RSS feed.
 
@@ -429,7 +499,7 @@ def get_podcast_episodes(feed_url: str, limit: int = 50) -> list[dict]:
     return _data.get_podcast_episodes(feed_url, limit=limit)
 
 
-@mcp.tool()
+@_tool(annotations=_LOCAL_READ)
 def list_lenses(query: str = "") -> list[dict]:
     """List the toolkit's 42 analytical lenses (epistemic stances).
 
@@ -446,8 +516,9 @@ def list_lenses(query: str = "") -> list[dict]:
     return out
 
 
-@mcp.tool()
-def get_lens(key: str) -> dict:
+@_tool(annotations=_LOCAL_READ)
+def get_lens(key: Annotated[str, Field(
+        description="A lens key or name from list_lenses, e.g. 'interpretive'.")]) -> dict:
     """Return one analytical lens in full, including its prompt modifier."""
     found = _lenses.find_lens(key)
     if not found:
@@ -458,7 +529,7 @@ def get_lens(key: str) -> dict:
 
 # --------------------------------------------------------------- chunking
 
-@mcp.tool()
+@_tool(annotations=_LOCAL_READ)
 def chunk_transcript(text: str = "", path: str = "",
                      similarity_threshold: float = 0.5,
                      max_sentences: int = 5, min_sentences: int = 1,
@@ -472,7 +543,11 @@ def chunk_transcript(text: str = "", path: str = "",
     compatible with start_coding_job.
     """
     if path and not text:
-        text = open(path, encoding="utf-8", errors="replace").read()
+        source = Path(path).expanduser()
+        if not source.is_file():
+            raise ValueError(f"No transcript file at {source.resolve()}. Pass an "
+                             "absolute path to a .txt file, or the text itself.")
+        text = source.read_text(encoding="utf-8", errors="replace")
         source_file = source_file or os.path.basename(path)
     if not text.strip():
         raise ValueError("Provide transcript text or a readable path.")
@@ -489,7 +564,7 @@ def chunk_transcript(text: str = "", path: str = "",
 
 # -------------------------------------------------------------- documents
 
-@mcp.tool()
+@_tool(annotations=_LOCAL_READ)
 def extract_document_markup(path: str) -> dict:
     """Read comments, their anchored spans, and tracked changes from a .docx.
 
@@ -505,9 +580,14 @@ def extract_document_markup(path: str) -> dict:
     return result
 
 
-@mcp.tool()
-def get_artifact_checks(path: str, kind: str = "",
-                        expect_distinct_codes: str = "") -> dict:
+@_tool(annotations=_LOCAL_READ)
+def get_artifact_checks(
+        path: Annotated[str, Field(description="Local path to a codebook or coded "
+                                               "dataset (.json or .csv), or a job "
+                                               "directory holding one.")],
+        kind: Annotated[Literal["", "codebook", "coded_data"], Field(
+            description="Empty to detect from the file.")] = "",
+        expect_distinct_codes: Literal["", "yes", "no"] = "") -> dict:
     """Run the standing checks over a codebook or a coded dataset.
 
     Run this without being asked whenever one of those artifacts is produced
@@ -569,9 +649,12 @@ def _run_api_job(job_id: str, worker) -> None:
     threading.Thread(target=_target, daemon=True).start()
 
 
-@mcp.tool()
-def start_codebook_job(documents: dict, lens_key: str,
-                       llm_mode: str = "", max_codes: int = 30,
+@_tool(annotations=_JOB_WRITE)
+def start_codebook_job(documents: Annotated[dict[str, str], Field(
+                           description="Document name -> full text.")],
+                       lens_key: Annotated[str, Field(
+                           description="A lens key from list_lenses, e.g. 'interpretive'.")],
+                       llm_mode: LlmMode = "", max_codes: int = 30,
                        extraction_focus: list[str] | None = None,
                        min_frequency: int = 2,
                        similarity_threshold: float = 0.85,
@@ -584,9 +667,10 @@ def start_codebook_job(documents: dict, lens_key: str,
     reasoning -> submit_batch; refinement then applies the deterministic steps
     (frequency filter, semantic dedup, example diversity, cap).
     """
-    if not _lenses.find_lens(lens_key):
-        raise ValueError(f"Unknown lens '{lens_key}'.")
-    lens_key = _lenses.find_lens(lens_key)[0]
+    found = _lenses.find_lens(lens_key)
+    if not found:
+        raise ValueError(f"Unknown lens '{lens_key}'. Use list_lenses to browse.")
+    lens_key = found[0]
     focus = list(extraction_focus or ("theoretical", "emergent"))
     options = {"max_codes": max_codes, "min_frequency": min_frequency,
                "similarity_threshold": similarity_threshold,
@@ -629,9 +713,12 @@ def start_codebook_job(documents: dict, lens_key: str,
             "next": "loop get_next_batch -> submit_batch, then get_job_result"}
 
 
-@mcp.tool()
+@_tool(annotations=_LOCAL_WRITE)
 def ratify_codebook(codebook: list[dict] | None = None,
-                    codebook_job_id: str = "", note: str = "") -> dict:
+                    codebook_job_id: Annotated[str, Field(
+                        description="A completed codebook job's ID, e.g. "
+                                    "codebook-1a2b3c4d.")] = "",
+                    note: str = "") -> dict:
     """Record the researcher's ratification of a codebook, enabling coding.
 
     A codebook governs a coding pass only after the researcher has ratified
@@ -681,21 +768,23 @@ def ratify_codebook(codebook: list[dict] | None = None,
             "next": "pass ratification_id to start_coding_job"}
 
 
-@mcp.tool()
-def start_coding_job(chunks: list[dict], codebook: list[dict],
-                     ratification_id: str = "",
-                     lens_key: str = "", llm_mode: str = "",
-                     approach: str = "deductive",
+@_tool(annotations=_JOB_WRITE)
+def start_coding_job(chunks: list[dict],
+                     codebook: list[dict] | None = None,
+                     ratification_id: Annotated[str, Field(
+                         description="The ratification_id ratify_codebook returned.")] = "",
+                     lens_key: LensKey = "", llm_mode: LlmMode = "",
+                     approach: Literal["deductive", "hybrid"] = "deductive",
                      research_context: dict | None = None) -> dict:
     """Start qualitative coding of transcript chunks against a ratified codebook.
 
-    `chunks` come from chunk_transcript; `codebook` is codebook records
-    (code_label + definition at minimum, e.g. from get_job_result of a
-    codebook job). `ratification_id` comes from ratify_codebook and is
-    required: an unratified codebook never governs a coding pass, and the
-    supplied codebook must match the ratified content (labels and
-    definitions) exactly. approach: deductive | hybrid (hybrid adds
-    inductive discovery; api mode only). In delegated mode each chunk
+    `chunks` come from chunk_transcript. `ratification_id` comes from
+    ratify_codebook and is required: an unratified codebook never governs a
+    coding pass. The server already holds the ratified codebook, so leave
+    `codebook` empty and it codes with exactly what the researcher approved.
+    If you do pass `codebook` records, they must match the ratified content
+    (labels and definitions) exactly. approach: deductive | hybrid (hybrid
+    adds inductive discovery; api mode only). In delegated mode each chunk
     becomes a work packet: complete the prompt, submit via submit_batch,
     and the server validates every returned code against the codebook.
     """
@@ -715,6 +804,13 @@ def start_coding_job(chunks: list[dict], codebook: list[dict],
             f"'{ratification_id}' carries no ratification record. Call "
             "ratify_codebook after the researcher has confirmed the "
             "codebook, and pass the ratification_id it returns.")
+    if not codebook:
+        codebook = _load_records(ratification_id, "result.json")
+        if not codebook:
+            raise ValueError(
+                f"Ratification '{ratification_id}' holds no codebook records. "
+                "Re-ratify with ratify_codebook, or pass the ratified "
+                "codebook records as `codebook`.")
     supplied = _codebook_checksum(list(codebook))
     if supplied != ratification["checksum"]:
         raise ValueError(
@@ -763,8 +859,10 @@ def start_coding_job(chunks: list[dict], codebook: list[dict],
             "next": "loop get_next_batch -> submit_batch, then get_job_result"}
 
 
-@mcp.tool()
-def get_next_batch(job_id: str, batch_size: int = 3) -> dict:
+@_tool(annotations=_LOCAL_READ)
+def get_next_batch(job_id: JobId,
+                   batch_size: Annotated[int, Field(description="Packets to return, 1 to 10.")] = 3
+                   ) -> dict:
     """Fetch the next work packets for a delegated job.
 
     Complete each packet's prompt yourself (you are the analyst's model),
@@ -779,8 +877,11 @@ def get_next_batch(job_id: str, batch_size: int = 3) -> dict:
             "remaining": len(pending), "done": not pending}
 
 
-@mcp.tool()
-def submit_batch(job_id: str, results: list[dict]) -> dict:
+@_tool(annotations=_LOCAL_WRITE)
+def submit_batch(job_id: JobId,
+                 results: Annotated[list[dict], Field(
+                     description='[{"id": <packet id>, "response": <your completion>}, ...]')]
+                 ) -> dict:
     """Submit completed work packets ({id, response} pairs) for a delegated job.
 
     Coding responses are parsed and every code is validated against the
@@ -791,7 +892,8 @@ def submit_batch(job_id: str, results: list[dict]) -> dict:
     state = _jobs.read(job_id)
     kind = state["kind"]
     done_ids = set(_load_records(job_id, "done_ids.json") or [])
-    accepted, rejected = [], []
+    accepted: list[dict] = []
+    rejected: list[dict] = []
 
     if kind == "coding":
         valid = state["payload"]["valid_codes"]
@@ -834,17 +936,17 @@ def submit_batch(job_id: str, results: list[dict]) -> dict:
                 label = _codebook.sanitize_code_label(str(code.get("label", "")))
                 if not label:
                     continue
-                entry = merged.get(label) or CodeEntry(label=label)
-                entry.definition = entry.definition or str(code.get("definition", ""))
-                entry.extraction_type = _codebook.normalize_extraction_type(
+                code_entry = merged.get(label) or CodeEntry(label=label)
+                code_entry.definition = code_entry.definition or str(code.get("definition", ""))
+                code_entry.extraction_type = _codebook.normalize_extraction_type(
                     code.get("extraction_type", "emergent"))
-                entry.frequency += 1
-                if doc_name not in entry.source_documents:
-                    entry.source_documents.append(doc_name)
+                code_entry.frequency += 1
+                if doc_name not in code_entry.source_documents:
+                    code_entry.source_documents.append(doc_name)
                 ex = code.get("example")
                 if ex:
-                    entry.examples.append({"text": str(ex)[:300], "source": doc_name})
-                merged[label] = entry
+                    code_entry.examples.append({"text": str(ex)[:300], "source": doc_name})
+                merged[label] = code_entry
             done_ids.add(pid)
             accepted.append({"id": pid, "codes_parsed": len(parsed)})
         _jobs.save_artifact(job_id, "entries.json", json.dumps(
@@ -877,8 +979,8 @@ def submit_batch(job_id: str, results: list[dict]) -> dict:
             "remaining": max(0, remaining)}
 
 
-@mcp.tool()
-def get_job_status(job_id: str) -> dict:
+@_tool(annotations=_LOCAL_READ)
+def get_job_status(job_id: JobId) -> dict:
     """Progress and state for a job (processed, total, pct, status)."""
     status = _jobs.status(job_id)
     state = _jobs.read(job_id)
@@ -887,12 +989,26 @@ def get_job_status(job_id: str) -> dict:
     return status
 
 
-@mcp.tool()
-def get_job_result(job_id: str) -> dict:
+@_tool(annotations=_LOCAL_READ)
+def get_job_result(job_id: JobId,
+                   offset: Annotated[int, Field(description="First record to return.")] = 0,
+                   limit: Annotated[int, Field(
+                       description="Most records to return, 1 to 500.")] = 100,
+                   include_text: Annotated[bool, Field(
+                       description="False drops each chunk's text, keeping IDs, "
+                                   "speakers, and codes: use it to count or tally.")] = True
+                   ) -> dict:
     """Final output of a completed job: codebook records or coded chunk records.
 
     A job that is still running or has failed is not ready, even when it has
     written a checkpoint: partial records are never returned as the result.
+    Records come a page at a time (`total`, `returned`, `next_offset`); a
+    coded dataset of many interviews runs to several pages. Tools that take a
+    coding job_id (build_themes, compare_lenses, build_network) read the
+    whole result themselves, so fetch pages only to show or quote records.
+    A coded dataset's result also carries `coding_status_counts` over all
+    records (No_Codes, Deductive_Only, ...), so a count needs no paging; to
+    tally codes record by record, pass include_text=false.
     """
     result = _load_records(job_id, "result.json")
     status = _jobs.status(job_id)
@@ -902,7 +1018,23 @@ def get_job_result(job_id: str) -> dict:
         if error:
             out["error"] = error
         return out
-    out = {"job_id": job_id, "ready": True, "records": result}
+    offset = max(0, offset)
+    page = result[offset:offset + max(1, min(limit, 500))]
+    if not include_text:
+        page = [{k: v for k, v in r.items() if k != "text"} for r in page]
+    out = {"job_id": job_id, "ready": True, "total": len(result),
+           "returned": len(page), "offset": offset}
+    statuses = [r.get("Coding_Status") for r in result if isinstance(r, dict)]
+    if any(statuses):
+        counts: dict[str, int] = {}
+        for s in statuses:
+            counts[str(s)] = counts.get(str(s), 0) + 1
+        out["coding_status_counts"] = counts
+    out["records"] = page
+    if offset + len(page) < len(result):
+        out["next_offset"] = offset + len(page)
+        out["note"] = (f"{len(result) - offset - len(page)} more records; call "
+                       f"again with offset={offset + len(page)}.")
     quality = _load_records(job_id, "quality.json")
     if quality:
         out["quality_report"] = quality
@@ -913,9 +1045,9 @@ def get_job_result(job_id: str) -> dict:
 
 # --------------------------------------------------------------- themes & lenses
 
-@mcp.tool()
-def build_themes(coded: list[dict] | None = None, job_id: str = "",
-                 lens_key: str = "", llm_mode: str = "",
+@_tool(annotations=_JOB_WRITE)
+def build_themes(coded: list[dict] | None = None, job_id: JobId = "",
+                 lens_key: LensKey = "", llm_mode: LlmMode = "",
                  response: str = "",
                  research_context: dict | None = None) -> dict:
     """Build themes from coded chunks.
@@ -951,7 +1083,7 @@ def build_themes(coded: list[dict] | None = None, job_id: str = "",
             "patterns": _themes.code_patterns(coded)}
 
 
-@mcp.tool()
+@_tool(annotations=_LOCAL_READ)
 def compare_lenses(results_by_lens: dict[str, list[dict]] | None = None,
                    job_ids: dict[str, str] | None = None,
                    friction_threshold: float = 0.3,
@@ -985,13 +1117,8 @@ def compare_lenses(results_by_lens: dict[str, list[dict]] | None = None,
                      for lens, jid in job_ids.items()}
         codebooks_by_lens = {lens: cb for lens, cb in codebooks.items()
                              if cb} or None
-        ratification_ids = {}
-        for lens, jid in job_ids.items():
-            try:
-                payload = _jobs.read(jid).get("payload", {})
-            except FileNotFoundError:
-                payload = {}
-            ratification_ids[lens] = payload.get("ratification_id", "")
+        ratification_ids = {lens: _jobs.read(jid).get("payload", {}).get(
+            "ratification_id", "") for lens, jid in job_ids.items()}
     if not results_by_lens or len(results_by_lens) < 2:
         raise ValueError("Provide coded results for at least two lenses.")
     result = _crosslens.compare_lenses(results_by_lens,
@@ -1005,10 +1132,48 @@ def compare_lenses(results_by_lens: dict[str, list[dict]] | None = None,
 
 # ─── Networks of coded material ─────────────────────────────────────────
 
-@mcp.tool()
-def build_network(records: list[dict], kind: str = "code_cooccurrence",
-                  min_weight: float = 1.0,
-                  results_by_lens: dict | None = None) -> dict:
+def _store_network(graph: dict, network_id: str = "") -> str:
+    if not network_id:
+        network_id = _jobs.create("network", {"kind": graph.get("kind", "")})
+        _jobs.complete(network_id)
+    _jobs.save_artifact(network_id, "graph.json", json.dumps(graph))
+    return network_id
+
+
+def _resolve_network(graph: dict | None, network_id: str) -> tuple[dict, str]:
+    """Find the graph a network tool should work on, by ID or by value.
+
+    A dict that carries only a network_id (what build_network and
+    analyze_network now return) resolves by ID, so callers that pass the
+    previous tool's whole output keep working.
+    """
+    if not network_id and graph and "nodes" not in graph and graph.get("network_id"):
+        network_id = graph["network_id"]
+    if network_id:
+        stored = _load_records(network_id, "graph.json")
+        if stored is None:
+            raise ValueError(f"Network '{network_id}' holds no graph. Build it "
+                             "again with build_network.")
+        return stored, network_id
+    if graph and "nodes" in graph:
+        return graph, ""
+    raise ValueError("Pass the network_id build_network returned (or a graph "
+                     "dict with nodes and edges).")
+
+
+@_tool(annotations=_LOCAL_WRITE)
+def build_network(records: Annotated[list[dict] | None, Field(
+                      description="Coded records. Prefer job_id.")] = None,
+                  job_id: Annotated[str, Field(
+                      description="A completed coding job's ID; its records are "
+                                  "read on the server.")] = "",
+                  kind: Literal["code_cooccurrence", "speaker_code",
+                                "lens_agreement"] = "code_cooccurrence",
+                  min_weight: Annotated[float, Field(
+                      description="Drop ties lighter than this after counting.")] = 1.0,
+                  results_by_lens: Annotated[dict | None, Field(
+                      description="{lens: coded records}; lens_agreement only.")] = None,
+                  include_graph: IncludeGraph = False) -> dict:
     """Build a network from coded records, without Gephi.
 
     kind "code_cooccurrence": nodes are codes; two codes are tied each time
@@ -1017,31 +1182,59 @@ def build_network(records: list[dict], kind: str = "code_cooccurrence",
     "speaker_code": two-mode, speakers tied to the codes they voice. kind
     "lens_agreement": lenses tied by the number of chunks on which they
     applied a common code (pass results_by_lens={lens: coded records}).
-    records are the coding job's output records (get_job_result), which carry
-    All_Codes / Deductive_Codes / Inductive_Codes and speaker. Returns a graph
-    dict to pass to analyze_network. Pure computation; nothing leaves the
-    process.
+    Give a coding `job_id` (preferred: the records never pass through the
+    conversation) or the coded `records` themselves. Returns a `network_id`
+    and node and edge counts; pass the network_id to analyze_network. Pure
+    computation; nothing leaves the process.
     """
-    return _network.build_network(records, kind=kind, min_weight=min_weight,
-                                  results_by_lens=results_by_lens)
+    if job_id and records is None:
+        records = _load_records(job_id, "result.json")
+        if records is None:
+            raise ValueError(f"Job '{job_id}' has no result yet; wait for "
+                             "get_job_status to report complete.")
+    if records is None and kind != "lens_agreement":
+        raise ValueError("Pass a coding job_id or the coded records.")
+    graph = _network.build_network(records or [], kind=kind, min_weight=min_weight,
+                                   results_by_lens=results_by_lens)
+    network_id = _store_network(graph)
+    out = {"network_id": network_id, "kind": kind,
+           "node_count": len(graph["nodes"]), "edge_count": len(graph["edges"]),
+           "next": "analyze_network(network_id=...)"}
+    if include_graph:
+        out["graph"] = graph
+    return out
 
 
-@mcp.tool()
-def analyze_network(graph: dict, seed: int = 0,
-                    community_resolution: float = 1.0) -> dict:
+@_tool(annotations=_LOCAL_WRITE)
+def analyze_network(graph: GraphArg = None, network_id: NetworkId = "",
+                    seed: Annotated[int, Field(
+                        description="Layout and community seed; same seed, same result.")] = 0,
+                    community_resolution: Annotated[float, Field(
+                        description="Louvain resolution; above 1 gives more, "
+                                    "smaller communities.")] = 1.0,
+                    include_graph: IncludeGraph = False) -> dict:
     """Lay out, size, color, and read a network built by build_network.
 
-    Returns the graph with positions, sizes by degree, colors by modularity
-    community, and degree, weighted degree, betweenness, and community on
-    every node; a summary (density, components, isolates, community sizes,
-    top nodes, a one-sentence reading); and the visual-QA reading Gephi AI
-    uses (warnings and whether the community partition is topologically
-    real). The reading describes hub dominance as a property of this network
-    and never calls a distribution scale-free. Deterministic for a seed. Pass
-    the returned graph to view_network or export_network.
+    Lays the graph out, sizes nodes by degree, colors them by modularity
+    community, and records degree, weighted degree, betweenness, and
+    community on every node. Returns a summary (density, components,
+    isolates, community sizes, top nodes, a one-sentence reading) and the
+    visual-QA reading Gephi AI uses (warnings and whether the community
+    partition is topologically real). The reading describes hub dominance as
+    a property of this network and never calls a distribution scale-free.
+    Deterministic for a seed. The analyzed graph is kept under the same
+    network_id; pass it to view_network or export_network.
     """
-    return _network.analyze_network(graph, seed=seed,
-                                    community_resolution=community_resolution)
+    source, network_id = _resolve_network(graph, network_id)
+    result = _network.analyze_network(source, seed=seed,
+                                      community_resolution=community_resolution)
+    network_id = _store_network(result["graph"], network_id)
+    out = {"network_id": network_id, "summary": result["summary"],
+           "visual": result["visual"],
+           "next": "view_network(network_id=...) or export_network(network_id=..., path=...)"}
+    if include_graph:
+        out["graph"] = result["graph"]
+    return out
 
 
 @mcp.resource("ui://ai-anthropology/network-view", name="network-view",
@@ -1051,21 +1244,29 @@ def network_view_resource() -> str:
     return _network.build_app_html()
 
 
-@mcp.tool(name="view_network", meta={"ui": {"resourceUri": "ui://ai-anthropology/network-view"}})
-def view_network(graph: dict, title: str = "Code network",
-                 caption_names: dict[str, str] | None = None) -> CallToolResult:
+@_tool(name="view_network", annotations=_LOCAL_READ,
+          meta={"ui": {"resourceUri": "ui://ai-anthropology/network-view"}})
+def view_network(graph: GraphArg = None, network_id: NetworkId = "",
+                 title: str = "Code network",
+                 caption_names: Annotated[dict[str, str] | None, Field(
+                     description='Community number -> name, e.g. {"0": "Care work"}.')] = None
+                 ) -> CallToolResult:
     """Show an analyzed network as an interactive map in chat (MCP App).
 
-    Pass the graph returned by analyze_network. Hosts that render MCP Apps
-    (Claude Desktop, claude.ai) show the map inline: pan, zoom, hover a node's
-    neighborhood, search, a legend of communities to click, and "Ask about
-    it" on a node. caption_names labels communities ({"0": "Care work"}).
-    If no visual appears in this client, render structuredContent yourself
-    as an interactive visualization: every node carries x, y, size, color,
-    label, and attributes. Keep the node colors (they encode communities),
-    use monochrome chrome, and include the credit "AI Anthropology Toolkit
-    by Matt Artz" linked to https://www.mattartz.me.
+    Pass the network_id from analyze_network (an unanalyzed network is laid
+    out first). Hosts that render MCP Apps (Claude Desktop, claude.ai) show
+    the map inline: pan, zoom, hover a node's neighborhood, search, a legend
+    of communities to click, and "Ask about it" on a node. caption_names
+    labels communities. If no visual appears in this client, render
+    structuredContent yourself as an interactive visualization: every node
+    carries x, y, size, color, label, and attributes. Keep the node colors
+    (they encode communities), use monochrome chrome, and include the credit
+    "AI Anthropology Toolkit by Matt Artz" linked to https://www.mattartz.me.
     """
+    try:
+        graph, network_id = _resolve_network(graph, network_id)
+    except ValueError as exc:
+        return CallToolResult(content=[TextContent(type="text", text=str(exc))], is_error=True)
     nodes = graph.get("nodes") or []
     if not nodes:
         return CallToolResult(content=[TextContent(type="text", text="The graph has no nodes; build and analyze one first.")],
@@ -1082,13 +1283,30 @@ def view_network(graph: dict, title: str = "Code network",
     return CallToolResult(content=[TextContent(type="text", text=summary)], structured_content=structured)
 
 
-@mcp.tool()
-def export_network(graph: dict, path: str, fmt: str = "gexf") -> dict:
+@_tool(annotations=_FILE_WRITE)
+def export_network(path: Annotated[str, Field(
+                       description="Where to write, absolute or starting with ~, "
+                                   "e.g. ~/research/codes.gexf.")],
+                   network_id: NetworkId = "", graph: GraphArg = None,
+                   fmt: Literal["gexf", "graphml"] = "gexf",
+                   overwrite: Annotated[bool, Field(
+                       description="Replace a file already at path.")] = False) -> dict:
     """Write a network to GEXF (default) or GraphML with positions, sizes,
     and colors, so it opens in Gephi as a laid-out map and Gephi AI can take
-    it further. Writes the file at path. Returns path, format, and counts.
+    it further. Refuses to replace an existing file unless overwrite=true.
+    A relative path resolves against the server's working directory, so the
+    returned `path` is absolute: report that one. Returns path, format, and
+    counts.
     """
-    return _network.export_network(graph, path, fmt=fmt)
+    graph, _ = _resolve_network(graph, network_id)
+    target = Path(path).expanduser().resolve()
+    if target.exists() and not overwrite:
+        raise ValueError(f"{target} already exists. Ask the researcher before "
+                         "replacing it, then call again with overwrite=true, or "
+                         "choose another path.")
+    if not target.parent.is_dir():
+        raise ValueError(f"The folder {target.parent} does not exist.")
+    return _network.export_network(graph, str(target), fmt=fmt)
 
 
 def main() -> None:

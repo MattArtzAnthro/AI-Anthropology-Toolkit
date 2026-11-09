@@ -431,10 +431,12 @@ class TestCompareLensesFromJobs(ApiJobBase):
         self.assertEqual(set(rids), {"interpretive", "critical"})
         self.assertTrue(all(rids.values()))
 
-    def test_missing_job_is_tolerated_and_one_lens_is_refused(self):
+    def test_missing_job_is_refused_and_one_lens_is_refused(self):
+        # A missing job once counted as a lens that coded nothing, which
+        # skews every agreement figure without a word. It is an error now.
         a = self._coded_job("mutual_aid")
-        out = server.compare_lenses(job_ids={"interpretive": a, "critical": "coding-gone"})
-        self.assertEqual(out["vocabulary"]["ratification_ids"]["critical"], "")
+        with self.assertRaises(ValueError):
+            server.compare_lenses(job_ids={"interpretive": a, "critical": "coding-0000dead"})
         with self.assertRaises(ValueError):
             server.compare_lenses(results_by_lens={"only": []})
 

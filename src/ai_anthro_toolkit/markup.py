@@ -15,9 +15,10 @@ dependency to the package.
 from __future__ import annotations
 
 import re
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET  # DTDs are refused in _parse_xml.  # nosec B405
 import zipfile
 from collections import Counter
+from xml.parsers import expat  # Only to refuse DTDs.  # nosec B407
 
 _MAIN = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 _W14 = "http://schemas.microsoft.com/office/word/2010/wordml"
@@ -53,11 +54,38 @@ def _parse_xml(data: bytes):
     be parsed rather than read. `defusedxml` would close this too, at the
     cost of a dependency this module exists to avoid.
     """
-    if _DOCTYPE.search(data[:4096]):
+    if _DOCTYPE.search(data) or _declares_dtd(data):
         raise ValueError(
             "This document declares a DTD, which no .docx written by Word "
             "does. Refusing to parse it.")
-    return ET.fromstring(data)
+    # DTDs are refused above, so no entity expansion reaches the parser.
+    return ET.fromstring(data)  # nosec B314
+
+
+class _DoctypeSeen(Exception):
+    pass
+
+
+def _declares_dtd(data: bytes) -> bool:
+    """Ask expat itself, which decodes the document as the real parse will.
+
+    The byte search above is cheap but blind to other encodings: in UTF-16
+    "<!DOCTYPE" is not those bytes. Expat stops at the start of the doctype,
+    before any entity in it is declared, let alone expanded.
+    """
+    def seen(*_):
+        raise _DoctypeSeen
+
+    guard = expat.ParserCreate()
+    guard.StartDoctypeDeclHandler = seen
+    guard.EntityDeclHandler = seen
+    try:
+        guard.Parse(data, True)
+    except _DoctypeSeen:
+        return True
+    except expat.ExpatError:
+        return False  # malformed: ElementTree reports it as before
+    return False
 
 
 def _local(tag: str) -> str:
