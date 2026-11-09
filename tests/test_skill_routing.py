@@ -59,6 +59,7 @@ TRIGGER_PROMPTS = {
         "how do I cite my field notes and interviews in Chicago style",
         "format my References Cited in AAA style for American Anthropologist",
         "does the 18th edition of the Chicago Manual still require place of publication",
+        "my bibliography mixes ibid and full notes, make it consistent",
     ],
     "review-anonymization": [
         "prepare an anonymous version of my manuscript for blind peer review",
@@ -168,6 +169,15 @@ NEAR_MISS_PROMPTS = {
     "does my journal abstract name the fieldsite my manuscript pseudonymizes": "abstract-writing",
 }
 
+# Near misses for chicago-manual-of-style: each prompt belongs to a skill the
+# Chicago description names in its "Do NOT use" clause, and must not be
+# captured by it, because citation vocabulary is shared across all of them.
+CHICAGO_NEAR_MISS_PROMPTS = {
+    "check the citations in my typeset page proof against my manuscript": "proof-review",
+    "mask my self-citations before blind review": "review-anonymization",
+    "find and screen sources for my literature review": "literature-review",
+}
+
 STOPWORDS = frozenset(
     ("a an and are as at be but by for from has have how i in into is it my "
      "of on or should that the this to use used when whether which will "
@@ -253,6 +263,17 @@ class TestSkillRouting(unittest.TestCase):
                     f"top3: {[(s, round(v, 3)) for v, s in ranked[:3]]})")
         self.assertEqual(failures, [],
                          "near misses misrouted:\n" + "\n".join(failures))
+
+    def test_chicago_exclusions_route_elsewhere(self):
+        failures = []
+        for prompt, wanted in CHICAGO_NEAR_MISS_PROMPTS.items():
+            ranked = self._rank(prompt)
+            if ranked[0][1] != wanted:
+                failures.append(
+                    f"{prompt!r} -> {ranked[0][1]} (wanted {wanted}; "
+                    f"top3: {[(s, round(v, 3)) for v, s in ranked[:3]]})")
+        self.assertEqual(failures, [],
+                         "chicago near misses misrouted:\n" + "\n".join(failures))
 
     def test_no_two_descriptions_near_collide(self):
         skills = sorted(self.vectors)
