@@ -98,7 +98,9 @@ files = [
     "src/ai_anthro_toolkit/crosslens.py",
     "src/ai_anthro_toolkit/mcp/server.py",
     "src/ai_anthro_toolkit/network/__init__.py",
+    "src/ai_anthro_toolkit/brand.py",
     "src/ai_anthro_toolkit/checks",
+    "src/ai_anthro_toolkit/design",
 ]
 ignore_missing_imports = true
 follow_imports = "silent"

@@ -14,6 +14,8 @@ import re
 import statistics
 from importlib import resources
 
+from ai_anthro_toolkit import brand
+
 _PKG = "ai_anthro_toolkit.network.viewer"
 
 # Substitutions that turn the Gephi page into this package's page. Tool names
@@ -51,10 +53,8 @@ def build_app_html() -> str:
 # ── Matt Artz brand: monochrome chrome, brand typefaces, a credit that links back.
 # Data colors (node communities) are left alone: they encode the analysis and
 # must stay legible and colorblind-safe. Fonts fall back to system faces
-# because the sandboxed frame cannot reach Google Fonts.
-BRAND_URL = "https://www.mattartz.me"
-BRAND_CREDIT = "AI Anthropology Toolkit by Matt Artz"
-
+# because the sandboxed frame cannot reach Google Fonts. The credit and its link
+# come from ai_anthro_toolkit.brand.
 _BRAND_CSS = """
 <style id="brand">
   :root {
@@ -91,8 +91,8 @@ _BRAND_CSS = """
 """
 
 _BRAND_HTML = (
-    '<div id="credit"><a id="credit-link" href="' + BRAND_URL + '" target="_blank" rel="noopener">'
-    + BRAND_CREDIT + '</a></div>\n'
+    '<div id="credit"><a id="credit-link" href="' + brand.WEBSITE + '" target="_blank" rel="noopener">'
+    + brand.CREDIT + '</a></div>\n'
 )
 
 _BRAND_JS = """
@@ -106,7 +106,7 @@ _BRAND_JS = """
     }
   });
 </script>
-""" % BRAND_URL
+""" % brand.WEBSITE
 
 
 def _brand(html: str) -> str:

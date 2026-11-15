@@ -49,6 +49,20 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   palette in light and dark, Figtree, Source Serif 4 and Source Code Pro, and
   pill controls. The brand book, components and previews live in
   `design/system/`, the tree published as the claude.ai design system.
+  `ai_anthro_toolkit.design` serves them to code: `tokens()`, `tokens_css()`
+  (light on `:root`, dark under `prefers-color-scheme` or `data-theme`),
+  `stylesheet(fonts)`, `FONTS_URL` and `FONT_DOMAINS`, and `a2ui_css()`, which
+  sets an A2UI renderer's theme variables from the tokens.
+- `ai_anthro_toolkit.brand` holds the toolkit's identity: the credit, the
+  author and a one-sentence description, and the links to the website,
+  repository, citation DOI and ORCID (matching `CITATION.cff`). The network
+  viewer takes its credit from it; the page it renders is unchanged.
+  `brand.byline_html(version, full=)` renders the colophon a page ends with:
+  the credit linked to the website, "· v{version}" naming the version that
+  built the page, the description (with `full`), then Website, Toolkit on
+  GitHub, Cite (DOI) and ORCID. The design system's Byline component renders
+  the same colophon, and its description now sits on its own row at every
+  width.
 - `scripts/build_design_docs.py` builds `design/brand-spec.json` and
   `design/brand-guide.html` from the tokens, and stops if any colour pairing
   misses WCAG AA in either theme. `tests/test_design_docs.py` fails while

@@ -55,7 +55,7 @@ The palette is Harbor: navy for what you can do, on a cool grey page, with yello
 
 ## Identity
 
-The `Byline` is the toolkit's only branding: "AI Anthropology Toolkit by Matt Artz", the version, Cite (DOI), GitHub and mattartz.me. Every view ends with it. Don't add other marks or logos, and don't reword it. There is no logo; the name is set in type.
+The `Byline` is the toolkit's only branding: "AI Anthropology Toolkit by Matt Artz" linked to mattartz.me, then "· v{version}", then Website, Toolkit on GitHub, Cite (DOI) and ORCID; `full` adds the author's one-sentence description before the links. Every view ends with it. Don't add other marks or logos, and don't reword it. There is no logo; the name is set in type.
 
 ## Icons
 

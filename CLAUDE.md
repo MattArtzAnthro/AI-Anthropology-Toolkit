@@ -72,7 +72,7 @@ In environments with code execution but no MCP tools (agent sandboxes such as Cl
 
 ## Design System
 
-Every screen the toolkit shows uses one design system. `src/ai_anthro_toolkit/design/tokens.json` and `bundle.css` are the source and ship as package data; `design/system/` holds the brand book, the component JavaScript, types and previews, and is the tree published as the claude.ai design system. After changing the tokens, run `python scripts/build_design_docs.py --template PATH` with the brand-guide-builder plugin's `templates/brand-guide-template.html` to rebuild `design/brand-spec.json` and `design/brand-guide.html`; the build stops if any colour pairing misses WCAG AA, and `tests/test_design_docs.py` fails while either file is stale.
+Every screen the toolkit shows uses one design system. `src/ai_anthro_toolkit/design/tokens.json` and `bundle.css` are the source and ship as package data; `design/system/` holds the brand book, the component JavaScript, types and previews, and is the tree published as the claude.ai design system. Code takes the design system from `ai_anthro_toolkit.design`: `tokens_css()` for the colour, type, spacing and radius variables in both themes, `stylesheet(fonts)` for the components (`fonts=False` drops the Google Fonts import), and `a2ui_css()` to theme an A2UI renderer from the same tokens; never write a colour into a page. After changing the tokens, run `python scripts/build_design_docs.py --template PATH` with the brand-guide-builder plugin's `templates/brand-guide-template.html` to rebuild `design/brand-spec.json` and `design/brand-guide.html`; the build stops if any colour pairing misses WCAG AA, and `tests/test_design_docs.py` fails while either file is stale.
 
 ## Releasing
 

@@ -145,15 +145,20 @@
 
   var ABOUT = "Matt Artz is an AI anthropologist, designer, and technologist who works with AI to study, use, and contribute to the development and governance of AI, establishing AI anthropology as a field.";
   function Byline(p) {
-    var link = function (href, text) { return h("a", { href: href, target: "_blank", rel: "noopener" }, text); };
+    var link = function (href) {
+      return h.apply(null, ["a", { href: href, target: "_blank", rel: "noopener" }].concat(Array.prototype.slice.call(arguments, 1)));
+    };
     return h("footer", { className: "aat-byline" },
-      h("span", null, h("b", null, "AI Anthropology Toolkit"), " by Matt Artz"),
+      link("https://www.mattartz.me", h("b", null, "AI Anthropology Toolkit"), " by Matt Artz"),
+      p.version ? h("span", { className: "aat-byline__sep", "aria-hidden": "true" }, "·") : null,
       p.version ? h("span", { className: "aat-id" }, "v" + p.version) : null,
+      p.full ? h("p", { className: "aat-byline__about" }, ABOUT) : null,
+      link("https://www.mattartz.me", "Website"),
+      link("https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit", "Toolkit on GitHub"),
       link("https://doi.org/10.5281/zenodo.16728812", "Cite (DOI)"),
-      link("https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit", "GitHub"),
-      link("https://www.mattartz.me", "mattartz.me"),
-      p.full ? h("p", { className: "aat-byline__about" }, ABOUT) : null);
+      link("https://orcid.org/0000-0002-3822-1429", "ORCID"));
   }
+
 
   window.AAT = Object.assign(window.AAT || {}, { Button: Button, Status: Status, Step: Step, ChoiceGroup: ChoiceGroup, TextField: TextField, Passage: Passage,
     Provenance: Provenance, CodeTag: CodeTag, DecisionCard: DecisionCard, Notice: Notice, Tally: Tally, Progress: Progress, Stages: Stages, Table: Table, Byline: Byline });

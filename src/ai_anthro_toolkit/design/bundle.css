@@ -186,4 +186,5 @@ textarea.aat-input { min-height: 104px; resize: vertical; }
   font: 400 14px/22px var(--font-sans); color: var(--ink-muted); }
 .aat-byline b { color: var(--ink); font-weight: 600; }
 .aat-byline a { color: var(--action); text-underline-offset: 3px; }
-.aat-byline__about { flex-basis: 100%; max-width: var(--measure); text-wrap: balance; }
+/* The description owns its row; the padding keeps its lines to the measure. */
+.aat-byline__about { flex-basis: 100%; padding-inline-end: max(0px, 100% - var(--measure)); text-wrap: balance; }
