@@ -1,0 +1,334 @@
+[
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "desk",
+  "action": "build",
+  "detail": {
+   "stage": "codebook",
+   "cards": 6
+  },
+  "note": "",
+  "time": "2026-11-15T14:00:00Z",
+  "surface": "server",
+  "decided_by": "machine"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "code-01",
+  "action": "draft",
+  "detail": {
+   "label": "Shared labour"
+  },
+  "note": "",
+  "time": "2026-11-15T14:01:00Z",
+  "surface": "server",
+  "decided_by": "machine"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "code-02",
+  "action": "draft",
+  "detail": {
+   "label": "Charity framing"
+  },
+  "note": "",
+  "time": "2026-11-15T14:02:00Z",
+  "surface": "server",
+  "decided_by": "machine"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "code-03",
+  "action": "draft",
+  "detail": {
+   "label": "Land tenure"
+  },
+  "note": "",
+  "time": "2026-11-15T14:03:00Z",
+  "surface": "server",
+  "decided_by": "machine"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "code-04",
+  "action": "draft",
+  "detail": {
+   "label": "Food access"
+  },
+  "note": "",
+  "time": "2026-11-15T14:04:00Z",
+  "surface": "server",
+  "decided_by": "machine"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "code-05",
+  "action": "draft",
+  "detail": {
+   "label": "Volunteer burnout"
+  },
+  "note": "",
+  "time": "2026-11-15T14:05:00Z",
+  "surface": "server",
+  "decided_by": "machine"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "code-06",
+  "action": "draft",
+  "detail": {
+   "label": "Municipal relations"
+  },
+  "note": "",
+  "time": "2026-11-15T14:06:00Z",
+  "surface": "server",
+  "decided_by": "machine"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "code-01",
+  "action": "adopt",
+  "detail": {},
+  "note": "",
+  "time": "2026-11-15T14:07:00Z",
+  "surface": "app",
+  "decided_by": "researcher"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "code-02",
+  "action": "reword",
+  "detail": {
+   "definition": "Talk of giving to those in need."
+  },
+  "note": "Narrower.",
+  "time": "2026-11-15T14:08:00Z",
+  "surface": "app",
+  "decided_by": "researcher"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "code-03",
+  "action": "adopt",
+  "detail": {},
+  "note": "",
+  "time": "2026-11-15T14:09:00Z",
+  "surface": "app",
+  "decided_by": "researcher"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "code-03",
+  "action": "merge",
+  "detail": {
+   "target": "Municipal relations"
+  },
+  "note": "Changed my mind.",
+  "time": "2026-11-15T14:10:00Z",
+  "surface": "app",
+  "decided_by": "researcher"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "code-04",
+  "action": "adopt",
+  "detail": {},
+  "note": "",
+  "time": "2026-11-15T14:11:00Z",
+  "surface": "app",
+  "decided_by": "researcher"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "code-05",
+  "action": "delete",
+  "detail": {},
+  "note": "",
+  "time": "2026-11-15T14:12:00Z",
+  "surface": "app",
+  "decided_by": "researcher"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "code-06",
+  "action": "adopt",
+  "detail": {},
+  "note": "",
+  "time": "2026-11-15T14:13:00Z",
+  "surface": "app",
+  "decided_by": "researcher"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "exclusivity",
+  "action": "answer_exclusive",
+  "detail": {
+   "exclusive": false
+  },
+  "note": "",
+  "time": "2026-11-15T14:14:00Z",
+  "surface": "app",
+  "decided_by": "researcher"
+ },
+ {
+  "desk_id": "desk-0a1b2c3d",
+  "card_id": "desk",
+  "action": "ratify",
+  "detail": {
+   "ratification_id": "ratification-1a2b3c4d",
+   "version": "1.0",
+   "parent": null,
+   "amendments": 0
+  },
+  "note": "",
+  "time": "2026-11-15T14:15:00Z",
+  "surface": "app",
+  "decided_by": "researcher"
+ },
+ {
+  "desk_id": "desk-9f8e7d6c",
+  "card_id": "desk",
+  "action": "build",
+  "detail": {
+   "stage": "rulings",
+   "cards": 4,
+   "blind_first": true,
+   "ratification_id": "ratification-1a2b3c4d"
+  },
+  "note": "",
+  "time": "2026-11-15T14:16:00Z",
+  "surface": "server",
+  "decided_by": "machine"
+ },
+ {
+  "desk_id": "desk-9f8e7d6c",
+  "card_id": "chunk-7",
+  "action": "propose",
+  "detail": {
+   "codes": [
+    "Shared labour"
+   ]
+  },
+  "note": "",
+  "time": "2026-11-15T14:17:00Z",
+  "surface": "server",
+  "decided_by": "machine"
+ },
+ {
+  "desk_id": "desk-9f8e7d6c",
+  "card_id": "chunk-9",
+  "action": "propose",
+  "detail": {
+   "codes": [
+    "Shared labour"
+   ]
+  },
+  "note": "",
+  "time": "2026-11-15T14:18:00Z",
+  "surface": "server",
+  "decided_by": "machine"
+ },
+ {
+  "desk_id": "desk-9f8e7d6c",
+  "card_id": "chunk-11",
+  "action": "propose",
+  "detail": {
+   "codes": [
+    "Shared labour"
+   ]
+  },
+  "note": "",
+  "time": "2026-11-15T14:19:00Z",
+  "surface": "server",
+  "decided_by": "machine"
+ },
+ {
+  "desk_id": "desk-9f8e7d6c",
+  "card_id": "chunk-12",
+  "action": "propose",
+  "detail": {
+   "codes": [
+    "Shared labour"
+   ]
+  },
+  "note": "",
+  "time": "2026-11-15T14:20:00Z",
+  "surface": "server",
+  "decided_by": "machine"
+ },
+ {
+  "desk_id": "desk-9f8e7d6c",
+  "card_id": "chunk-7",
+  "action": "ruling",
+  "detail": {
+   "codes": [
+    "Shared labour"
+   ],
+   "departs": true,
+   "is_rule": true,
+   "rule_text": "Shared work outweighs giving."
+  },
+  "note": "",
+  "time": "2026-11-15T14:21:00Z",
+  "surface": "app",
+  "decided_by": "researcher"
+ },
+ {
+  "desk_id": "desk-9f8e7d6c",
+  "card_id": "chunk-9",
+  "action": "ruling",
+  "detail": {
+   "codes": [
+    "Land tenure",
+    "Municipal relations"
+   ],
+   "departs": false
+  },
+  "note": "",
+  "time": "2026-11-15T14:22:00Z",
+  "surface": "app",
+  "decided_by": "researcher"
+ },
+ {
+  "desk_id": "desk-9f8e7d6c",
+  "card_id": "chunk-11",
+  "action": "exclude",
+  "detail": {
+   "reason": "Not about the garden."
+  },
+  "note": "",
+  "time": "2026-11-15T14:23:00Z",
+  "surface": "app",
+  "decided_by": "researcher"
+ },
+ {
+  "desk_id": "desk-9f8e7d6c",
+  "card_id": "chunk-12",
+  "action": "ruling",
+  "detail": {
+   "none_apply": true,
+   "departs": true,
+   "is_rule": false
+  },
+  "note": "",
+  "time": "2026-11-15T14:24:00Z",
+  "surface": "app",
+  "decided_by": "researcher"
+ },
+ {
+  "desk_id": "desk-9f8e7d6c",
+  "card_id": "desk",
+  "action": "ratify",
+  "detail": {
+   "ratification_id": "ratification-5e6f7a8b",
+   "version": "1.1",
+   "parent": "ratification-1a2b3c4d",
+   "amendments": 1,
+   "agreed_unchecked": 8
+  },
+  "note": "",
+  "time": "2026-11-15T14:25:00Z",
+  "surface": "app",
+  "decided_by": "researcher"
+ }
+]

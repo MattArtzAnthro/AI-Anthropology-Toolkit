@@ -107,6 +107,16 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   the next codebook version, in which those codes carry their rules.
 - `crosslens.codebook_checksum` includes a code's `rules` when it has any.
   A codebook without rules has the same checksum as before.
+- `desk.record` keeps a desk's decision record as `record.jsonl` in its job:
+  every decision the researcher makes and everything the machine put in front
+  of them, from one action vocabulary, each batch stamped with one UTC time and
+  refused whole if any entry breaks the vocabulary. `read_lineage` reads the
+  records behind a ratification, from the first ratification in its chain.
+- `desk.methods.paragraph` assembles a draft methods paragraph from a lineage,
+  labelled as assembled, with every count taken from the record: the codebook
+  actions, the exclusivity answer, whether blind-first was on, the rulings,
+  exclusions, departures and rules, and the agreed chunks not yet rechecked
+  against an amendment.
 - `scripts/build_design_docs.py` builds `design/brand-spec.json` and
   `design/brand-guide.html` from the tokens, and stops if any colour pairing
   misses WCAG AA in either theme. `tests/test_design_docs.py` fails while
