@@ -27,7 +27,7 @@ from referencing.jsonschema import DRAFT202012
 from ai_anthro_toolkit import __version__
 from ai_anthro_toolkit.desk import BASIC_CATALOG_ID, CATALOG_ID
 
-__all__ = ["catalog_problems", "surface", "validate"]
+__all__ = ["NO_CODE", "after_decision", "catalog_problems", "decision_from_action", "surface", "validate"]
 
 _BASE = "https://a2ui.org/specification/v1_0/"
 # Where the message schema looks for "the" catalog. Each check loads one catalog here.
@@ -290,15 +290,20 @@ def catalog_problems(catalog: Mapping[str, Any]) -> list[str]:
 
 # ── Describing a desk ──────────────────────────────────────────────────────────
 #
-# A desk is one surface. Its components hold everything the desk will ever show; what
-# changes as the researcher works (which card is open, which are done, what they chose)
-# lives in the data model, so moving through the queue is a data-model update. Every
-# choice and field starts unset (R2.3). Component IDs are built from positions, which
-# are identifiers whatever a card or chunk is called; card IDs travel as data.
+# A desk is one surface. Its components hold what the desk shows; what changes as the
+# researcher works lives in the data model. The fields they fill sit under /cards (and
+# /exclusivity), and which card is open, which are done and how far the queue has got
+# sit under /status, so the server restates the queue in one update without touching a
+# field the researcher is still filling. Every choice and field starts unset (R2.3).
+# Component IDs are built from positions, which are identifiers whatever a card or
+# chunk is called; card IDs travel as data.
 
 _VERSION = "v1.0"
 Component = dict[str, Any]
 Message = dict[str, Any]
+
+NO_CODE = "(no code applies)"
+"""The ruling choice for "No code applies"; a code may not be called this."""
 
 _CODE_ACTIONS = [
     ("adopt", "Adopt", "Keep the code as it is."),
@@ -307,6 +312,7 @@ _CODE_ACTIONS = [
     ("split", "Split", "Divide it into two or more codes."),
     ("delete", "Delete", "Drop it from the codebook."),
 ]
+_CODE_RESULTS = {"adopt": "Adopted", "reword": "Reworded", "delete": "Deleted"}
 
 
 def _bind(path: str) -> dict[str, str]:
@@ -328,13 +334,24 @@ def _button(cid: str, label: str, name: str, context: Mapping[str, Any], variant
     ]
 
 
-def _decision_card(cid: str, data: str, title: str, eyebrow: str, status: str, kids: list[str]) -> Component:
-    """A queued DecisionCard whose open, done and result states live at ``data``."""
+def _decision_card(cid: str, status: str, title: str, card_id: str, status_label: str, kids: list[str]) -> Component:
+    """A queued DecisionCard whose open, done and result live at ``status``."""
     return _toolkit(
-        cid, "DecisionCard", title=title, eyebrow=eyebrow, state="needs", statusLabel=status,
-        open=_bind(f"{data}/open"), done=_bind(f"{data}/done"), result=_bind(f"{data}/result"),
-        change={"event": {"name": "change_decision", "context": {"card_id": eyebrow}}}, children=kids,
+        cid, "DecisionCard", title=title, eyebrow=card_id, state="needs", statusLabel=status_label,
+        open=_bind(f"{status}/open"), done=_bind(f"{status}/done"), result=_bind(f"{status}/result"),
+        change={"event": {"name": "change_decision", "context": {"card_id": card_id}}}, children=kids,
     )
+
+
+def _group(cid: str, heading: str, items: list[Component], parts: list[Component] | None = None) -> list[Component]:
+    """A captioned column of ``items``; ``parts`` are components the items hold, such as
+    a button's label, which travel with the group but are not its children."""
+    return [
+        _basic(cid, "Column", children=[f"{cid}_heading", *(item["id"] for item in items)]),
+        _basic(f"{cid}_heading", "Text", text=heading, variant="caption"),
+        *items,
+        *(parts or []),
+    ]
 
 
 def _cases(prefix: str, heading: str, cases: list[Mapping[str, Any]]) -> list[Component]:
@@ -345,11 +362,7 @@ def _cases(prefix: str, heading: str, cases: list[Mapping[str, Any]]) -> list[Co
         _toolkit(f"{prefix}_{n}", "Passage", text=case["text"], **({"source": case["source"]} if case["source"] else {}))
         for n, case in enumerate(cases, start=1)
     ]
-    return [
-        _basic(prefix, "Column", children=[f"{prefix}_heading", *(p["id"] for p in passages)]),
-        _basic(f"{prefix}_heading", "Text", text=heading, variant="caption"),
-        *passages,
-    ]
+    return _group(prefix, heading, passages)
 
 
 def _code_card(n: int, card: Mapping[str, Any], labels: list[str]) -> list[Component]:
@@ -386,7 +399,7 @@ def _code_card(n: int, card: Mapping[str, Any], labels: list[str]) -> list[Compo
     ]
     save = _button(f"{cid}_save", "Save decision", "save_decision", {"card_id": card["card_id"], "decision": _bind(data)}, "primary")
     kids = [c["id"] for c in body] + [g["id"] for g in groups if g["component"] == "Column"] + [f["id"] for f in fields] + [save[0]["id"]]
-    card_ = _decision_card(cid, data, card["code_label"], card["card_id"], "Needs your decision", kids)
+    card_ = _decision_card(cid, f"/status/cards/{n}", card["code_label"], card["card_id"], "Needs your decision", kids)
     return [card_, *body, *groups, *fields, *save]
 
 
@@ -400,67 +413,349 @@ def _exclusivity_card() -> list[Component]:
         ],
     )
     save = _button("exclusivity_save", "Save answer", "answer_exclusive", {"exclusive": _bind("/exclusivity/answer")}, "primary")
-    card = _toolkit(
-        "exclusivity", "DecisionCard", title="The codebook as a whole", eyebrow="exclusivity", state="needs",
-        statusLabel="Needs your answer", open=_bind("/exclusivity/open"), done=_bind("/exclusivity/done"),
-        result=_bind("/exclusivity/result"), change={"event": {"name": "change_decision", "context": {"card_id": "exclusivity"}}},
-        children=[question["id"], save[0]["id"]],
+    card = _decision_card(
+        "exclusivity", "/status/exclusivity", "The codebook as a whole", "exclusivity", "Needs your answer",
+        [question["id"], save[0]["id"]],
     )
     return [card, question, *save]
 
 
-def _open_card(n: int) -> dict[str, Any]:
-    return {"open": n == 0, "done": False, "result": ""}
+def _proposal_text(proposal: Mapping[str, Any]) -> str:
+    codes = ", ".join(proposal["codes"]) or "No code applies"
+    return f"{codes}. {proposal['rationale']}".strip()
 
 
-def _codebook_surface(desk: Mapping[str, Any]) -> tuple[list[Component], dict[str, Any]]:
-    cards_ = desk["cards"]
-    labels = [card["code_label"] for card in cards_]
-    queue: list[Component] = []
-    for n, card in enumerate(cards_):
-        queue += _code_card(n, card, labels)
-    queue += _exclusivity_card()
-    total = len(cards_) + 1
-    data = {
-        "cards": [
-            {"card_id": card["card_id"], **_open_card(n), "action": [], "label": "", "definition": "", "target": [], "parts": "", "note": ""}
-            for n, card in enumerate(cards_)
-        ],
-        "exclusivity": {**_open_card(len(cards_)), "answer": []},
-        "progress": {"done": 0, "current": 0, "left": total},
-    }
-    queue_ids = [c["id"] for c in queue if c["component"] == "DecisionCard"]
-    actions = _button("ratify", "Ratify the codebook", "finish", {"desk_id": desk["desk_id"]}, "primary") + _button(
-        "copy", "Copy decisions as JSON", "copy_json", {"desk_id": desk["desk_id"]}
+def _coder(cid: str, heading: str, labels: list[str], codes: list[str]) -> list[Component]:
+    tags = [
+        _toolkit(f"{cid}_{m}", "CodeTag", text=label, tone=codes.index(label) % 6 + 1)
+        for m, label in enumerate(labels, start=1)
+    ] or [_basic(f"{cid}_none", "Text", text="No code")]
+    return _group(cid, heading, tags)
+
+
+def _ruling_card(n: int, card: Mapping[str, Any], desk: Mapping[str, Any], *, proposal: bool, rule: bool) -> list[Component]:
+    """One disagreement: the chunk, each pass's codes and their entries (R3.1), the ruling
+    (R3.3), an exclusion with its reason (R3.4), and, once released, the proposal and the
+    rule question (R3.2, R3.6)."""
+    cid, data, codes = f"card{n + 1}", f"/cards/{n}", desk["codes"]
+    exclusive = bool(desk["exclusive"])
+    sections: list[list[Component]] = []  # each section's first component is a child of the card
+    sections.append([_toolkit(f"{cid}_chunk", "Passage", text=card["text"], **({"source": card["source"]} if card["source"] else {}))])
+    sections.append(
+        [_basic(f"{cid}_coders", "Row", children=[f"{cid}_a", f"{cid}_b"])]
+        + _coder(f"{cid}_a", "First coding pass", card["coder_a"], codes)
+        + _coder(f"{cid}_b", "Second coding pass", card["coder_b"], codes)
     )
-    frame: list[Component] = [
+    sections.append(_group(f"{cid}_entries", "Codebook entries", [
+        _basic(f"{cid}_entry_{m}", "Text", text=f"{label}: {definition}")
+        for m, (label, definition) in enumerate(card["entries"].items(), start=1)
+    ]))
+    if proposal and card["proposal"] is not None:
+        sections.append([_toolkit(f"{cid}_proposal", "Provenance", by="model", label="Proposed resolution", text=_proposal_text(card["proposal"]))])
+    options = [{"value": code, "label": code} for code in codes]
+    if not exclusive:
+        options.append({"value": NO_CODE, "label": "No code applies"})
+    sections.append([_toolkit(
+        f"{cid}_ruling", "ChoiceGroup", legend="Your ruling", multiple=not exclusive, options=options, value=_bind(f"{data}/codes"),
+        hint="Choose one code." if exclusive else "Choose every code that applies, or No code applies.",
+    )])
+    if rule:
+        sections.append([_toolkit(
+            f"{cid}_rule", "ChoiceGroup", legend="Does this ruling state a rule?", value=_bind(f"{data}/is_rule"),
+            hint="A rule becomes an amendment to the codebook, and later coding follows it.",
+            options=[{"value": "yes", "label": "Yes"}, {"value": "no", "label": "No"}],
+        )])
+        sections.append([_toolkit(f"{cid}_rule_text", "TextField", label="The rule (if it states one)", multiline=True, value=_bind(f"{data}/rule_text"))])
+    sections.append([_toolkit(f"{cid}_note", "TextField", label="Note (optional)", multiline=True, value=_bind(f"{data}/note"))])
+    sections.append(_button(f"{cid}_save", "Save ruling", "save_decision", {"card_id": card["card_id"], "decision": _bind(data)}, "primary"))
+    button = _button(f"{cid}_exclude_button", "Exclude this chunk", "exclude_chunk", {"card_id": card["card_id"], "reason": _bind(f"{data}/reason")})
+    sections.append(_group(
+        f"{cid}_exclude", "Or exclude this chunk from the analysis",
+        [_toolkit(f"{cid}_reason", "TextField", label="Reason for excluding", required=True, value=_bind(f"{data}/reason")), button[0]],
+        button[1:],
+    ))
+    title = f"Disagreement {n + 1} of {len(desk['cards'])}"
+    card_ = _decision_card(cid, f"/status/cards/{n}", title, card["card_id"], "Needs your ruling", [s[0]["id"] for s in sections])
+    return [card_, *(c for section in sections for c in section)]
+
+
+def _frame(desk: Mapping[str, Any], queue: list[str], total: int, finish: str, counted: str) -> list[Component]:
+    """What every desk has around its queue: progress, the actions, the tally, the colophon."""
+    return [
         _basic("root", "Column", children=["progress", "queue", "actions", "tally", "byline"]),
-        _toolkit("progress", "Progress", total=total, done=_bind("/progress/done"), current=_bind("/progress/current"), label="Decisions"),
-        _basic("queue", "Column", children=queue_ids),
-        _basic("actions", "Row", children=["ratify", "copy"]),
         _toolkit(
-            "tally", "Tally", left=_bind("/progress/left"), total=total, noun="decisions", sticky=True,
+            "progress", "Progress", total=total, done=_bind("/status/progress/done"),
+            current=_bind("/status/progress/current"), label=counted,
+        ),
+        _basic("queue", "Column", children=queue),
+        _basic("actions", "Row", children=["ratify", "copy"]),
+        *_button("ratify", finish, "finish", {"desk_id": desk["desk_id"]}, "primary"),
+        *_button("copy", "Copy decisions as JSON", "copy_json", {"desk_id": desk["desk_id"]}),
+        _toolkit(
+            "tally", "Tally", left=_bind("/status/progress/left"), total=total, noun="decisions", sticky=True,
             doneText="Every decision is made. Ratify when you are ready.",
         ),
         _toolkit("byline", "Byline", version=__version__, full=True),
     ]
-    return frame + queue + actions, data
+
+
+def _rulings_codes(desk: Mapping[str, Any]) -> list[str]:
+    """The codes a rulings desk rules with, refusing cards that carry a code outside them."""
+    codes = list(desk["codes"])
+    if NO_CODE in codes:
+        raise ValueError(f"A code may not be called {NO_CODE!r}: the desk offers it as the ruling that no code applies.")
+    for card in desk["cards"]:
+        proposed = card["proposal"]["codes"] if card["proposal"] is not None else []
+        outside = [label for label in dict.fromkeys([*card["coder_a"], *card["coder_b"], *proposed]) if label not in codes]
+        if outside:
+            raise ValueError(f"{card['card_id']} carries {', '.join(map(repr, outside))}, which is not among the desk's codes.")
+    return codes
+
+
+def _components(desk: Mapping[str, Any]) -> tuple[list[Component], dict[str, Any]]:
+    """Every component of a desk, and the fields its data model starts with."""
+    cards_ = desk["cards"]
+    queue: list[Component] = []
+    if desk["stage"] == "codebook":
+        labels = [card["code_label"] for card in cards_]
+        for n, card in enumerate(cards_):
+            queue += _code_card(n, card, labels)
+        queue += _exclusivity_card()
+        fields = {
+            "cards": [
+                {"card_id": c["card_id"], "action": [], "label": "", "definition": "", "target": [], "parts": "", "note": ""}
+                for c in cards_
+            ],
+            "exclusivity": {"answer": []},
+        }
+        finish, counted = "Ratify the codebook", "Decisions"
+    else:
+        _rulings_codes(desk)
+        release = not desk.get("blind_first", True)
+        for n, card in enumerate(cards_):
+            queue += _ruling_card(n, card, desk, proposal=release, rule=False)
+        fields = {
+            "cards": [
+                {"card_id": c["card_id"], "codes": [], "is_rule": [], "rule_text": "", "reason": "", "note": ""}
+                for c in cards_
+            ],
+        }
+        finish, counted = "Record the rulings", "Rulings"
+    queue_ids = [c["id"] for c in queue if c["component"] == "DecisionCard"]
+    return _frame(desk, queue_ids, len(queue_ids), finish, counted) + queue, fields
+
+
+def _check_stage(desk: Mapping[str, Any]) -> None:
+    if desk.get("stage") not in ("codebook", "rulings"):
+        raise ValueError(f"A desk's stage is codebook or rulings, not {desk.get('stage')!r}.")
+
+
+def _differs(card: Mapping[str, Any], decision: Mapping[str, Any]) -> bool:
+    """Whether a ruling departs from its card's proposal (an exclusion is not a ruling)."""
+    if card.get("proposal") is None or "exclude" in decision:
+        return False
+    ruled = [] if decision.get("none_apply") else list(decision.get("codes", []))
+    return set(ruled) != set(card["proposal"]["codes"])
+
+
+def _result(desk: Mapping[str, Any], decision: Mapping[str, Any]) -> str:
+    """A decided card's one-line result."""
+    if desk["stage"] == "codebook":
+        action = decision.get("action", "")
+        if action == "merge":
+            return f"Merged into {decision.get('target', '')}"
+        if action == "split":
+            return f"Split into {len(decision.get('parts', []))} codes"
+        return _CODE_RESULTS.get(action, str(action))
+    if "exclude" in decision:
+        return "Excluded"
+    ruled = "No code applies" if decision.get("none_apply") else ", ".join(decision.get("codes", []))
+    return f"{ruled} · states a rule" if decision.get("is_rule") else ruled
+
+
+def _status(desk: Mapping[str, Any], saved: Mapping[str, Any], after: str | None) -> dict[str, Any]:
+    """Which items are done, with their results, and which one is open: the first undecided
+    item after ``after``, wrapping round, or the first when nothing has been decided."""
+    decisions = saved.get("decisions", {})
+    cards_ = desk["cards"]
+    items: list[tuple[str, bool, str]] = []  # (id, done, result)
+    for card in cards_:
+        decision = decisions.get(card["card_id"])
+        complete = decision is not None and (not _differs(card, decision) or "is_rule" in decision)
+        items.append((card["card_id"], complete, _result(desk, decision) if complete and decision is not None else ""))
+    if desk["stage"] == "codebook":
+        exclusive = saved.get("exclusive")
+        answer = "" if exclusive is None else ("Mutually exclusive" if exclusive else "Not mutually exclusive")
+        items.append(("exclusivity", exclusive is not None, answer))
+    ids = [item[0] for item in items]
+    start = ids.index(after) if after in ids else -1
+    if after is not None and after in ids and not items[start][1]:
+        current = start  # the decided item still needs an answer, so it stays open
+    else:
+        order = list(range(start + 1, len(items))) + list(range(0, start + 1))
+        current = next((k for k in order if not items[k][1]), len(items))
+    flags = [{"open": k == current, "done": done, "result": result} for k, (_, done, result) in enumerate(items)]
+    done = sum(1 for item in items if item[1])
+    status: dict[str, Any] = {"cards": flags[: len(cards_)], "progress": {"done": done, "current": current, "left": len(items) - done}}
+    if desk["stage"] == "codebook":
+        status["exclusivity"] = flags[-1]
+    return status
 
 
 def surface(desk: Mapping[str, Any]) -> list[Message]:
     """The desk as A2UI v1.0 messages for a renderer that starts empty: the surface, its
     components, and its initial data model, in which nothing is chosen (R1.8, R2.3).
 
-    ``desk`` holds ``desk_id``, ``stage`` (``codebook``), ``title`` and ``cards`` as
-    ``desk.cards`` builds them. The title travels in the data model for the page or
-    app shell to show as its header.
+    ``desk`` holds ``desk_id``, ``stage`` (``codebook`` or ``rulings``), ``title`` and
+    ``cards`` as ``desk.cards`` builds them; a rulings desk also holds ``codes`` (the
+    codebook in force), ``exclusive`` and ``blind_first``. Under blind-first no message
+    carries a proposal (R3.2). The title travels in the data model for the page or app
+    shell to show as its header.
     """
-    if desk.get("stage") != "codebook":
-        raise ValueError(f"A desk's stage is codebook or rulings, not {desk.get('stage')!r}.")
-    found, data = _codebook_surface(desk)
+    _check_stage(desk)
+    found, fields = _components(desk)
     sid = desk["desk_id"]
+    value = {"desk_id": sid, "title": desk.get("title", ""), **fields, "status": _status(desk, {}, None)}
     return [
         {"version": _VERSION, "createSurface": {"surfaceId": sid, "catalogId": CATALOG_ID}},
         {"version": _VERSION, "updateComponents": {"surfaceId": sid, "components": found}},
-        {"version": _VERSION, "updateDataModel": {"surfaceId": sid, "path": "/", "value": {"desk_id": sid, "title": desk.get("title", ""), **data}}},
+        {"version": _VERSION, "updateDataModel": {"surfaceId": sid, "path": "/", "value": value}},
     ]
+
+
+def after_decision(desk: Mapping[str, Any], saved: Mapping[str, Any], card_id: str) -> list[Message]:
+    """The messages that follow saving the decision on ``card_id``: its card marked done
+    with its result and the next undecided card opened, or, when a ruling departs from its
+    proposal and the rule question is unanswered, the card kept open with the question
+    (R3.6). Saving a ruling releases that card's proposal and no other (R3.9).
+
+    ``saved`` is ``{"decisions": {card_id: decision}, "exclusive": bool | None}``, in the
+    shape of the decisions document; ``card_id`` is ``exclusivity`` for the codebook's
+    question.
+    """
+    _check_stage(desk)
+    sid = desk["desk_id"]
+    decisions = saved.get("decisions", {})
+    by_id = {card["card_id"]: n for n, card in enumerate(desk["cards"])}
+    messages: list[Message] = []
+    if desk["stage"] == "codebook" and card_id == "exclusivity":
+        if saved.get("exclusive") is None:
+            raise ValueError("The exclusivity question has no saved answer.")
+    elif card_id not in by_id:
+        raise ValueError(f"{card_id} is not a card on this desk.")
+    elif card_id not in decisions:
+        raise ValueError(f"{card_id} has no saved decision.")
+    elif desk["stage"] == "rulings":
+        _rulings_codes(desk)
+        n = by_id[card_id]
+        card = desk["cards"][n]
+        if card["proposal"] is not None:
+            rebuilt = _ruling_card(n, card, desk, proposal=True, rule=_differs(card, decisions[card_id]))
+            messages.append({"version": _VERSION, "updateComponents": {"surfaceId": sid, "components": rebuilt}})
+    status = _status(desk, saved, card_id)
+    messages.append({"version": _VERSION, "updateDataModel": {"surfaceId": sid, "path": "/status", "value": status}})
+    return messages
+
+
+# ── Reading what the view sends ────────────────────────────────────────────────
+#
+# A save button's action carries its card's fields as the view holds them: choices as
+# lists, text as typed. decision_from_action reads them into the decisions document's
+# shape, which every surface sends and after_decision reads. It refuses only what has no
+# shape there; whether a decision is complete and allowed is the decisions document's
+# own check.
+
+_YES_NO = {"yes": True, "no": False}
+
+
+def _clean(value: Any) -> str:
+    return "" if value is None else str(value).strip()
+
+
+def _chosen(value: Any) -> list[str]:
+    return [str(item) for item in value] if isinstance(value, list) else []
+
+
+def _yes_no(value: str, what: str) -> bool:
+    if value not in _YES_NO:
+        raise ValueError(f"{what} is answered yes or no, not {value!r}.")
+    return _YES_NO[value]
+
+
+def _split_parts(text: Any, card_id: str) -> list[dict[str, str]]:
+    parts = []
+    for line in _clean(text).splitlines():
+        if not line.strip():
+            continue
+        label, colon, definition = line.partition(":")
+        if not colon or not label.strip():
+            raise ValueError(
+                f"Each part of a split takes one line: its label, a colon, then its definition. "
+                f"A part of {card_id} reads {line.strip()!r}."
+            )
+        parts.append({"label": label.strip(), "definition": definition.strip()})
+    return parts
+
+
+def _code_decision(view: Mapping[str, Any], card_id: str) -> dict[str, Any]:
+    chosen = _chosen(view.get("action"))
+    if not chosen:
+        raise ValueError(f"Choose what to do with {card_id} before saving.")
+    decision: dict[str, Any] = {"action": chosen[0]}
+    if chosen[0] == "reword":
+        decision["definition"] = _clean(view.get("definition"))
+        if _clean(view.get("label")):
+            decision["label"] = _clean(view.get("label"))
+    elif chosen[0] == "merge":
+        targets = _chosen(view.get("target"))
+        decision["target"] = targets[0] if targets else ""
+    elif chosen[0] == "split":
+        decision["parts"] = _split_parts(view.get("parts"), card_id)
+    return decision
+
+
+def _ruling_decision(view: Mapping[str, Any], card_id: str) -> dict[str, Any]:
+    codes = _chosen(view.get("codes"))
+    if not codes:
+        raise ValueError(f"Choose a ruling for {card_id} before saving, or exclude the chunk.")
+    if NO_CODE in codes:
+        if len(codes) > 1:
+            raise ValueError(f"The ruling on {card_id} chooses No code applies alongside a code; choose one or the other.")
+        decision: dict[str, Any] = {"none_apply": True}
+    else:
+        decision = {"codes": codes}
+    answer = _chosen(view.get("is_rule"))
+    if answer:
+        decision["is_rule"] = _yes_no(answer[0], "Whether a ruling states a rule")
+    if _clean(view.get("rule_text")):
+        decision["rule_text"] = _clean(view.get("rule_text"))
+    return decision
+
+
+def decision_from_action(desk: Mapping[str, Any], name: str, context: Mapping[str, Any]) -> tuple[str, dict[str, Any]]:
+    """The card and decision an action from the desk's view records, in the decisions
+    document's shape: ``save_decision`` on any card, ``exclude_chunk`` on a rulings card,
+    and ``answer_exclusive`` for the codebook's question (card ``exclusivity``, decision
+    ``{"exclusive": bool}``). ``context`` is the action's context as the renderer sends
+    it, with its bindings resolved.
+    """
+    _check_stage(desk)
+    stage = desk["stage"]
+    if name == "answer_exclusive" and stage == "codebook":
+        answer = _chosen(context.get("exclusive"))
+        if not answer:
+            raise ValueError("Choose an answer to whether the codes are mutually exclusive before saving.")
+        return "exclusivity", {"exclusive": _yes_no(answer[0], "Whether the codes are mutually exclusive")}
+    if name not in ("save_decision", "exclude_chunk") or (name == "exclude_chunk" and stage != "rulings"):
+        raise ValueError(f"{name!r} is not an action that records a decision on a {stage} desk.")
+    card_id = _clean(context.get("card_id"))
+    if card_id not in {card["card_id"] for card in desk["cards"]}:
+        raise ValueError(f"{card_id} is not a card on this desk.")
+    if name == "exclude_chunk":
+        return card_id, {"exclude": {"reason": _clean(context.get("reason"))}}
+    view = context.get("decision")
+    view = view if isinstance(view, Mapping) else {}
+    decision = _code_decision(view, card_id) if stage == "codebook" else _ruling_decision(view, card_id)
+    if _clean(view.get("note")):
+        decision["note"] = _clean(view.get("note"))
+    return card_id, decision

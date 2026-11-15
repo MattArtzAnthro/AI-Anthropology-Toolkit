@@ -423,6 +423,11 @@
               "default": false,
               "description": "Accept more than one line."
             },
+            "required": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether the field must be filled before the action it belongs to is taken."
+            },
             "value": {
               "$ref": "common_types.json#/$defs/DynamicString",
               "description": "The field's value."

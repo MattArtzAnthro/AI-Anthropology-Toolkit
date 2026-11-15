@@ -77,6 +77,18 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   differently, with the proposals for them. It refuses input it cannot card
   faithfully and names what is wrong. `desk.cards.checksum` ties decisions to
   the cards they were made on.
+- `desk.a2ui.surface(desk)` describes a codebook or rulings desk as A2UI v1.0
+  messages for a renderer that starts empty, with nothing chosen. A rulings
+  card shows the chunk, each coding pass's codes and their codebook entries,
+  the ruling (one code when the codes are mutually exclusive, otherwise any
+  number or "No code applies"), and an exclusion that needs a reason. Under
+  blind-first no message carries a proposal. `desk.a2ui.after_decision`
+  gives the messages that follow saving a decision: the card marked done with
+  its result and the next undecided card opened, or, when a ruling departs
+  from its proposal, the card kept open with the question of whether the
+  ruling states a rule. Saving a ruling releases that card's proposal only.
+  `desk.a2ui.decision_from_action` reads what the view sends when a decision is
+  saved into the shape of the decisions document.
 - `scripts/build_design_docs.py` builds `design/brand-spec.json` and
   `design/brand-guide.html` from the tokens, and stops if any colour pairing
   misses WCAG AA in either theme. `tests/test_design_docs.py` fails while
