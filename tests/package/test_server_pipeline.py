@@ -67,6 +67,7 @@ class TestToolRegistry(ServerTestBase):
             "analyze_network",
 
             "view_network",
+            "build_ratification_desk",
 
             "export_network",
                     "search_pubmed", "list_notebooks",

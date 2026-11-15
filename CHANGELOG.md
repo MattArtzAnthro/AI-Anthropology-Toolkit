@@ -135,6 +135,20 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   The same decisions sent again return the same outcome and write nothing, and
   complete a finish that was interrupted without minting a second
   ratification; a finished desk refuses different ones.
+- **`build_ratification_desk`**, a new MCP tool (35 in all). A codebook desk
+  takes a codebook job or codebook records and cases for every code, and
+  refuses, naming each one, codes without a case. A rulings desk takes two
+  coding jobs coded under one ratification, refuses jobs coded under different
+  ones, and cards each chunk whose two code sets differ; blind-first is on
+  unless the caller turns it off, so proposals stay hidden until each ruling.
+  The desk stores its cards with their checksum and writes the standalone page
+  to the job store; the record notes the build, each drafted code and each
+  proposal as the machine's. The tool opens as an MCP App,
+  `ui://ai-anthropology/ratification-desk`, which allows the two Google Fonts
+  domains and falls back to system fonts without them. It refuses arguments
+  the stage does not take, the same coding job twice, a `codebook_job_id`
+  that is not a codebook job, and a job whose result is not a list of
+  records. Ratifying a codebook job again keeps the desks built on it.
 - `scripts/build_design_docs.py` builds `design/brand-spec.json` and
   `design/brand-guide.html` from the tokens, and stops if any colour pairing
   misses WCAG AA in either theme. `tests/test_design_docs.py` fails while

@@ -28,6 +28,7 @@ import functools
 import json
 import os
 import threading
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Annotated, Literal
 
@@ -36,7 +37,7 @@ from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import CallToolResult, TextContent, ToolAnnotations
 from pydantic import Field
 
-from ai_anthro_toolkit import __version__
+from ai_anthro_toolkit import __version__, design
 from ai_anthro_toolkit import catalog as _catalog
 from ai_anthro_toolkit import checks as _checks
 from ai_anthro_toolkit import chunking as _chunking
@@ -56,6 +57,10 @@ from ai_anthro_toolkit.datasources import list_citation_styles as _citation_styl
 from ai_anthro_toolkit.datasources import search_crossref as _crossref
 from ai_anthro_toolkit.datasources import search_openalex as _openalex
 from ai_anthro_toolkit.datasources import search_pubmed as _pubmed
+from ai_anthro_toolkit.desk import a2ui as _a2ui
+from ai_anthro_toolkit.desk import cards as _desk_cards
+from ai_anthro_toolkit.desk import page as _desk_page
+from ai_anthro_toolkit.desk import record as _desk_record
 from ai_anthro_toolkit.jobs import JobStore
 from ai_anthro_toolkit.llm import make_llm
 from ai_anthro_toolkit.models import CodeEntry
@@ -251,6 +256,7 @@ def toolkit_info() -> dict:
             "checks": ["get_artifact_checks"],
             "network": ["build_network", "analyze_network", "view_network",
                         "export_network"],
+            "desk": ["build_ratification_desk"],
             "analysis": ["chunk_transcript", "start_codebook_job",
                           "ratify_codebook", "start_coding_job",
                           "get_next_batch", "submit_batch",
@@ -758,11 +764,12 @@ def ratify_codebook(codebook: list[dict] | None = None,
         raise ValueError("Provide codebook records or a codebook_job_id.")
 
     checksum = _codebook_checksum(records)
-    _jobs.save_artifact(ratification_id, "ratification.json", json.dumps({
-        "checksum": checksum,
-        "codes": len(records),
-        "note": note,
-    }))
+    held = {"checksum": checksum, "codes": len(records), "note": note}
+    # Ratifying a codebook job again keeps the desks already built on it.
+    earlier = _load_records(ratification_id, "ratification.json") if codebook_job_id else None
+    if earlier and earlier.get("desks"):
+        held["desks"] = earlier["desks"]
+    _jobs.save_artifact(ratification_id, "ratification.json", json.dumps(held))
     return {"ratification_id": ratification_id, "checksum": checksum,
             "codes": len(records), "note": note,
             "next": "pass ratification_id to start_coding_job"}
@@ -1307,6 +1314,202 @@ def export_network(path: Annotated[str, Field(
     if not target.parent.is_dir():
         raise ValueError(f"The folder {target.parent} does not exist.")
     return _network.export_network(graph, str(target), fmt=fmt)
+
+
+# --------------------------------------------------------- ratification desk
+
+DESK_URI = "ui://ai-anthropology/ratification-desk"
+
+
+@mcp.resource(DESK_URI, name="ratification-desk",
+              description="The ratification desk, where the researcher decides each code or "
+                          "disagreement in the conversation (MCP App).",
+              mime_type="text/html;profile=mcp-app",
+              meta={"ui": {"csp": {"resourceDomains": list(design.FONT_DOMAINS)}}})
+def ratification_desk_resource() -> str:
+    return _desk_page.app_shell()
+
+
+def _finished_records(job_id: str, what: str) -> list[dict]:
+    records = _load_records(job_id, "result.json")
+    if records is None:
+        raise ValueError(f"{what} '{job_id}' has no result yet; wait for get_job_status "
+                         "to report complete.")
+    if not isinstance(records, list) or not all(isinstance(r, dict) for r in records):
+        raise ValueError(f"{what} '{job_id}' holds no list of records in its result.json.")
+    return records
+
+
+def _job_of_kind(job_id: str, kind: str) -> dict:
+    job = _jobs.read(job_id)  # refuses an ID the store did not issue
+    if job.get("kind") != kind:
+        raise ValueError(f"'{job_id}' is not a {kind} job.")
+    return job
+
+
+def _unused(stage: str, **given: object) -> None:
+    """Refuses arguments the stage does not take, rather than ignoring them."""
+    named = [name for name, value in given.items() if value]
+    if named:
+        raise ValueError(f"A {stage} desk does not take {', '.join(named)}.")
+
+
+def _listed_desks(held: dict, ratification_id: str) -> list[str]:
+    desks = held.get("desks", [])
+    if not isinstance(desks, list) or not all(isinstance(d, str) for d in desks):
+        raise ValueError(f"{ratification_id}'s list of desks is damaged; ratify the "
+                         "codebook again before building a desk on it.")
+    return desks
+
+
+def _codebook_desk(codebook_job_id: str, codebook: list[dict] | None,
+                   cases: dict | None) -> tuple[dict, list[dict], list[dict]]:
+    """A codebook desk's payload, its source records, and the machine's record entries."""
+    if codebook_job_id and codebook:
+        raise ValueError("Pass either codebook_job_id or codebook, not both.")
+    if codebook_job_id:
+        _job_of_kind(codebook_job_id, "codebook")
+        records = _finished_records(codebook_job_id, "Codebook job")
+    elif codebook:
+        records = list(codebook)
+    else:
+        raise ValueError("A codebook desk needs the codebook: pass codebook_job_id or "
+                         "the codebook records.")
+    if not cases:
+        raise ValueError("A codebook desk needs cases for each code: pass cases as "
+                         "{code_label: [{text, kind}, ...]}.")
+    built = _desk_cards.codebook_cards(records, cases)
+    # A codebook job is a model's draft; records the caller supplies may be the
+    # researcher's own, so only the job's codes are recorded as drafted.
+    drafted = [{"card_id": card["card_id"], "action": "draft",
+                "detail": {"label": card["code_label"]}} for card in built] if codebook_job_id else []
+    return {"stage": "codebook", "cards": built}, records, drafted
+
+
+def _rulings_desk(coding_job_ids: list[str] | None,
+                  proposals: dict | None) -> tuple[dict, list[dict]]:
+    """A rulings desk's payload and the machine's record entries."""
+    if not coding_job_ids or len(coding_job_ids) != 2:
+        raise ValueError("A rulings desk compares two coding passes: pass exactly two "
+                         "coding_job_ids.")
+    if coding_job_ids[0] == coding_job_ids[1]:
+        raise ValueError("A rulings desk compares two different coding jobs; "
+                         f"'{coding_job_ids[0]}' is given twice.")
+    coded, ratifications = [], []
+    for job_id in coding_job_ids:
+        job = _job_of_kind(job_id, "coding")
+        ratification_id = (job.get("payload") or {}).get("ratification_id") or ""
+        if not ratification_id:
+            raise ValueError(f"Coding job '{job_id}' names no ratification; a rulings "
+                             "desk needs passes coded under a ratified codebook.")
+        coded.append(_finished_records(job_id, "Coding job"))
+        ratifications.append(ratification_id)
+    if ratifications[0] != ratifications[1]:
+        raise ValueError(
+            f"The two coding jobs were coded under different ratifications "
+            f"({ratifications[0]} and {ratifications[1]}), so their disagreements "
+            "would mix codebooks. Code both passes under one ratification_id.")
+    in_force = ratifications[0]
+    held = _load_records(in_force, "ratification.json")
+    codebook = _load_records(in_force, "result.json")
+    if not held or not codebook:
+        raise ValueError(f"The ratification in force, {in_force}, holds no codebook.")
+    _listed_desks(held, in_force)
+    built = _desk_cards.rulings_cards(coded[0], coded[1], codebook, proposals)
+    payload = {"stage": "rulings", "cards": built,
+               "codes": [str(r["code_label"]).strip() for r in codebook],
+               "exclusive": bool(held.get("exclusive", False)),
+               "ratification_id": in_force, "coding_job_ids": list(coding_job_ids),
+               # chunks both passes coded alike; rulings desks card only the rest
+               "agreed": len(coded[0]) - len(built)}
+    proposed = [{"card_id": card["card_id"], "action": "propose",
+                 "detail": dict(card["proposal"])}
+                for card in built if card["proposal"] is not None]
+    return payload, proposed
+
+
+@_tool(annotations=_JOB_WRITE, meta={"ui": {"resourceUri": DESK_URI}})
+def build_ratification_desk(
+        stage: Literal["codebook", "rulings"],
+        title: Annotated[str, Field(description="The study or desk name shown as the page header.")] = "",
+        codebook_job_id: Annotated[str, Field(
+            description="Codebook stage: a completed codebook job's ID. Or pass codebook.")] = "",
+        codebook: Annotated[list[dict] | None, Field(
+            description="Codebook stage: the codebook records, for codebooks built elsewhere.")] = None,
+        cases: Annotated[dict[str, list[dict]] | None, Field(
+            description="Codebook stage: {code_label: [{text, kind, case_id?, source?}]}, "
+                        "kind 'typical' or 'borderline'; every code needs a case.")] = None,
+        coding_job_ids: Annotated[list[str] | None, Field(
+            description="Rulings stage: exactly two coding job IDs, coded under one ratification.")] = None,
+        proposals: Annotated[dict[str, dict] | None, Field(
+            description="Rulings stage, optional: {chunk_id: {codes, rationale}}, a proposed "
+                        "resolution per disagreement; empty codes proposes that none apply.")] = None,
+        blind_first: Annotated[bool, Field(
+            description="Rulings stage: hide each proposal until the researcher has ruled. "
+                        "Leave on unless the researcher turns it off.")] = True,
+) -> CallToolResult:
+    """Build a ratification desk: a page where the researcher decides, one card at a time.
+
+    stage "codebook": one card per code with the cases it would take, typical
+    and borderline; the researcher adopts, rewords, merges, splits or deletes
+    each code and says whether codes are mutually exclusive. Pass the codebook
+    (codebook_job_id or codebook) and cases for every code.
+
+    stage "rulings": one card per chunk on which two coding passes disagree;
+    the researcher rules on each, and a ruling that states a rule amends the
+    codebook. Pass two coding_job_ids coded under the same ratification, and
+    optionally proposals, which stay hidden until each ruling (blind_first).
+
+    Returns a desk_id and the path of a self-contained page. Hosts that render
+    MCP Apps show the desk in the conversation. The researcher decides in the
+    desk; never decide, rule or ratify on the researcher's behalf.
+    """
+    return _build_desk(stage, title, codebook_job_id, codebook, cases, coding_job_ids,
+                       proposals, blind_first)
+
+
+def _build_desk(stage: str, title: str, codebook_job_id: str, codebook: list[dict] | None,
+                cases: dict | None, coding_job_ids: list[str] | None, proposals: dict | None,
+                blind_first: bool) -> CallToolResult:
+    if stage == "codebook":
+        _unused(stage, coding_job_ids=coding_job_ids, proposals=proposals,
+                blind_first=not blind_first)
+        payload, source, entries = _codebook_desk(codebook_job_id, codebook, cases)
+    elif stage == "rulings":
+        _unused(stage, codebook_job_id=codebook_job_id, codebook=codebook, cases=cases)
+        payload, entries = _rulings_desk(coding_job_ids, proposals)
+        payload["blind_first"] = bool(blind_first)
+        source = None
+    else:
+        raise ValueError("stage is 'codebook' or 'rulings'.")
+    payload.update(title=title.strip(), card_checksum=_desk_cards.checksum(payload["cards"]),
+                   built_at=datetime.now(timezone.utc).isoformat(timespec="seconds"))
+    desk_id = _jobs.create("desk", payload)
+    desk = dict(payload, desk_id=desk_id)
+    if source is not None:
+        _jobs.save_artifact(desk_id, "codebook.json", json.dumps(source))
+    path = _jobs.save_artifact(desk_id, "desk.html", _desk_page.render_page(desk))
+    built: dict = {"stage": stage, "cards": len(payload["cards"])}
+    if stage == "rulings":
+        built.update(blind_first=payload["blind_first"], ratification_id=payload["ratification_id"])
+    _desk_record.append(_jobs, desk_id, [
+        dict(entry, surface="server", decided_by="machine", note="")
+        for entry in [{"card_id": "desk", "action": "build", "detail": built}, *entries]])
+    if stage == "rulings":
+        held = _load_records(payload["ratification_id"], "ratification.json")
+        held["desks"] = [*_listed_desks(held, payload["ratification_id"]), desk_id]
+        _jobs.save_artifact(payload["ratification_id"], "ratification.json", json.dumps(held))
+    kind = "code" if stage == "codebook" else "disagreement"
+    count = len(payload["cards"])
+    text = (f"Desk {desk_id} built: {count} {kind}{'' if count == 1 else 's'} to decide. "
+            "The researcher decides in the desk, card by card; do not record decisions "
+            "for them. If no desk appeared in this client, give the researcher the page "
+            f"to open in a browser: {path}")
+    structured = {"desk_id": desk_id, "stage": stage, "cards": count,
+                  "card_checksum": payload["card_checksum"], "page": str(path),
+                  "a2ui": _a2ui.surface(desk)}
+    return CallToolResult(content=[TextContent(type="text", text=text)],
+                          structured_content=structured)
 
 
 def main() -> None:

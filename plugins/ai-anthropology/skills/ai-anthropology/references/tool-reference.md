@@ -28,6 +28,7 @@ This list is checked against the `@mcp.tool` registrations in `src/ai_anthro_too
 - `start_codebook_job` — begin codebook generation.
 - `ratify_codebook` — record the researcher's confirm-or-revise decision and checksum.
 - `start_coding_job` — begin coding only from a matching ratified codebook.
+- `build_ratification_desk` — build a desk where the researcher ratifies each code against its cases, or rules on each disagreement between two coding passes; it opens as an MCP App or as a self-contained page. The researcher decides there; never decide for them.
 - `get_next_batch`, `submit_batch` — run delegated interpretive batches through the orchestrating model.
 - `get_job_status`, `get_job_result` — inspect asynchronous or delegated jobs.
 - `build_themes` — develop themes from coded material.
