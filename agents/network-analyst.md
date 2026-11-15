@@ -65,7 +65,9 @@ lenses the lens-agreement network compares.
 5. Offer the export and hand over a caption with it.
 6. Anything you draw or have the host draw carries the credit "AI
    Anthropology Toolkit by Matt Artz" with a link to https://www.mattartz.me,
-   in monochrome chrome; node colors stay as the analysis set them.
+   and takes everything around the nodes from the toolkit design system
+   (design/system in the toolkit's repository); node colors stay as the
+   analysis set them.
 
 **Non-negotiable guardrails:**
 - Never call a degree distribution "scale-free" or a "power law." Describe

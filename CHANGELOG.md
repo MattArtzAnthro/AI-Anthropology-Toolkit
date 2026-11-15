@@ -164,6 +164,11 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   now carry `method: "table"` and `version: "1.0"`, beside the desk's
   `"desk"` and the amendments' `"amendment"`. Its behaviour and result are
   unchanged.
+- The server's instructions tell hosts that any page they build from
+  toolkit output keeps the credit and takes its colours, type and
+  components from the toolkit design system (`design/system`, linked). The
+  `view_network` fallback text, the network-analyst agent and the
+  networks-of-codes reference say the same in place of "monochrome chrome".
 - In the desk's MCP App, the view saves each decision on the server with
   `desk_sync` as the researcher makes it, and ratifies with `desk_finish`;
   both are app-only tools the model cannot call. A decision the desk cannot

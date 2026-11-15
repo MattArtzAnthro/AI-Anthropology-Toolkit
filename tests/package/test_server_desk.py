@@ -13,7 +13,7 @@ from unittest import mock
 
 from mcp.server.mcpserver.exceptions import ToolError
 
-from ai_anthro_toolkit import design
+from ai_anthro_toolkit import brand, design
 from ai_anthro_toolkit.desk import a2ui, cards, gate, page, record
 from ai_anthro_toolkit.jobs import JobStore
 from ai_anthro_toolkit.mcp import server
@@ -894,6 +894,33 @@ class TestTableRatification(DeskCase):
         server.ratify_codebook(codebook_job_id=job_id)
         held = json.loads(self.store.load_artifact(rid, "ratification.json"))
         self.assertEqual((held["method"], held["version"], len(held["desks"])), ("table", "1.0", 1))
+
+
+class TestPagesHostsBuild(DeskCase):
+    """What the server tells a host that builds its own page from toolkit output (R8.8)."""
+
+    SYSTEM = f"{brand.REPOSITORY}/tree/main/design/system"
+
+    def says_credit_and_system(self, text, where):
+        flat = " ".join(text.split())
+        self.assertIn(f'"{brand.CREDIT}" linked to {brand.WEBSITE}', flat, where)
+        self.assertIn(f"the toolkit design system ({self.SYSTEM})", flat, where)
+        self.assertNotIn("monochrome", flat.lower(), where)
+
+    def test_r8_8_instructions_name_credit_and_design_system(self):
+        self.says_credit_and_system(server.mcp.instructions, "server instructions")
+        self.assertRegex(" ".join(server.mcp.instructions.split()), r"Any page you build from toolkit output")
+
+    def test_the_network_fallback_names_credit_and_design_system(self):
+        from tests.package.test_network import CODED
+        result = server.view_network(server.build_network(CODED))
+        self.says_credit_and_system(result.content[0].text, "view_network result")
+        [tool] = [t for t in asyncio.run(server.mcp.list_tools()) if t.name == "view_network"]
+        self.says_credit_and_system(tool.description, "view_network description")
+        self.assertIn("keep the node colors", " ".join(result.content[0].text.split()))
+
+    def test_the_design_system_link_points_at_the_shipped_system(self):
+        self.assertTrue((Path(__file__).resolve().parents[2] / "design" / "system" / "README.md").is_file())
 
 
 class TestRegistration(DeskCase):

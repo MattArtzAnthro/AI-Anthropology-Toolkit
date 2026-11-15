@@ -37,7 +37,7 @@ from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import CallToolResult, TextContent, ToolAnnotations
 from pydantic import Field
 
-from ai_anthro_toolkit import __version__, design
+from ai_anthro_toolkit import __version__, brand, design
 from ai_anthro_toolkit import catalog as _catalog
 from ai_anthro_toolkit import checks as _checks
 from ai_anthro_toolkit import chunking as _chunking
@@ -68,6 +68,9 @@ from ai_anthro_toolkit.desk import record as _desk_record
 from ai_anthro_toolkit.jobs import JobStore
 from ai_anthro_toolkit.llm import make_llm
 from ai_anthro_toolkit.models import CodeEntry
+
+# Where a host that builds its own page finds the toolkit's tokens and components.
+_DESIGN_SYSTEM = f"{brand.REPOSITORY}/tree/main/design/system"
 
 mcp = MCPServer(
     "ai-anthropology",
@@ -107,7 +110,10 @@ mcp = MCPServer(
         "approved, and pass its ratification_id to start_coding_job (the "
         "server holds the ratified codebook, so it need not be sent again) — "
         "the server refuses unratified codebooks. Never ratify on the "
-        "researcher's behalf."
+        "researcher's behalf. Any page you build from toolkit output "
+        "keeps the credit, "
+        f'"{brand.CREDIT}" linked to {brand.WEBSITE}, and takes its colours, '
+        f"type and components from the toolkit design system ({_DESIGN_SYSTEM})."
     ),
 )
 
@@ -1272,8 +1278,10 @@ def view_network(graph: GraphArg = None, network_id: NetworkId = "",
     labels communities. If no visual appears in this client, render
     structuredContent yourself as an interactive visualization: every node
     carries x, y, size, color, label, and attributes. Keep the node colors
-    (they encode communities), use monochrome chrome, and include the credit
-    "AI Anthropology Toolkit by Matt Artz" linked to https://www.mattartz.me.
+    (they encode communities), take everything around them from the toolkit
+    design system (https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit/tree/main/design/system),
+    and include the credit "AI Anthropology Toolkit by Matt Artz" linked to
+    https://www.mattartz.me.
     """
     try:
         graph, network_id = _resolve_network(graph, network_id)
@@ -1290,8 +1298,8 @@ def view_network(graph: GraphArg = None, network_id: NetworkId = "",
     summary = (f"Interactive view rendered: {len(nodes)} nodes and {len(graph.get('edges') or [])} ties. "
                "If no visual appeared in this client, render structuredContent yourself as an "
                "interactive visualization (nodes have x, y, color, size); keep the node colors, "
-               "use monochrome chrome (ink, charcoal, silver; no accent colors), and carry the "
-               "credit: \"AI Anthropology Toolkit by Matt Artz\" linked to https://www.mattartz.me.")
+               f"take everything around them from the toolkit design system ({_DESIGN_SYSTEM}), "
+               f'and carry the credit: "{brand.CREDIT}" linked to {brand.WEBSITE}.')
     return CallToolResult(content=[TextContent(type="text", text=summary)], structured_content=structured)
 
 

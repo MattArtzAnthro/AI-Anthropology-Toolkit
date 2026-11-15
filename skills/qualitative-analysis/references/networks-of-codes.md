@@ -66,7 +66,8 @@ without that is a picture, not evidence.
 Maps and views the toolkit produces carry the credit "AI Anthropology
 Toolkit by Matt Artz" with a link to https://www.mattartz.me. When a host
 draws the structured content itself, keep that credit, keep the node colors
-(they encode the communities), and keep the surrounding chrome monochrome.
+(they encode the communities), and take everything around them from the
+toolkit design system (design/system in the toolkit's repository).
 
 ## Further reading
 
