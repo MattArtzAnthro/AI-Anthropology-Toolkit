@@ -769,7 +769,7 @@ def ratify_codebook(codebook: list[dict] | None = None,
         raise ValueError("Provide codebook records or a codebook_job_id.")
 
     checksum = _codebook_checksum(records)
-    held = {"checksum": checksum, "codes": len(records), "note": note}
+    held = {"checksum": checksum, "codes": len(records), "note": note, "method": "table", "version": "1.0"}
     # Ratifying a codebook job again keeps the desks already built on it.
     earlier = _load_records(ratification_id, "ratification.json") if codebook_job_id else None
     if earlier and earlier.get("desks"):

@@ -870,6 +870,32 @@ class TestDecisionRecord(DeskCase):
         self.assertTrue(found.annotations.read_only_hint)
 
 
+class TestTableRatification(DeskCase):
+    """ratify_codebook, the one-table path, keeps its behaviour and names its method (R7.5)."""
+
+    def test_r7_5_table_ratification_records_method_table(self):
+        job_id = self.codebook_job()
+        for kw in ({"codebook": self.codebook}, {"codebook_job_id": job_id}):
+            with self.subTest(sorted(kw)):
+                out = server.ratify_codebook(note="Merged two codes.", **kw)
+                self.assertEqual(set(out), {"ratification_id", "checksum", "codes", "note", "next"})
+                self.assertEqual((out["codes"], out["note"]), (6, "Merged two codes."))
+                held = json.loads(self.store.load_artifact(out["ratification_id"], "ratification.json"))
+                self.assertEqual(held, {"checksum": out["checksum"], "codes": 6, "note": "Merged two codes.",
+                                        "method": "table", "version": "1.0"})
+                job = server.start_coding_job(chunks=[{"chunk_id": 1, "text": "x"}],
+                                              ratification_id=out["ratification_id"], llm_mode="delegated")
+                self.assertEqual(json.loads(self.store.load_artifact(job["job_id"], "codebook.json")), self.codebook)
+
+    def test_ratifying_a_codebook_job_again_keeps_its_desks_and_method(self):
+        job_id = self.codebook_job()
+        rid = server.ratify_codebook(codebook_job_id=job_id)["ratification_id"]
+        self.rulings(ratification_id=rid)
+        server.ratify_codebook(codebook_job_id=job_id)
+        held = json.loads(self.store.load_artifact(rid, "ratification.json"))
+        self.assertEqual((held["method"], held["version"], len(held["desks"])), ("table", "1.0", 1))
+
+
 class TestRegistration(DeskCase):
     def test_r7_6_tool_carries_desk_resource_uri(self):
         tools = {t.name: t for t in asyncio.run(server.mcp.list_tools())}

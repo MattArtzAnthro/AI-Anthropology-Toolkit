@@ -160,6 +160,10 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   methods paragraph whose counts are taken from the record and which says it
   was assembled, not written. A ratification reads every desk in its
   lineage; an unfinished desk reads under the ratification in force.
+- `ratify_codebook` records how a codebook was ratified: its ratifications
+  now carry `method: "table"` and `version: "1.0"`, beside the desk's
+  `"desk"` and the amendments' `"amendment"`. Its behaviour and result are
+  unchanged.
 - In the desk's MCP App, the view saves each decision on the server with
   `desk_sync` as the researcher makes it, and ratifies with `desk_finish`;
   both are app-only tools the model cannot call. A decision the desk cannot
