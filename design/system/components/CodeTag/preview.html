@@ -1,0 +1,15 @@
+<!-- @dsCard group="Data" height=72 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>CodeTag</title></head>
+<body>
+<div id="root" class="aat-demo"></div>
+<script>
+  var A = window.AAT, h = React.createElement;
+  function Demo() {
+    return h("div", { className: "aat-row" }, ["Mutual aid", "Charity framing", "Dignity and stigma", "Being watched", "Logistics and upkeep", "Permits and city rules"].map(function (n, i) { return h(A.CodeTag, { key: n, tone: i + 1 }, n); }));
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(Demo));
+</script>
+</body>
+</html>

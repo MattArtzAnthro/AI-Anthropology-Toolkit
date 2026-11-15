@@ -1,0 +1,16 @@
+<!-- @dsCard group="Structure" height=110 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Stages</title></head>
+<body>
+<div id="root" class="aat-demo"></div>
+<script>
+  var A = window.AAT, h = React.createElement;
+  function Demo() {
+    var s = React.useState("codebook");
+    return h(A.Stages, { current: s[0], onSelect: s[1], stages: [{ id: "codebook", label: "Codebook", note: "3 left" }, { id: "rulings", label: "Rulings", note: "4 left" }, { id: "record", label: "Record", note: "Review" }] });
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(Demo));
+</script>
+</body>
+</html>

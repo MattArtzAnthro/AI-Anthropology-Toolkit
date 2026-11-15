@@ -4,3 +4,4 @@ prune skills
 prune agents
 prune commands
 prune .github
+prune design

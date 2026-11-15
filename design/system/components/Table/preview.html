@@ -1,0 +1,19 @@
+<!-- @dsCard group="Data" height=260 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Table</title></head>
+<body>
+<div id="root" class="aat-demo"></div>
+<script>
+  var A = window.AAT, h = React.createElement;
+  function Demo() {
+    var id = function (t) { return h("span", { className: "aat-id" }, t); };
+    return h(A.Table, { caption: "Decision log", columns: [{ key: "item", label: "Item" }, { key: "decision", label: "Decision" }, { key: "by", label: "Decided by" }, { key: "n", label: "Chunks", numeric: true }],
+      rows: [{ item: id("MUTUAL_AID"), decision: "Adopted", by: "Researcher", n: 41 },
+        { item: id("CHARITY"), decision: "Drafted", by: h(A.Status, { tone: "model" }, "Model"), n: 17 },
+        { item: id("P07-c15"), decision: "Ruled: Mutual aid", by: "Researcher", n: 1 }] });
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(Demo));
+</script>
+</body>
+</html>

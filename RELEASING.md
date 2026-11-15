@@ -47,6 +47,7 @@ plugin whose MCP server cannot resolve its own dependency.
 
 - [ ] `python3 -m unittest discover -s tests -t .` — the full suite, green.
 - [ ] A CHANGELOG entry exists for every version being bumped. No bump without one.
+- [ ] Rename each track's `### Unreleased` heading to the version and date being released. `scripts/release.py` refuses while one remains.
 - [ ] All package-version references agree. `tests/test_repo.py::test_package_version_consistency` checks this; run it rather than trusting a grep.
 - [ ] Any new MCP tool is registered in `toolkit_info()["tool_families"]` and in the tool-name sets in `tests/package/`, and the stated tool count in `CLAUDE.md` matches.
 - [ ] `tests/test_codex_plugin.py` confirms every mirrored skill and the MCP registration are byte-identical to their canonical source, and that the tool reference names exactly the registered tools.

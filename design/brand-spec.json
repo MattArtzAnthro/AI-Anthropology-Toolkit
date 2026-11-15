@@ -1,0 +1,1094 @@
+{
+  "meta": {
+    "name": "AI Anthropology Toolkit",
+    "version": "1.0.0",
+    "created": "2026-11-15",
+    "updated": "2026-11-15",
+    "description": "The interface system for every screen the AI Anthropology Toolkit shows.",
+    "url": "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit"
+  },
+  "colors": {
+    "tokens": {
+      "paper": {
+        "hex": "#e9eef4",
+        "rgb": [
+          233,
+          238,
+          244
+        ],
+        "dark": {
+          "hex": "#0f141b",
+          "rgb": [
+            15,
+            20,
+            27
+          ]
+        },
+        "role": "Page background. The ground every toolkit view sits on."
+      },
+      "surface": {
+        "hex": "#ffffff",
+        "rgb": [
+          255,
+          255,
+          255
+        ],
+        "dark": {
+          "hex": "#18202a",
+          "rgb": [
+            24,
+            32,
+            42
+          ]
+        },
+        "role": "Cards, inputs, choices and tables, on paper."
+      },
+      "line": {
+        "hex": "#d5dde7",
+        "rgb": [
+          213,
+          221,
+          231
+        ],
+        "dark": {
+          "hex": "#273141",
+          "rgb": [
+            39,
+            49,
+            65
+          ]
+        },
+        "role": "Hairlines between rows and around cards. Decorative only; never the sole sign of a control."
+      },
+      "line-strong": {
+        "hex": "#768699",
+        "rgb": [
+          118,
+          134,
+          153
+        ],
+        "dark": {
+          "hex": "#677a90",
+          "rgb": [
+            103,
+            122,
+            144
+          ]
+        },
+        "role": "Borders of controls (choices, inputs, secondary buttons). Meets 3:1 on paper and surface."
+      },
+      "ink": {
+        "hex": "#172435",
+        "rgb": [
+          23,
+          36,
+          53
+        ],
+        "dark": {
+          "hex": "#e4eaf2",
+          "rgb": [
+            228,
+            234,
+            242
+          ]
+        },
+        "role": "Primary text, on paper, surface, action-soft and attention."
+      },
+      "ink-muted": {
+        "hex": "#4f5d6e",
+        "rgb": [
+          79,
+          93,
+          110
+        ],
+        "dark": {
+          "hex": "#a0adbd",
+          "rgb": [
+            160,
+            173,
+            189
+          ]
+        },
+        "role": "Secondary text: hints, captions, counts, on paper and surface."
+      },
+      "action": {
+        "hex": "#1f4f8f",
+        "rgb": [
+          31,
+          79,
+          143
+        ],
+        "dark": {
+          "hex": "#8fb8f5",
+          "rgb": [
+            143,
+            184,
+            245
+          ]
+        },
+        "role": "Primary buttons, selected choices, links and the current stage. One meaning: something you can do."
+      },
+      "action-hover": {
+        "hex": "#173d70",
+        "rgb": [
+          23,
+          61,
+          112
+        ],
+        "dark": {
+          "hex": "#b0cdf8",
+          "rgb": [
+            176,
+            205,
+            248
+          ]
+        },
+        "role": "Hover on a primary button."
+      },
+      "on-action": {
+        "hex": "#ffffff",
+        "rgb": [
+          255,
+          255,
+          255
+        ],
+        "dark": {
+          "hex": "#0b1a30",
+          "rgb": [
+            11,
+            26,
+            48
+          ]
+        },
+        "role": "Text and checkmarks on an action fill."
+      },
+      "action-soft": {
+        "hex": "#e8eef7",
+        "rgb": [
+          232,
+          238,
+          247
+        ],
+        "dark": {
+          "hex": "#1f2b3c",
+          "rgb": [
+            31,
+            43,
+            60
+          ]
+        },
+        "role": "Hover behind quiet buttons and the step numbers' disc; ink or action text on it."
+      },
+      "attention": {
+        "hex": "#ffd25e",
+        "rgb": [
+          255,
+          210,
+          94
+        ],
+        "dark": {
+          "hex": "#f2c55c",
+          "rgb": [
+            242,
+            197,
+            92
+          ]
+        },
+        "role": "Fill of the Needs-you status and the current segment of Progress only. The loudest colour in the system; never decoration."
+      },
+      "on-attention": {
+        "hex": "#332500",
+        "rgb": [
+          51,
+          37,
+          0
+        ],
+        "dark": {
+          "hex": "#2c2000",
+          "rgb": [
+            44,
+            32,
+            0
+          ]
+        },
+        "role": "Text on an attention fill, in both themes."
+      },
+      "done": {
+        "hex": "#24753d",
+        "rgb": [
+          36,
+          117,
+          61
+        ],
+        "dark": {
+          "hex": "#80d197",
+          "rgb": [
+            128,
+            209,
+            151
+          ]
+        },
+        "role": "Done status text and its check, on surface or done-soft."
+      },
+      "done-soft": {
+        "hex": "#e6f3ea",
+        "rgb": [
+          230,
+          243,
+          234
+        ],
+        "dark": {
+          "hex": "#162a1e",
+          "rgb": [
+            22,
+            42,
+            30
+          ]
+        },
+        "role": "Background behind done text."
+      },
+      "refusal": {
+        "hex": "#b3261e",
+        "rgb": [
+          179,
+          38,
+          30
+        ],
+        "dark": {
+          "hex": "#ff9b8f",
+          "rgb": [
+            255,
+            155,
+            143
+          ]
+        },
+        "role": "Errors and server refusals (the gate said no), on surface or refusal-soft. Always with a sentence saying what to fix."
+      },
+      "refusal-soft": {
+        "hex": "#fdecea",
+        "rgb": [
+          253,
+          236,
+          234
+        ],
+        "dark": {
+          "hex": "#3a1a17",
+          "rgb": [
+            58,
+            26,
+            23
+          ]
+        },
+        "role": "Background behind refusal text."
+      },
+      "model": {
+        "hex": "#5b6676",
+        "rgb": [
+          91,
+          102,
+          118
+        ],
+        "dark": {
+          "hex": "#a3aebc",
+          "rgb": [
+            163,
+            174,
+            188
+          ]
+        },
+        "role": "Text the model wrote that nobody has decided yet, on surface or model-soft."
+      },
+      "model-line": {
+        "hex": "#768699",
+        "rgb": [
+          118,
+          134,
+          153
+        ],
+        "dark": {
+          "hex": "#677a90",
+          "rgb": [
+            103,
+            122,
+            144
+          ]
+        },
+        "role": "Dashed border around model drafts. Dashed means provisional."
+      },
+      "model-soft": {
+        "hex": "#f0f3f7",
+        "rgb": [
+          240,
+          243,
+          247
+        ],
+        "dark": {
+          "hex": "#1c2531",
+          "rgb": [
+            28,
+            37,
+            49
+          ]
+        },
+        "role": "Background of a model draft."
+      },
+      "focus": {
+        "hex": "#1f4f8f",
+        "rgb": [
+          31,
+          79,
+          143
+        ],
+        "dark": {
+          "hex": "#8fb8f5",
+          "rgb": [
+            143,
+            184,
+            245
+          ]
+        },
+        "role": "Keyboard focus ring: 2px solid, 2px offset. An alias of action."
+      },
+      "code-1": {
+        "hex": "#2a6fb0",
+        "rgb": [
+          42,
+          111,
+          176
+        ],
+        "dark": {
+          "hex": "#6fb3ea",
+          "rgb": [
+            111,
+            179,
+            234
+          ]
+        },
+        "role": "Categorical colour for codes, lenses and chart series, first. Marks only (swatches, lines, nodes), never text."
+      },
+      "code-2": {
+        "hex": "#a86200",
+        "rgb": [
+          168,
+          98,
+          0
+        ],
+        "dark": {
+          "hex": "#e9a650",
+          "rgb": [
+            233,
+            166,
+            80
+          ]
+        },
+        "role": "Categorical colour, second. Marks only."
+      },
+      "code-3": {
+        "hex": "#12806a",
+        "rgb": [
+          18,
+          128,
+          106
+        ],
+        "dark": {
+          "hex": "#5fd0ac",
+          "rgb": [
+            95,
+            208,
+            172
+          ]
+        },
+        "role": "Categorical colour, third. Marks only."
+      },
+      "code-4": {
+        "hex": "#ad4588",
+        "rgb": [
+          173,
+          69,
+          136
+        ],
+        "dark": {
+          "hex": "#e591c4",
+          "rgb": [
+            229,
+            145,
+            196
+          ]
+        },
+        "role": "Categorical colour, fourth. Marks only."
+      },
+      "code-5": {
+        "hex": "#c2501f",
+        "rgb": [
+          194,
+          80,
+          31
+        ],
+        "dark": {
+          "hex": "#f08a64",
+          "rgb": [
+            240,
+            138,
+            100
+          ]
+        },
+        "role": "Categorical colour, fifth. Marks only."
+      },
+      "code-6": {
+        "hex": "#2f86b8",
+        "rgb": [
+          47,
+          134,
+          184
+        ],
+        "dark": {
+          "hex": "#8ccbef",
+          "rgb": [
+            140,
+            203,
+            239
+          ]
+        },
+        "role": "Categorical colour, sixth. Past six codes, repeat with the code name always shown."
+      }
+    },
+    "rules": [
+      {
+        "rule": "action means you can do this",
+        "reason": "Primary buttons, selected choices, links and the current stage. Text on it is on-action."
+      },
+      {
+        "rule": "attention is only the Needs-you status",
+        "reason": "and the current segment of Progress. It is the loudest colour in the system and is never decoration."
+      },
+      {
+        "rule": "done, refusal and model keep one meaning each",
+        "reason": "done is recorded results, refusal is errors and server refusals with a sentence, model is what the model wrote that nobody has decided."
+      },
+      {
+        "rule": "Code colours are marks, never text",
+        "reason": "code-1 to code-6 colour dots, lines and nodes. A code keeps the same tone everywhere; past six, repeat with the name shown."
+      },
+      {
+        "rule": "line is decorative only",
+        "reason": "Control borders use line-strong, which meets 3:1. focus is an alias of action."
+      }
+    ],
+    "approved_pairings": [
+      {
+        "foreground": "ink",
+        "background": "paper",
+        "theme": "light",
+        "ratio": "13.43:1",
+        "minimum": "4.5:1",
+        "use": "Primary text on the page"
+      },
+      {
+        "foreground": "ink",
+        "background": "surface",
+        "theme": "light",
+        "ratio": "15.67:1",
+        "minimum": "4.5:1",
+        "use": "Primary text on cards, inputs and tables"
+      },
+      {
+        "foreground": "ink",
+        "background": "action-soft",
+        "theme": "light",
+        "ratio": "13.43:1",
+        "minimum": "4.5:1",
+        "use": "Text on a quiet button's hover"
+      },
+      {
+        "foreground": "ink-muted",
+        "background": "paper",
+        "theme": "light",
+        "ratio": "5.76:1",
+        "minimum": "4.5:1",
+        "use": "Hints and counts on the page"
+      },
+      {
+        "foreground": "ink-muted",
+        "background": "surface",
+        "theme": "light",
+        "ratio": "6.72:1",
+        "minimum": "4.5:1",
+        "use": "Hints, captions and IDs on cards"
+      },
+      {
+        "foreground": "on-action",
+        "background": "action",
+        "theme": "light",
+        "ratio": "8.16:1",
+        "minimum": "4.5:1",
+        "use": "Primary button text and selected choices"
+      },
+      {
+        "foreground": "on-action",
+        "background": "action-hover",
+        "theme": "light",
+        "ratio": "10.84:1",
+        "minimum": "4.5:1",
+        "use": "Primary button text on hover"
+      },
+      {
+        "foreground": "action",
+        "background": "surface",
+        "theme": "light",
+        "ratio": "8.16:1",
+        "minimum": "4.5:1",
+        "use": "Links and quiet buttons on cards"
+      },
+      {
+        "foreground": "action",
+        "background": "paper",
+        "theme": "light",
+        "ratio": "7.00:1",
+        "minimum": "4.5:1",
+        "use": "Links on the page"
+      },
+      {
+        "foreground": "action",
+        "background": "action-soft",
+        "theme": "light",
+        "ratio": "7.00:1",
+        "minimum": "4.5:1",
+        "use": "Step numbers and quiet buttons on hover"
+      },
+      {
+        "foreground": "on-attention",
+        "background": "attention",
+        "theme": "light",
+        "ratio": "10.41:1",
+        "minimum": "4.5:1",
+        "use": "The Needs-you status"
+      },
+      {
+        "foreground": "done",
+        "background": "surface",
+        "theme": "light",
+        "ratio": "5.70:1",
+        "minimum": "4.5:1",
+        "use": "Done status on cards"
+      },
+      {
+        "foreground": "done",
+        "background": "done-soft",
+        "theme": "light",
+        "ratio": "4.98:1",
+        "minimum": "4.5:1",
+        "use": "Done status on its own fill"
+      },
+      {
+        "foreground": "refusal",
+        "background": "surface",
+        "theme": "light",
+        "ratio": "6.54:1",
+        "minimum": "4.5:1",
+        "use": "Errors and refusals on cards"
+      },
+      {
+        "foreground": "refusal",
+        "background": "refusal-soft",
+        "theme": "light",
+        "ratio": "5.72:1",
+        "minimum": "4.5:1",
+        "use": "Refusal notices"
+      },
+      {
+        "foreground": "model",
+        "background": "surface",
+        "theme": "light",
+        "ratio": "5.82:1",
+        "minimum": "4.5:1",
+        "use": "Model drafts on cards"
+      },
+      {
+        "foreground": "model",
+        "background": "model-soft",
+        "theme": "light",
+        "ratio": "5.23:1",
+        "minimum": "4.5:1",
+        "use": "Model drafts in their dashed box"
+      },
+      {
+        "foreground": "line-strong",
+        "background": "paper",
+        "theme": "light",
+        "ratio": "3.19:1",
+        "minimum": "3.0:1",
+        "use": "Control borders on the page"
+      },
+      {
+        "foreground": "line-strong",
+        "background": "surface",
+        "theme": "light",
+        "ratio": "3.72:1",
+        "minimum": "3.0:1",
+        "use": "Control borders on cards"
+      },
+      {
+        "foreground": "model-line",
+        "background": "model-soft",
+        "theme": "light",
+        "ratio": "3.35:1",
+        "minimum": "3.0:1",
+        "use": "The dashed border of a model draft"
+      },
+      {
+        "foreground": "action",
+        "background": "paper",
+        "theme": "light",
+        "ratio": "7.00:1",
+        "minimum": "3.0:1",
+        "use": "The focus ring on the page"
+      },
+      {
+        "foreground": "code-1",
+        "background": "surface",
+        "theme": "light",
+        "ratio": "5.25:1",
+        "minimum": "3.0:1",
+        "use": "Code colour 1 as a mark"
+      },
+      {
+        "foreground": "code-2",
+        "background": "surface",
+        "theme": "light",
+        "ratio": "4.76:1",
+        "minimum": "3.0:1",
+        "use": "Code colour 2 as a mark"
+      },
+      {
+        "foreground": "code-3",
+        "background": "surface",
+        "theme": "light",
+        "ratio": "4.86:1",
+        "minimum": "3.0:1",
+        "use": "Code colour 3 as a mark"
+      },
+      {
+        "foreground": "code-4",
+        "background": "surface",
+        "theme": "light",
+        "ratio": "5.27:1",
+        "minimum": "3.0:1",
+        "use": "Code colour 4 as a mark"
+      },
+      {
+        "foreground": "code-5",
+        "background": "surface",
+        "theme": "light",
+        "ratio": "4.71:1",
+        "minimum": "3.0:1",
+        "use": "Code colour 5 as a mark"
+      },
+      {
+        "foreground": "code-6",
+        "background": "surface",
+        "theme": "light",
+        "ratio": "4.02:1",
+        "minimum": "3.0:1",
+        "use": "Code colour 6 as a mark"
+      },
+      {
+        "foreground": "ink",
+        "background": "paper",
+        "theme": "dark",
+        "ratio": "15.27:1",
+        "minimum": "4.5:1",
+        "use": "Primary text on the page"
+      },
+      {
+        "foreground": "ink",
+        "background": "surface",
+        "theme": "dark",
+        "ratio": "13.57:1",
+        "minimum": "4.5:1",
+        "use": "Primary text on cards, inputs and tables"
+      },
+      {
+        "foreground": "ink",
+        "background": "action-soft",
+        "theme": "dark",
+        "ratio": "11.81:1",
+        "minimum": "4.5:1",
+        "use": "Text on a quiet button's hover"
+      },
+      {
+        "foreground": "ink-muted",
+        "background": "paper",
+        "theme": "dark",
+        "ratio": "8.10:1",
+        "minimum": "4.5:1",
+        "use": "Hints and counts on the page"
+      },
+      {
+        "foreground": "ink-muted",
+        "background": "surface",
+        "theme": "dark",
+        "ratio": "7.20:1",
+        "minimum": "4.5:1",
+        "use": "Hints, captions and IDs on cards"
+      },
+      {
+        "foreground": "on-action",
+        "background": "action",
+        "theme": "dark",
+        "ratio": "8.59:1",
+        "minimum": "4.5:1",
+        "use": "Primary button text and selected choices"
+      },
+      {
+        "foreground": "on-action",
+        "background": "action-hover",
+        "theme": "dark",
+        "ratio": "10.74:1",
+        "minimum": "4.5:1",
+        "use": "Primary button text on hover"
+      },
+      {
+        "foreground": "action",
+        "background": "surface",
+        "theme": "dark",
+        "ratio": "8.09:1",
+        "minimum": "4.5:1",
+        "use": "Links and quiet buttons on cards"
+      },
+      {
+        "foreground": "action",
+        "background": "paper",
+        "theme": "dark",
+        "ratio": "9.10:1",
+        "minimum": "4.5:1",
+        "use": "Links on the page"
+      },
+      {
+        "foreground": "action",
+        "background": "action-soft",
+        "theme": "dark",
+        "ratio": "7.04:1",
+        "minimum": "4.5:1",
+        "use": "Step numbers and quiet buttons on hover"
+      },
+      {
+        "foreground": "on-attention",
+        "background": "attention",
+        "theme": "dark",
+        "ratio": "9.83:1",
+        "minimum": "4.5:1",
+        "use": "The Needs-you status"
+      },
+      {
+        "foreground": "done",
+        "background": "surface",
+        "theme": "dark",
+        "ratio": "8.98:1",
+        "minimum": "4.5:1",
+        "use": "Done status on cards"
+      },
+      {
+        "foreground": "done",
+        "background": "done-soft",
+        "theme": "dark",
+        "ratio": "8.30:1",
+        "minimum": "4.5:1",
+        "use": "Done status on its own fill"
+      },
+      {
+        "foreground": "refusal",
+        "background": "surface",
+        "theme": "dark",
+        "ratio": "8.08:1",
+        "minimum": "4.5:1",
+        "use": "Errors and refusals on cards"
+      },
+      {
+        "foreground": "refusal",
+        "background": "refusal-soft",
+        "theme": "dark",
+        "ratio": "7.71:1",
+        "minimum": "4.5:1",
+        "use": "Refusal notices"
+      },
+      {
+        "foreground": "model",
+        "background": "surface",
+        "theme": "dark",
+        "ratio": "7.30:1",
+        "minimum": "4.5:1",
+        "use": "Model drafts on cards"
+      },
+      {
+        "foreground": "model",
+        "background": "model-soft",
+        "theme": "dark",
+        "ratio": "6.87:1",
+        "minimum": "4.5:1",
+        "use": "Model drafts in their dashed box"
+      },
+      {
+        "foreground": "line-strong",
+        "background": "paper",
+        "theme": "dark",
+        "ratio": "4.19:1",
+        "minimum": "3.0:1",
+        "use": "Control borders on the page"
+      },
+      {
+        "foreground": "line-strong",
+        "background": "surface",
+        "theme": "dark",
+        "ratio": "3.72:1",
+        "minimum": "3.0:1",
+        "use": "Control borders on cards"
+      },
+      {
+        "foreground": "model-line",
+        "background": "model-soft",
+        "theme": "dark",
+        "ratio": "3.51:1",
+        "minimum": "3.0:1",
+        "use": "The dashed border of a model draft"
+      },
+      {
+        "foreground": "action",
+        "background": "paper",
+        "theme": "dark",
+        "ratio": "9.10:1",
+        "minimum": "3.0:1",
+        "use": "The focus ring on the page"
+      },
+      {
+        "foreground": "code-1",
+        "background": "surface",
+        "theme": "dark",
+        "ratio": "7.28:1",
+        "minimum": "3.0:1",
+        "use": "Code colour 1 as a mark"
+      },
+      {
+        "foreground": "code-2",
+        "background": "surface",
+        "theme": "dark",
+        "ratio": "7.85:1",
+        "minimum": "3.0:1",
+        "use": "Code colour 2 as a mark"
+      },
+      {
+        "foreground": "code-3",
+        "background": "surface",
+        "theme": "dark",
+        "ratio": "8.68:1",
+        "minimum": "3.0:1",
+        "use": "Code colour 3 as a mark"
+      },
+      {
+        "foreground": "code-4",
+        "background": "surface",
+        "theme": "dark",
+        "ratio": "7.18:1",
+        "minimum": "3.0:1",
+        "use": "Code colour 4 as a mark"
+      },
+      {
+        "foreground": "code-5",
+        "background": "surface",
+        "theme": "dark",
+        "ratio": "6.67:1",
+        "minimum": "3.0:1",
+        "use": "Code colour 5 as a mark"
+      },
+      {
+        "foreground": "code-6",
+        "background": "surface",
+        "theme": "dark",
+        "ratio": "9.31:1",
+        "minimum": "3.0:1",
+        "use": "Code colour 6 as a mark"
+      }
+    ]
+  },
+  "typography": {
+    "fonts": {
+      "sans": {
+        "family": "Figtree",
+        "source": "google",
+        "weights": [
+          400,
+          500,
+          600,
+          700
+        ],
+        "fallback": "\"Figtree\", system-ui, -apple-system, \"Segoe UI\", sans-serif"
+      },
+      "serif": {
+        "family": "Source Serif 4",
+        "source": "google",
+        "weights": [
+          400
+        ],
+        "fallback": "\"Source Serif 4\", Georgia, serif"
+      },
+      "mono": {
+        "family": "Source Code Pro",
+        "source": "google",
+        "weights": [
+          400
+        ],
+        "fallback": "\"Source Code Pro\", ui-monospace, Menlo, monospace"
+      }
+    },
+    "scale": {
+      "display": {
+        "font": "sans",
+        "weight": 600,
+        "size": "30px",
+        "color": "ink",
+        "line_height": 1.267,
+        "transform": "none"
+      },
+      "title": {
+        "font": "sans",
+        "weight": 600,
+        "size": "22px",
+        "color": "ink",
+        "line_height": 1.364,
+        "transform": "none"
+      },
+      "heading": {
+        "font": "sans",
+        "weight": 600,
+        "size": "18px",
+        "color": "ink",
+        "line_height": 1.444,
+        "transform": "none"
+      },
+      "body": {
+        "font": "sans",
+        "weight": 400,
+        "size": "16px",
+        "color": "ink",
+        "line_height": 1.625,
+        "transform": "none"
+      },
+      "label": {
+        "font": "sans",
+        "weight": 600,
+        "size": "14px",
+        "color": "ink",
+        "line_height": 1.571,
+        "transform": "none"
+      },
+      "small": {
+        "font": "sans",
+        "weight": 400,
+        "size": "14px",
+        "color": "ink-muted",
+        "line_height": 1.571,
+        "transform": "none"
+      },
+      "id": {
+        "font": "sans",
+        "weight": 400,
+        "size": "14px",
+        "color": "ink-muted",
+        "line_height": 1.571,
+        "transform": "none"
+      },
+      "model-label": {
+        "font": "sans",
+        "weight": 600,
+        "size": "14px",
+        "color": "model",
+        "line_height": 1.571,
+        "transform": "none"
+      },
+      "passage": {
+        "font": "serif",
+        "weight": 400,
+        "size": "22px",
+        "color": "ink",
+        "line_height": 1.409,
+        "transform": "none"
+      },
+      "raw": {
+        "font": "mono",
+        "weight": 400,
+        "size": "13px",
+        "color": "ink",
+        "line_height": 1.538,
+        "transform": "none"
+      }
+    },
+    "rules": [
+      "Who is speaking decides the typeface. Figtree for the interface, Source Serif 4 for participants' words, Source Code Pro for raw machine text.",
+      "The passage is the largest text in a decision. A participant's words are what is being decided about.",
+      "Never set labels in all caps. Labels and status words are sentence case.",
+      "Keep running text within measure. Running text and passages stop at 68ch."
+    ]
+  },
+  "spacing": {
+    "content_max_width": "880px",
+    "section_padding_v": "48px",
+    "section_padding_h": "16px",
+    "card_padding": "clamp(20px, 4vw, 36px)",
+    "card_border_radius": "22px",
+    "breakpoints": {
+      "any": "Components wrap with flex and clamp; there are no fixed breakpoints."
+    }
+  },
+  "buttons": {
+    "primary": {
+      "bg": "action",
+      "text": "on-action",
+      "border": "1.5px solid action",
+      "radius": "999px",
+      "padding": "0 24px",
+      "font": "sans",
+      "weight": 600
+    },
+    "secondary": {
+      "bg": "surface",
+      "text": "ink",
+      "border": "1.5px solid line-strong",
+      "radius": "999px",
+      "padding": "0 24px",
+      "font": "sans",
+      "weight": 600
+    },
+    "tertiary": {
+      "bg": "transparent",
+      "text": "action",
+      "border": "none",
+      "radius": "999px",
+      "padding": "0 8px",
+      "font": "sans",
+      "weight": 500,
+      "decoration": "underline"
+    }
+  },
+  "voice": {
+    "attributes": [
+      "Plain: plain words, sentence case, no exclamation marks.",
+      "Exact: numbers are counted from the record, such as 208 of 212 chunks, never most.",
+      "Accountable: the interface says who decided. The model is the model; the researcher is you.",
+      "Faithful: participants are quoted exactly, never tidied, trimmed or paraphrased."
+    ],
+    "writing_rules": [
+      "Labels are verbs plus objects: Record ruling, Ratify codebook, Review the record.",
+      "Questions end in a question mark: Which codes apply to this passage?",
+      "Refusals say what was refused and exactly what is missing: Can't ratify yet. 2 codes have no decision. No apologies, no something went wrong.",
+      "Call machine output the model. Don't call it AI, assistant or Claude in the interface.",
+      "A disabled button always says why, beside it."
+    ],
+    "tone_contexts": {
+      "A decision inside a chat": "Direct and brief; one question at a time.",
+      "A refusal from the server": "Factual; names what is missing.",
+      "An exported decision record": "Formal and complete; fit for a methods appendix."
+    }
+  },
+  "imagery": {
+    "style": "None. The toolkit uses no photography or illustration."
+  }
+}

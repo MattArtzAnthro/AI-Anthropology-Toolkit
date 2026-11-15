@@ -43,6 +43,19 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
+### Unreleased
+- **A design system for every screen the toolkit shows.** Its tokens and
+  stylesheet ship as package data in `ai_anthro_toolkit/design/`: the Harbor
+  palette in light and dark, Figtree, Source Serif 4 and Source Code Pro, and
+  pill controls. The brand book, components and previews live in
+  `design/system/`, the tree published as the claude.ai design system.
+- `scripts/build_design_docs.py` builds `design/brand-spec.json` and
+  `design/brand-guide.html` from the tokens, and stops if any colour pairing
+  misses WCAG AA in either theme. `tests/test_design_docs.py` fails while
+  either file is stale.
+- The release script refuses to release while the CHANGELOG still has an
+  `### Unreleased` heading, and says what to rename it to.
+
 ### 3.10.0 — 2026-11-09
 - **Job IDs are checked.** A mistyped or invented job ID used to create an
   empty directory in the job store, surface a bare `FileNotFoundError`, and,

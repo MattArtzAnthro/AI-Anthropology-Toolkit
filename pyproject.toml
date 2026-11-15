@@ -73,6 +73,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "ai_anthro_toolkit.network.viewer" = ["template.html", "assets/*.js", "assets/VENDORED.md"]
+"ai_anthro_toolkit.design" = ["tokens.json", "bundle.css"]
 
 [tool.coverage.run]
 branch = true

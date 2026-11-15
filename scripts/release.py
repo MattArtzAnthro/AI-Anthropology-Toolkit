@@ -121,6 +121,12 @@ def changelog_has_entry(repo: Path, version: str) -> bool:
     return bool(re.search(rf"^###\s+{re.escape(version)}\b", text, re.M))
 
 
+def changelog_has_unreleased(repo: Path) -> bool:
+    """Work merged since the last release collects under '### Unreleased'."""
+    text = (repo / "CHANGELOG.md").read_text(encoding="utf-8")
+    return bool(re.search(r"^###\s+Unreleased\b", text, re.M | re.I))
+
+
 PLUGIN_MCP = "plugins/ai-anthropology/.mcp.json"
 
 
@@ -217,6 +223,10 @@ def preflight(version: str) -> None:
     if bad:
         raise SystemExit(
             f"pins disagree with pyproject ({version}): {', '.join(bad)}")
+    if changelog_has_unreleased(REPO):
+        raise SystemExit(
+            "CHANGELOG.md still has an '### Unreleased' heading: rename it to "
+            f"### {version} \u2014 <date> before releasing")
     if not changelog_has_entry(REPO, version):
         raise SystemExit(f"CHANGELOG.md has no entry for {version}")
     result = _run([sys.executable, "-m", "unittest", "discover",

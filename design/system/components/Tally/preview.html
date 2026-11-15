@@ -1,0 +1,17 @@
+<!-- @dsCard group="Structure" height=150 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Tally</title></head>
+<body>
+<div id="root" class="aat-demo"></div>
+<script>
+  var A = window.AAT, h = React.createElement;
+  function Demo() {
+    return h("div", { className: "aat-demo" },
+      h(A.Tally, { left: 3, total: 7, noun: "codes", onNext: function () {} }, h(A.Button, { variant: "primary", disabled: true }, "Ratify codebook")),
+      h(A.Tally, { left: 0, total: 7, doneText: "Every code is decided" }, h(A.Button, { variant: "primary" }, "Ratify codebook")));
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(Demo));
+</script>
+</body>
+</html>

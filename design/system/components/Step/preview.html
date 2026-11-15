@@ -1,0 +1,17 @@
+<!-- @dsCard group="Structure" height=170 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Step</title></head>
+<body>
+<div id="root" class="aat-demo"></div>
+<script>
+  var A = window.AAT, h = React.createElement;
+  function Demo() {
+    return h("div", { className: "aat-demo" },
+      h(A.Step, { n: 1, label: "Choose the codes that apply", done: true }),
+      h(A.Step, { n: 2, label: "Record your ruling" }, h(A.Button, { variant: "primary" }, "Record ruling")));
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(Demo));
+</script>
+</body>
+</html>

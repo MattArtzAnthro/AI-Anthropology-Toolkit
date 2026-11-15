@@ -267,6 +267,15 @@ class PreflightGate(_FakeRepo):
             release.preflight(self.VERSION)
         self.assertIn("CHANGELOG", str(ctx.exception))
 
+    def test_unreleased_heading_stops_the_release(self):
+        (self.repo / "CHANGELOG.md").write_text(
+            f"### Unreleased\n- a change\n\n### {self.VERSION} - today\n", encoding="utf-8")
+        with mock.patch.object(release, "_run", return_value=_completed()) as run:
+            with self.assertRaises(SystemExit) as ctx:
+                release.preflight(self.VERSION)
+        self.assertIn(f"rename it to ### {self.VERSION}", str(ctx.exception))
+        run.assert_not_called()
+
     def test_green_suite_passes_with_src_on_the_path(self):
         with mock.patch.object(release, "_run", return_value=_completed()) as run:
             release.preflight(self.VERSION)

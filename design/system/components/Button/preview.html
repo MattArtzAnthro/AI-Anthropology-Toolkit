@@ -1,0 +1,17 @@
+<!-- @dsCard group="Actions" height=150 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Button</title></head>
+<body>
+<div id="root" class="aat-demo"></div>
+<script>
+  var A = window.AAT, h = React.createElement;
+  function Demo() {
+    return h("div", { className: "aat-demo" },
+      h("div", { className: "aat-row" }, h(A.Button, { variant: "primary" }, "Record ruling"), h(A.Button, null, "Review the record"), h(A.Button, { variant: "quiet" }, "Change")),
+      h(A.Button, { variant: "primary", disabled: true, reason: "Decide 2 more codes and answer the overlap question first." }, "Ratify codebook"));
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(Demo));
+</script>
+</body>
+</html>

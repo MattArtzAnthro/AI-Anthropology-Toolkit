@@ -1,0 +1,18 @@
+<!-- @dsCard group="Feedback" height=230 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Notice</title></head>
+<body>
+<div id="root" class="aat-demo"></div>
+<script>
+  var A = window.AAT, h = React.createElement;
+  function Demo() {
+    return h("div", { className: "aat-demo" },
+      h(A.Notice, { tone: "refusal", title: "Can't ratify yet" }, "2 codes have no decision:", h("ul", null, h("li", null, "Being watched"), h("li", null, "Permits and city rules"))),
+      h(A.Notice, { tone: "done", title: "Codebook v1.0 ratified" }, "Coding can start with ", h("span", { className: "aat-id" }, "ratification-7c1e0a42"), "."),
+      h(A.Notice, { tone: "info", title: "208 agreed chunks not rechecked" }, "They were coded before rule R1 was added."));
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(Demo));
+</script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+@import url("https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Code+Pro:wght@400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap");
+
+/* AI Anthropology Toolkit components. Every class starts with aat-. Use them as plain HTML,
+   or through the React components in bundle.js, which render exactly this markup. */
+
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 16px/26px var(--font-sans); -webkit-font-smoothing: antialiased; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+[class^="aat-"], [class*=" aat-"] { box-sizing: border-box; }
+.aat-visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.aat-demo { display: grid; gap: var(--space-4); padding: var(--space-6); }
+.aat-row { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); align-items: center; }
+.aat-id { font: 400 14px/22px var(--font-sans); color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.aat-raw { font: 400 13px/20px var(--font-mono); color: var(--ink); }
+
+/* Button: pills. One primary per view. */
+.aat-btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 46px; padding: 0 var(--space-6);
+  border: 1.5px solid var(--line-strong); border-radius: var(--radius-full); background: var(--surface); color: var(--ink);
+  font: 600 16px/1 var(--font-sans); cursor: pointer; transition: background-color .15s, border-color .15s, color .15s; }
+.aat-btn:hover { border-color: var(--ink-muted); }
+.aat-btn--primary { background: var(--action); border-color: var(--action); color: var(--on-action); }
+.aat-btn--primary:hover { background: var(--action-hover); border-color: var(--action-hover); }
+.aat-btn--quiet { min-height: var(--target); border-color: transparent; background: transparent; color: var(--action); padding: 0 var(--space-2); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
+.aat-btn--quiet:hover { background: var(--action-soft); border-color: transparent; }
+.aat-btn:disabled { border: 1.5px dashed var(--line-strong); background: transparent; color: var(--ink-muted); cursor: not-allowed; text-decoration: none; }
+.aat-action { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+.aat-action__reason { font: 400 14px/22px var(--font-sans); color: var(--ink-muted); }
+
+/* Status: a pill with a word and a mark, never colour alone */
+.aat-status { display: inline-flex; align-items: center; gap: 7px; padding: 3px 12px 3px 10px; border: 1px solid transparent; border-radius: var(--radius-full);
+  font: 600 14px/22px var(--font-sans); white-space: nowrap; }
+.aat-status::before { content: ""; flex: none; box-sizing: border-box; width: 10px; height: 10px; border-radius: var(--radius-full); }
+.aat-status--needs { background: var(--attention); color: var(--on-attention); }
+.aat-status--needs::before { background: currentColor; }
+.aat-status--started { background: var(--surface); border-color: var(--line-strong); color: var(--ink); }
+.aat-status--started::before { border: 1.5px solid currentColor; }
+.aat-status--done { background: var(--done-soft); color: var(--done); }
+.aat-status--done::before, .aat-status--refused::before { width: 12px; height: 12px; border-radius: 0; background: currentColor; }
+.aat-status--done::before { mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='4'><polyline points='20 6 9 17 4 12'/></svg>") center / contain no-repeat; }
+.aat-status--refused { background: var(--refusal-soft); color: var(--refusal); }
+.aat-status--refused::before { mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='4'><line x1='6' y1='6' x2='18' y2='18'/><line x1='18' y1='6' x2='6' y2='18'/></svg>") center / contain no-repeat; }
+.aat-status--model { background: var(--model-soft); border: 1px dashed var(--model-line); color: var(--model); }
+.aat-status--model::before { border: 1.5px dashed currentColor; }
+@media (forced-colors: active) { .aat-status::before { background: CanvasText; } .aat-status--started::before, .aat-status--model::before { background: none; } }
+
+/* Progress: one segment per item in a queue. Done is action, the one that needs you is attention, the rest are line. */
+.aat-progress { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.aat-progress__seg { width: 32px; height: 6px; border-radius: var(--radius-full); background: var(--line); }
+.aat-progress__seg--done { background: var(--action); }
+.aat-progress__seg--current { background: var(--attention); }
+@media (forced-colors: active) { .aat-progress__seg { border: 1px solid CanvasText; } .aat-progress__seg--done { background: CanvasText; } }
+
+/* Step: a numbered instruction, so the order of clicks is visible */
+.aat-step { display: grid; grid-template-columns: 28px minmax(0, 1fr); column-gap: var(--space-3); row-gap: var(--space-3); align-items: start; }
+.aat-step__n { grid-row: span 2; display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--radius-full);
+  background: var(--action-soft); color: var(--action); font: 600 14px/1 var(--font-sans); }
+.aat-step__label { font: 600 16px/28px var(--font-sans); color: var(--ink); }
+.aat-step__body { grid-column: 2; min-width: 0; }
+.aat-step--done .aat-step__n { background: transparent; color: var(--ink-muted); border: 1.5px solid var(--line-strong); }
+
+/* Choices: pills you tap. Options with a description become rounded tiles. */
+.aat-choices { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: var(--space-2); }
+.aat-choices > legend { padding: 0; margin-bottom: var(--space-2); font: 600 16px/26px var(--font-sans); color: var(--ink); }
+.aat-choices__hint { margin: 0; font: 400 14px/22px var(--font-sans); color: var(--ink-muted); }
+.aat-choices__list { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.aat-choice { display: flex; align-items: center; gap: 10px; min-height: var(--target); padding: 6px var(--space-4) 6px 10px; cursor: pointer;
+  border: 1.5px solid var(--line-strong); border-radius: var(--radius-full); background: var(--surface); color: var(--ink);
+  transition: background-color .15s, border-color .15s, color .15s; }
+.aat-choice:hover { border-color: var(--ink-muted); }
+.aat-choice:has(.aat-choice__desc) { flex: 1 1 220px; align-items: flex-start; padding: var(--space-3) var(--space-4) var(--space-3) var(--space-3); border-radius: var(--radius-md); }
+.aat-choice:has(input:checked) { background: var(--action); border-color: var(--action); color: var(--on-action); }
+.aat-choice:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+.aat-choice:has(input:disabled) { cursor: not-allowed; opacity: .6; }
+.aat-choice input { appearance: none; flex: none; display: inline-grid; place-content: center; width: 20px; height: 20px; margin: 0;
+  border: 2px solid var(--line-strong); border-radius: 6px; background: var(--surface); cursor: inherit; }
+.aat-choice:has(.aat-choice__desc) input { margin-top: 2px; }
+.aat-choice input:focus-visible { outline: none; }
+.aat-choice input[type="radio"] { border-radius: var(--radius-full); }
+.aat-choice input::before { content: ""; width: 12px; height: 12px; scale: 0; background: var(--action);
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='4'><polyline points='20 6 9 17 4 12'/></svg>") center / contain no-repeat; }
+.aat-choice input[type="radio"]::before { width: 8px; height: 8px; border-radius: var(--radius-full); mask: none; }
+.aat-choice input:checked { background: var(--on-action); border-color: var(--on-action); }
+.aat-choice input:checked::before { scale: 1; }
+@media (prefers-reduced-motion: no-preference) { .aat-choice input::before { transition: scale .15s; } }
+@media (forced-colors: active) { .aat-choice input::before { background: CanvasText; } .aat-choice:has(input:checked) { outline: 2px solid Highlight; } }
+.aat-choice__text { display: grid; gap: 2px; color: inherit; }
+.aat-choice__desc { font: 400 14px/22px var(--font-sans); color: var(--ink-muted); }
+.aat-choice:has(input:checked) .aat-choice__desc { color: inherit; }
+.aat-choice:has(input:checked) .aat-code::before { box-shadow: 0 0 0 2px var(--on-action); }
+.aat-choices--wide .aat-choices__list { flex-direction: column; }
+.aat-choices--wide .aat-choice { flex-basis: auto; }
+
+/* Text field */
+.aat-field { display: grid; gap: 6px; max-width: var(--measure); }
+.aat-field__label { font: 600 14px/22px var(--font-sans); color: var(--ink); }
+.aat-field__hint { font: 400 14px/22px var(--font-sans); color: var(--ink-muted); }
+.aat-input { box-sizing: border-box; width: 100%; min-height: 46px; padding: 10px 14px; border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); font: 400 16px/24px var(--font-sans); }
+.aat-input:focus { border-color: var(--action); }
+textarea.aat-input { min-height: 104px; resize: vertical; }
+.aat-input::placeholder { color: var(--ink-muted); }
+.aat-field--error .aat-input { border-color: var(--refusal); box-shadow: inset 0 0 0 1px var(--refusal); }
+.aat-field__error { font: 600 14px/22px var(--font-sans); color: var(--refusal); }
+
+/* Passage: a participant's words, the largest text in a decision */
+.aat-passage { margin: 0; display: grid; gap: var(--space-2); max-width: var(--measure); }
+.aat-passage blockquote { margin: 0; font: 400 22px/31px var(--font-serif); color: var(--ink); text-wrap: pretty; }
+.aat-passage figcaption { font: 400 14px/22px var(--font-sans); color: var(--ink-muted); }
+
+/* Provenance: who wrote this. Dashed = the model, not decided. Solid = the researcher, decided. */
+.aat-prov { display: grid; gap: 6px; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); max-width: var(--measure); }
+.aat-prov__who { margin: 0; font: 600 14px/22px var(--font-sans); }
+.aat-prov__body { color: inherit; font-size: 15px; line-height: 24px; }
+.aat-prov--model { background: var(--model-soft); border: 1.5px dashed var(--model-line); color: var(--model); }
+.aat-prov--researcher { background: var(--surface); border: 2px solid var(--ink); color: var(--ink); }
+
+/* Code tag: a pill with the code's colour as a dot */
+.aat-code { display: inline-flex; align-items: center; gap: 7px; padding: 2px 12px 2px 10px; border: 1px solid var(--line); border-radius: var(--radius-full);
+  background: var(--surface); font: 400 14px/22px var(--font-sans); color: var(--ink); white-space: nowrap; }
+.aat-code::before { content: ""; width: 9px; height: 9px; border-radius: var(--radius-full); background: var(--line-strong); flex: none; }
+.aat-code--1::before { background: var(--code-1); } .aat-code--2::before { background: var(--code-2); } .aat-code--3::before { background: var(--code-3); }
+.aat-code--4::before { background: var(--code-4); } .aat-code--5::before { background: var(--code-5); } .aat-code--6::before { background: var(--code-6); }
+.aat-code--bare { border: 0; padding: 0; background: none; font: inherit; color: inherit; }
+
+/* Decision card: the one open decision, raised on the page */
+.aat-card { display: grid; gap: var(--space-6); padding: clamp(20px, 4vw, 36px); border-radius: var(--radius-lg); background: var(--surface);
+  box-shadow: 0 1px 2px rgb(23 36 53 / .06), 0 12px 32px rgb(23 36 53 / .08); }
+.aat-card__head { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); justify-content: space-between; align-items: flex-start; }
+.aat-card__titles { display: grid; gap: 4px; min-width: 0; }
+.aat-card__title { margin: 0; font: 600 18px/26px var(--font-sans); color: var(--ink); text-wrap: balance; }
+.aat-card--done { padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--line); box-shadow: none; }
+.aat-card__summary { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-4); }
+.aat-card__summary .aat-card__title { font-size: 16px; line-height: 24px; }
+.aat-card__result { color: var(--ink-muted); }
+.aat-card__summary .aat-btn { margin-left: auto; }
+@media (forced-colors: active) { .aat-card { border: 1px solid CanvasText; } }
+
+/* Notice: what the server said */
+.aat-notice { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 2px var(--space-3); padding: var(--space-3) var(--space-4);
+  border: 1.5px solid var(--line-strong); border-radius: var(--radius-md); background: var(--surface); max-width: var(--measure); }
+.aat-notice::before { content: ""; grid-row: span 2; width: 18px; height: 18px; margin-top: 4px; background: currentColor;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'><circle cx='12' cy='12' r='10'/><line x1='12' y1='11' x2='12' y2='17'/><line x1='12' y1='7' x2='12' y2='7.5'/></svg>") center / contain no-repeat; }
+.aat-notice__title { margin: 0; font: 600 16px/26px var(--font-sans); color: var(--ink); }
+.aat-notice__body { margin: 0; color: var(--ink); }
+.aat-notice__body ul { margin: var(--space-1) 0 0; padding-left: 20px; }
+.aat-notice--info { color: var(--action); }
+.aat-notice--refusal { color: var(--refusal); background: var(--refusal-soft); border-color: var(--refusal); }
+.aat-notice--refusal::before { mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'><circle cx='12' cy='12' r='10'/><line x1='8' y1='8' x2='16' y2='16'/><line x1='16' y1='8' x2='8' y2='16'/></svg>"); }
+.aat-notice--done { color: var(--done); background: var(--done-soft); border-color: var(--done); }
+.aat-notice--done::before { mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5'><circle cx='12' cy='12' r='10'/><polyline points='17 9 10.5 15.5 7 12'/></svg>"); }
+@media (forced-colors: active) { .aat-notice::before { background: CanvasText; } }
+
+/* Tally: what is left, and the way to the next item */
+.aat-tally { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); align-items: center; justify-content: space-between; padding: 0 var(--space-2); }
+.aat-tally__count { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--ink); font-variant-numeric: tabular-nums; }
+.aat-tally__count b { font-weight: 700; }
+.aat-tally__actions { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-3); align-items: center; }
+/* A sticky tally is always one row: the count and Go to next. The finishing button goes below the last card. */
+.aat-tally--sticky { position: sticky; bottom: max(var(--space-2), env(safe-area-inset-bottom, 0px)); z-index: 5; padding: 2px var(--space-2) 2px var(--space-4);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-full); box-shadow: 0 6px 20px rgb(23 36 53 / .10); }
+.aat-tally--sticky, .aat-tally--sticky .aat-tally__actions { flex-wrap: nowrap; }
+.aat-tally--sticky .aat-tally__count { min-width: 0; }
+.aat-tally--sticky .aat-tally__text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Stages */
+.aat-stages { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.aat-stage { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target); padding: 0 var(--space-4) 0 6px;
+  border: 1.5px solid var(--line-strong); border-radius: var(--radius-full); background: var(--surface); color: var(--ink); font: 600 15px/1 var(--font-sans); cursor: pointer; }
+.aat-stage:hover { border-color: var(--ink-muted); }
+.aat-stage__n { display: grid; place-items: center; width: 30px; height: 30px; border-radius: var(--radius-full); background: var(--action-soft);
+  font: 600 14px/1 var(--font-sans); color: var(--action); }
+.aat-stage__note { font: 400 14px/22px var(--font-sans); color: var(--ink-muted); }
+.aat-stage[aria-current="step"] { border: 2px solid var(--action); padding-left: 5px; }
+.aat-stage[aria-current="step"] .aat-stage__n { background: var(--action); color: var(--on-action); }
+
+/* Table */
+.aat-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
+.aat-table { width: 100%; border-collapse: collapse; font: 400 15px/22px var(--font-sans); color: var(--ink); }
+.aat-table caption { text-align: left; padding: var(--space-3) var(--space-4) 0; font: 600 16px/26px var(--font-sans); }
+.aat-table th, .aat-table td { text-align: left; vertical-align: top; padding: 10px var(--space-4); border-bottom: 1px solid var(--line); }
+.aat-table thead th { font: 600 14px/22px var(--font-sans); color: var(--ink-muted); }
+.aat-table tr:last-child td { border-bottom: 0; }
+.aat-table .aat-num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Byline */
+.aat-byline { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--line);
+  font: 400 14px/22px var(--font-sans); color: var(--ink-muted); }
+.aat-byline b { color: var(--ink); font-weight: 600; }
+.aat-byline a { color: var(--action); text-underline-offset: 3px; }
+.aat-byline__about { flex-basis: 100%; max-width: var(--measure); text-wrap: balance; }

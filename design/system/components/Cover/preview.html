@@ -1,0 +1,61 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AI Anthropology Toolkit</title>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-sans); overflow: hidden; }
+  .cover { position: relative; height: 288px; overflow: hidden; }
+  .art { position: absolute; inset: 0 0 auto 0; height: 136px; }
+  .art svg { display: block; width: 960px; height: 136px; }
+  .ink { fill: var(--ink); }
+  .act { fill: var(--action); }
+  .blk { rx: var(--radius-lg); }
+  .tile { rx: 20px; }
+  .draft { fill: var(--model-soft); stroke: var(--model-line); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .needs { fill: var(--attention); }
+  .decided { fill: var(--action); }
+  .words { position: absolute; left: var(--space-8); right: var(--space-8); bottom: var(--space-8); }
+  .name { margin: 0; font-size: 60px; line-height: .95; font-weight: 600; letter-spacing: -.02em; color: var(--ink); white-space: nowrap; }
+  .tag { margin: var(--space-3) 0 0 2px; font-size: 14px; line-height: 20px; color: var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="cover">
+<div class="art" aria-hidden="true">
+<svg viewBox="0 0 960 136" width="960" height="136">
+<!--
+  blocks      ink 192x96 (the deep), action 288x96 bled off the right edge (the identity hue), attention once as a single 40x40 tile (it only ever means Needs you)
+  arrangement a strip of unequal bands across the top: ink slab, a run of tiles, action slab; name beneath on the ground
+  pattern     tiles from "Show who decided": dashed model-line drafts on model-soft turn into solid action decisions, with one attention tile at the turn
+  scales      tiles 40 (space-8 + space-2) at a 56 pitch (space-12 + space-2); band 96 tall from space-8; corners radius-lg on slabs, round tiles like the pills
+-->
+<rect class="ink blk" x="32" y="32" width="192" height="96" rx="22"/>
+<rect class="tile draft" x="240" y="32" width="40" height="40" rx="20"/>
+<rect class="tile draft" x="240" y="88" width="40" height="40" rx="20"/>
+<rect class="tile draft" x="296" y="32" width="40" height="40" rx="20"/>
+<rect class="tile draft" x="296" y="88" width="40" height="40" rx="20"/>
+<rect class="tile draft" x="352" y="32" width="40" height="40" rx="20"/>
+<rect class="tile draft" x="352" y="88" width="40" height="40" rx="20"/>
+<rect class="tile draft" x="408" y="32" width="40" height="40" rx="20"/>
+<rect class="tile draft" x="408" y="88" width="40" height="40" rx="20"/>
+<rect class="tile needs" x="464" y="32" width="40" height="40" rx="20"/>
+<rect class="tile decided" x="464" y="88" width="40" height="40" rx="20"/>
+<rect class="tile decided" x="520" y="32" width="40" height="40" rx="20"/>
+<rect class="tile decided" x="520" y="88" width="40" height="40" rx="20"/>
+<rect class="tile decided" x="576" y="32" width="40" height="40" rx="20"/>
+<rect class="tile decided" x="576" y="88" width="40" height="40" rx="20"/>
+<rect class="tile decided" x="632" y="32" width="40" height="40" rx="20"/>
+<rect class="tile decided" x="632" y="88" width="40" height="40" rx="20"/>
+<rect class="act blk" x="704" y="32" width="288" height="96" rx="22"/>
+</svg>
+</div>
+<div class="words">
+<h1 class="name">AI Anthropology Toolkit</h1>
+<p class="tag">Show who decided. What needs you comes first. One next step.</p>
+</div>
+</div>
+</body>
+</html>

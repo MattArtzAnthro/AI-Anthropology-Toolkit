@@ -12,7 +12,7 @@ cd "$(git rev-parse --show-toplevel)"
 
 # Fewer tests than this means discovery broke or tests were deleted. Raise it
 # when the suite grows; lowering it is a decision to explain in the commit.
-MIN_TESTS=741
+MIN_TESTS=759
 
 PY=.venv/bin/python
 if ! "$PY" -c "import ruff, coverage, bandit, mypy" 2>/dev/null; then

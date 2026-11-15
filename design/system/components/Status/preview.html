@@ -1,0 +1,16 @@
+<!-- @dsCard group="Status" height=72 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Status</title></head>
+<body>
+<div id="root" class="aat-demo"></div>
+<script>
+  var A = window.AAT, h = React.createElement;
+  function Demo() {
+    return h("div", { className: "aat-row" }, h(A.Status, { tone: "needs" }), h(A.Status, { tone: "started" }), h(A.Status, { tone: "done" }),
+      h(A.Status, { tone: "refused" }), h(A.Status, { tone: "model" }));
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(Demo));
+</script>
+</body>
+</html>

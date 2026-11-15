@@ -1,0 +1,25 @@
+<!-- @dsCard group="Structure" height=560 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>DecisionCard</title></head>
+<body>
+<div id="root" class="aat-demo"></div>
+<script>
+  var A = window.AAT, h = React.createElement;
+  function Demo() {
+    var s = React.useState([]), picks = s[0], setPicks = s[1], d = React.useState(false), done = d[0], setDone = d[1];
+    var labels = { MUTUAL_AID: "Mutual aid", CHARITY: "Charity framing", DIGNITY: "Dignity and stigma" };
+    if (done) return h("div", { className: "aat-demo" }, h(A.DecisionCard, { title: "P07-c15", state: "done", doneLabel: "Ruled",
+      result: picks.map(function (p) { return labels[p]; }).join(", "), onChange: function () { setDone(false); } }));
+    return h(A.DecisionCard, { eyebrow: "P07-c15", title: "Disagreement 1 of 4", state: picks.length ? "started" : "needs", statusLabel: picks.length ? "Started" : "Needs your ruling" },
+      h(A.Passage, { source: "Participant 7" }, "I put stuff in because I had extra. I've never taken anything, but I would if I needed to."),
+      h("div", { className: "aat-row" }, h("span", { className: "aat-field__hint" }, "Coder A"), h(A.CodeTag, { tone: 1 }, "Mutual aid"), h("span", { className: "aat-field__hint" }, "Coder B"), h(A.CodeTag, { tone: 2 }, "Charity framing")),
+      h(A.Step, { n: 1, label: "Which codes apply?", done: picks.length > 0 }, h(A.ChoiceGroup, { legend: "Which codes apply?", hideLegend: true, multiple: true, value: picks, onChange: setPicks,
+        options: [{ value: "MUTUAL_AID", label: "Mutual aid", tone: 1 }, { value: "CHARITY", label: "Charity framing", tone: 2 }, { value: "DIGNITY", label: "Dignity and stigma", tone: 3 }] })),
+      h(A.Step, { n: 2, label: "Record your ruling" }, h(A.Button, { variant: "primary", disabled: !picks.length, reason: "Choose at least one code.", onClick: function () { setDone(true); } }, "Record ruling")),
+      h(A.Provenance, { by: "model", label: "Model proposal · hidden" }, "Hidden until you record your ruling."));
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(Demo));
+</script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{
+  "v": 3,
+  "layout": "files",
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-11-15T17:18:13Z"
+  },
+  "title": "AI Anthropology Toolkit",
+  "namespace": "AAT",
+  "libraries": [
+    {
+      "name": "react",
+      "version": "18"
+    },
+    {
+      "name": "react-dom",
+      "version": "18"
+    }
+  ],
+  "sections": {},
+  "groups": [],
+  "assetGroups": {},
+  "blobs": {},
+  "docs": {
+    "readme": "project/README.md",
+    "sections": []
+  },
+  "lastChange": {
+    "by": "Matt Artz",
+    "at": "2026-11-15T17:45:53Z",
+    "via": "Claude Code",
+    "note": "Harbor palette and the one-at-a-time look: Figtree and Source Serif 4, pill controls, a raised decision card, and a new Progress component."
+  }
+}

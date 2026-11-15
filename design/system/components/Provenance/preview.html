@@ -1,0 +1,17 @@
+<!-- @dsCard group="Data" height=210 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Provenance</title></head>
+<body>
+<div id="root" class="aat-demo"></div>
+<script>
+  var A = window.AAT, h = React.createElement;
+  function Demo() {
+    return h("div", { className: "aat-demo" },
+      h(A.Provenance, { by: "model", label: "Model proposal · not decided" }, h("b", null, "Charity framing. "), "The speaker gives surplus and has not taken; the reciprocity is hypothetical."),
+      h(A.Provenance, { by: "researcher" }, h("b", null, "Mutual aid. "), "Departs from the proposal. Rule recorded; the codebook moves to v1.1."));
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(Demo));
+</script>
+</body>
+</html>

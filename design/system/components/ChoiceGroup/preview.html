@@ -1,0 +1,18 @@
+<!-- @dsCard group="Inputs" height=260 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ChoiceGroup</title></head>
+<body>
+<div id="root" class="aat-demo"></div>
+<script>
+  var A = window.AAT, h = React.createElement;
+  function Demo() {
+    var s = React.useState(["MUTUAL_AID"]);
+    return h(A.ChoiceGroup, { legend: "Which codes apply to this passage?", hint: "Choose every code that fits, or none.", multiple: true, value: s[0], onChange: s[1],
+      options: [{ value: "MUTUAL_AID", label: "Mutual aid", tone: 1 }, { value: "CHARITY", label: "Charity framing", tone: 2 },
+        { value: "DIGNITY", label: "Dignity and stigma", tone: 3 }, { value: "WATCHED", label: "Being watched", tone: 4 }] });
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(Demo));
+</script>
+</body>
+</html>

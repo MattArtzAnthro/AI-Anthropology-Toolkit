@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Anthropology Toolkit &mdash; Brand Guide</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Source+Code+Pro:wght@400&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&amp;display=swap">
+<style>
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    /* Color Tokens — filled from brand-spec.json */
+    --paper: #e9eef4;
+    --surface: #ffffff;
+    --line: #d5dde7;
+    --line-strong: #768699;
+    --ink: #172435;
+    --ink-muted: #4f5d6e;
+    --action: #1f4f8f;
+    --action-hover: #173d70;
+    --on-action: #ffffff;
+    --action-soft: #e8eef7;
+    --attention: #ffd25e;
+    --on-attention: #332500;
+    --done: #24753d;
+    --done-soft: #e6f3ea;
+    --refusal: #b3261e;
+    --refusal-soft: #fdecea;
+    --model: #5b6676;
+    --model-line: #768699;
+    --model-soft: #f0f3f7;
+    --code-1: #2a6fb0;
+    --code-2: #a86200;
+    --code-3: #12806a;
+    --code-4: #ad4588;
+    --code-5: #c2501f;
+    --code-6: #2f86b8;
+    --focus: #1f4f8f;
+    --color-primary: #1f4f8f;
+    --color-accent: #768699;
+    --color-bg: #ffffff;
+    --color-bg-alt: #e9eef4;
+    --color-text: #172435;
+    --color-border: #d5dde7;
+
+    /* Transparency Variants */
+    /* none */
+
+    /* Typography Tokens */
+    --font-heading: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-serif: "Source Serif 4", Georgia, serif;
+
+    /* Spacing Tokens */
+    --content-width: 880px;
+    --space-section-v: 64px;
+    --space-section-h: 48px;
+
+    /* Component Tokens */
+    --radius: 14px;
+    --radius-lg: 22px;
+    --accent-width: 48px;
+    --accent-height: 4px;
+    --accent-radius: 999px;
+  }
+
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--color-text);
+    background: var(--color-bg);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── COVER PAGE ── */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px;
+    background: var(--color-primary);
+    page-break-after: always;
+  }
+  .cover-accent {
+    width: var(--accent-width);
+    height: var(--accent-height);
+    background: var(--color-accent);
+    border-radius: var(--accent-radius);
+    margin-bottom: 48px;
+  }
+  .cover-logo {
+    margin-bottom: 32px;
+  }
+  .cover h1 {
+    font-family: var(--font-heading);
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--color-bg);
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .cover-sub {
+    font-family: var(--font-body);
+    font-size: 22px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 64px;
+  }
+  .cover-meta {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .cover-meta span { margin: 0 12px; }
+
+  /* ── PAGE LAYOUT ── */
+  .page-section {
+    max-width: var(--content-width, 900px);
+    margin: 0 auto;
+    padding: var(--space-section-v, 100px) var(--space-section-h, 80px);
+  }
+  .page-section-full {
+    max-width: 100%;
+    padding: var(--space-section-v, 100px) var(--space-section-h, 80px);
+  }
+  .page-section-alt {
+    max-width: 100%;
+    padding: var(--space-section-v, 100px) var(--space-section-h, 80px);
+    background: var(--color-bg-alt);
+  }
+  .page-section-alt .page-inner {
+    max-width: var(--content-width, 900px);
+    margin: 0 auto;
+  }
+  .page-break { page-break-before: always; }
+
+  /* ── SECTION HEADERS ── */
+  .section-label {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-primary);
+  }
+  .section-title {
+    font-family: var(--font-heading);
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1.2;
+    margin-top: 12px;
+    margin-bottom: 20px;
+  }
+  .section-title--on-alt {
+    color: var(--color-text);
+  }
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background: var(--color-border);
+    margin-bottom: 16px;
+  }
+  .section-accent {
+    width: var(--accent-width);
+    height: var(--accent-height);
+    background: var(--color-accent);
+    border-radius: var(--accent-radius);
+    margin-bottom: 48px;
+  }
+  .section-intro {
+    font-family: var(--font-heading);
+    font-size: 16px;
+    color: var(--color-text);
+    line-height: 1.9;
+    font-style: italic;
+    max-width: 640px;
+    margin-bottom: 64px;
+    opacity: 0.75;
+  }
+
+  /* ── SUBSECTION ── */
+  .subsection {
+    margin-bottom: 64px;
+  }
+  .subsection-title {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 24px;
+    line-height: 1.3;
+  }
+  .subsection-title--on-alt {
+    color: var(--color-text);
+  }
+  .subsection p, .subsection li {
+    font-size: 15px;
+    line-height: 1.85;
+    color: var(--color-text);
+    margin-bottom: 12px;
+  }
+  .subsection ul {
+    list-style: none;
+    margin-top: 8px;
+  }
+  .subsection ul li {
+    padding: 8px 0 8px 20px;
+    position: relative;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .subsection ul li::before {
+    content: '\2014';
+    position: absolute;
+    left: 0;
+    color: var(--color-border);
+  }
+
+  /* ── COLOR PALETTE ── */
+  .palette-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .palette-swatch {
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .swatch-color {
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    border: 1px solid var(--color-border);
+  }
+  .swatch-info {
+    padding: 14px 16px;
+  }
+  .swatch-token {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 2px;
+  }
+  .swatch-hex {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--color-text);
+    opacity: 0.6;
+    letter-spacing: 0.5px;
+  }
+  .swatch-usage {
+    font-size: 12px;
+    color: var(--color-text);
+    opacity: 0.5;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* ── USAGE & DATA TABLES ── */
+  .usage-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 24px;
+  }
+  /* Tables wider than the screen scroll inside their own box, so the page never
+     scrolls sideways at phone width. */
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .usage-table th {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--color-primary);
+  }
+  .usage-table td {
+    font-size: 14px;
+    color: var(--color-text);
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--color-border);
+    line-height: 1.6;
+  }
+  .usage-table td:first-child {
+    font-weight: 600;
+  }
+  .color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+    border: 1px solid var(--color-border);
+  }
+  .pass {
+    color: #2e7d32;
+    font-weight: 600;
+  }
+  .fail {
+    color: #c62828;
+    font-weight: 600;
+  }
+
+  /* ── TYPOGRAPHY SHOWCASE ── */
+  .type-specimen {
+    padding: 36px 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .type-specimen:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .type-meta {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .type-meta span {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-text);
+    opacity: 0.4;
+  }
+  .type-sample-h1 {
+    font-family: var(--font-heading);
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1.2;
+  }
+  .type-sample-h2 {
+    font-family: var(--font-heading);
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1.25;
+  }
+  .type-sample-h3 {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1.3;
+  }
+  .type-sample-body {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--color-text);
+    line-height: 1.7;
+    max-width: 600px;
+  }
+  .type-sample-label {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--color-primary);
+  }
+  .type-sample-link {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .type-sample-accent {
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--color-text);
+    opacity: 0.7;
+    line-height: 1.6;
+    max-width: 600px;
+  }
+
+  /* ── BUTTON SHOWCASE ── */
+  .button-row {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+  .btn-primary-demo {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-bg);
+    background: var(--color-primary);
+    padding: 13px 24px;
+    border-radius: var(--radius);
+    border: 1.5px solid #1f4f8f; border-radius: 999px;
+    cursor: pointer;
+  }
+  .btn-secondary-demo {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-primary);
+    background: transparent;
+    padding: 13px 24px;
+    border-radius: var(--radius);
+    border: 1.5px solid #768699; border-radius: 999px;
+    cursor: pointer;
+  }
+  .btn-tertiary-demo {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .btn-label {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text);
+    opacity: 0.4;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 12px;
+  }
+  .button-card {
+    text-align: center;
+  }
+
+  /* ── SPACING DIAGRAM ── */
+  .spacing-item {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 24px;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .spacing-value {
+    font-family: var(--font-heading);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+  .spacing-desc {
+    font-size: 14px;
+    color: var(--color-text);
+    opacity: 0.7;
+  }
+  .spacing-bar {
+    height: 8px;
+    background: var(--color-primary);
+    border-radius: var(--accent-radius);
+    margin-top: 4px;
+  }
+
+  /* ── COMPONENT DEMOS ── */
+  .component-demo {
+    background: var(--color-bg-alt);
+    padding: 48px;
+    margin: 24px 0 32px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+  }
+  .component-demo--white {
+    background: var(--color-bg);
+  }
+  .component-demo--primary {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+  .component-demo--dark {
+    background: var(--color-text);
+    border-color: var(--color-text);
+  }
+
+  /* ── LOGO DISPLAY ── */
+  .logo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 24px 0 32px;
+  }
+  .logo-card {
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+  }
+  .logo-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .logo-text {
+    font-family: var(--font-heading);
+    font-size: 22px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* ── DO/DON'T ── */
+  .guidelines-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    margin-top: 32px;
+  }
+  .guideline-col h4 {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid var(--color-primary);
+    color: var(--color-primary);
+  }
+  .guideline-col.dont h4 {
+    border-bottom-color: #c62828;
+    color: #c62828;
+  }
+  .guideline-col ul {
+    list-style: none;
+  }
+  .guideline-col li {
+    font-size: 14px;
+    color: var(--color-text);
+    line-height: 1.7;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  /* ── RULE CALLOUT ── */
+  .rule {
+    background: var(--color-bg-alt);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin: 12px 0;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .rule strong {
+    color: var(--color-primary);
+  }
+
+  /* ── TOC ── */
+  .toc {
+    list-style: none;
+    margin-top: 32px;
+  }
+  .toc li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 14px;
+    color: var(--color-text);
+  }
+  .toc li span:first-child {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--color-text);
+  }
+  .toc li span:last-child {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-primary);
+    letter-spacing: 1px;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--color-text);
+    color: rgba(255, 255, 255, 0.85);
+    padding: 32px;
+    margin-top: 24px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 2.2;
+    border-radius: var(--radius);
+    overflow-x: auto;
+  }
+  .code-block .prop { color: #7ec8e3; }
+  .code-block .val { color: #FFB366; }
+  .code-block .comment { color: rgba(255, 255, 255, 0.35); }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    background: var(--color-primary);
+    padding: 64px 80px;
+    text-align: center;
+  }
+  .doc-footer .footer-brand {
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-bg);
+    margin-bottom: 16px;
+  }
+  .doc-footer p {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .doc-footer .footer-accent {
+    width: var(--accent-width);
+    height: var(--accent-height);
+    background: var(--color-accent);
+    border-radius: var(--accent-radius);
+    margin: 0 auto 24px;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    .page-section, .page-section-full, .page-section-alt { padding: 60px 50px; }
+    .cover { min-height: 100vh; }
+    .no-break { page-break-inside: avoid; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    .logo-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .cover { padding: 60px 24px; }
+    .cover h1 { font-size: 32px; }
+    .cover-sub { font-size: 18px; }
+    .page-section, .page-section-full, .page-section-alt { padding: 64px 24px; }
+    .section-title { font-size: 30px; }
+    .subsection-title { font-size: 20px; }
+    .palette-grid { grid-template-columns: 1fr 1fr; }
+    .guidelines-grid { grid-template-columns: 1fr; }
+    .logo-grid { grid-template-columns: 1fr; }
+    .button-row { flex-direction: column; align-items: flex-start; }
+    .type-sample-h1 { font-size: 32px; }
+    .type-sample-h2 { font-size: 26px; }
+    .usage-table { font-size: 13px; }
+    .usage-table th, .usage-table td { padding: 10px 10px; }
+    .spacing-item { grid-template-columns: 80px 1fr; gap: 16px; }
+  }
+
+  @media (max-width: 480px) {
+    .palette-grid { grid-template-columns: 1fr; }
+    .type-meta { gap: 12px; }
+    .cover h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 01 COVER -->
+<!-- ════════════════════════════════════════ -->
+<div class="cover">
+  
+  <div class="cover-accent"></div>
+  <h1>AI Anthropology Toolkit</h1>
+  <div class="cover-sub">Brand Guide</div>
+  <div class="cover-meta">
+    <span>Version 1.0.0</span>
+    &middot;
+    <span>2026-11-15</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 02 TABLE OF CONTENTS -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">Contents</div>
+  <div class="section-title">Table of Contents</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <ul class="toc">
+    <li><span>Brand Overview</span> <span>01</span></li>
+    <li><span>Brand Archetype</span> <span>02</span></li>
+    <li><span>Logo</span> <span>03</span></li>
+    <li><span>Color Palette</span> <span>04</span></li>
+    <li><span>Typography</span> <span>05</span></li>
+    <li><span>Spacing &amp; Layout</span> <span>06</span></li>
+    <li><span>Buttons &amp; Interactive Elements</span> <span>07</span></li>
+    <li><span>Component Patterns</span> <span>08</span></li>
+    <li><span>Photography &amp; Imagery</span> <span>09</span></li>
+    <li><span>Print Specifications</span> <span>10</span></li>
+    <li><span>Co-Branding &amp; Partner Logos</span> <span>11</span></li>
+    <li><span>Email Signature</span> <span>12</span></li>
+    <li><span>Voice &amp; Tone</span> <span>13</span></li>
+    <li><span>Usage Guidelines</span> <span>14</span></li>
+    <li><span>Design Token Reference</span> <span>15</span></li>
+  </ul>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 03 BRAND OVERVIEW -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">01 &mdash; Foundation</div>
+  <div class="section-title">Brand Overview</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    One small set of tokens and components for every screen the toolkit shows, from a ratification desk inside a chat to an exported decision record.
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Brand Positioning</div>
+    <p>The toolkit asks researchers to decide things the model has drafted: codes, rulings, themes. The interface exists to make those decisions clear, quick and on the record, and to never let a model draft pass for a decision.</p>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Brand Principles</div>
+    <ul>
+      <li>Show who decided. Model drafts sit in a dashed model box; the researcher&#x27;s decisions are solid.</li>
+<li>What needs you is the loudest thing on screen. One open decision at a time, raised, with the yellow Needs-you status.</li>
+<li>One next step, numbered. One primary button per view; a disabled button says why.</li>
+    </ul>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Brand Descriptors</div>
+    <p style="font-family: var(--font-body); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--color-primary); line-height: 2.8;">
+      Plain &middot; Exact &middot; Accountable &middot; Calm
+    </p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 04 BRAND ARCHETYPE -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">02 &mdash; Foundation</div>
+  <div class="section-title">Brand Archetype</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    No archetype is set for the toolkit. Its visual and verbal decisions follow from the three principles in the overview.
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Primary archetype: &mdash;</div>
+    <p>Not set.</p>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Secondary archetype: &mdash;</div>
+    <p>Not set.</p>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">How Archetypes Influence Brand Decisions</div>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>Archetype Influence</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>All dimensions</td><td>Governed by the three principles, not an archetype.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="subsection">
+    <div class="rule"><strong>Where two rules pull apart, the one that keeps the researcher's decision visible wins.</strong></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 05 LOGO -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">03 &mdash; Identity</div>
+  <div class="section-title">Logo</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    The toolkit has no logo. The Byline is its only branding.
+  </div>
+
+  <div class="subsection no-break">
+    <div class="subsection-title">Primary Lockup</div>
+    <p>The name is set in Figtree 600, in ink on surface or paper, inside the Byline: AI Anthropology Toolkit by Matt Artz, the version, Cite (DOI), GitHub and mattartz.me.</p>
+
+    <div class="logo-grid">
+      <div class="logo-card" style="background:#ffffff;border:1px solid #d5dde7"><span class="logo-text" style="color:#172435">AI Anthropology Toolkit</span></div><div class="logo-card" style="background:#0f141b"><span class="logo-text" style="color:#e4eaf2">AI Anthropology Toolkit</span></div>
+    </div>
+  </div>
+
+  <div class="subsection no-break">
+    <div class="subsection-title">Mark Only (Favicon / Avatar)</div>
+    <p>There is no mark. Hosts show their own icon.</p>
+    <div style="display: flex; gap: 20px; align-items: center; margin: 24px 0;">
+      
+    </div>
+  </div>
+
+  <div class="subsection no-break">
+    <div class="subsection-title">Clear Space &amp; Minimum Size</div>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Rule</th>
+          <th>Specification</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Clear space</td>
+          <td>The Byline sits below a 1px line with space-3 (12px) above it.</td>
+        </tr>
+        <tr>
+          <td>Minimum mark size</td>
+          <td>Not set. The toolkit has no logo; the name is set in type.</td>
+        </tr>
+        <tr>
+          <td>Minimum lockup width</td>
+          <td>Not set. The toolkit has no logo; the name is set in type.</td>
+        </tr>
+        <tr>
+          <td>Text alignment</td>
+          <td>Left, as running text.</td>
+        </tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="subsection no-break">
+    <div class="subsection-title">Mark Construction</div>
+    <p>Not set. The toolkit has no logo; the name is set in type.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 06 COLOR PALETTE -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">04 &mdash; Color</div>
+  <div class="section-title">Color Palette</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    Harbor: navy for what you can do, on a cool grey page, with yellow kept for what needs you. Every token has a light and a dark value; the swatches show light.
+  </div>
+
+  <div class="palette-grid">
+    <div class="palette-swatch"><div class="swatch-color" style="background:#e9eef4"></div><div class="swatch-info"><div class="swatch-token">paper</div><div class="swatch-hex">#e9eef4 &middot; dark #0f141b</div><div class="swatch-usage">Page background. The ground every toolkit view sits on.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#ffffff"></div><div class="swatch-info"><div class="swatch-token">surface</div><div class="swatch-hex">#ffffff &middot; dark #18202a</div><div class="swatch-usage">Cards, inputs, choices and tables, on paper.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#d5dde7"></div><div class="swatch-info"><div class="swatch-token">line</div><div class="swatch-hex">#d5dde7 &middot; dark #273141</div><div class="swatch-usage">Hairlines between rows and around cards. Decorative only; never the sole sign of a control.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#768699"></div><div class="swatch-info"><div class="swatch-token">line-strong</div><div class="swatch-hex">#768699 &middot; dark #677a90</div><div class="swatch-usage">Borders of controls (choices, inputs, secondary buttons). Meets 3:1 on paper and surface.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#172435"></div><div class="swatch-info"><div class="swatch-token">ink</div><div class="swatch-hex">#172435 &middot; dark #e4eaf2</div><div class="swatch-usage">Primary text, on paper, surface, action-soft and attention.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#4f5d6e"></div><div class="swatch-info"><div class="swatch-token">ink-muted</div><div class="swatch-hex">#4f5d6e &middot; dark #a0adbd</div><div class="swatch-usage">Secondary text: hints, captions, counts, on paper and surface.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#1f4f8f"></div><div class="swatch-info"><div class="swatch-token">action</div><div class="swatch-hex">#1f4f8f &middot; dark #8fb8f5</div><div class="swatch-usage">Primary buttons, selected choices, links and the current stage. One meaning: something you can do.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#173d70"></div><div class="swatch-info"><div class="swatch-token">action-hover</div><div class="swatch-hex">#173d70 &middot; dark #b0cdf8</div><div class="swatch-usage">Hover on a primary button.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#ffffff"></div><div class="swatch-info"><div class="swatch-token">on-action</div><div class="swatch-hex">#ffffff &middot; dark #0b1a30</div><div class="swatch-usage">Text and checkmarks on an action fill.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#e8eef7"></div><div class="swatch-info"><div class="swatch-token">action-soft</div><div class="swatch-hex">#e8eef7 &middot; dark #1f2b3c</div><div class="swatch-usage">Hover behind quiet buttons and the step numbers&#x27; disc; ink or action text on it.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#ffd25e"></div><div class="swatch-info"><div class="swatch-token">attention</div><div class="swatch-hex">#ffd25e &middot; dark #f2c55c</div><div class="swatch-usage">Fill of the Needs-you status and the current segment of Progress only. The loudest colour in the system; never decoration.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#332500"></div><div class="swatch-info"><div class="swatch-token">on-attention</div><div class="swatch-hex">#332500 &middot; dark #2c2000</div><div class="swatch-usage">Text on an attention fill, in both themes.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#24753d"></div><div class="swatch-info"><div class="swatch-token">done</div><div class="swatch-hex">#24753d &middot; dark #80d197</div><div class="swatch-usage">Done status text and its check, on surface or done-soft.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#e6f3ea"></div><div class="swatch-info"><div class="swatch-token">done-soft</div><div class="swatch-hex">#e6f3ea &middot; dark #162a1e</div><div class="swatch-usage">Background behind done text.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#b3261e"></div><div class="swatch-info"><div class="swatch-token">refusal</div><div class="swatch-hex">#b3261e &middot; dark #ff9b8f</div><div class="swatch-usage">Errors and server refusals (the gate said no), on surface or refusal-soft. Always with a sentence saying what to fix.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#fdecea"></div><div class="swatch-info"><div class="swatch-token">refusal-soft</div><div class="swatch-hex">#fdecea &middot; dark #3a1a17</div><div class="swatch-usage">Background behind refusal text.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#5b6676"></div><div class="swatch-info"><div class="swatch-token">model</div><div class="swatch-hex">#5b6676 &middot; dark #a3aebc</div><div class="swatch-usage">Text the model wrote that nobody has decided yet, on surface or model-soft.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#768699"></div><div class="swatch-info"><div class="swatch-token">model-line</div><div class="swatch-hex">#768699 &middot; dark #677a90</div><div class="swatch-usage">Dashed border around model drafts. Dashed means provisional.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#f0f3f7"></div><div class="swatch-info"><div class="swatch-token">model-soft</div><div class="swatch-hex">#f0f3f7 &middot; dark #1c2531</div><div class="swatch-usage">Background of a model draft.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#1f4f8f"></div><div class="swatch-info"><div class="swatch-token">focus</div><div class="swatch-hex">#1f4f8f &middot; dark #8fb8f5</div><div class="swatch-usage">Keyboard focus ring: 2px solid, 2px offset. An alias of action.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#2a6fb0"></div><div class="swatch-info"><div class="swatch-token">code-1</div><div class="swatch-hex">#2a6fb0 &middot; dark #6fb3ea</div><div class="swatch-usage">Categorical colour for codes, lenses and chart series, first. Marks only (swatches, lines, nodes), never text.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#a86200"></div><div class="swatch-info"><div class="swatch-token">code-2</div><div class="swatch-hex">#a86200 &middot; dark #e9a650</div><div class="swatch-usage">Categorical colour, second. Marks only.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#12806a"></div><div class="swatch-info"><div class="swatch-token">code-3</div><div class="swatch-hex">#12806a &middot; dark #5fd0ac</div><div class="swatch-usage">Categorical colour, third. Marks only.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#ad4588"></div><div class="swatch-info"><div class="swatch-token">code-4</div><div class="swatch-hex">#ad4588 &middot; dark #e591c4</div><div class="swatch-usage">Categorical colour, fourth. Marks only.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#c2501f"></div><div class="swatch-info"><div class="swatch-token">code-5</div><div class="swatch-hex">#c2501f &middot; dark #f08a64</div><div class="swatch-usage">Categorical colour, fifth. Marks only.</div></div></div>
+<div class="palette-swatch"><div class="swatch-color" style="background:#2f86b8"></div><div class="swatch-info"><div class="swatch-token">code-6</div><div class="swatch-hex">#2f86b8 &middot; dark #8ccbef</div><div class="swatch-usage">Categorical colour, sixth. Past six codes, repeat with the code name always shown.</div></div></div>
+  </div>
+
+  <div class="subsection" style="margin-top: 48px;">
+    <div class="subsection-title">Color Application</div>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Element</th>
+          <th>Color</th>
+          <th>Background</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Primary text on the page</td><td><span class="color-dot" style="background:#172435"></span>ink</td><td>paper</td></tr>
+<tr><td>Primary text on cards, inputs and tables</td><td><span class="color-dot" style="background:#172435"></span>ink</td><td>surface</td></tr>
+<tr><td>Text on a quiet button&#x27;s hover</td><td><span class="color-dot" style="background:#172435"></span>ink</td><td>action-soft</td></tr>
+<tr><td>Hints and counts on the page</td><td><span class="color-dot" style="background:#4f5d6e"></span>ink-muted</td><td>paper</td></tr>
+<tr><td>Hints, captions and IDs on cards</td><td><span class="color-dot" style="background:#4f5d6e"></span>ink-muted</td><td>surface</td></tr>
+<tr><td>Primary button text and selected choices</td><td><span class="color-dot" style="background:#ffffff"></span>on-action</td><td>action</td></tr>
+<tr><td>Primary button text on hover</td><td><span class="color-dot" style="background:#ffffff"></span>on-action</td><td>action-hover</td></tr>
+<tr><td>Links and quiet buttons on cards</td><td><span class="color-dot" style="background:#1f4f8f"></span>action</td><td>surface</td></tr>
+<tr><td>Links on the page</td><td><span class="color-dot" style="background:#1f4f8f"></span>action</td><td>paper</td></tr>
+<tr><td>Step numbers and quiet buttons on hover</td><td><span class="color-dot" style="background:#1f4f8f"></span>action</td><td>action-soft</td></tr>
+<tr><td>The Needs-you status</td><td><span class="color-dot" style="background:#332500"></span>on-attention</td><td>attention</td></tr>
+<tr><td>Done status on cards</td><td><span class="color-dot" style="background:#24753d"></span>done</td><td>surface</td></tr>
+<tr><td>Done status on its own fill</td><td><span class="color-dot" style="background:#24753d"></span>done</td><td>done-soft</td></tr>
+<tr><td>Errors and refusals on cards</td><td><span class="color-dot" style="background:#b3261e"></span>refusal</td><td>surface</td></tr>
+<tr><td>Refusal notices</td><td><span class="color-dot" style="background:#b3261e"></span>refusal</td><td>refusal-soft</td></tr>
+<tr><td>Model drafts on cards</td><td><span class="color-dot" style="background:#5b6676"></span>model</td><td>surface</td></tr>
+<tr><td>Model drafts in their dashed box</td><td><span class="color-dot" style="background:#5b6676"></span>model</td><td>model-soft</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Accessibility &amp; Contrast</div>
+    <p>Every text pairing meets 4.5:1 and every control border, focus ring and code mark meets 3:1, in both themes. The build checks these pairings and stops on any miss.</p>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Combination</th>
+          <th>Ratio</th>
+          <th>AA Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="color-dot" style="background:#172435"></span>ink on paper (light)</td><td>13.43:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#172435"></span>ink on surface (light)</td><td>15.67:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#172435"></span>ink on action-soft (light)</td><td>13.43:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#4f5d6e"></span>ink-muted on paper (light)</td><td>5.76:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#4f5d6e"></span>ink-muted on surface (light)</td><td>6.72:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#ffffff"></span>on-action on action (light)</td><td>8.16:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#ffffff"></span>on-action on action-hover (light)</td><td>10.84:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#1f4f8f"></span>action on surface (light)</td><td>8.16:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#1f4f8f"></span>action on paper (light)</td><td>7.00:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#1f4f8f"></span>action on action-soft (light)</td><td>7.00:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#332500"></span>on-attention on attention (light)</td><td>10.41:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#24753d"></span>done on surface (light)</td><td>5.70:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#24753d"></span>done on done-soft (light)</td><td>4.98:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#b3261e"></span>refusal on surface (light)</td><td>6.54:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#b3261e"></span>refusal on refusal-soft (light)</td><td>5.72:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#5b6676"></span>model on surface (light)</td><td>5.82:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#5b6676"></span>model on model-soft (light)</td><td>5.23:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#768699"></span>line-strong on paper (light)</td><td>3.19:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#768699"></span>line-strong on surface (light)</td><td>3.72:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#768699"></span>model-line on model-soft (light)</td><td>3.35:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#1f4f8f"></span>action on paper (light)</td><td>7.00:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#2a6fb0"></span>code-1 on surface (light)</td><td>5.25:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#a86200"></span>code-2 on surface (light)</td><td>4.76:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#12806a"></span>code-3 on surface (light)</td><td>4.86:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#ad4588"></span>code-4 on surface (light)</td><td>5.27:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#c2501f"></span>code-5 on surface (light)</td><td>4.71:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#2f86b8"></span>code-6 on surface (light)</td><td>4.02:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#172435"></span>ink on paper (dark)</td><td>15.27:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#172435"></span>ink on surface (dark)</td><td>13.57:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#172435"></span>ink on action-soft (dark)</td><td>11.81:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#4f5d6e"></span>ink-muted on paper (dark)</td><td>8.10:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#4f5d6e"></span>ink-muted on surface (dark)</td><td>7.20:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#ffffff"></span>on-action on action (dark)</td><td>8.59:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#ffffff"></span>on-action on action-hover (dark)</td><td>10.74:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#1f4f8f"></span>action on surface (dark)</td><td>8.09:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#1f4f8f"></span>action on paper (dark)</td><td>9.10:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#1f4f8f"></span>action on action-soft (dark)</td><td>7.04:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#332500"></span>on-attention on attention (dark)</td><td>9.83:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#24753d"></span>done on surface (dark)</td><td>8.98:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#24753d"></span>done on done-soft (dark)</td><td>8.30:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#b3261e"></span>refusal on surface (dark)</td><td>8.08:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#b3261e"></span>refusal on refusal-soft (dark)</td><td>7.71:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#5b6676"></span>model on surface (dark)</td><td>7.30:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#5b6676"></span>model on model-soft (dark)</td><td>6.87:1</td><td><span class="pass">Pass</span> (needs 4.5:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#768699"></span>line-strong on paper (dark)</td><td>4.19:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#768699"></span>line-strong on surface (dark)</td><td>3.72:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#768699"></span>model-line on model-soft (dark)</td><td>3.51:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#1f4f8f"></span>action on paper (dark)</td><td>9.10:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#2a6fb0"></span>code-1 on surface (dark)</td><td>7.28:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#a86200"></span>code-2 on surface (dark)</td><td>7.85:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#12806a"></span>code-3 on surface (dark)</td><td>8.68:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#ad4588"></span>code-4 on surface (dark)</td><td>7.18:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#c2501f"></span>code-5 on surface (dark)</td><td>6.67:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+<tr><td><span class="color-dot" style="background:#2f86b8"></span>code-6 on surface (dark)</td><td>9.31:1</td><td><span class="pass">Pass</span> (needs 3.0:1)</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Color Rules</div>
+    <div class="rule"><strong>action means you can do this</strong> &mdash; Primary buttons, selected choices, links and the current stage. Text on it is on-action.</div>
+<div class="rule"><strong>attention is only the Needs-you status</strong> &mdash; and the current segment of Progress. It is the loudest colour in the system and is never decoration.</div>
+<div class="rule"><strong>done, refusal and model keep one meaning each</strong> &mdash; done is recorded results, refusal is errors and server refusals with a sentence, model is what the model wrote that nobody has decided.</div>
+<div class="rule"><strong>Code colours are marks, never text</strong> &mdash; code-1 to code-6 colour dots, lines and nodes. A code keeps the same tone everywhere; past six, repeat with the name shown.</div>
+<div class="rule"><strong>line is decorative only</strong> &mdash; Control borders use line-strong, which meets 3:1. focus is an alias of action.</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 07 TYPOGRAPHY -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">05 &mdash; Typography</div>
+  <div class="section-title">Typography</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    Who is speaking decides the typeface.
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Font Stack</div>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Role</th>
+          <th>Typeface</th>
+          <th>Weights</th>
+          <th>Source</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Interface (sans)</td><td>Figtree</td><td>400, 500, 600, 700</td><td>Google Fonts</td></tr>
+<tr><td>People&#x27;s words (serif)</td><td>Source Serif 4</td><td>400</td><td>Google Fonts</td></tr>
+<tr><td>Raw machine text (mono)</td><td>Source Code Pro</td><td>400</td><td>Google Fonts</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="subsection" style="margin-top: 56px;">
+    <div class="subsection-title">Type Scale</div>
+
+    <div class="type-specimen"><div class="type-meta"><span>display</span><span>Figtree 600</span><span>30px / 38px</span></div><div style="font:600 30px/38px &quot;Figtree&quot;, system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif;color:#172435">Community Fridge Volunteers</div><p style="margin-top:8px;font-size:14px;opacity:.7">The page or project title. Once per view.</p></div>
+<div class="type-specimen"><div class="type-meta"><span>title</span><span>Figtree 600</span><span>22px / 30px</span></div><div style="font:600 22px/30px &quot;Figtree&quot;, system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif;color:#172435">Rule on each disagreement</div><p style="margin-top:8px;font-size:14px;opacity:.7">A stage or section heading.</p></div>
+<div class="type-specimen"><div class="type-meta"><span>heading</span><span>Figtree 600</span><span>18px / 26px</span></div><div style="font:600 18px/26px &quot;Figtree&quot;, system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif;color:#172435">Charity framing</div><p style="margin-top:8px;font-size:14px;opacity:.7">A card&#x27;s title: a code, a disagreement, a source.</p></div>
+<div class="type-specimen"><div class="type-meta"><span>body</span><span>Figtree 400</span><span>16px / 26px</span></div><div style="font:400 16px/26px &quot;Figtree&quot;, system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif;color:#172435">Two coding passes agreed on 208 of 212 chunks.</div><p style="margin-top:8px;font-size:14px;opacity:.7">All running text and controls.</p></div>
+<div class="type-specimen"><div class="type-meta"><span>label</span><span>Figtree 600</span><span>14px / 22px</span></div><div style="font:600 14px/22px &quot;Figtree&quot;, system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif;color:#172435">Which codes apply?</div><p style="margin-top:8px;font-size:14px;opacity:.7">Field labels, status words, table headers. Sentence case, never all caps.</p></div>
+<div class="type-specimen"><div class="type-meta"><span>small</span><span>Figtree 400</span><span>14px / 22px</span></div><div style="font:400 14px/22px &quot;Figtree&quot;, system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif;color:#4f5d6e">Choose at least one code, or exclude the chunk.</div><p style="margin-top:8px;font-size:14px;opacity:.7">Hints, captions and the reason beside a disabled button.</p></div>
+<div class="type-specimen"><div class="type-meta"><span>id</span><span>Figtree 400</span><span>14px / 22px</span></div><div style="font:400 14px/22px &quot;Figtree&quot;, system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif;color:#4f5d6e">Disagreement 3 of 4 · P08-c06</div><p style="margin-top:8px;font-size:14px;opacity:.7">Chunk and job IDs and positions in a queue, in ink-muted. IDs in the interface use the sans; there is no typewriter face on screen.</p></div>
+<div class="type-specimen"><div class="type-meta"><span>model-label</span><span>Figtree 600</span><span>14px / 22px</span></div><div style="font:600 14px/22px &quot;Figtree&quot;, system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif;color:#5b6676">Model proposal · not decided</div><p style="margin-top:8px;font-size:14px;opacity:.7">The label on anything the model wrote, in model colour inside its dashed box.</p></div>
+<div class="type-specimen"><div class="type-meta"><span>passage</span><span>Source Serif 4 400</span><span>22px / 31px</span></div><div style="font:400 22px/31px &quot;Source Serif 4&quot;, Georgia, serif;color:#172435">When the compressor died, it was the bodega owner who paid for the repair.</div><p style="margin-top:8px;font-size:14px;opacity:.7">Quoted data: interview chunks, field notes, documents. The largest text in a decision: the participant&#x27;s words are what is being decided about.</p></div>
+<div class="type-specimen"><div class="type-meta"><span>raw</span><span>Source Code Pro 400</span><span>13px / 20px</span></div><div style="font:400 13px/20px &quot;Source Code Pro&quot;, ui-monospace, Menlo, monospace;color:#172435">ratification-7c1e0a42</div><p style="margin-top:8px;font-size:14px;opacity:.7">Exported JSON, ratification IDs a researcher may copy, and code blocks. Nowhere else.</p></div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Pairing Rules</div>
+    <div class="rule"><strong>Who is speaking decides the typeface</strong> &mdash; Figtree for the interface, Source Serif 4 for participants&#x27; words, Source Code Pro for raw machine text.</div>
+<div class="rule"><strong>The passage is the largest text in a decision</strong> &mdash; A participant&#x27;s words are what is being decided about.</div>
+<div class="rule"><strong>Never set labels in all caps</strong> &mdash; Labels and status words are sentence case.</div>
+<div class="rule"><strong>Keep running text within measure</strong> &mdash; Running text and passages stop at 68ch.</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 08 SPACING & LAYOUT -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">06 &mdash; Structure</div>
+  <div class="section-title">Spacing &amp; Layout</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    Spacing comes from one scale. Shapes say what a thing is: pills are controls, the round card is the open decision.
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Content Widths</div>
+    <p>Pages are at most 880px wide. Running text and passages stop at 68ch.</p>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Spacing Scale</div>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Element</th>
+          <th>Desktop</th>
+          <th>Mobile</th>
+          <th>Usage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>space-1</td><td>4px</td><td>4px</td><td>Icon to text inside a chip.</td></tr>
+<tr><td>space-2</td><td>8px</td><td>8px</td><td>Between choices, between chips, label to field.</td></tr>
+<tr><td>space-3</td><td>12px</td><td>12px</td><td>Inside choices and chips; between a button and its reason.</td></tr>
+<tr><td>space-4</td><td>16px</td><td>16px</td><td>Inside small cards; between fields.</td></tr>
+<tr><td>space-6</td><td>24px</td><td>24px</td><td>Inside decision cards; between groups in a card.</td></tr>
+<tr><td>space-8</td><td>32px</td><td>32px</td><td>Between cards and between sections.</td></tr>
+<tr><td>space-12</td><td>48px</td><td>48px</td><td>Above a stage heading; page top and bottom.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Border Radius</div>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Element</th>
+          <th>Radius</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Inputs and table corners.</td><td>radius-sm (8px)</td></tr>
+<tr><td>Boxes inside a card (model drafts, your decision, notices) and collapsed done rows.</td><td>radius-md (14px)</td></tr>
+<tr><td>The decision card. Nothing else is this round.</td><td>radius-lg (22px)</td></tr>
+<tr><td>Buttons, choices, status pills, code tags, step numbers and Progress segments.</td><td>radius-full (999px)</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Accent Line</div>
+    <p>The toolkit uses no accent line. The bars in this guide are its own section marks, drawn in line-strong.</p>
+    <div style="margin: 24px 0;">
+      <div style="width: var(--accent-width); height: var(--accent-height); background: var(--color-accent); border-radius: var(--accent-radius); margin-bottom: 12px;"></div>
+      <span style="font-size: 13px; color: var(--color-text); opacity: 0.5;">48 &times; 4px, this guide only</span>
+    </div>
+    <div class="rule"><strong>Placement</strong> &mdash; This guide only; never in the toolkit's screens.</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Breakpoints</div>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Breakpoint</th>
+          <th>Width</th>
+          <th>Behavior</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Any width</td><td>&mdash;</td><td>Rows wrap with flex; the decision card's padding scales with clamp(20px, 4vw, 36px).</td></tr>
+<tr><td>Phone</td><td>about 400px</td><td>Choices stack; the sticky Tally stays one row.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 09 BUTTONS & INTERACTION -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">07 &mdash; Interaction</div>
+  <div class="section-title">Buttons &amp; Interactive Elements</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    Three kinds: primary for the one thing the view is for, secondary for everything else, quiet for small moves.
+  </div>
+
+  <div class="subsection no-break">
+    <div class="subsection-title">On Light Background</div>
+    <div class="button-row">
+      <div class="button-card">
+        <div class="btn-primary-demo">Ratify codebook</div>
+        <div class="btn-label">Primary / Solid</div>
+      </div>
+      <div class="button-card">
+        <div class="btn-secondary-demo">Skip for now</div>
+        <div class="btn-label">Secondary / Outline</div>
+      </div>
+      <div class="button-card">
+        <div class="btn-tertiary-demo">Review the record</div>
+        <div class="btn-label">Tertiary / Link</div>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <div class="subsection">
+    <div class="subsection-title">Button Specifications</div>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Style</th>
+          <th>Background</th>
+          <th>Border</th>
+          <th>Text</th>
+          <th>Padding</th>
+          <th>Hover</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Primary</td><td>action</td><td>1.5px action</td><td>on-action</td><td>0 24px</td><td>action-hover fill</td></tr>
+<tr><td>Secondary</td><td>surface</td><td>1.5px line-strong</td><td>ink</td><td>0 24px</td><td>ink-muted border</td></tr>
+<tr><td>Quiet</td><td>transparent</td><td>none</td><td>action, underlined</td><td>0 8px</td><td>action-soft fill</td></tr>
+<tr><td>Disabled</td><td>transparent</td><td>1.5px dashed line-strong</td><td>ink-muted</td><td>0 24px</td><td>none; the reason sits beside it</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">All Buttons</div>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Height</td><td>at least 46px; every clickable thing is at least 44px</td></tr>
+<tr><td>Shape</td><td>pill (999px)</td></tr>
+<tr><td>Type</td><td>Figtree 600, 16px</td></tr>
+<tr><td>Focus</td><td>2px solid focus ring, 2px gap</td></tr>
+<tr><td>Hover</td><td>colour only, 150ms</td></tr>
+<tr><td>Per view</td><td>one primary button</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 10 COMPONENT PATTERNS -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">08 &mdash; Components</div>
+  <div class="section-title">Component Patterns</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    Fifteen components cover every screen. Their markup, React versions and previews live in design/system/components/.
+  </div>
+
+  <div class="table-scroll"><table class="usage-table"><thead><tr><th>Component</th><th>What it is for</th></tr></thead><tbody><tr><td>Button</td><td>Three kinds: primary for the one thing the view is for, secondary for everything else, quiet for small moves like Change or Go to next.</td></tr>
+<tr><td>Byline</td><td>The credit every toolkit view carries: the toolkit, its author, the version, and where to cite it.</td></tr>
+<tr><td>ChoiceGroup</td><td>A question with its answers as pills you tap (rounded tiles when an answer has a description); checkboxes when several can apply, radios when one can.</td></tr>
+<tr><td>CodeTag</td><td>A code&#x27;s name with its colour dot, used wherever a code is named outside a choice.</td></tr>
+<tr><td>DecisionCard</td><td>One decision the researcher has to make: a code to ratify, a disagreement to rule on, a theme to confirm.</td></tr>
+<tr><td>Notice</td><td>What the server said, in a sentence: a refusal that names what to fix, a confirmation, or information.</td></tr>
+<tr><td>Passage</td><td>A participant&#x27;s words, set large in the serif so they never read as interface text and are the first thing the eye lands on.</td></tr>
+<tr><td>Progress</td><td>Where the researcher is in a queue of decisions: one segment per item.</td></tr>
+<tr><td>Provenance</td><td>Shows who wrote something: a dashed box for the model&#x27;s draft that nobody has decided, a solid box for the researcher&#x27;s decision.</td></tr>
+<tr><td>Stages</td><td>The stages of a longer task, in order, with where you are and how much is left in each.</td></tr>
+<tr><td>Status</td><td>A word plus a mark that says where something stands; colour is never the only signal.</td></tr>
+<tr><td>Step</td><td>A numbered instruction that makes the order of clicks visible: 1 choose, 2 record.</td></tr>
+<tr><td>Table</td><td>Rows of records: the decision log, counts per code, job results.</td></tr>
+<tr><td>Tally</td><td>How many decisions are left, with the way to the next one and the action that finishes the stage.</td></tr>
+<tr><td>TextField</td><td>A labelled text input or text area, with an optional hint and an error that says how to fix it.</td></tr></tbody></table></div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 11 PHOTOGRAPHY & IMAGERY -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">09 &mdash; Imagery</div>
+  <div class="section-title">Photography &amp; Imagery</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    The toolkit uses no photography or illustration.
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Photographic Style</div>
+    <p>None.</p>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">What's Off-Brand</div>
+    <ul>
+      <li>Stock photography</li>
+<li>Illustrations or mascots</li>
+<li>Icons without a word beside them</li>
+    </ul>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Aspect Ratios</div>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Use Case</th>
+          <th>Aspect Ratio</th>
+          <th>Dimensions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Not used</td><td>&mdash;</td><td>&mdash;</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Image Overlay Rules</div>
+    <p>Not used.</p>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Overlay Color</th>
+          <th>Hex</th>
+          <th>Opacity</th>
+          <th>Text Color</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Not used</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+      </tbody>
+    </table></div>
+    <div class="rule"><strong>Readability first</strong> &mdash; Not used.</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Alt Text</div>
+    <p>Charts and network maps carry alt text that states what they show and the numbers behind it.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 12 PRINT SPECIFICATIONS -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">10 &mdash; Print</div>
+  <div class="section-title">Print Specifications</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    Exported records print from the browser in the light theme. No print colours are set.
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">CMYK Color Equivalents</div>
+    <p>Not set.</p>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Color</th>
+          <th>Hex</th>
+          <th>C</th>
+          <th>M</th>
+          <th>Y</th>
+          <th>K</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Not set</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Pantone Matches</div>
+    <p>Not set.</p>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Brand Color</th>
+          <th>Pantone</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Not set</td><td>&mdash;</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Paper Stock Guidance</div>
+    <p>Not set.</p>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Material</th>
+          <th>Stock</th>
+          <th>Finish</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Not set</td><td>&mdash;</td><td>&mdash;</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="subsection">
+    <div class="rule"><strong>Always proof-test</strong> &mdash; check an exported record's print preview in the light theme.</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 13 CO-BRANDING & PARTNER LOGOS -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">11 &mdash; Partnerships</div>
+  <div class="section-title">Co-Branding &amp; Partner Logos</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    The toolkit runs inside other products, such as a chat host, without co-branding.
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Co-Branding Principles</div>
+    <p>The host's own chrome stays the host's. The toolkit's views carry only the Byline.</p>
+    <div class="rule"><strong>Size hierarchy</strong> &mdash; Not used.</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Affiliation Line</div>
+    <p>The Byline is the affiliation line.</p>
+    <div class="component-demo component-demo--white" style="border: 1px solid var(--color-border); text-align: center; padding: 32px;">
+      <span style="font:400 14px/22px &quot;Figtree&quot;, system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif;color:#4f5d6e">AI Anthropology Toolkit by Matt Artz</span>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Logo Lock-Up Order</div>
+    <p>Not used.</p>
+    <div class="component-demo component-demo--white" style="border: 1px solid var(--color-border); text-align: center; padding: 32px;">
+      &mdash;
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Co-Branding Rules</div>
+    <div class="rule"><strong>Never alter the palette for a host</strong> &mdash; Follow the host&#x27;s light or dark theme with the dark tokens.</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 14 EMAIL SIGNATURE -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">12 &mdash; Communications</div>
+  <div class="section-title">Email Signature</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    Not used. The toolkit sends no email.
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Signature Structure</div>
+    <p>Not used.</p>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Element</th>
+          <th>Font</th>
+          <th>Color</th>
+          <th>Style</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Not used</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Rendered Example</div>
+    <p>Not used.</p>
+    <div class="component-demo component-demo--white" style="border: 1px solid var(--color-border); padding: 32px;">
+      &mdash;
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Signature Guidelines</div>
+    <p>Not used.</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 15 VOICE & TONE -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">13 &mdash; Voice</div>
+  <div class="section-title">Voice &amp; Tone</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    Plain words for a researcher who is deciding something that matters.
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Voice Attributes</div>
+    <ul>
+      <li>Plain: plain words, sentence case, no exclamation marks.</li>
+<li>Exact: numbers are counted from the record, such as 208 of 212 chunks, never most.</li>
+<li>Accountable: the interface says who decided. The model is the model; the researcher is you.</li>
+<li>Faithful: participants are quoted exactly, never tidied, trimmed or paraphrased.</li>
+    </ul>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Writing Style</div>
+    <ul>
+      <li>Labels are verbs plus objects: Record ruling, Ratify codebook, Review the record.</li>
+<li>Questions end in a question mark: Which codes apply to this passage?</li>
+<li>Refusals say what was refused and exactly what is missing: Can&#x27;t ratify yet. 2 codes have no decision. No apologies, no something went wrong.</li>
+<li>Call machine output the model. Don&#x27;t call it AI, assistant or Claude in the interface.</li>
+<li>A disabled button always says why, beside it.</li>
+    </ul>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Tone by Context</div>
+    <div class="table-scroll"><table class="usage-table">
+      <thead>
+        <tr>
+          <th>Context</th>
+          <th>Tone</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>A decision inside a chat</td><td>Direct and brief; one question at a time.</td><td>Which codes apply to this passage?</td></tr>
+<tr><td>A refusal from the server</td><td>Factual; names what is missing.</td><td>Can&#x27;t ratify yet. 2 codes have no decision: Being watched, Permits and city rules.</td></tr>
+<tr><td>An exported decision record</td><td>Formal and complete; fit for a methods appendix.</td><td>Ratified by the researcher on 12 March: 6 codes, 2 revised, 1 merged.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 16 USAGE GUIDELINES -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">14 &mdash; Usage</div>
+  <div class="section-title">Usage Guidelines</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    The rules most often broken.
+  </div>
+
+  <div class="guidelines-grid">
+    <div class="guideline-col">
+      <h4>Do</h4>
+      <ul>
+        <li>Show one open decision at a time, with Progress above it.</li>
+<li>Put what the model wrote in a dashed model box until someone decides.</li>
+<li>Number the clicks inside a decision with Step: 1 choose, 2 record.</li>
+<li>End every view with the Byline.</li>
+<li>Pair every status colour with a word and a mark.</li>
+      </ul>
+    </div>
+    <div class="guideline-col dont">
+      <h4>Don't</h4>
+      <ul>
+        <li>Restyle a model draft as solid because it was accepted.</li>
+<li>Use attention, done or refusal for decoration.</li>
+<li>Set code colours as text.</li>
+<li>Add a logo or mark beside the Byline, or reword it.</li>
+<li>Put more than one primary button in a view.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 17 DESIGN TOKEN REFERENCE -->
+<!-- ════════════════════════════════════════ -->
+<div class="page-section page-break">
+  <div class="section-label">15 &mdash; Implementation</div>
+  <div class="section-title">Design Token Reference</div>
+  <div class="section-divider"></div>
+  <div class="section-accent"></div>
+  <div class="section-intro">
+    tokens.json in the package is the source. These are the light values; the dark ones are in the same file.
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Color Tokens</div>
+    <div class="code-block">
+      <span class="prop">--paper</span>: <span class="val">#e9eef4</span>;<br>
+<span class="prop">--surface</span>: <span class="val">#ffffff</span>;<br>
+<span class="prop">--line</span>: <span class="val">#d5dde7</span>;<br>
+<span class="prop">--line-strong</span>: <span class="val">#768699</span>;<br>
+<span class="prop">--ink</span>: <span class="val">#172435</span>;<br>
+<span class="prop">--ink-muted</span>: <span class="val">#4f5d6e</span>;<br>
+<span class="prop">--action</span>: <span class="val">#1f4f8f</span>;<br>
+<span class="prop">--action-hover</span>: <span class="val">#173d70</span>;<br>
+<span class="prop">--on-action</span>: <span class="val">#ffffff</span>;<br>
+<span class="prop">--action-soft</span>: <span class="val">#e8eef7</span>;<br>
+<span class="prop">--attention</span>: <span class="val">#ffd25e</span>;<br>
+<span class="prop">--on-attention</span>: <span class="val">#332500</span>;<br>
+<span class="prop">--done</span>: <span class="val">#24753d</span>;<br>
+<span class="prop">--done-soft</span>: <span class="val">#e6f3ea</span>;<br>
+<span class="prop">--refusal</span>: <span class="val">#b3261e</span>;<br>
+<span class="prop">--refusal-soft</span>: <span class="val">#fdecea</span>;<br>
+<span class="prop">--model</span>: <span class="val">#5b6676</span>;<br>
+<span class="prop">--model-line</span>: <span class="val">#768699</span>;<br>
+<span class="prop">--model-soft</span>: <span class="val">#f0f3f7</span>;<br>
+<span class="prop">--code-1</span>: <span class="val">#2a6fb0</span>;<br>
+<span class="prop">--code-2</span>: <span class="val">#a86200</span>;<br>
+<span class="prop">--code-3</span>: <span class="val">#12806a</span>;<br>
+<span class="prop">--code-4</span>: <span class="val">#ad4588</span>;<br>
+<span class="prop">--code-5</span>: <span class="val">#c2501f</span>;<br>
+<span class="prop">--code-6</span>: <span class="val">#2f86b8</span>;<br>
+<span class="prop">--focus</span>: <span class="val">#1f4f8f</span>;
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Typography Tokens</div>
+    <div class="code-block">
+      <span class="prop">--font-sans</span>: <span class="val">&quot;Figtree&quot;, system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif</span>;<br>
+<span class="prop">--font-serif</span>: <span class="val">&quot;Source Serif 4&quot;, Georgia, serif</span>;<br>
+<span class="prop">--font-mono</span>: <span class="val">&quot;Source Code Pro&quot;, ui-monospace, Menlo, monospace</span>;
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Spacing Tokens</div>
+    <div class="code-block">
+      <span class="prop">--space-1</span>: <span class="val">4px</span>;<br>
+<span class="prop">--space-2</span>: <span class="val">8px</span>;<br>
+<span class="prop">--space-3</span>: <span class="val">12px</span>;<br>
+<span class="prop">--space-4</span>: <span class="val">16px</span>;<br>
+<span class="prop">--space-6</span>: <span class="val">24px</span>;<br>
+<span class="prop">--space-8</span>: <span class="val">32px</span>;<br>
+<span class="prop">--space-12</span>: <span class="val">48px</span>;
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Component Tokens</div>
+    <div class="code-block">
+      <span class="prop">--radius-sm</span>: <span class="val">8px</span>;<br>
+<span class="prop">--radius-md</span>: <span class="val">14px</span>;<br>
+<span class="prop">--radius-lg</span>: <span class="val">22px</span>;<br>
+<span class="prop">--radius-full</span>: <span class="val">999px</span>;<br>
+<span class="prop">--target</span>: <span class="val">44px</span>;<br>
+<span class="prop">--measure</span>: <span class="val">68ch</span>;<br>
+<span class="prop">--page</span>: <span class="val">880px</span>;
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- FOOTER -->
+<!-- ════════════════════════════════════════ -->
+<div class="doc-footer">
+  <div class="footer-accent"></div>
+  
+  <div class="footer-brand">AI Anthropology Toolkit</div>
+  <p>Brand Guide &middot; Version 1.0.0 &middot; 2026-11-15</p>
+  <p>AI Anthropology Toolkit by Matt Artz &middot; github.com/MattArtzAnthro/AI-Anthropology-Toolkit</p>
+</div>
+
+</body>
+</html>
