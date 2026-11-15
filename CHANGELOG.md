@@ -99,6 +99,14 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   without rule text. Checked as complete, it also names every undecided
   card, an unanswered exclusivity question, and a ruling that departs from
   its proposal without saying whether it states a rule.
+- `desk.apply` applies decisions: `apply_actions` gives the codebook a
+  codebook desk ratifies (a reword keeps every other field, a split's parts
+  take the code's place, and a result holding one label twice is refused);
+  `resolve` gives one resolved record per disagreement and an amendment for
+  each ruling that states a rule, naming the codes in dispute; `amend` gives
+  the next codebook version, in which those codes carry their rules.
+- `crosslens.codebook_checksum` includes a code's `rules` when it has any.
+  A codebook without rules has the same checksum as before.
 - `scripts/build_design_docs.py` builds `design/brand-spec.json` and
   `design/brand-guide.html` from the tokens, and stops if any colour pairing
   misses WCAG AA in either theme. `tests/test_design_docs.py` fails while

@@ -44,7 +44,8 @@ TEXT_CAP = 500
 
 
 def codebook_checksum(records: list[dict]) -> str:
-    """Order-insensitive content checksum over (label, definition) pairs.
+    """Order-insensitive content checksum over (label, definition) pairs, with a
+    code's ``rules`` (in order) when it has any.
 
     Field order, extra columns, and record order do not change the checksum;
     changing, adding, or removing a code does. The MCP server uses this same
@@ -54,6 +55,10 @@ def codebook_checksum(records: list[dict]) -> str:
     canon = sorted(
         (str(r.get("code_label") or r.get("label") or ""),
          str(r.get("definition") or ""))
+        # A code's rules, once an amendment gives it some, are part of what was ratified.
+        # A record without rules contributes the same pair as before rules existed, so
+        # no existing checksum changes.
+        + ((tuple(str(rule) for rule in r["rules"]),) if r.get("rules") else ())
         for r in records
     )
     return hashlib.sha256(
