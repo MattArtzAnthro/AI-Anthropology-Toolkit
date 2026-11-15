@@ -19,7 +19,7 @@ DESCRIPTION = (
 )
 
 # The page renderers. Each takes the identity from brand and spells none of it out.
-RENDERERS = [SRC / "network" / "viewer" / "__init__.py"]
+RENDERERS = [SRC / "network" / "viewer" / "__init__.py", SRC / "desk" / "page.py", SRC / "desk" / "template.html"]
 
 
 def _citation_cff() -> dict[str, str]:

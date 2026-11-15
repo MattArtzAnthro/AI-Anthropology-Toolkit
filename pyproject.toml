@@ -82,6 +82,8 @@ where = ["src"]
 "ai_anthro_toolkit.desk" = [
     "catalog.json",
     "VENDORED.md",
+    "template.html",
+    "app/dist/desk-app.js",
     "a2ui_schema/*.json",
     "a2ui_schema/catalogs/basic/catalog.json",
     "a2ui_schema/LICENSE",

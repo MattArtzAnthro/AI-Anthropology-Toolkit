@@ -117,6 +117,12 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   actions, the exclusivity answer, whether blind-first was on, the rulings,
   exclusions, departures and rules, and the agreed chunks not yet rechecked
   against an amendment.
+- `desk.page.render_page` writes a desk as one self-contained HTML file: the
+  design system's CSS (fonts first, falling back to system faces offline), the
+  bundled A2UI renderer inlined, the desk's A2UI messages in an escaped JSON
+  block, the desk's title in the header and the colophon at the end.
+  `desk.page.app_shell` is the same page with no desk, for the MCP App. The
+  template and the built renderer ship as package data.
 - `scripts/build_design_docs.py` builds `design/brand-spec.json` and
   `design/brand-guide.html` from the tokens, and stops if any colour pairing
   misses WCAG AA in either theme. `tests/test_design_docs.py` fails while

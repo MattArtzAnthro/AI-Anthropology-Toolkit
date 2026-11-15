@@ -325,6 +325,39 @@ class TestColophonLayout(unittest.TestCase):
                 browser.close()
 
 
+@unittest.skipIf(SKIP_REASON, SKIP_REASON or "")
+class TestStandalonePage(unittest.TestCase):
+    def test_r1_5_the_page_runs_its_inlined_bundle_offline(self):
+        """R1.5: opened as a file with the network refused, the standalone page parses its
+        escaped inline bundle and its data block, falls back to system fonts, and fits a
+        narrow and a wide window."""
+        from ai_anthro_toolkit.desk import page as desk_page
+        from tests.package.desk_helpers import codebook_desk
+
+        html = desk_page.render_page(codebook_desk(title="Garden cooperative study"))
+        assert sync_playwright is not None  # the class is skipped otherwise
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            try:
+                for width in (320, 1100):
+                    with self.subTest(width=width):
+                        tab = browser.new_page(viewport={"width": width, "height": 700})
+                        tab.route("**/*", lambda route: route.fulfill(status=200, content_type="text/css", body=""))
+                        errors = _watch(tab)
+                        tab.set_content(html)
+                        self.assertTrue(tab.evaluate("typeof window.DeskApp.render === 'function'"))
+                        data = tab.evaluate("JSON.parse(document.getElementById('desk-data').textContent)")
+                        self.assertEqual(data["desk_id"], "desk-0a1b2c3d")
+                        self.assertEqual(tab.locator("h1").inner_text(), "Garden cooperative study")
+                        self.assertTrue(tab.locator("footer.aat-byline").is_visible())
+                        self.assertEqual(tab.evaluate(
+                            "document.documentElement.scrollWidth - document.documentElement.clientWidth"), 0)
+                        self.assertEqual(errors, [])
+                        tab.close()
+            finally:
+                browser.close()
+
+
 # The colophon's other children that share a row with the description.
 _BESIDE_ABOUT = """() => {
   const about = document.querySelector('.aat-byline__about').getBoundingClientRect();
