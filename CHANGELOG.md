@@ -123,6 +123,18 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   block, the desk's title in the header and the colophon at the end.
   `desk.page.app_shell` is the same page with no desk, for the MCP App. The
   template and the built renderer ship as package data.
+- `desk.gate.apply` is the one path by which a desk's decisions enter the
+  analysis. It checks the desk, its card checksum and the whole decisions
+  document first, names every problem at once and writes nothing on a
+  refusal. A codebook desk's decisions ratify the codebook they produce, as
+  version 1.0, which `start_coding_job` accepts; a rulings desk's decisions
+  write one resolved record per disagreement, and a ruling that states a rule
+  issues the amended codebook as the next minor version under a ratification
+  naming its parent and each amendment, reporting the agreed chunks not yet
+  rechecked against it. Every decision is appended to the decision record.
+  The same decisions sent again return the same outcome and write nothing, and
+  complete a finish that was interrupted without minting a second
+  ratification; a finished desk refuses different ones.
 - `scripts/build_design_docs.py` builds `design/brand-spec.json` and
   `design/brand-guide.html` from the tokens, and stops if any colour pairing
   misses WCAG AA in either theme. `tests/test_design_docs.py` fails while
