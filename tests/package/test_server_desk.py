@@ -5,6 +5,7 @@ import asyncio
 import json
 import re
 import tempfile
+import threading
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -16,6 +17,7 @@ from ai_anthro_toolkit import design
 from ai_anthro_toolkit.desk import a2ui, cards, gate, page, record
 from ai_anthro_toolkit.jobs import JobStore
 from ai_anthro_toolkit.mcp import server
+from tests.package import test_desk_surface as surf
 from tests.package.desk_helpers import load
 
 DESK_URI = "ui://ai-anthropology/ratification-desk"
@@ -446,6 +448,316 @@ class TestRecordDecisions(DeskCase):
         entries = record.read(self.store, desk_id)
         self.assertEqual(server.record_desk_decisions(desk_id, doc, "chat"), first)
         self.assertEqual(record.read(self.store, desk_id), entries)
+
+
+class AppCase(DeskCase):
+    """A desk decided in its MCP App view: each Save is a desk_sync call carrying the
+    action the renderer sends, and Ratify is desk_finish."""
+
+    def open_view(self, desk_id):
+        self.desk_id = desk_id
+        self.messages = server.desk_sync(desk_id)["a2ui"]
+        self.found = surf.components(self.messages)
+        self.data = surf.data_model(self.messages)
+
+    def press(self, card_id, name="save_decision", **fields):
+        n = next((i for i, c in enumerate(self.data["cards"]) if c["card_id"] == card_id), None)
+        for key, value in fields.items():
+            surf.set_path(self.data, f"/cards/{n}/{key}" if n is not None else f"/exclusivity/{key}", value)
+        card = surf.card_component(self.found, card_id) if n is not None else card_id
+        action_name, context = surf.fire(self.found, self.data, surf.button(self.found, card, name))
+        out = server.desk_sync(self.desk_id, {"name": action_name, "context": context})
+        self.assertEqual((set(out), out["desk_id"]), ({"desk_id", "saved", "a2ui"}, self.desk_id))
+        self.assertEqual(a2ui.validate([*self.messages, *out["a2ui"]]), [])
+        self.messages = [*self.messages, *out["a2ui"]]
+        self.found = surf.components(self.messages)
+        self.data = surf.apply_data(self.data, out["a2ui"])
+        return out
+
+    def saved(self):
+        return json.loads(self.store.load_artifact(self.desk_id, "saved.json") or "null")
+
+
+class TestAppOnlyTools(AppCase):
+    def codebook_view(self):
+        result = server.build_ratification_desk(stage="codebook", codebook=self.codebook, cases=self.cases)
+        self.open_view(result.structured_content["desk_id"])
+        return self.payload(result)
+
+    def rulings_view(self, **kw):
+        _, result = self.rulings(proposals=load("proposals"), **kw)
+        self.open_view(result.structured_content["desk_id"])
+        return self.payload(result)
+
+    def test_r7_7_desk_sync_is_app_only(self):
+        tools = {t.name: t for t in asyncio.run(server.mcp.list_tools())}
+        for name in ("desk_sync", "desk_finish"):
+            with self.subTest(name):
+                self.assertEqual(tools[name].meta["ui"]["visibility"], ["app"])
+                self.assertEqual(tools[name].meta["ui"]["resourceUri"], DESK_URI)
+        visible_only_to_the_app = {n for n, t in tools.items() if (t.meta or {}).get("ui", {}).get("visibility") == ["app"]}
+        self.assertEqual(visible_only_to_the_app, {"desk_sync", "desk_finish"})
+
+    def test_a_save_is_kept_on_the_server_one_decision_at_a_time(self):
+        self.codebook_view()
+        self.assertEqual(self.saved(), {"decisions": {}, "exclusive": None})  # opening the view holds the desk, saving nothing
+        out = self.press("code-02", action=["merge"], target=["Land tenure"], note=" Same thing. ")
+        self.assertEqual(self.saved(), {"decisions": {"code-02": {"action": "merge", "target": "Land tenure", "note": "Same thing."}},
+                                        "exclusive": None})
+        self.assertEqual(out["saved"], 1)
+        self.assertTrue(self.data["status"]["cards"][1]["done"])
+        self.press("exclusivity", name="answer_exclusive", answer=["yes"])
+        self.assertIs(self.saved()["exclusive"], True)
+        # Saving a card again replaces its decision; the note still in its field goes with it.
+        self.press("code-02", action=["adopt"])
+        self.assertEqual(self.saved()["decisions"], {"code-02": {"action": "adopt", "note": "Same thing."}})
+
+    def test_a_decision_the_desk_cannot_take_is_refused_and_not_saved(self):
+        self.codebook_view()
+        with self.assertRaisesRegex(ValueError, r"^This decision cannot be saved:\n- code-01: Shared labour is merged into 'Not a code'"):
+            self.press("code-01", action=["merge"], target=["Not a code"])
+        with self.assertRaisesRegex(ValueError, "Choose what to do with code-01"):
+            self.press("code-01", action=[])
+        self.assertEqual(self.saved(), {"decisions": {}, "exclusive": None})  # opening the view holds the desk, saving nothing
+        for action, message in (({"name": "save_decision", "context": {"card_id": "code-99"}}, "code-99 is not a card on this desk"),
+                                ({"name": "ratify", "context": {}}, "'ratify' is not an action"),
+                                ({"context": {}}, r"^An action is \{name, context\}, as the desk's Save control sends it\.$"),
+                                ({"name": "save_decision", "context": "code-01"}, "^An action is"), ("x", "^An action is")):
+            with self.subTest(action), self.assertRaisesRegex(ValueError, message):
+                server.desk_sync(self.desk_id, action)
+        self.assertEqual(self.saved(), {"decisions": {}, "exclusive": None})  # opening the view holds the desk, saving nothing
+
+    def test_r7_9_reopening_restores_every_saved_decision(self):
+        self.rulings_view()
+        self.press("chunk-7", codes=["Food access"])           # departs: the rule question stays open
+        self.press("chunk-9", codes=["Land tenure", "Municipal relations"])
+        reopened = server.desk_sync(self.desk_id)
+        self.assertEqual(set(reopened), {"desk_id", "saved", "finished", "a2ui"})
+        self.assertIsNone(reopened["finished"])
+        self.assertEqual((reopened["desk_id"], reopened["saved"]), (self.desk_id, 2))
+        restored = reopened["a2ui"]
+        self.assertEqual(a2ui.validate(restored), [])
+        # The ruling that departs from its proposal comes back asking whether it states a rule.
+        found = surf.components(restored)
+        asks = {n: any(found[k]["component"] == "ChoiceGroup" and found[k].get("value", {}).get("@path", "").endswith("/is_rule")
+                       for k in surf.subtree(found, surf.card_component(found, f"chunk-{n}"))) for n in (7, 9)}
+        self.assertEqual(asks, {7: True, 9: False})
+        status = surf.data_model(restored)["status"]
+        self.assertEqual([c["done"] for c in status["cards"]], [False, True, False, False])
+        self.assertTrue(status["cards"][0]["open"])  # the ruling still waiting on its rule answer
+        self.assertEqual(status["progress"], {"done": 1, "current": 0, "left": 3})
+        # Both saved rulings have their proposals released; the undecided cards' stay hidden.
+        shown = json.dumps(restored)
+        for chunk, released in (("7", True), ("9", True), ("11", False), ("12", False)):
+            with self.subTest(chunk):
+                self.assertEqual(load("proposals")[chunk]["rationale"] in shown, released)
+
+    def test_an_exclusivity_answer_saved_alone_is_restored(self):
+        self.codebook_view()
+        self.press("exclusivity", name="answer_exclusive", answer=["no"])
+        status = surf.data_model(server.desk_sync(self.desk_id)["a2ui"])["status"]
+        self.assertEqual(status["exclusivity"], {"open": False, "done": True, "result": "Not mutually exclusive"})
+        self.assertTrue(status["cards"][0]["open"])
+
+    def test_saved_decisions_for_cards_the_desk_lacks_are_refused(self):
+        self.rulings_view()
+        decisions = {"chunk-98": {"codes": ["Food access"]}, "chunk-99": {"none_apply": True}}
+        self.store.save_artifact(self.desk_id, "saved.json", json.dumps({"decisions": decisions, "exclusive": None}))
+        with self.assertRaisesRegex(ValueError, "^The saved decisions name cards this desk lacks: chunk-98, chunk-99.$"):
+            server.desk_sync(self.desk_id)
+
+    def test_restoring_nothing_is_the_desk_as_built(self):
+        desk = gate.load_desk(self.store, self.rulings()[1].structured_content["desk_id"])
+        self.assertEqual(a2ui.restore(desk, {}), a2ui.surface(desk))
+        self.assertEqual(a2ui.restore(desk, {"decisions": {}, "exclusive": None}), a2ui.surface(desk))
+
+    def test_r3_9_proposal_only_in_response_saving_its_ruling(self):
+        self.rulings_view()
+        rationales = {k: v["rationale"] for k, v in load("proposals").items()}
+        self.assertFalse(any(text in json.dumps(self.messages) for text in rationales.values()))
+        out = self.press("chunk-9", codes=["Land tenure", "Municipal relations"])
+        sent = json.dumps(out["a2ui"])
+        self.assertEqual([k for k, text in rationales.items() if text in sent], ["9"])
+
+    def test_blind_first_off_shows_every_proposal_from_the_start(self):
+        self.rulings_view(blind_first=False)
+        shown = json.dumps(self.messages)
+        self.assertTrue(all(p["rationale"] in shown for p in load("proposals").values()))
+
+    def test_desk_finish_runs_the_gate_on_what_was_saved(self):
+        stored = self.codebook_view()
+        for card in stored["cards"]:
+            self.press(card["card_id"], action=["adopt"])
+        with self.assertRaisesRegex(ValueError, "mutually exclusive"):
+            server.desk_finish(self.desk_id)
+        self.assertEqual(self.jobs("ratification"), [])
+        self.press("exclusivity", name="answer_exclusive", answer=["no"])
+        outcome = server.desk_finish(self.desk_id)
+        self.assertEqual(self.jobs("ratification"), [outcome["ratification_id"]])
+        decided = [e for e in record.read(self.store, self.desk_id) if e["decided_by"] == "researcher"]
+        self.assertEqual({e["surface"] for e in decided}, {"app"})
+        self.assertEqual(server.desk_finish(self.desk_id), outcome)  # Ratify pressed twice
+        with self.assertRaisesRegex(ValueError, "finished"):
+            self.press("code-01", action=["delete"])
+
+    def test_r7_8_only_app_only_tool_mints_for_app_desk(self):
+        stored = self.codebook_view()
+        self.press("code-01", action=["adopt"])
+        doc = {"schema": "aat/desk-decisions@1", "desk_id": self.desk_id, "card_checksum": stored["card_checksum"],
+               "exclusive": False, "decisions": {c["card_id"]: {"action": "adopt"} for c in stored["cards"]}}
+        for surface in ("chat", "page"):
+            with self.subTest(surface), self.assertRaisesRegex(ValueError, "Ratify"):
+                server.record_desk_decisions(self.desk_id, doc, surface)
+        self.assertEqual(self.jobs("ratification"), [])
+
+    def test_r7_8_opening_the_view_holds_the_desk_for_it(self):
+        stored = self.codebook_view()  # the view has loaded the desk; nothing is saved yet
+        doc = {"schema": "aat/desk-decisions@1", "desk_id": self.desk_id, "card_checksum": stored["card_checksum"],
+               "exclusive": False, "decisions": {c["card_id"]: {"action": "adopt"} for c in stored["cards"]}}
+        with self.assertRaisesRegex(ValueError, "Ratify"):
+            server.record_desk_decisions(self.desk_id, doc, "chat")
+        self.assertEqual(self.jobs("ratification"), [])
+
+    def test_a_desk_finished_before_its_view_opened_says_so(self):
+        result = server.build_ratification_desk(stage="codebook", codebook=self.codebook, cases=self.cases)
+        desk_id, stored = result.structured_content["desk_id"], self.payload(result)
+        doc = {"schema": "aat/desk-decisions@1", "desk_id": desk_id, "card_checksum": stored["card_checksum"],
+               "exclusive": False, "decisions": {c["card_id"]: {"action": "adopt"} for c in stored["cards"]}}
+        outcome = server.record_desk_decisions(desk_id, doc, "chat")
+        loaded = server.desk_sync(desk_id)
+        self.assertEqual(loaded["finished"], outcome)
+        self.assertIsNone(self.store.load_artifact(desk_id, "saved.json"))
+        self.assertIsNone(server.desk_sync(self.codebook_view_id())["finished"])
+
+    def codebook_view_id(self):
+        self.codebook_view()
+        return self.desk_id
+
+    def test_a_save_that_breaks_another_saved_decision_is_refused(self):
+        self.codebook_view()
+        self.press("code-02", action=["merge"], target=["Shared labour"])
+        for fields in ({"action": ["delete"]}, {"action": ["merge"], "target": ["Land tenure"]}):
+            with self.subTest(fields), self.assertRaisesRegex(ValueError, r"(?m)^This decision cannot be saved:\n- code-02: "):
+                self.press("code-01", **fields)
+        self.assertEqual(self.saved()["decisions"], {"code-02": {"action": "merge", "target": "Shared labour"}})
+
+    def test_a_label_another_code_keeps_is_refused_when_saved(self):
+        self.codebook_view()
+        with self.assertRaisesRegex(ValueError, "code-01 gives the label 'Charity framing'"):
+            self.press("code-01", action=["reword"], definition="Work.", label="Charity framing")
+        with self.assertRaisesRegex(ValueError, "code-01 gives the label 'Land tenure'"):
+            self.press("code-01", action=["split"], parts="Rosters: Who works when.\nLand tenure: The lease.")
+        self.assertIsNone(self.saved()["decisions"].get("code-01"))
+
+    def test_an_interrupted_ratify_holds_the_decisions_until_ratify_again(self):
+        stored = self.codebook_view()
+        for card in stored["cards"]:
+            self.press(card["card_id"], action=["adopt"])
+        self.press("exclusivity", name="answer_exclusive", answer=["no"])
+        with mock.patch.object(record, "append", side_effect=OSError("disk full")), self.assertRaises(OSError):
+            server.desk_finish(self.desk_id)
+        with self.assertRaisesRegex(ValueError, r"^Ratify was interrupted before it finished\. Press Ratify again to complete it; "
+                                                r"the decisions cannot change until it does\.$"):
+            self.press("code-01", action=["delete"])
+        outcome = server.desk_finish(self.desk_id)
+        self.assertEqual(self.jobs("ratification"), [outcome["ratification_id"]])
+
+    def test_saves_and_ratify_take_turns(self):
+        """Saving reads, changes and writes the saved decisions; two at once must not lose one."""
+        stored = self.codebook_view()
+        started, release = threading.Event(), threading.Event()
+        real = server._saved
+
+        def slow(desk_id):
+            state = real(desk_id)
+            if threading.current_thread().name == "first":
+                started.set()
+                release.wait(2)
+            return state
+
+        context = {c["card_id"]: surf.fire(self.found, self.data, surf.button(self.found, surf.card_component(self.found, c["card_id"]), "save_decision"))[1]
+                   for c in stored["cards"][:2]}
+        for card_id in context:
+            context[card_id]["decision"]["action"] = ["adopt"]
+        with mock.patch.object(server, "_saved", side_effect=slow):
+            first = threading.Thread(target=server.desk_sync, name="first",
+                                     args=(self.desk_id, {"name": "save_decision", "context": context["code-01"]}))
+            first.start()
+            started.wait(2)
+            second = threading.Thread(target=server.desk_sync, name="second",
+                                      args=(self.desk_id, {"name": "save_decision", "context": context["code-02"]}))
+            second.start()
+            release.set()
+            first.join(2)
+            second.join(2)
+        self.assertEqual(sorted(self.saved()["decisions"]), ["code-01", "code-02"])
+
+    def test_damaged_saved_decisions_are_refused_by_name(self):
+        self.codebook_view()
+        for damaged in ({"decisions": {}}, {"decisions": {"code-01": "adopt"}, "exclusive": None}, ["x"], {"decisions": [], "exclusive": None},
+                        {"decisions": {}, "exclusive": "no"}):
+            self.store.save_artifact(self.desk_id, "saved.json", json.dumps(damaged))
+            for call in (lambda: server.desk_sync(self.desk_id), lambda: server.desk_finish(self.desk_id)):
+                with self.subTest(damaged), self.assertRaisesRegex(
+                    ValueError, f"^The decisions saved for {self.desk_id} are damaged; build the desk again to decide it\\.$"):
+                    call()
+
+    def test_ratify_with_nothing_decided_names_what_is_open(self):
+        self.codebook_view()
+        with self.assertRaisesRegex(ValueError, r"(?s)^These decisions cannot be applied:\n- code-01.*no decision.*mutually exclusive"):
+            server.desk_finish(self.desk_id)
+        self.assertEqual(self.jobs("ratification"), [])
+
+    def test_restoring_a_finished_desk_shows_every_decision_done(self):
+        stored = self.codebook_view()
+        for card in stored["cards"]:
+            self.press(card["card_id"], action=["adopt"])
+        self.press("exclusivity", name="answer_exclusive", answer=["yes"])
+        outcome = server.desk_finish(self.desk_id)
+        loaded = server.desk_sync(self.desk_id)
+        self.assertEqual(loaded["finished"], outcome)
+        status = surf.data_model(loaded["a2ui"])["status"]
+        self.assertEqual(status["progress"]["left"], 0)
+
+    def test_a_rulings_desk_takes_no_exclusivity_answer(self):
+        self.rulings_view()
+        with self.assertRaisesRegex(ValueError, "'answer_exclusive' is not an action that records a decision on a rulings desk"):
+            server.desk_sync(self.desk_id, {"name": "answer_exclusive", "context": {"exclusive": ["yes"]}})
+
+    def test_r5_5_app_route_and_json_route_give_identical_results(self):
+        ruled = {"chunk-7": {"codes": ["Food access"], "is_rule": True, "rule_text": "Selling below cost is food access."},
+                 "chunk-9": {"codes": ["Land tenure", "Municipal relations"]},
+                 "chunk-11": {"exclude": {"reason": "Not about the garden."}},
+                 "chunk-12": {"none_apply": True, "is_rule": False}}
+        rid = self.ratified()
+        jobs = [self.coding_job("coding_a", rid), self.coding_job("coding_b", rid)]
+        by_app = server.build_ratification_desk(stage="rulings", coding_job_ids=jobs, proposals=load("proposals"))
+        by_json = server.build_ratification_desk(stage="rulings", coding_job_ids=jobs, proposals=load("proposals"))
+        self.open_view(by_app.structured_content["desk_id"])
+        self.press("chunk-7", codes=["Food access"], is_rule=["yes"], rule_text="Selling below cost is food access.")
+        self.press("chunk-9", codes=["Land tenure", "Municipal relations"])
+        self.press("chunk-11", name="exclude_chunk", reason="Not about the garden.")
+        self.press("chunk-12", codes=[surf.NO_CODE], is_rule=["no"])
+        app = server.desk_finish(self.desk_id)
+        json_id = by_json.structured_content["desk_id"]
+        doc = {"schema": "aat/desk-decisions@1", "desk_id": json_id, "card_checksum": self.payload(by_json)["card_checksum"],
+               "exclusive": None, "decisions": ruled}
+        chat = server.record_desk_decisions(json_id, doc, "page")
+        def same(outcome):
+            return {k: v for k, v in outcome.items() if k not in ("desk_id", "ratification_id")}
+        self.assertEqual(same(app), same(chat))
+        for name in ("result.json",):
+            self.assertEqual(self.store.load_artifact(app["ratification_id"], name), self.store.load_artifact(chat["ratification_id"], name))
+        held = [json.loads(self.store.load_artifact(o["ratification_id"], "ratification.json")) for o in (app, chat)]
+        for h in held:
+            h.pop("desk_id")
+            for amendment in h["amendments"]:
+                amendment.pop("desk_id")
+        self.assertEqual(held[0], held[1])
+        self.assertEqual(self.store.load_artifact(self.desk_id, "result.json"), self.store.load_artifact(json_id, "result.json"))
+        decided = [[(e["card_id"], e["action"], e["detail"], e["note"]) for e in record.read(self.store, d) if e["decided_by"] == "researcher" and e["action"] != "ratify"]
+                   for d in (self.desk_id, json_id)]
+        self.assertEqual(decided[0], decided[1])
 
 
 class TestRegistration(DeskCase):

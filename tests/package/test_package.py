@@ -141,6 +141,7 @@ class TestMcpServer(unittest.TestCase):
 
             "view_network",
             "build_ratification_desk", "record_desk_decisions",
+            "desk_sync", "desk_finish",
 
             "export_network",
             "list_notebooks", "list_lenses", "get_lens",

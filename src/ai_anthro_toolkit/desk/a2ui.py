@@ -28,7 +28,7 @@ from ai_anthro_toolkit import __version__
 from ai_anthro_toolkit.desk import BASIC_CATALOG_ID, CATALOG_ID
 from ai_anthro_toolkit.desk.decisions import differs
 
-__all__ = ["NO_CODE", "after_decision", "catalog_problems", "decision_from_action", "surface", "validate"]
+__all__ = ["NO_CODE", "after_decision", "catalog_problems", "decision_from_action", "restore", "surface", "validate"]
 
 _BASE = "https://a2ui.org/specification/v1_0/"
 # Where the message schema looks for "the" catalog. Each check loads one catalog here.
@@ -647,6 +647,28 @@ def after_decision(desk: Mapping[str, Any], saved: Mapping[str, Any], card_id: s
             messages.append({"version": _VERSION, "updateComponents": {"surfaceId": sid, "components": rebuilt}})
     status = _status(desk, saved, card_id)
     messages.append({"version": _VERSION, "updateDataModel": {"surfaceId": sid, "path": "/status", "value": status}})
+    return messages
+
+
+def restore(desk: Mapping[str, Any], saved: Mapping[str, Any]) -> list[Message]:
+    """The desk as ``surface`` gives it, with the decisions in ``saved`` already made: each
+    saved ruling's proposal released (R3.9), and the status showing every saved decision,
+    with the first undecided item open (R7.9). ``saved`` is in ``after_decision``'s shape.
+    """
+    messages = surface(desk)
+    decisions = saved.get("decisions", {})
+    unknown = [card_id for card_id in decisions if card_id not in {card["card_id"] for card in desk["cards"]}]
+    if unknown:
+        raise ValueError(f"The saved decisions name cards this desk lacks: {', '.join(unknown)}.")
+    sid = desk["desk_id"]
+    if desk["stage"] == "rulings":
+        for n, card in enumerate(desk["cards"]):
+            if card["card_id"] in decisions and card["proposal"] is not None:
+                rebuilt = _ruling_card(n, card, desk, proposal=True, rule=differs(card, decisions[card["card_id"]]))
+                messages.append({"version": _VERSION, "updateComponents": {"surfaceId": sid, "components": rebuilt}})
+    if decisions or saved.get("exclusive") is not None:
+        status = _status(desk, saved, None)
+        messages.append({"version": _VERSION, "updateDataModel": {"surfaceId": sid, "path": "/status", "value": status}})
     return messages
 
 

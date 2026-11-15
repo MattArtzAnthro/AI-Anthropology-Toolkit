@@ -30,7 +30,7 @@ from ai_anthro_toolkit.desk import decisions as desk_decisions
 from ai_anthro_toolkit.desk import record
 from ai_anthro_toolkit.jobs import JobStore
 
-__all__ = ["SURFACES", "apply", "next_version"]
+__all__ = ["SURFACES", "apply", "load_desk", "next_version", "problem_lines"]
 
 SURFACES = ("app", "page", "chat")
 Outcome = dict[str, Any]
@@ -66,7 +66,10 @@ def _json(store: JobStore, job_id: str, name: str) -> Any:
     return json.loads(text) if text else None
 
 
-def _desk(store: JobStore, desk_id: str) -> dict[str, Any]:
+def load_desk(store: JobStore, desk_id: str) -> dict[str, Any]:
+    """The desk job's payload with its ``desk_id``, as ``a2ui`` and ``decisions`` take a
+    desk. Refuses an ID that is not a desk, a desk lacking what its stage needs, and cards
+    that no longer match their checksum."""
     job = store.read(desk_id)  # refuses an ID the store did not issue (R5.1)
     if job.get("kind") != "desk":
         raise ValueError(f"{desk_id} is not a desk.")
@@ -85,12 +88,18 @@ def _digest(chosen: desk_decisions.Decisions) -> str:
     return hashlib.sha256(json.dumps(asdict(chosen), sort_keys=True).encode()).hexdigest()
 
 
-def _refusal(problems: list[desk_decisions.Problem]) -> ValueError:
+def problem_lines(heading: str, problems: list[desk_decisions.Problem]) -> str:
+    """``heading``, then one line per problem, each naming its card unless the message
+    already does or the problem is the document's or the exclusivity question's."""
     lines = [
         p.message if p.card_id in ("desk", "exclusivity") or p.message.startswith(p.card_id) else f"{p.card_id}: {p.message}"
         for p in problems
     ]
-    return ValueError("These decisions cannot be applied:\n" + "\n".join(f"- {line}" for line in lines))
+    return heading + "\n" + "\n".join(f"- {line}" for line in lines)
+
+
+def _refusal(problems: list[desk_decisions.Problem]) -> ValueError:
+    return ValueError(problem_lines("These decisions cannot be applied:", problems))
 
 
 def _unchecked(count: int, amendments: int, prior: str) -> str:
@@ -105,7 +114,7 @@ def apply(store: JobStore, desk_id: str, doc: Any, surface: str) -> Outcome:
     (``app``, ``page`` or ``chat``), and return the outcome. Refuses, writing nothing, a
     desk it did not issue, a document for another desk or desk version, and any document
     that does not decide every card (R2.6, R5.1–R5.4)."""
-    desk = _desk(store, desk_id)
+    desk = load_desk(store, desk_id)
     if surface not in SURFACES:
         raise ValueError(f"Decisions reach a desk from the app, page or chat, not {surface!r}.")
     chosen = desk_decisions.parse(doc)

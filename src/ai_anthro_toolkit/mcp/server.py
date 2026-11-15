@@ -30,7 +30,7 @@ import os
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from mcp.server import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
@@ -58,7 +58,9 @@ from ai_anthro_toolkit.datasources import search_crossref as _crossref
 from ai_anthro_toolkit.datasources import search_openalex as _openalex
 from ai_anthro_toolkit.datasources import search_pubmed as _pubmed
 from ai_anthro_toolkit.desk import a2ui as _a2ui
+from ai_anthro_toolkit.desk import apply as _desk_apply
 from ai_anthro_toolkit.desk import cards as _desk_cards
+from ai_anthro_toolkit.desk import decisions as _desk_decisions
 from ai_anthro_toolkit.desk import gate as _desk_gate
 from ai_anthro_toolkit.desk import page as _desk_page
 from ai_anthro_toolkit.desk import record as _desk_record
@@ -257,7 +259,8 @@ def toolkit_info() -> dict:
             "checks": ["get_artifact_checks"],
             "network": ["build_network", "analyze_network", "view_network",
                         "export_network"],
-            "desk": ["build_ratification_desk", "record_desk_decisions"],
+            "desk": ["build_ratification_desk", "record_desk_decisions", "desk_sync",
+                     "desk_finish"],
             "analysis": ["chunk_transcript", "start_codebook_job",
                           "ratify_codebook", "start_coding_job",
                           "get_next_batch", "submit_batch",
@@ -1543,7 +1546,131 @@ def record_desk_decisions(
     if surface not in ("chat", "page"):
         raise ValueError(f"surface is 'chat' or 'page', not {surface!r}; decisions made in the "
                          "desk's MCP App are recorded by the desk itself.")
-    return _desk_gate.apply(_jobs, desk_id, decisions, surface)
+    with _desk_lock:
+        _desk_gate.load_desk(_jobs, desk_id)  # refuses an ID that is not a desk before reading it
+        if _jobs.load_artifact(desk_id, _SAVED) is not None:
+            raise ValueError(
+                f"{desk_id} is open in its view in the conversation, which keeps each decision "
+                "as it is made. The researcher finishes it there with Ratify; it cannot be "
+                "finished from here. To decide in chat instead, build a new desk.")
+        return _desk_gate.apply(_jobs, desk_id, decisions, surface)
+
+
+# Decisions saved one at a time through the desk's MCP App: {"decisions", "exclusive"}.
+# The view writes it when it first opens the desk, which holds the desk for the view
+# (R7.8): from then on only its Ratify control, desk_finish, can finish it.
+_SAVED = "saved.json"
+_NOTHING_SAVED: dict[str, Any] = {"decisions": {}, "exclusive": None}
+# Saving reads, changes and writes saved.json, and finishing reads it and writes the
+# outcome; each runs whole, one at a time, so no save is lost or lands mid-finish.
+_desk_lock = threading.RLock()
+
+
+def _saved(desk_id: str) -> dict:
+    saved = _load_records(desk_id, _SAVED)
+    if saved is None:
+        return dict(_NOTHING_SAVED)
+    if not (isinstance(saved, dict) and set(saved) == {"decisions", "exclusive"}
+            and isinstance(saved["decisions"], dict)
+            and all(isinstance(d, dict) for d in saved["decisions"].values())
+            and saved["exclusive"] in (True, False, None)):
+        raise ValueError(f"The decisions saved for {desk_id} are damaged; build the desk "
+                         "again to decide it.")
+    return saved
+
+
+def _dry_run(desk: dict, decisions: dict) -> None:
+    """A codebook desk's actions applied to its codebook, with the codes not yet decided
+    kept as they are, so a clash between decisions is refused when it is saved."""
+    source = _load_records(desk["desk_id"], "codebook.json") or []
+    every = {card["card_id"]: decisions.get(card["card_id"], {"action": "adopt"})
+             for card in desk["cards"]}
+    try:
+        _desk_apply.apply_actions(source, desk["cards"], every)
+    except ValueError as exc:
+        raise ValueError(f"This decision cannot be saved:\n- {exc}") from exc
+
+
+@_tool(annotations=_LOCAL_WRITE, meta={"ui": {"resourceUri": DESK_URI, "visibility": ["app"]}})
+def desk_sync(desk_id: Annotated[str, Field(description="The desk shown in the view.")],
+              action: Annotated[dict | None, Field(
+                  description="The A2UI action a Save control sent: {name, context}. "
+                              "Omit to load the desk as saved.")] = None) -> dict:
+    """The desk's view saves one decision, or loads the desk with its saved decisions.
+
+    Called only by the ratification desk's view, when the researcher presses a
+    Save control in it (app-only: the model cannot call it). Checks the decision
+    against the desk, keeps it on the server, and returns the A2UI messages
+    that follow: the card marked decided and the next one opened, and a ruling's
+    proposal once that ruling is saved. Without an action, returns the whole desk
+    with every saved decision restored.
+    """
+    return _sync(desk_id, action)
+
+
+def _sync(desk_id: str, action: dict | None) -> dict:
+    with _desk_lock:
+        return _sync_held(desk_id, action)
+
+
+def _sync_held(desk_id: str, action: dict | None) -> dict:
+    desk = _desk_gate.load_desk(_jobs, desk_id)
+    finished = _load_records(desk_id, "finished.json")
+    saved = _saved(desk_id)
+    if action is None:
+        if finished is None and _jobs.load_artifact(desk_id, _SAVED) is None:
+            _jobs.save_artifact(desk_id, _SAVED, json.dumps(saved))  # the view holds the desk
+        return {"desk_id": desk_id, "saved": len(saved["decisions"]),
+                "finished": finished["outcome"] if finished else None,
+                "a2ui": _a2ui.restore(desk, saved)}
+    if finished is not None:
+        raise ValueError(f"{desk_id} is finished; its decisions can no longer change.")
+    if _jobs.load_artifact(desk_id, "finishing.json") is not None:
+        raise ValueError("Ratify was interrupted before it finished. Press Ratify again to "
+                         "complete it; the decisions cannot change until it does.")
+    if not isinstance(action, dict) or not isinstance(action.get("name"), str) \
+            or not isinstance(action.get("context"), dict):
+        raise ValueError("An action is {name, context}, as the desk's Save control sends it.")
+    card_id, decision = _a2ui.decision_from_action(desk, action["name"], action["context"])
+    if card_id == "exclusivity":
+        candidate = dict(saved, exclusive=decision["exclusive"])
+    else:
+        candidate = dict(saved, decisions={**saved["decisions"], card_id: decision})
+    chosen = _desk_decisions.Decisions(desk_id=desk_id, card_checksum=desk["card_checksum"],
+                                       exclusive=candidate["exclusive"],
+                                       decisions=candidate["decisions"])
+    # Every saved decision, not only this one: a save can break another (a merge into a
+    # code this save deletes).
+    problems = _desk_decisions.validate(desk, chosen, complete=False)
+    if problems:
+        raise ValueError(_desk_gate.problem_lines("This decision cannot be saved:", problems))
+    if desk["stage"] == "codebook":
+        _dry_run(desk, candidate["decisions"])
+    _jobs.save_artifact(desk_id, _SAVED, json.dumps(candidate))
+    return {"desk_id": desk_id, "saved": len(candidate["decisions"]),
+            "a2ui": _a2ui.after_decision(desk, candidate, card_id)}
+
+
+@_tool(annotations=_LOCAL_WRITE, meta={"ui": {"resourceUri": DESK_URI, "visibility": ["app"]}})
+def desk_finish(desk_id: Annotated[str, Field(description="The desk shown in the view.")]) -> dict:
+    """The desk's view ratifies: applies every decision saved in it through the import gate.
+
+    Called only by the ratification desk's view, when the researcher presses
+    Ratify (app-only: the model cannot call it). Refuses, writing nothing, while
+    any card or question is undecided. Returns the outcome, with the
+    ratification_id to pass to start_coding_job.
+    """
+    return _finish(desk_id)
+
+
+def _finish(desk_id: str) -> dict:
+    with _desk_lock:
+        desk = _desk_gate.load_desk(_jobs, desk_id)
+        saved = _saved(desk_id)
+        doc = {"schema": _desk_decisions.SCHEMA, "desk_id": desk_id,
+               "card_checksum": desk["card_checksum"], "exclusive": saved["exclusive"],
+               "decisions": saved["decisions"]}
+        return _desk_gate.apply(_jobs, desk_id, doc, "app")
 
 
 def main() -> None:

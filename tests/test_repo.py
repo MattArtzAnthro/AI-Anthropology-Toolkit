@@ -20,8 +20,10 @@ COMMANDS_DIR = REPO / "commands"
 NOTEBOOKS_DIR = REPO / "notebooks"
 
 
-def registered_tool_count() -> int:
-    """Count MCP tools from the server's decorators, not from prose.
+def registered_tool_count(app_only: bool = False) -> int:
+    """Count MCP tools from the server's decorators, not from prose: those the model
+    sees, or with ``app_only`` those only an MCP App view can call
+    (``_meta.ui.visibility: ["app"]``), which a host keeps from the model.
 
     The same derivation `tests/test_codex_plugin.py` uses. A count taken from
     documentation cannot detect documentation drift, which is the whole point.
@@ -31,13 +33,28 @@ def registered_tool_count() -> int:
             encoding="utf-8"
         )
     )
-    return sum(
-        1
+    decorators = [
+        d
         for node in ast.walk(tree)
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-        and any(isinstance(d, ast.Call) and ast.unparse(d.func) in ("mcp.tool", "_tool")
-                for d in node.decorator_list)
-    )
+        for d in node.decorator_list
+        if isinstance(d, ast.Call) and ast.unparse(d.func) in ("mcp.tool", "_tool")
+    ]
+    return sum(1 for d in decorators if _app_only(d) == app_only)
+
+
+def _app_only(decorator: ast.Call) -> bool:
+    """Whether a tool decorator's ``visibility`` leaves the model out. The list must be
+    written out in the decorator, so this reads what the host reads."""
+    for node in ast.walk(decorator):
+        if not isinstance(node, ast.Dict):
+            continue
+        for key, value in zip(node.keys, node.values):
+            if isinstance(key, ast.Constant) and key.value == "visibility":
+                if not (isinstance(value, ast.List) and all(isinstance(e, ast.Constant) for e in value.elts)):
+                    raise AssertionError(f"write visibility out as a list of strings: {ast.unparse(value)}")
+                return "model" not in [e.value for e in value.elts]
+    return False
 
 # Current Anthropic model aliases. Dateless aliases only, so notebooks track
 # model updates without breaking when dated snapshots retire.
@@ -867,6 +884,26 @@ class TestRepoDocs(unittest.TestCase):
             "no tool-count claim found — if the wording changed, update this pattern "
             "rather than letting the check silently pass over nothing",
         )
+
+    def test_app_only_detection_reads_the_visibility_list(self):
+        def call(meta: str) -> ast.Call:
+            return ast.parse(f"_tool(meta={meta})").body[0].value
+        for meta, expected in (('{"ui": {"visibility": ["app"]}}', True), ('{"ui": {"visibility": ["model", "app"]}}', False),
+                               ('{"ui": {"resourceUri": URI}}', False), ('None', False), ('{"ui": {"visibility": ["app"], "resourceUri": URI}}', True)):
+            with self.subTest(meta):
+                self.assertIs(_app_only(call(meta)), expected)
+        with self.assertRaisesRegex(AssertionError, "write visibility out"):
+            _app_only(call('{"ui": {"visibility": APP_ONLY}}'))
+
+    def test_the_app_only_tools_are_counted_apart(self):
+        """Tools only the desk's view can call are not the model's tools; CLAUDE.md
+        states them apart from the count, and that number holds too."""
+        app_only = registered_tool_count(app_only=True)
+        self.assertEqual(app_only, 2)
+        claim = re.search(r"plus (\d+) that only the desk's view can call",
+                          (REPO / "CLAUDE.md").read_text(encoding="utf-8"))
+        self.assertIsNotNone(claim, "CLAUDE.md does not state the app-only tools apart")
+        self.assertEqual(int(claim.group(1)), app_only)
 
     def test_every_live_test_class_is_gated(self):
         """A test that calls a third-party service must be skippable.

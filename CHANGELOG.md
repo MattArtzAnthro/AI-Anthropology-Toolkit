@@ -154,6 +154,18 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   through the import gate, and records which of the two surfaces they came
   from. It returns the ratification `start_coding_job` takes; a ruling that
   states a rule returns the amended version's.
+- In the desk's MCP App, the view saves each decision on the server with
+  `desk_sync` as the researcher makes it, and ratifies with `desk_finish`;
+  both are app-only tools the model cannot call. A decision the desk cannot
+  take is refused before it is saved, a ruling's proposal reaches the view
+  only once that ruling is saved, and reopening the desk restores every
+  saved decision. Opening the desk in its view holds it for that view, and
+  from then on it is finished only there: `record_desk_decisions` refuses it.
+  Each save is checked against every decision already saved (a codebook
+  desk also checks that the codebook it would produce holds together), saves
+  and Ratify run one at a time, a Ratify cut short blocks further changes
+  until Ratify is pressed again, and a damaged saved state is refused by
+  name rather than read as empty.
 - `scripts/build_design_docs.py` builds `design/brand-spec.json` and
   `design/brand-guide.html` from the tokens, and stops if any colour pairing
   misses WCAG AA in either theme. `tests/test_design_docs.py` fails while
