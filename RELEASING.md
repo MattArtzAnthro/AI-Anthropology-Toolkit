@@ -148,7 +148,7 @@ Unit tests prove the bundle is internally consistent. They cannot prove that
 Codex Desktop can launch `uvx`, complete MCP discovery, or surface the MCP App.
 Run this check in the actual desktop host after installing the plugin:
 
-- [ ] On the first new task after install, the server initializes and `tools/list` exposes exactly 35 tools (not only the resource).
+- [ ] On the first new task after install, the server initializes and `tools/list` exposes exactly 36 tools (not only the resource).
 - [ ] `resources/list` includes `ui://ai-anthropology/network-view`.
 - [ ] Call `toolkit_info` and one small non-network tool successfully.
 - [ ] Start a second new task and repeat tool discovery. This catches startup/cache behavior that an in-process retry hides.

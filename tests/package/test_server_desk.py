@@ -332,6 +332,122 @@ class TestRulingsDesk(DeskCase):
         self.assertEqual(outcome["resolved"], len(stored["cards"]))
 
 
+class TestRecordDecisions(DeskCase):
+    """The model-visible import, for decisions the researcher made in chat or on the page."""
+
+    def codebook_desk(self):
+        result = server.build_ratification_desk(stage="codebook", codebook=self.codebook, cases=self.cases)
+        return result.structured_content["desk_id"], self.payload(result)
+
+    def doc(self, desk_id, stored, decisions, exclusive=None):
+        return {"schema": "aat/desk-decisions@1", "desk_id": desk_id, "card_checksum": stored["card_checksum"],
+                "exclusive": exclusive, "decisions": decisions}
+
+    def rulings_desk(self):
+        rid, result = self.rulings(proposals=load("proposals"))
+        stored = self.payload(result)
+        agreeing = {c["card_id"]: {"codes": c["proposal"]["codes"]} if c["proposal"]["codes"] else {"none_apply": True}
+                    for c in stored["cards"]}
+        return rid, result.structured_content["desk_id"], stored, agreeing
+
+    def test_r2_5_desk_ratification_accepted_by_start_coding_job(self):
+        desk_id, stored = self.codebook_desk()
+        outcome = server.record_desk_decisions(
+            desk_id, self.doc(desk_id, stored, {c["card_id"]: {"action": "adopt"} for c in stored["cards"]}, False), "page")
+        self.assertEqual((outcome["stage"], outcome["version"], outcome["codes"]), ("codebook", "1.0", 6))
+        job = server.start_coding_job(chunks=[{"chunk_id": 1, "text": "x"}], ratification_id=outcome["ratification_id"],
+                                      llm_mode="delegated")
+        self.assertEqual(json.loads(self.store.load_artifact(job["job_id"], "codebook.json")), self.codebook)
+
+    def test_r2_7_actions_reach_ratified_codebook(self):
+        desk_id, stored = self.codebook_desk()
+        decisions = {c["card_id"]: {"action": "adopt"} for c in stored["cards"]}
+        decisions["code-01"] = {"action": "reword", "definition": "Garden work members share out between them."}
+        decisions["code-02"] = {"action": "delete", "note": "Folded into the discussion of exchange."}
+        outcome = server.record_desk_decisions(desk_id, self.doc(desk_id, stored, decisions, True), "chat")
+        job = server.start_coding_job(chunks=[{"chunk_id": 1, "text": "x"}], ratification_id=outcome["ratification_id"],
+                                      llm_mode="delegated")
+        coded_with = json.loads(self.store.load_artifact(job["job_id"], "codebook.json"))
+        self.assertEqual([r["code_label"] for r in coded_with], [r["code_label"] for r in self.codebook if r["code_label"] != "Charity framing"])
+        self.assertEqual(coded_with[0]["definition"], "Garden work members share out between them.")
+        self.assertEqual(coded_with[0]["inclusion_criteria"], self.codebook[0]["inclusion_criteria"])
+        self.assertEqual(outcome["codes"], 5)
+
+    def test_r3_6_differing_ruling_without_rule_answer_refused(self):
+        rid, desk_id, stored, decisions = self.rulings_desk()
+        decisions["chunk-7"] = {"codes": ["Food access"]}  # the proposal was Charity framing
+        before = self.jobs("ratification")
+        with self.assertRaisesRegex(ValueError, r"(?m)^- chunk-7: .*rule"):
+            server.record_desk_decisions(desk_id, self.doc(desk_id, stored, decisions), "chat")
+        self.assertEqual(self.jobs("ratification"), before)
+        self.assertEqual([e["decided_by"] for e in record.read(self.store, desk_id)], ["machine"] * 5)
+
+    def rule(self):
+        rid, desk_id, stored, decisions = self.rulings_desk()
+        prior = self.store.load_artifact(rid, "result.json")
+        decisions["chunk-7"] = {"codes": ["Food access"], "is_rule": True,
+                                "rule_text": "Selling produce below cost counts as food access, not charity."}
+        outcome = server.record_desk_decisions(desk_id, self.doc(desk_id, stored, decisions), "chat")
+        return rid, prior, outcome
+
+    def test_r4_3_amendment_issues_next_minor_version(self):
+        rid, prior, outcome = self.rule()
+        self.assertEqual(outcome["version"], "1.1")
+        self.assertNotEqual(outcome["ratification_id"], rid)
+        self.assertEqual(self.store.load_artifact(rid, "result.json"), prior)  # the prior version is unchanged
+        amended = {r["code_label"]: r for r in json.loads(self.store.load_artifact(outcome["ratification_id"], "result.json"))}
+        self.assertEqual(amended["Food access"]["rules"], ["Selling produce below cost counts as food access, not charity."])
+
+    def test_r4_4_amended_ratification_names_parent_and_amendments(self):
+        rid, _, outcome = self.rule()
+        held = json.loads(self.store.load_artifact(outcome["ratification_id"], "ratification.json"))
+        self.assertEqual((held["method"], held["version"], held["parent"]), ("amendment", "1.1", rid))
+        [amendment] = held["amendments"]
+        self.assertEqual((amendment["amendment_id"], amendment["source_card"], amendment["from_version"]), ("1.1-1", "chunk-7", "1.0"))
+
+    def test_r4_5_reports_unrechecked_agreed_chunks(self):
+        _, _, outcome = self.rule()
+        self.assertEqual(outcome["agreed_unchecked"], 8)
+        self.assertEqual(outcome["unchecked"], "8 chunks both passes agreed on were coded under version 1.0 "
+                                               "and have not been rechecked against the amendment.")
+
+    def test_r7_4_chat_decisions_recorded_with_surface_chat(self):
+        _, desk_id, stored, decisions = self.rulings_desk()
+        server.record_desk_decisions(desk_id, self.doc(desk_id, stored, decisions), "chat")
+        decided = [e for e in record.read(self.store, desk_id) if e["decided_by"] == "researcher"]
+        self.assertEqual(len(decided), len(stored["cards"]) + 1)  # each card, then the ratify entry
+        self.assertEqual({e["surface"] for e in decided}, {"chat"})
+
+    def test_the_page_surface_is_recorded_as_page(self):
+        desk_id, stored = self.codebook_desk()
+        server.record_desk_decisions(desk_id, self.doc(desk_id, stored, {c["card_id"]: {"action": "adopt"} for c in stored["cards"]}, False), "page")
+        self.assertEqual({e["surface"] for e in record.read(self.store, desk_id) if e["decided_by"] == "researcher"}, {"page"})
+
+    def test_only_chat_and_page_reach_the_desk_through_this_tool(self):
+        desk_id, stored = self.codebook_desk()
+        doc = self.doc(desk_id, stored, {c["card_id"]: {"action": "adopt"} for c in stored["cards"]}, False)
+        for surface in ("app", "table", "server", ""):
+            with self.subTest(surface), self.assertRaisesRegex(ValueError, "^surface is 'chat' or 'page'"):
+                server.record_desk_decisions(desk_id, doc, surface)
+        self.assertEqual(self.jobs("ratification"), [])
+
+    def test_refusals_reach_the_model_and_name_what_is_missing(self):
+        desk_id, stored = self.codebook_desk()
+        decisions = {c["card_id"]: {"action": "adopt"} for c in stored["cards"][1:]}
+        with self.assertRaisesRegex(ToolError, "code-01"):
+            asyncio.run(server.mcp.call_tool("record_desk_decisions", {
+                "desk_id": desk_id, "decisions": self.doc(desk_id, stored, decisions, False), "surface": "chat"}))
+        self.assertEqual(self.jobs("ratification"), [])
+
+    def test_the_same_decisions_twice_return_the_same_ratification(self):
+        desk_id, stored = self.codebook_desk()
+        doc = self.doc(desk_id, stored, {c["card_id"]: {"action": "adopt"} for c in stored["cards"]}, False)
+        first = server.record_desk_decisions(desk_id, doc, "chat")
+        entries = record.read(self.store, desk_id)
+        self.assertEqual(server.record_desk_decisions(desk_id, doc, "chat"), first)
+        self.assertEqual(record.read(self.store, desk_id), entries)
+
+
 class TestRegistration(DeskCase):
     def test_r7_6_tool_carries_desk_resource_uri(self):
         tools = {t.name: t for t in asyncio.run(server.mcp.list_tools())}

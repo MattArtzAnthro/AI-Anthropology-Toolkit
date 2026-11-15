@@ -149,6 +149,11 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   the stage does not take, the same coding job twice, a `codebook_job_id`
   that is not a codebook job, and a job whose result is not a list of
   records. Ratifying a codebook job again keeps the desks built on it.
+- **`record_desk_decisions`** (36 tools) applies a desk's decisions made on
+  the standalone page (its "Copy decisions as JSON") or stated in chat,
+  through the import gate, and records which of the two surfaces they came
+  from. It returns the ratification `start_coding_job` takes; a ruling that
+  states a rule returns the amended version's.
 - `scripts/build_design_docs.py` builds `design/brand-spec.json` and
   `design/brand-guide.html` from the tokens, and stops if any colour pairing
   misses WCAG AA in either theme. `tests/test_design_docs.py` fails while

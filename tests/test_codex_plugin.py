@@ -23,7 +23,7 @@ TOOL_REFERENCE = (
 
 TOOL_LIKE = re.compile(
     r"^((?:toolkit|search|get|list|format|chunk|extract|start|ratify|"
-    r"submit|build|compare|view|export|analyze)_[a-z0-9_]+)$"
+    r"submit|build|compare|view|export|analyze|record|desk)_[a-z0-9_]+)$"
 )
 
 # Snake-case identifiers that share a registered tool's verb prefix but are

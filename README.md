@@ -253,7 +253,7 @@ codex plugin marketplace add /absolute/path/to/AI-Anthropology-Toolkit
 codex plugin add ai-anthropology@personal
 ```
 
-Start a new Codex task after installation. The plugin includes all 29 portable research skills, a Codex-specific router, and the same exactly pinned 35-tool MCP server registration as the repository root.
+Start a new Codex task after installation. The plugin includes all 29 portable research skills, a Codex-specific router, and the same exactly pinned 36-tool MCP server registration as the repository root.
 
 ### Notebooks (Colab)
 

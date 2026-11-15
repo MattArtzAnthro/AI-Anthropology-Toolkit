@@ -59,6 +59,7 @@ from ai_anthro_toolkit.datasources import search_openalex as _openalex
 from ai_anthro_toolkit.datasources import search_pubmed as _pubmed
 from ai_anthro_toolkit.desk import a2ui as _a2ui
 from ai_anthro_toolkit.desk import cards as _desk_cards
+from ai_anthro_toolkit.desk import gate as _desk_gate
 from ai_anthro_toolkit.desk import page as _desk_page
 from ai_anthro_toolkit.desk import record as _desk_record
 from ai_anthro_toolkit.jobs import JobStore
@@ -256,7 +257,7 @@ def toolkit_info() -> dict:
             "checks": ["get_artifact_checks"],
             "network": ["build_network", "analyze_network", "view_network",
                         "export_network"],
-            "desk": ["build_ratification_desk"],
+            "desk": ["build_ratification_desk", "record_desk_decisions"],
             "analysis": ["chunk_transcript", "start_codebook_job",
                           "ratify_codebook", "start_coding_job",
                           "get_next_batch", "submit_batch",
@@ -1510,6 +1511,39 @@ def _build_desk(stage: str, title: str, codebook_job_id: str, codebook: list[dic
                   "a2ui": _a2ui.surface(desk)}
     return CallToolResult(content=[TextContent(type="text", text=text)],
                           structured_content=structured)
+
+
+@_tool(annotations=_LOCAL_WRITE)
+def record_desk_decisions(
+        desk_id: Annotated[str, Field(description="The desk_id build_ratification_desk returned.")],
+        decisions: Annotated[dict, Field(
+            description='The decisions document, {"schema": "aat/desk-decisions@1", "desk_id", '
+                        '"card_checksum", "exclusive", "decisions": {card_id: decision}}.')],
+        surface: Annotated[Literal["chat", "page"], Field(
+            description="'page' for a document the researcher copied from the desk page; "
+                        "'chat' for decisions the researcher stated in the conversation.")],
+) -> dict:
+    """Apply the researcher's decisions on a desk, from the desk page or the conversation.
+
+    Use this only for decisions the researcher made: the JSON the desk page's
+    "Copy decisions as JSON" gives (surface "page"), or a document built from
+    what the researcher said in the conversation, card by card (surface
+    "chat"). Never fill in, infer or complete a decision the researcher did
+    not make; a desk that runs in the conversation as an MCP App records its
+    own decisions.
+
+    A codebook desk needs an action on every code and an answer on whether
+    codes are mutually exclusive; it returns the ratification_id to pass to
+    start_coding_job. A rulings desk needs a ruling or exclusion on every
+    card; a ruling that states a rule amends the codebook and returns the
+    amended version's ratification_id. Every decision is checked against the
+    desk first; nothing is written unless all of them pass, and the refusal
+    names each problem. The same decisions sent again return the same result.
+    """
+    if surface not in ("chat", "page"):
+        raise ValueError(f"surface is 'chat' or 'page', not {surface!r}; decisions made in the "
+                         "desk's MCP App are recorded by the desk itself.")
+    return _desk_gate.apply(_jobs, desk_id, decisions, surface)
 
 
 def main() -> None:
