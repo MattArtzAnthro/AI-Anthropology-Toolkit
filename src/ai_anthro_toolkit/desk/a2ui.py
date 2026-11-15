@@ -24,9 +24,10 @@ from jsonschema.exceptions import best_match
 from referencing import Registry
 from referencing.jsonschema import DRAFT202012
 
+from ai_anthro_toolkit import __version__
 from ai_anthro_toolkit.desk import BASIC_CATALOG_ID, CATALOG_ID
 
-__all__ = ["catalog_problems", "validate"]
+__all__ = ["catalog_problems", "surface", "validate"]
 
 _BASE = "https://a2ui.org/specification/v1_0/"
 # Where the message schema looks for "the" catalog. Each check loads one catalog here.
@@ -285,3 +286,181 @@ def catalog_problems(catalog: Mapping[str, Any]) -> list[str]:
         {"$ref": _BASE + "catalog_definition.json"}, registry=_registry(_ANY_CATALOG)
     )
     return [e.message for e in validator.iter_errors(catalog)]
+
+
+# ── Describing a desk ──────────────────────────────────────────────────────────
+#
+# A desk is one surface. Its components hold everything the desk will ever show; what
+# changes as the researcher works (which card is open, which are done, what they chose)
+# lives in the data model, so moving through the queue is a data-model update. Every
+# choice and field starts unset (R2.3). Component IDs are built from positions, which
+# are identifiers whatever a card or chunk is called; card IDs travel as data.
+
+_VERSION = "v1.0"
+Component = dict[str, Any]
+Message = dict[str, Any]
+
+_CODE_ACTIONS = [
+    ("adopt", "Adopt", "Keep the code as it is."),
+    ("reword", "Reword", "Change its definition, and its label if you like."),
+    ("merge", "Merge", "Fold it into another code."),
+    ("split", "Split", "Divide it into two or more codes."),
+    ("delete", "Delete", "Drop it from the codebook."),
+]
+
+
+def _bind(path: str) -> dict[str, str]:
+    return {"@path": path}
+
+
+def _basic(cid: str, component: str, **props: Any) -> Component:
+    return {"id": cid, "component": component, "catalogId": BASIC_CATALOG_ID, **props}
+
+
+def _toolkit(cid: str, component: str, **props: Any) -> Component:
+    return {"id": cid, "component": component, **props}
+
+
+def _button(cid: str, label: str, name: str, context: Mapping[str, Any], variant: str = "default") -> list[Component]:
+    return [
+        _basic(cid, "Button", child=f"{cid}_label", variant=variant, action={"event": {"name": name, "context": dict(context)}}),
+        _basic(f"{cid}_label", "Text", text=label),
+    ]
+
+
+def _decision_card(cid: str, data: str, title: str, eyebrow: str, status: str, kids: list[str]) -> Component:
+    """A queued DecisionCard whose open, done and result states live at ``data``."""
+    return _toolkit(
+        cid, "DecisionCard", title=title, eyebrow=eyebrow, state="needs", statusLabel=status,
+        open=_bind(f"{data}/open"), done=_bind(f"{data}/done"), result=_bind(f"{data}/result"),
+        change={"event": {"name": "change_decision", "context": {"card_id": eyebrow}}}, children=kids,
+    )
+
+
+def _cases(prefix: str, heading: str, cases: list[Mapping[str, Any]]) -> list[Component]:
+    """A captioned group of case passages, or nothing when there are none."""
+    if not cases:
+        return []
+    passages = [
+        _toolkit(f"{prefix}_{n}", "Passage", text=case["text"], **({"source": case["source"]} if case["source"] else {}))
+        for n, case in enumerate(cases, start=1)
+    ]
+    return [
+        _basic(prefix, "Column", children=[f"{prefix}_heading", *(p["id"] for p in passages)]),
+        _basic(f"{prefix}_heading", "Text", text=heading, variant="caption"),
+        *passages,
+    ]
+
+
+def _code_card(n: int, card: Mapping[str, Any], labels: list[str]) -> list[Component]:
+    """One code: its definition and criteria, its cases, and the five actions (R2.1, R2.2)."""
+    cid, data = f"card{n + 1}", f"/cards/{n}"
+    body: list[Component] = [_basic(f"{cid}_definition", "Text", text=card["definition"])]
+    if card["inclusion"]:
+        body.append(_basic(f"{cid}_include", "Text", text=f"Include when: {card['inclusion']}"))
+    if card["exclusion"]:
+        body.append(_basic(f"{cid}_exclude", "Text", text=f"Exclude when: {card['exclusion']}"))
+    typical = [c for c in card["cases"] if c["kind"] == "typical"]
+    borderline = [c for c in card["cases"] if c["kind"] == "borderline"]
+    groups = _cases(f"{cid}_typical", "Typical cases", typical) + _cases(f"{cid}_borderline", "Borderline cases", borderline)
+    fields: list[Component] = [
+        _toolkit(
+            f"{cid}_action", "ChoiceGroup", legend="Your decision on this code", value=_bind(f"{data}/action"),
+            options=[{"value": v, "label": label, "description": d} for v, label, d in _CODE_ACTIONS],
+        ),
+        _toolkit(f"{cid}_label", "TextField", label="New label (if rewording; optional)", value=_bind(f"{data}/label")),
+        _toolkit(f"{cid}_reword", "TextField", label="New definition (if rewording)", multiline=True, value=_bind(f"{data}/definition")),
+    ]
+    others = [label for label in labels if label != card["code_label"]]
+    if others:
+        fields.append(_toolkit(
+            f"{cid}_merge", "ChoiceGroup", legend="Merge into (if merging)", value=_bind(f"{data}/target"),
+            options=[{"value": label, "label": label} for label in others],
+        ))
+    fields += [
+        _toolkit(
+            f"{cid}_split", "TextField", label="Parts (if splitting)", multiline=True, value=_bind(f"{data}/parts"),
+            hint="One part per line: its label, a colon, then its definition.",
+        ),
+        _toolkit(f"{cid}_note", "TextField", label="Note (optional)", multiline=True, value=_bind(f"{data}/note")),
+    ]
+    save = _button(f"{cid}_save", "Save decision", "save_decision", {"card_id": card["card_id"], "decision": _bind(data)}, "primary")
+    kids = [c["id"] for c in body] + [g["id"] for g in groups if g["component"] == "Column"] + [f["id"] for f in fields] + [save[0]["id"]]
+    card_ = _decision_card(cid, data, card["code_label"], card["card_id"], "Needs your decision", kids)
+    return [card_, *body, *groups, *fields, *save]
+
+
+def _exclusivity_card() -> list[Component]:
+    """The one question about the codebook as a whole (R2.4)."""
+    question = _toolkit(
+        "exclusivity_answer", "ChoiceGroup", legend="Are the codes mutually exclusive?", value=_bind("/exclusivity/answer"),
+        options=[
+            {"value": "yes", "label": "Yes", "description": "A passage takes one code at most."},
+            {"value": "no", "label": "No", "description": "A passage can take several codes."},
+        ],
+    )
+    save = _button("exclusivity_save", "Save answer", "answer_exclusive", {"exclusive": _bind("/exclusivity/answer")}, "primary")
+    card = _toolkit(
+        "exclusivity", "DecisionCard", title="The codebook as a whole", eyebrow="exclusivity", state="needs",
+        statusLabel="Needs your answer", open=_bind("/exclusivity/open"), done=_bind("/exclusivity/done"),
+        result=_bind("/exclusivity/result"), change={"event": {"name": "change_decision", "context": {"card_id": "exclusivity"}}},
+        children=[question["id"], save[0]["id"]],
+    )
+    return [card, question, *save]
+
+
+def _open_card(n: int) -> dict[str, Any]:
+    return {"open": n == 0, "done": False, "result": ""}
+
+
+def _codebook_surface(desk: Mapping[str, Any]) -> tuple[list[Component], dict[str, Any]]:
+    cards_ = desk["cards"]
+    labels = [card["code_label"] for card in cards_]
+    queue: list[Component] = []
+    for n, card in enumerate(cards_):
+        queue += _code_card(n, card, labels)
+    queue += _exclusivity_card()
+    total = len(cards_) + 1
+    data = {
+        "cards": [
+            {"card_id": card["card_id"], **_open_card(n), "action": [], "label": "", "definition": "", "target": [], "parts": "", "note": ""}
+            for n, card in enumerate(cards_)
+        ],
+        "exclusivity": {**_open_card(len(cards_)), "answer": []},
+        "progress": {"done": 0, "current": 0, "left": total},
+    }
+    queue_ids = [c["id"] for c in queue if c["component"] == "DecisionCard"]
+    actions = _button("ratify", "Ratify the codebook", "finish", {"desk_id": desk["desk_id"]}, "primary") + _button(
+        "copy", "Copy decisions as JSON", "copy_json", {"desk_id": desk["desk_id"]}
+    )
+    frame: list[Component] = [
+        _basic("root", "Column", children=["progress", "queue", "actions", "tally", "byline"]),
+        _toolkit("progress", "Progress", total=total, done=_bind("/progress/done"), current=_bind("/progress/current"), label="Decisions"),
+        _basic("queue", "Column", children=queue_ids),
+        _basic("actions", "Row", children=["ratify", "copy"]),
+        _toolkit(
+            "tally", "Tally", left=_bind("/progress/left"), total=total, noun="decisions", sticky=True,
+            doneText="Every decision is made. Ratify when you are ready.",
+        ),
+        _toolkit("byline", "Byline", version=__version__, full=True),
+    ]
+    return frame + queue + actions, data
+
+
+def surface(desk: Mapping[str, Any]) -> list[Message]:
+    """The desk as A2UI v1.0 messages for a renderer that starts empty: the surface, its
+    components, and its initial data model, in which nothing is chosen (R1.8, R2.3).
+
+    ``desk`` holds ``desk_id``, ``stage`` (``codebook``), ``title`` and ``cards`` as
+    ``desk.cards`` builds them. The title travels in the data model for the page or
+    app shell to show as its header.
+    """
+    if desk.get("stage") != "codebook":
+        raise ValueError(f"A desk's stage is codebook or rulings, not {desk.get('stage')!r}.")
+    found, data = _codebook_surface(desk)
+    sid = desk["desk_id"]
+    return [
+        {"version": _VERSION, "createSurface": {"surfaceId": sid, "catalogId": CATALOG_ID}},
+        {"version": _VERSION, "updateComponents": {"surfaceId": sid, "components": found}},
+        {"version": _VERSION, "updateDataModel": {"surfaceId": sid, "path": "/", "value": {"desk_id": sid, "title": desk.get("title", ""), **data}}},
+    ]

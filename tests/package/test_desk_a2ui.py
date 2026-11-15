@@ -474,7 +474,7 @@ _CHILDREN_AS = {
     "Passage": "text", "Provenance": "text", "Status": "text", "CodeTag": "text", "Notice": "children",
     "Step": "children", "DecisionCard": "children", "Tally": None,
 }
-_ADDED = {"DecisionCard": {"change"}, "TextField": {"value"}, "ChoiceGroup": set(), "Notice": {"text"}}
+_ADDED = {"DecisionCard": {"change", "open", "done"}, "TextField": {"value"}, "ChoiceGroup": set(), "Notice": {"text"}}
 
 
 class TestCatalogFollowsTheDesignSystem(unittest.TestCase):

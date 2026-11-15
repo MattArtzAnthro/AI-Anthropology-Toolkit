@@ -32,6 +32,14 @@
           "default": "needs",
           "description": "Whether the decision is still needed, begun, or recorded."
         },
+        "open": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "Whether this is the card being decided. A card neither open nor done waits in the queue, hidden."
+        },
+        "done": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "Whether the card is decided. A done card shows as one row with its result and a Change button."
+        },
         "statusLabel": {
           "$ref": "common_types.json#/$defs/DynamicString",
           "description": "Text for the card's status, replacing the default for its state."
