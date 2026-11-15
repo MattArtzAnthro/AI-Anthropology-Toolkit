@@ -1,0 +1,38 @@
+[
+ {
+  "code_label": "Shared labour",
+  "definition": "Work on the garden that members describe as done together.",
+  "inclusion_criteria": "Joint tasks, work rosters, collective workdays.",
+  "exclusion_criteria": "Work one person does alone."
+ },
+ {
+  "code_label": "Charity framing",
+  "definition": "Describing the garden as giving to people in need.",
+  "inclusion_criteria": "Talk of donating, helping the needy, or good causes.",
+  "exclusion_criteria": "Exchange between members."
+ },
+ {
+  "code_label": "Land tenure",
+  "definition": "Who holds the plot and on what terms.",
+  "inclusion_criteria": "Leases, permissions, ownership, eviction.",
+  "exclusion_criteria": "Where plants are placed within the plot."
+ },
+ {
+  "code_label": "Food access",
+  "definition": "Getting enough affordable, fresh food.",
+  "inclusion_criteria": "Cost of food, distance to shops, what people eat.",
+  "exclusion_criteria": "Gardening as a hobby."
+ },
+ {
+  "code_label": "Volunteer burnout",
+  "definition": "Members tiring of or leaving the work.",
+  "inclusion_criteria": "Fatigue, dropping out, too few hands.",
+  "exclusion_criteria": "Seasonal pauses everyone expects."
+ },
+ {
+  "code_label": "Municipal relations",
+  "definition": "Dealings with the city or its staff.",
+  "inclusion_criteria": "Permits, inspections, council meetings.",
+  "exclusion_criteria": "Dealings with private landlords."
+ }
+]

@@ -1,0 +1,62 @@
+{
+ "Shared labour": [
+  {
+   "case_id": "c1",
+   "text": "Saturdays we all turn the compost together.",
+   "source": "Interview 02",
+   "kind": "typical"
+  },
+  {
+   "case_id": "c2",
+   "text": "I water on Tuesdays, but it's on the shared rota.",
+   "source": "Interview 05",
+   "kind": "borderline"
+  }
+ ],
+ "Charity framing": [
+  {
+   "case_id": "c3",
+   "text": "Half the beans go to the shelter down the road.",
+   "source": "Interview 01",
+   "kind": "typical"
+  }
+ ],
+ "Land tenure": [
+  {
+   "case_id": "c4",
+   "text": "The lease runs out in March and nobody has said a word.",
+   "source": "Interview 03",
+   "kind": "typical"
+  },
+  {
+   "case_id": "c5",
+   "text": "We moved the beds back from the fence after the survey.",
+   "source": "Field notes, May",
+   "kind": "borderline"
+  }
+ ],
+ "Food access": [
+  {
+   "case_id": "c6",
+   "text": "The nearest grocery is two buses away.",
+   "source": "Interview 04",
+   "kind": "typical"
+  }
+ ],
+ "Volunteer burnout": [
+  {
+   "case_id": "c7",
+   "text": "It's the same four of us every week now.",
+   "source": "Interview 02",
+   "kind": "typical"
+  }
+ ],
+ "Municipal relations": [
+  {
+   "case_id": "c8",
+   "text": "The inspector came about the water butts.",
+   "source": "Field notes, June",
+   "kind": "typical"
+  }
+ ]
+}

@@ -72,6 +72,11 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   The bundled renderer runs in strict mode, and a test requires its own check
   and `validate` to agree. The package now depends on `jsonschema` and
   `referencing`.
+- `desk.cards` builds a desk's cards: one per code from a codebook and the
+  cases each code would take, or one per chunk two coding jobs coded
+  differently, with the proposals for them. It refuses input it cannot card
+  faithfully and names what is wrong. `desk.cards.checksum` ties decisions to
+  the cards they were made on.
 - `scripts/build_design_docs.py` builds `design/brand-spec.json` and
   `design/brand-guide.html` from the tokens, and stops if any colour pairing
   misses WCAG AA in either theme. `tests/test_design_docs.py` fails while

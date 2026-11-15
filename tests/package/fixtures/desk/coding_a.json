@@ -1,0 +1,86 @@
+[
+ {
+  "chunk_id": 1,
+  "text": "Saturdays we all turn the compost together.",
+  "source_file": "interview-01.txt",
+  "Deductive_Codes": "Shared labour",
+  "Inductive_Codes": "Ritual of the workday"
+ },
+ {
+  "chunk_id": 2,
+  "text": "Half the beans go to the shelter down the road.",
+  "source_file": "interview-02.txt",
+  "Deductive_Codes": "Charity framing",
+  "Inductive_Codes": ""
+ },
+ {
+  "chunk_id": 3,
+  "text": "The lease runs out in March and nobody has said a word.",
+  "source_file": "interview-03.txt",
+  "Deductive_Codes": "Land tenure",
+  "Inductive_Codes": ""
+ },
+ {
+  "chunk_id": 4,
+  "text": "The nearest grocery is two buses away.",
+  "source_file": "interview-04.txt",
+  "Deductive_Codes": "Food access",
+  "Inductive_Codes": ""
+ },
+ {
+  "chunk_id": 5,
+  "text": "It's the same four of us every week now.",
+  "source_file": "interview-05.txt",
+  "Deductive_Codes": "Volunteer burnout",
+  "Inductive_Codes": ""
+ },
+ {
+  "chunk_id": 6,
+  "text": "The inspector came about the water butts.",
+  "source_file": "interview-01.txt",
+  "Deductive_Codes": "Municipal relations",
+  "Inductive_Codes": ""
+ },
+ {
+  "chunk_id": 7,
+  "text": "We give what we grow to whoever turns up on Sunday.",
+  "source_file": "interview-02.txt",
+  "Deductive_Codes": "Charity framing",
+  "Inductive_Codes": ""
+ },
+ {
+  "chunk_id": 8,
+  "text": "I water on Tuesdays, but it's on the shared rota.",
+  "source_file": "interview-03.txt",
+  "Deductive_Codes": "Shared labour",
+  "Inductive_Codes": ""
+ },
+ {
+  "chunk_id": 9,
+  "text": "The council said the permit covers the shed but not the tunnel.",
+  "source_file": "interview-04.txt",
+  "Deductive_Codes": "Municipal relations,Land tenure",
+  "Inductive_Codes": ""
+ },
+ {
+  "chunk_id": 10,
+  "text": "Nobody wants the Monday shift since the heat started.",
+  "source_file": "interview-05.txt",
+  "Deductive_Codes": "Volunteer burnout",
+  "Inductive_Codes": ""
+ },
+ {
+  "chunk_id": 11,
+  "text": "Tomatoes are cheaper here than at any shop I know.",
+  "source_file": "interview-01.txt",
+  "Deductive_Codes": "Food access",
+  "Inductive_Codes": ""
+ },
+ {
+  "chunk_id": 12,
+  "text": "We had a meeting about who decides what gets planted.",
+  "source_file": "interview-02.txt",
+  "Deductive_Codes": "Shared labour",
+  "Inductive_Codes": ""
+ }
+]
