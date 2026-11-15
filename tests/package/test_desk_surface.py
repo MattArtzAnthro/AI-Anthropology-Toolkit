@@ -3,28 +3,13 @@
 import json
 import re
 import unittest
-from pathlib import Path
 
 from ai_anthro_toolkit import __version__
 from ai_anthro_toolkit.desk import a2ui, cards
+from tests.package.desk_helpers import codebook_desk, rulings_desk
+from tests.package.desk_helpers import load as _load
 
-FIXTURES = Path(__file__).resolve().parent / "fixtures" / "desk"
 CODE_ACTIONS = ["adopt", "reword", "merge", "split", "delete"]
-
-
-def _load(name):
-    return json.loads((FIXTURES / f"{name}.json").read_text(encoding="utf-8"))
-
-
-def codebook_desk(**changes):
-    desk = {
-        "desk_id": "desk-0a1b2c3d",
-        "stage": "codebook",
-        "title": "Community garden interviews",
-        "cards": cards.codebook_cards(_load("codebook"), _load("cases")),
-    }
-    desk.update(changes)
-    return desk
 
 
 def components(messages) -> dict[str, dict]:
@@ -379,21 +364,6 @@ class TestCodebookSurface(unittest.TestCase):
 
 
 NO_CODE = "(no code applies)"
-
-
-def rulings_desk(**changes):
-    codebook = _load("codebook")
-    desk = {
-        "desk_id": "desk-9f8e7d6c",
-        "stage": "rulings",
-        "title": "Community garden interviews",
-        "cards": cards.rulings_cards(_load("coding_a"), _load("coding_b"), codebook, _load("proposals")),
-        "codes": [r["code_label"] for r in codebook],
-        "exclusive": False,
-        "blind_first": True,
-    }
-    desk.update(changes)
-    return desk
 
 
 def _ruling_group(found, card):

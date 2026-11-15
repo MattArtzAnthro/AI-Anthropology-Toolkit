@@ -26,6 +26,7 @@ from referencing.jsonschema import DRAFT202012
 
 from ai_anthro_toolkit import __version__
 from ai_anthro_toolkit.desk import BASIC_CATALOG_ID, CATALOG_ID
+from ai_anthro_toolkit.desk.decisions import differs
 
 __all__ = ["NO_CODE", "after_decision", "catalog_problems", "decision_from_action", "surface", "validate"]
 
@@ -550,14 +551,6 @@ def _check_stage(desk: Mapping[str, Any]) -> None:
         raise ValueError(f"A desk's stage is codebook or rulings, not {desk.get('stage')!r}.")
 
 
-def _differs(card: Mapping[str, Any], decision: Mapping[str, Any]) -> bool:
-    """Whether a ruling departs from its card's proposal (an exclusion is not a ruling)."""
-    if card.get("proposal") is None or "exclude" in decision:
-        return False
-    ruled = [] if decision.get("none_apply") else list(decision.get("codes", []))
-    return set(ruled) != set(card["proposal"]["codes"])
-
-
 def _result(desk: Mapping[str, Any], decision: Mapping[str, Any]) -> str:
     """A decided card's one-line result."""
     if desk["stage"] == "codebook":
@@ -581,7 +574,7 @@ def _status(desk: Mapping[str, Any], saved: Mapping[str, Any], after: str | None
     items: list[tuple[str, bool, str]] = []  # (id, done, result)
     for card in cards_:
         decision = decisions.get(card["card_id"])
-        complete = decision is not None and (not _differs(card, decision) or "is_rule" in decision)
+        complete = decision is not None and (not differs(card, decision) or "is_rule" in decision)
         items.append((card["card_id"], complete, _result(desk, decision) if complete and decision is not None else ""))
     if desk["stage"] == "codebook":
         exclusive = saved.get("exclusive")
@@ -650,7 +643,7 @@ def after_decision(desk: Mapping[str, Any], saved: Mapping[str, Any], card_id: s
         n = by_id[card_id]
         card = desk["cards"][n]
         if card["proposal"] is not None:
-            rebuilt = _ruling_card(n, card, desk, proposal=True, rule=_differs(card, decisions[card_id]))
+            rebuilt = _ruling_card(n, card, desk, proposal=True, rule=differs(card, decisions[card_id]))
             messages.append({"version": _VERSION, "updateComponents": {"surfaceId": sid, "components": rebuilt}})
     status = _status(desk, saved, card_id)
     messages.append({"version": _VERSION, "updateDataModel": {"surfaceId": sid, "path": "/status", "value": status}})

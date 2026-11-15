@@ -89,6 +89,16 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   ruling states a rule. Saving a ruling releases that card's proposal only.
   `desk.a2ui.decision_from_action` reads what the view sends when a decision is
   saved into the shape of the decisions document.
+- `desk.decisions` reads a decisions document (`aat/desk-decisions@1`, the
+  one shape every surface sends) and checks it against its desk, returning
+  every problem with the card it belongs to. It refuses a merge into a code
+  the codebook lacks or that is itself merged, split or deleted, a split of
+  fewer than two parts, an empty reword, a ruling with a code outside the
+  codebook in force, more than one code (or "no code applies") when the
+  codes are mutually exclusive, an exclusion without a reason, and a rule
+  without rule text. Checked as complete, it also names every undecided
+  card, an unanswered exclusivity question, and a ruling that departs from
+  its proposal without saying whether it states a rule.
 - `scripts/build_design_docs.py` builds `design/brand-spec.json` and
   `design/brand-guide.html` from the tokens, and stops if any colour pairing
   misses WCAG AA in either theme. `tests/test_design_docs.py` fails while
