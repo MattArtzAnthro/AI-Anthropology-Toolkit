@@ -25,6 +25,9 @@ dependencies = [
     "requests>=2.31,<3",
     "numpy>=1.26,<3",
     "networkx>=3.2,<4",
+    # The ratification desk checks its A2UI messages against the pinned A2UI schemas.
+    "jsonschema>=4.20,<5",
+    "referencing>=0.28.4,<1",
 ]
 
 [project.optional-dependencies]
@@ -56,6 +59,8 @@ test = [
     "openpyxl>=3.1,<4",
     "python-docx>=1.1,<2",
     "python-slugify>=8,<10",
+    # Browser tests of the ratification desk; skipped when Chromium is absent.
+    "playwright>=1.58,<2",
 ]
 
 [project.scripts]
@@ -74,6 +79,13 @@ where = ["src"]
 [tool.setuptools.package-data]
 "ai_anthro_toolkit.network.viewer" = ["template.html", "assets/*.js", "assets/VENDORED.md"]
 "ai_anthro_toolkit.design" = ["tokens.json", "bundle.css"]
+"ai_anthro_toolkit.desk" = [
+    "catalog.json",
+    "VENDORED.md",
+    "a2ui_schema/*.json",
+    "a2ui_schema/catalogs/basic/catalog.json",
+    "a2ui_schema/LICENSE",
+]
 
 [tool.coverage.run]
 branch = true
@@ -101,6 +113,7 @@ files = [
     "src/ai_anthro_toolkit/brand.py",
     "src/ai_anthro_toolkit/checks",
     "src/ai_anthro_toolkit/design",
+    "src/ai_anthro_toolkit/desk",
 ]
 ignore_missing_imports = true
 follow_imports = "silent"

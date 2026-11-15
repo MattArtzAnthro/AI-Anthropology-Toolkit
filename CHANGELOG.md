@@ -63,6 +63,15 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   GitHub, Cite (DOI) and ORCID. The design system's Byline component renders
   the same colophon, and its description now sits on its own row at every
   width.
+- The ratification desk's A2UI groundwork: `desk/catalog.json` defines the
+  toolkit's A2UI v1.0 catalog of design-system components, and
+  `desk.a2ui.validate(messages)` checks A2UI messages against the A2UI v1.0
+  schemas (vendored from `@a2ui/web_core` 0.14.0, Apache-2.0), each
+  component against the catalog it names, and the renderer's strict checks
+  (identifier IDs, a root, references that resolve, no cycles, no orphans).
+  The bundled renderer runs in strict mode, and a test requires its own check
+  and `validate` to agree. The package now depends on `jsonschema` and
+  `referencing`.
 - `scripts/build_design_docs.py` builds `design/brand-spec.json` and
   `design/brand-guide.html` from the tokens, and stops if any colour pairing
   misses WCAG AA in either theme. `tests/test_design_docs.py` fails while

@@ -31,6 +31,9 @@ jobs:
     timeout-minutes: 20
     env:
       AAT_SKIP_LIVE_SCRAPERS: "1"
+      # The desk's browser and renderer cross-check tests fail here, rather than
+      # skip, if Chromium, node or the renderer's npm packages are missing.
+      AAT_REQUIRE_BROWSER: "1"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -40,6 +43,10 @@ jobs:
           python-version: "3.12"
       - name: Install package with data extra
         run: pip install -e ".[data,test]"
+      - name: Install Chromium for the desk's browser tests
+        run: python3 -m playwright install --with-deps chromium
+      - name: Install the desk renderer's npm packages (its A2UI check runs under node)
+        run: npm ci --prefix src/ai_anthro_toolkit/desk/app
       - name: Lint
         run: ruff check .
       - name: Type check (modules listed in [tool.mypy])

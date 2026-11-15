@@ -1,0 +1,502 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit/catalogs/desk/v1/catalog.json",
+  "protocolVersion": "1.0",
+  "title": "AI Anthropology Toolkit desk catalog",
+  "description": "The design system's components for the ratification desk.",
+  "catalogId": "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit/catalogs/desk/v1",
+  "instructions": "Lay a desk out with the basic catalog's Column, Row and Text; draw decisions with these components. One DecisionCard is open at a time. End every desk with a Byline.",
+  "components": {
+    "DecisionCard": {
+      "description": "One decision, open or recorded.",
+      "type": "object",
+      "properties": {
+        "component": {
+          "const": "DecisionCard"
+        },
+        "title": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The decision the card asks for."
+        },
+        "eyebrow": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "A short line above the title, such as the card's place in the queue."
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "needs",
+            "started",
+            "done"
+          ],
+          "default": "needs",
+          "description": "Whether the decision is still needed, begun, or recorded."
+        },
+        "statusLabel": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "Text for the card's status, replacing the default for its state."
+        },
+        "result": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "What was decided, shown when the card is done."
+        },
+        "doneLabel": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "Text for the control that reopens a done card."
+        },
+        "children": {
+          "$ref": "common_types.json#/$defs/ChildList",
+          "description": "The card's content: passages, provenance, choices, steps."
+        },
+        "change": {
+          "$ref": "common_types.json#/$defs/Action",
+          "description": "Reopens a done card for a new decision."
+        }
+      },
+      "required": [
+        "component",
+        "title"
+      ]
+    },
+    "Passage": {
+      "description": "A quoted passage from the data, with its source.",
+      "type": "object",
+      "properties": {
+        "component": {
+          "const": "Passage"
+        },
+        "text": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The quoted passage."
+        },
+        "source": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "Where the passage comes from, such as a transcript and line numbers."
+        }
+      },
+      "required": [
+        "component",
+        "text"
+      ]
+    },
+    "Provenance": {
+      "description": "Content marked with who wrote it.",
+      "type": "object",
+      "properties": {
+        "component": {
+          "const": "Provenance"
+        },
+        "by": {
+          "type": "string",
+          "enum": [
+            "model",
+            "researcher"
+          ],
+          "default": "model",
+          "description": "Who wrote the content: a model draft or the researcher."
+        },
+        "label": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "A label replacing the default for `by`."
+        },
+        "text": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The content whose authorship is shown."
+        }
+      },
+      "required": [
+        "component",
+        "text"
+      ]
+    },
+    "ChoiceGroup": {
+      "description": "A set of choices for one decision.",
+      "allOf": [
+        {
+          "$ref": "common_types.json#/$defs/Checkable"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "ChoiceGroup"
+            },
+            "legend": {
+              "$ref": "common_types.json#/$defs/DynamicString",
+              "description": "The question the choices answer."
+            },
+            "hint": {
+              "$ref": "common_types.json#/$defs/DynamicString",
+              "description": "Help text under the legend."
+            },
+            "options": {
+              "type": "array",
+              "description": "The choices.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string",
+                    "description": "The stable value for this choice."
+                  },
+                  "label": {
+                    "$ref": "common_types.json#/$defs/DynamicString",
+                    "description": "The text shown for this choice."
+                  },
+                  "description": {
+                    "$ref": "common_types.json#/$defs/DynamicString",
+                    "description": "A line explaining this choice."
+                  },
+                  "tone": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 6,
+                    "description": "One of the six code colours."
+                  }
+                },
+                "required": [
+                  "value",
+                  "label"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "multiple": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether more than one choice can be selected."
+            },
+            "value": {
+              "$ref": "common_types.json#/$defs/DynamicStringList",
+              "description": "The selected values."
+            },
+            "wide": {
+              "type": "boolean",
+              "default": false,
+              "description": "Lay the choices out in one row where they fit."
+            },
+            "hideLegend": {
+              "type": "boolean",
+              "default": false,
+              "description": "Keep the legend for assistive technology only."
+            },
+            "disabled": {
+              "$ref": "common_types.json#/$defs/DynamicBoolean",
+              "description": "Whether the choices are unavailable."
+            }
+          },
+          "required": [
+            "component",
+            "legend",
+            "options",
+            "value"
+          ]
+        }
+      ]
+    },
+    "Step": {
+      "description": "A numbered step within a decision.",
+      "type": "object",
+      "properties": {
+        "component": {
+          "const": "Step"
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The step's number."
+        },
+        "label": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "What the step asks for."
+        },
+        "done": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "Whether the step is complete."
+        },
+        "children": {
+          "$ref": "common_types.json#/$defs/ChildList",
+          "description": "The step's content."
+        }
+      },
+      "required": [
+        "component",
+        "n",
+        "label"
+      ]
+    },
+    "Status": {
+      "description": "A short status label.",
+      "type": "object",
+      "properties": {
+        "component": {
+          "const": "Status"
+        },
+        "tone": {
+          "type": "string",
+          "enum": [
+            "needs",
+            "started",
+            "done",
+            "refused",
+            "model"
+          ],
+          "default": "needs",
+          "description": "The state the status reports."
+        },
+        "text": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The status text."
+        }
+      },
+      "required": [
+        "component",
+        "text"
+      ]
+    },
+    "CodeTag": {
+      "description": "A code from the codebook.",
+      "type": "object",
+      "properties": {
+        "component": {
+          "const": "CodeTag"
+        },
+        "tone": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6,
+          "description": "One of the six code colours."
+        },
+        "bare": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show the code without its colour mark."
+        },
+        "text": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The code's name."
+        }
+      },
+      "required": [
+        "component",
+        "text"
+      ]
+    },
+    "Progress": {
+      "description": "One segment per item in a queue.",
+      "type": "object",
+      "properties": {
+        "component": {
+          "const": "Progress"
+        },
+        "total": {
+          "$ref": "common_types.json#/$defs/DynamicNumber",
+          "description": "The number of items in the queue."
+        },
+        "done": {
+          "$ref": "common_types.json#/$defs/DynamicNumber",
+          "description": "How many are decided."
+        },
+        "current": {
+          "$ref": "common_types.json#/$defs/DynamicNumber",
+          "description": "The index of the item that needs the researcher."
+        },
+        "label": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "An accessible name for the progress bar."
+        }
+      },
+      "required": [
+        "component",
+        "total",
+        "done"
+      ]
+    },
+    "Notice": {
+      "description": "A message to the researcher, such as a refusal and what to do next.",
+      "type": "object",
+      "properties": {
+        "component": {
+          "const": "Notice"
+        },
+        "tone": {
+          "type": "string",
+          "enum": [
+            "info",
+            "refusal",
+            "done"
+          ],
+          "default": "info",
+          "description": "The kind of notice."
+        },
+        "title": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The notice's headline."
+        },
+        "text": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The notice's body."
+        },
+        "children": {
+          "$ref": "common_types.json#/$defs/ChildList",
+          "description": "Controls offered with the notice."
+        }
+      },
+      "required": [
+        "component",
+        "title"
+      ]
+    },
+    "Tally": {
+      "description": "How many decisions remain.",
+      "type": "object",
+      "properties": {
+        "component": {
+          "const": "Tally"
+        },
+        "left": {
+          "$ref": "common_types.json#/$defs/DynamicNumber",
+          "description": "How many decisions remain."
+        },
+        "total": {
+          "$ref": "common_types.json#/$defs/DynamicNumber",
+          "description": "How many decisions there are."
+        },
+        "noun": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "What is counted, such as 'cards'."
+        },
+        "sticky": {
+          "type": "boolean",
+          "default": false,
+          "description": "Keep the tally in one row at the bottom of the view."
+        },
+        "doneText": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "Text shown when nothing remains."
+        },
+        "next": {
+          "$ref": "common_types.json#/$defs/Action",
+          "description": "Moves to the next open decision."
+        }
+      },
+      "required": [
+        "component",
+        "left",
+        "total"
+      ]
+    },
+    "TextField": {
+      "description": "A labelled text field in the design system's style.",
+      "allOf": [
+        {
+          "$ref": "common_types.json#/$defs/Checkable"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "TextField"
+            },
+            "label": {
+              "$ref": "common_types.json#/$defs/DynamicString",
+              "description": "The field's label."
+            },
+            "hint": {
+              "$ref": "common_types.json#/$defs/DynamicString",
+              "description": "Help text under the label."
+            },
+            "error": {
+              "$ref": "common_types.json#/$defs/DynamicString",
+              "description": "An error message for the field."
+            },
+            "multiline": {
+              "type": "boolean",
+              "default": false,
+              "description": "Accept more than one line."
+            },
+            "value": {
+              "$ref": "common_types.json#/$defs/DynamicString",
+              "description": "The field's value."
+            }
+          },
+          "required": [
+            "component",
+            "label",
+            "value"
+          ]
+        }
+      ]
+    },
+    "Byline": {
+      "description": "The colophon the desk ends with: the credit, the version and the links.",
+      "type": "object",
+      "properties": {
+        "component": {
+          "const": "Byline"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The toolkit version that built the desk."
+        },
+        "full": {
+          "type": "boolean",
+          "default": false,
+          "description": "Add the author's one-sentence description."
+        }
+      },
+      "required": [
+        "component",
+        "version"
+      ]
+    }
+  },
+  "functions": {},
+  "$defs": {
+    "anyComponent": {
+      "oneOf": [
+        {
+          "$ref": "#/components/DecisionCard"
+        },
+        {
+          "$ref": "#/components/Passage"
+        },
+        {
+          "$ref": "#/components/Provenance"
+        },
+        {
+          "$ref": "#/components/ChoiceGroup"
+        },
+        {
+          "$ref": "#/components/Step"
+        },
+        {
+          "$ref": "#/components/Status"
+        },
+        {
+          "$ref": "#/components/CodeTag"
+        },
+        {
+          "$ref": "#/components/Progress"
+        },
+        {
+          "$ref": "#/components/Notice"
+        },
+        {
+          "$ref": "#/components/Tally"
+        },
+        {
+          "$ref": "#/components/TextField"
+        },
+        {
+          "$ref": "#/components/Byline"
+        }
+      ],
+      "discriminator": {
+        "propertyName": "component"
+      }
+    },
+    "anyFunction": false
+  }
+}

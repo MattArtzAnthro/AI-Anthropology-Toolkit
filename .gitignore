@@ -6,6 +6,8 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 dist/
+# The desk's built bundle is committed and ships as package data.
+!src/ai_anthro_toolkit/desk/app/dist/
 dist_build/
 build/
 
@@ -19,3 +21,6 @@ venv/
 
 # OS
 Thumbs.db
+
+# Node (desk/app builds the desk bundle)
+node_modules/
