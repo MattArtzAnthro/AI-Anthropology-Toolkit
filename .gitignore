@@ -9,6 +9,9 @@ dist/
 # The desk's built bundle is committed and ships as package data.
 !src/ai_anthro_toolkit/desk/app/dist/
 dist_build/
+# Feature specifications are kept outside the repository.
+specs/
+
 # Coverage data from scripts/check.sh
 .coverage
 htmlcov/

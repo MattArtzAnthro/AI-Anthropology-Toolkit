@@ -15,7 +15,7 @@ from ai_anthro_toolkit import design
 REPO = Path(__file__).resolve().parents[2]
 BUNDLE = REPO / "src" / "ai_anthro_toolkit" / "desk" / "app" / "dist" / "desk-app.js"
 
-# Catalog identifiers as the design states them (specs/ratification-desk/design.md).
+# The catalog identifiers the desk uses.
 CATALOG_ID = "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit/catalogs/desk/v1"
 BASIC_CATALOG_ID = "https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json"
 

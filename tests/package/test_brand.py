@@ -12,7 +12,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 SRC = REPO / "src" / "ai_anthro_toolkit"
 
-# The settled text of the author description (specs/ratification-desk/requirements.md).
+# The author description, as the colophon prints it.
 DESCRIPTION = (
     "Matt Artz is an AI anthropologist, designer, and technologist who works with AI to study, use,"
     " and contribute to the development and governance of AI, establishing AI anthropology as a field."

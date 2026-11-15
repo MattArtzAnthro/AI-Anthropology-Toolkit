@@ -15,7 +15,7 @@ DESK = REPO / "src" / "ai_anthro_toolkit" / "desk"
 APP = DESK / "app"
 NODE_SCHEMAS = APP / "node_modules" / "@a2ui" / "web_core" / "src" / "v1_0" / "schemas"
 
-# Catalog identifiers as the design states them (specs/ratification-desk/design.md).
+# The catalog identifiers the desk uses.
 CATALOG_ID = "https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit/catalogs/desk/v1"
 BASIC_CATALOG_ID = "https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json"
 
