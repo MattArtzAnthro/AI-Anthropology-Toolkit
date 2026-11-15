@@ -5,7 +5,7 @@ import json
 import tempfile
 import unittest
 from collections import Counter
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from ai_anthro_toolkit.desk import methods, record
@@ -21,7 +21,7 @@ def fixture():
 
 def clock(*stamps):
     """A now() that returns each stamp in turn."""
-    times = iter(datetime(2026, 11, 15, 14, minute, tzinfo=UTC) for minute in stamps)
+    times = iter(datetime(2026, 11, 15, 14, minute, tzinfo=timezone.utc) for minute in stamps)
     return lambda: next(times)
 
 

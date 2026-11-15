@@ -21,7 +21,7 @@ A card decided more than once keeps every entry; the latest is the decision in f
 
 import json
 from collections.abc import Callable, Mapping, Sequence
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from ai_anthro_toolkit.jobs import JobStore
@@ -38,7 +38,7 @@ _FIELDS = {"card_id", "action", "detail", "note", "surface", "decided_by"}
 
 
 def _utc(now: Callable[[], datetime]) -> str:
-    return now().astimezone(UTC).isoformat(timespec="seconds").replace("+00:00", "Z")
+    return now().astimezone(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
 def _checked(entry: Mapping[str, Any]) -> list[str]:
@@ -69,7 +69,7 @@ def append(
     store: JobStore,
     desk_id: str,
     entries: Sequence[Mapping[str, Any]],
-    now: Callable[[], datetime] = lambda: datetime.now(UTC),
+    now: Callable[[], datetime] = lambda: datetime.now(timezone.utc),
 ) -> list[Entry]:
     """Append ``entries`` to the desk's record, all stamped with one UTC time, and return
     them as written. Refuses the whole batch, writing nothing, if any entry breaks the

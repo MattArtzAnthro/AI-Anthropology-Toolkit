@@ -966,6 +966,18 @@ class TestRepoDocs(unittest.TestCase):
         self.assertIn("coverage run -m unittest discover -s tests/package", workflow)
         self.assertIn("coverage report", workflow)
 
+    def test_ci_runs_the_package_suite_on_the_lowest_supported_python(self):
+        """The package claims requires-python's floor; only a run there can hold it to that.
+        A 3.11-only import once passed every 3.12 job and would have broken the server on 3.10."""
+        pyproject = (REPO / "pyproject.toml").read_text(encoding="utf-8")
+        floor = re.search(r'^requires-python\s*=\s*">=(\d+\.\d+)"', pyproject, re.M)
+        self.assertIsNotNone(floor, "pyproject.toml states no requires-python floor")
+        workflow = (REPO / ".github" / "workflows" / "validate.yml").read_text(encoding="utf-8")
+        job = re.search(r"(?ms)^  package-min-python:\n(.*?)(?=^  \S|\Z)", workflow)
+        self.assertIsNotNone(job, "validate.yml has no package-min-python job")
+        self.assertIn(f'python-version: "{floor.group(1)}"', job.group(1))
+        self.assertIn("unittest discover -s tests/package", job.group(1))
+
     def test_ci_runs_every_top_level_suite(self):
         """A test file CI never runs protects nothing on push."""
         workflow = (REPO / ".github" / "workflows" / "validate.yml").read_text(

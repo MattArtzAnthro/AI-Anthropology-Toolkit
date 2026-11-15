@@ -58,6 +58,26 @@ jobs:
       - name: Coverage floor (line and branch, see [tool.coverage] in pyproject.toml)
         run: python3 -m coverage report
 
+  package-min-python:
+    # The package suite on the oldest Python that requires-python admits. The
+    # package job runs a newer one, where an import the floor lacks still works.
+    # Browser and renderer tests skip here; the package job runs them.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      AAT_SKIP_LIVE_SCRAPERS: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.10"
+      - name: Install package with data extra
+        run: pip install -e ".[data,test]"
+      - name: Run package suite
+        run: python3 -m unittest discover -s tests/package -t .
+
   plugin-install:
     # Installs the working tree with exactly the extras the plugin's .mcp.json
     # names, in an isolated environment, and runs the tools' imports there.
