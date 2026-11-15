@@ -12,12 +12,21 @@ cd "$(git rev-parse --show-toplevel)"
 
 # Fewer tests than this means discovery broke or tests were deleted. Raise it
 # when the suite grows; lowering it is a decision to explain in the commit.
-MIN_TESTS=839
+MIN_TESTS=842
 
 PY=.venv/bin/python
+if [ ! -x "$PY" ]; then
+    # A linked worktree has no .venv of its own (the pre-push hook checks each
+    # pushed commit out into one), so the gate uses the main checkout's.
+    PY="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")/.venv/bin/python"
+fi
 if ! "$PY" -c "import ruff, coverage, bandit, mypy" 2>/dev/null; then
     echo "check.sh: .venv lacks a gate tool (ruff, coverage, bandit, mypy). Run: uv pip install -e \".[data,test]\"" >&2
     exit 2
+fi
+if [ -n "${CHECK_SH_PRINT_PYTHON:-}" ]; then
+    echo "$PY"  # tests/test_check_script.py: which python the gate would use
+    exit 0
 fi
 
 COV_DIR="${TMPDIR:-/tmp}/check-$(basename "$PWD")"
