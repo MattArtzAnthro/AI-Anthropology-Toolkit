@@ -154,6 +154,12 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   through the import gate, and records which of the two surfaces they came
   from. It returns the ratification `start_coding_job` takes; a ruling that
   states a rule returns the amended version's.
+- **`get_decision_record`** (37 tools) returns the decision record behind a
+  ratification or a desk, entry by entry (desk, card, action, note, time,
+  surface, and whether the researcher or the machine made it), with a draft
+  methods paragraph whose counts are taken from the record and which says it
+  was assembled, not written. A ratification reads every desk in its
+  lineage; an unfinished desk reads under the ratification in force.
 - In the desk's MCP App, the view saves each decision on the server with
   `desk_sync` as the researcher makes it, and ratifies with `desk_finish`;
   both are app-only tools the model cannot call. A decision the desk cannot

@@ -62,6 +62,7 @@ from ai_anthro_toolkit.desk import apply as _desk_apply
 from ai_anthro_toolkit.desk import cards as _desk_cards
 from ai_anthro_toolkit.desk import decisions as _desk_decisions
 from ai_anthro_toolkit.desk import gate as _desk_gate
+from ai_anthro_toolkit.desk import methods as _desk_methods
 from ai_anthro_toolkit.desk import page as _desk_page
 from ai_anthro_toolkit.desk import record as _desk_record
 from ai_anthro_toolkit.jobs import JobStore
@@ -259,8 +260,8 @@ def toolkit_info() -> dict:
             "checks": ["get_artifact_checks"],
             "network": ["build_network", "analyze_network", "view_network",
                         "export_network"],
-            "desk": ["build_ratification_desk", "record_desk_decisions", "desk_sync",
-                     "desk_finish"],
+            "desk": ["build_ratification_desk", "record_desk_decisions", "get_decision_record",
+                     "desk_sync", "desk_finish"],
             "analysis": ["chunk_transcript", "start_codebook_job",
                           "ratify_codebook", "start_coding_job",
                           "get_next_batch", "submit_batch",
@@ -1554,6 +1555,50 @@ def record_desk_decisions(
                 "as it is made. The researcher finishes it there with Ratify; it cannot be "
                 "finished from here. To decide in chat instead, build a new desk.")
         return _desk_gate.apply(_jobs, desk_id, decisions, surface)
+
+
+@_tool(annotations=_LOCAL_READ)
+def get_decision_record(
+        ratification_id: Annotated[str, Field(
+            description="A ratification_id from ratify_codebook, record_desk_decisions or a desk's Ratify.")] = "",
+        desk_id: Annotated[str, Field(description="A desk_id from build_ratification_desk.")] = "",
+) -> dict:
+    """The decision record behind a ratification or a desk, and a draft methods paragraph.
+
+    Pass one of the two IDs. A ratification reads every desk in its lineage,
+    from the first ratification to this one. A finished desk reads the
+    lineage of the ratification it made; an unfinished rulings desk, that of
+    the ratification in force; an unfinished codebook desk, its own record.
+
+    Each entry names its desk, card, action, note, time, surface, and whether
+    the researcher or the machine made it. The paragraph's counts are taken
+    from the record, and it says it was assembled, not written: give it to the
+    researcher as a draft to check against their own account, not as their
+    methods section.
+    """
+    return _decision_record(ratification_id.strip(), desk_id.strip())
+
+
+def _decision_record(ratification_id: str, desk_id: str) -> dict:
+    if not ratification_id and not desk_id:
+        raise ValueError("Pass ratification_id or desk_id.")
+    if ratification_id and desk_id:
+        raise ValueError("Pass ratification_id or desk_id, not both.")
+    if desk_id:
+        desk = _desk_gate.load_desk(_jobs, desk_id)
+        finished = _load_records(desk_id, "finished.json")
+        if finished is not None:
+            ratification_id = finished["outcome"]["ratification_id"]
+        elif desk["stage"] == "rulings":
+            ratification_id = desk["ratification_id"]
+        else:
+            entries = _desk_record.read(_jobs, desk_id)
+            return {"ratification_id": None, "desk_id": desk_id, "record": entries,
+                    "paragraph": _desk_methods.paragraph(entries)}
+    _job_of_kind(ratification_id, "ratification")
+    entries = _desk_record.read_lineage(_jobs, ratification_id)
+    return {"ratification_id": ratification_id, "desk_id": desk_id or None, "record": entries,
+            "paragraph": _desk_methods.paragraph(entries)}
 
 
 # Decisions saved one at a time through the desk's MCP App: {"decisions", "exclusive"}.

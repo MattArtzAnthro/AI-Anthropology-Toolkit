@@ -30,6 +30,7 @@ This list is checked against the `@mcp.tool` registrations in `src/ai_anthro_too
 - `start_coding_job` — begin coding only from a matching ratified codebook.
 - `build_ratification_desk` — build a desk where the researcher ratifies each code against its cases, or rules on each disagreement between two coding passes; it opens as an MCP App or as a self-contained page. The researcher decides there; never decide for them.
 - `record_desk_decisions` — apply the decisions the researcher made on a desk page (the JSON it copies) or stated in chat, through the same gate; it returns the ratification_id to code with. Never fill in a decision they did not make.
+- `get_decision_record` — the decision record behind a ratification_id or desk_id (who decided each card, and how), with a draft methods paragraph counted from it. The paragraph is labelled as assembled: hand it to the researcher as a draft to check, never as their methods section.
 - `desk_sync`, `desk_finish` — app-only: the desk's view calls them when the researcher saves a decision or presses Ratify. The model cannot call them.
 - `get_next_batch`, `submit_batch` — run delegated interpretive batches through the orchestrating model.
 - `get_job_status`, `get_job_result` — inspect asynchronous or delegated jobs.

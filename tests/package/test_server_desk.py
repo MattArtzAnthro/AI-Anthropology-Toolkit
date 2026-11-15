@@ -760,6 +760,116 @@ class TestAppOnlyTools(AppCase):
         self.assertEqual(decided[0], decided[1])
 
 
+class TestDecisionRecord(DeskCase):
+    """get_decision_record: the record behind a ratification or a desk, and the paragraph."""
+
+    PARAGRAPH = (
+        "Assembled from the decision record, not written by the researcher; check it against "
+        "your own account before you use it. "
+        "A model drafted a codebook of 6 codes. The researcher ratified it on a codebook desk, "
+        "deciding each code against the cases it would take: 5 adopted and 1 reworded. The researcher "
+        "judged the codes not mutually exclusive. This made codebook version 1.0. "
+        "A rulings desk presented 4 chunks on which two coding passes disagreed, with "
+        "blind-first on, so each model proposal stayed hidden until the researcher had saved "
+        "a ruling on its chunk. The researcher ruled on 3 and excluded 1 from the analysis. "
+        "1 ruling departed from the proposal, and 1 was adopted as a rule, amending the "
+        "codebook to version 1.1. "
+        "8 chunks on which both passes agreed were coded under version 1.0 and have not been "
+        "rechecked against the amendment."
+    )
+
+    def doc(self, desk_id, stored, decisions, exclusive=None):
+        return {"schema": "aat/desk-decisions@1", "desk_id": desk_id, "card_checksum": stored["card_checksum"],
+                "exclusive": exclusive, "decisions": decisions}
+
+    def codebook_desk(self):
+        result = server.build_ratification_desk(stage="codebook", codebook_job_id=self.codebook_job(), cases=self.cases)
+        return result.structured_content["desk_id"], self.payload(result)
+
+    def ratified_on_a_desk(self):
+        desk_id, stored = self.codebook_desk()
+        decisions = {c["card_id"]: {"action": "adopt"} for c in stored["cards"]}
+        decisions["code-01"] = {"action": "reword", "definition": "Garden work members share out between them."}
+        outcome = server.record_desk_decisions(desk_id, self.doc(desk_id, stored, decisions, False), "page")
+        return desk_id, outcome["ratification_id"]
+
+    def rulings_desk(self, rid):
+        _, result = self.rulings(ratification_id=rid, proposals=load("proposals"))
+        return result.structured_content["desk_id"], self.payload(result)
+
+    def amended(self):
+        first_desk, rid = self.ratified_on_a_desk()
+        desk_id, stored = self.rulings_desk(rid)
+        decisions = {c["card_id"]: {"codes": c["proposal"]["codes"]} if c["proposal"]["codes"] else {"none_apply": True}
+                     for c in stored["cards"]}
+        decisions["chunk-7"] = {"codes": ["Food access"], "is_rule": True,
+                                "rule_text": "Selling produce below cost counts as food access, not charity."}
+        decisions["chunk-11"] = {"exclude": {"reason": "Not about the garden."}}
+        outcome = server.record_desk_decisions(desk_id, self.doc(desk_id, stored, decisions), "chat")
+        return first_desk, rid, desk_id, outcome["ratification_id"]
+
+    def test_r6_3_record_tool_returns_counted_paragraph(self):
+        first_desk, _, rulings_desk, amended = self.amended()
+        out = server.get_decision_record(ratification_id=amended)
+        self.assertEqual(out["paragraph"], self.PARAGRAPH)
+        self.assertEqual(out["ratification_id"], amended)
+        self.assertEqual(out["record"], record.read(self.store, first_desk) + record.read(self.store, rulings_desk))
+        self.assertEqual(set(out), {"ratification_id", "desk_id", "record", "paragraph"})
+        self.assertIsNone(out["desk_id"])
+
+    def test_a_finished_desk_leads_to_the_ratification_it_made(self):
+        first_desk, rid, rulings_desk, amended = self.amended()
+        out = server.get_decision_record(desk_id=rulings_desk)
+        self.assertEqual((out["ratification_id"], out["desk_id"]), (amended, rulings_desk))
+        self.assertEqual(out["paragraph"], self.PARAGRAPH)
+        earlier = server.get_decision_record(desk_id=first_desk)
+        self.assertEqual(earlier["ratification_id"], rid)
+        self.assertEqual(earlier["record"], record.read(self.store, first_desk) + record.read(self.store, rulings_desk))
+
+    def test_an_unfinished_rulings_desk_reads_under_the_ratification_in_force(self):
+        first_desk, rid = self.ratified_on_a_desk()
+        desk_id, _ = self.rulings_desk(rid)
+        out = server.get_decision_record(desk_id=desk_id)
+        self.assertEqual(out["ratification_id"], rid)
+        self.assertEqual(out["record"], record.read(self.store, first_desk) + record.read(self.store, desk_id))
+        self.assertIn("The rulings desk has not been finished.", out["paragraph"])
+
+    def test_an_unfinished_codebook_desk_reads_its_own_record(self):
+        desk_id, _ = self.codebook_desk()
+        out = server.get_decision_record(desk_id=desk_id)
+        self.assertEqual((out["ratification_id"], out["desk_id"]), (None, desk_id))
+        self.assertEqual(out["record"], record.read(self.store, desk_id))
+        self.assertEqual([e["decided_by"] for e in out["record"]], ["machine"] * 7)  # the build, then six drafts
+        self.assertIn("The codebook desk has not been finished.", out["paragraph"])
+
+    def test_a_ratification_made_from_a_table_holds_no_desk_decisions(self):
+        out = server.get_decision_record(ratification_id=self.ratified())
+        self.assertEqual(out["record"], [])
+        self.assertTrue(out["paragraph"].endswith(" The record holds no desk decisions."))
+
+    def test_one_of_the_two_ids_is_required(self):
+        desk_id, rid = self.ratified_on_a_desk()
+        for kw, message in (({}, r"^Pass ratification_id or desk_id\.$"),
+                            ({"ratification_id": " ", "desk_id": ""}, r"^Pass ratification_id or desk_id\.$"),
+                            ({"ratification_id": rid, "desk_id": desk_id}, r"^Pass ratification_id or desk_id, not both\.$")):
+            with self.subTest(kw), self.assertRaisesRegex(ValueError, message):
+                server.get_decision_record(**kw)
+
+    def test_ids_of_the_wrong_kind_are_refused(self):
+        desk_id, rid = self.ratified_on_a_desk()
+        with self.assertRaisesRegex(ValueError, f"^'{desk_id}' is not a ratification job\\.$"):
+            server.get_decision_record(ratification_id=desk_id)
+        with self.assertRaisesRegex(ValueError, f"^{rid} is not a desk\\.$"):
+            server.get_decision_record(desk_id=rid)
+        with self.assertRaises(ValueError):
+            server.get_decision_record(ratification_id="ratification-nonexistent")
+
+    def test_the_tool_only_reads(self):
+        tool = asyncio.run(server.mcp.list_tools())
+        [found] = [t for t in tool if t.name == "get_decision_record"]
+        self.assertTrue(found.annotations.read_only_hint)
+
+
 class TestRegistration(DeskCase):
     def test_r7_6_tool_carries_desk_resource_uri(self):
         tools = {t.name: t for t in asyncio.run(server.mcp.list_tools())}
