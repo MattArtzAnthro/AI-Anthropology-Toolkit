@@ -7,6 +7,7 @@ and design/brand-guide.html are built from it by scripts/build_design_docs.py.
 import copy
 import json
 import re
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -102,6 +103,17 @@ class TestRenderGuide(unittest.TestCase):
             build._fonts_href("body { color: red; }")
 
 
+def _in_a_venv(path: Path, root: Path) -> bool:
+    """Whether ``path`` sits inside a virtual environment (a folder holding pyvenv.cfg)."""
+    return any((parent / "pyvenv.cfg").is_file() for parent in path.parents if parent != root and root in parent.parents)
+
+
+def _stylesheets(root: Path) -> list[Path]:
+    """Every bundle.css under ``root`` except installed copies and build output."""
+    return [p for p in root.rglob("bundle.css")
+            if not _in_a_venv(p, root) and "build" not in p.relative_to(root).parts]
+
+
 class TestPackaging(unittest.TestCase):
     def test_tokens_and_stylesheet_ship_as_package_data(self):
         data = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))
@@ -114,8 +126,19 @@ class TestPackaging(unittest.TestCase):
         self.assertIn("prune design", (REPO / "MANIFEST.in").read_text(encoding="utf-8").splitlines())
 
     def test_stylesheet_exists_once(self):
-        copies = [p for p in REPO.rglob("bundle.css") if ".venv" not in p.parts and "build" not in p.parts]
-        self.assertEqual(copies, [build.BUNDLE], "bundle.css must live only in the package")
+        self.assertEqual(_stylesheets(REPO), [build.BUNDLE], "bundle.css must live only in the package")
+
+    def test_a_stray_stylesheet_is_found_and_an_installed_one_is_not(self):
+        """The release script installs the package into a venv inside the repository; its
+        copy is an install, not a second source. A copy anywhere else is found."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for rel in ("src/pkg/bundle.css", "docs/bundle.css", ".release-venv/lib/site-packages/pkg/bundle.css",
+                        "build/lib/pkg/bundle.css"):
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                (root / rel).write_text("", encoding="utf-8")
+            (root / ".release-venv" / "pyvenv.cfg").write_text("", encoding="utf-8")
+            self.assertEqual(sorted(_stylesheets(root)), [root / "docs/bundle.css", root / "src/pkg/bundle.css"])
 
     def test_no_local_paths_in_design_files(self):
         for path in [*(REPO / "design").rglob("*"), build.TOKENS, build.BUNDLE]:
