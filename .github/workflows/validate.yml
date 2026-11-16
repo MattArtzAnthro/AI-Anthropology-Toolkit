@@ -47,6 +47,10 @@ jobs:
         run: python3 -m playwright install --with-deps chromium
       - name: Install the desk renderer's npm packages (its A2UI check runs under node)
         run: npm ci --prefix src/ai_anthro_toolkit/desk/app
+      - name: Rebuild the desk's bundle and require the committed one to match
+        run: |
+          npm run build --prefix src/ai_anthro_toolkit/desk/app
+          git diff --exit-code -- src/ai_anthro_toolkit/desk/app/dist
       - name: Lint
         run: ruff check .
       - name: Type check (modules listed in [tool.mypy])

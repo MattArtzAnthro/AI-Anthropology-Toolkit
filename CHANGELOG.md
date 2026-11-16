@@ -196,6 +196,13 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   decisions to pass to `record_desk_decisions`, or says how many are still
   open. `desk_sync` returns the decisions document with each answer, so the
   MCP App view copies what the server holds.
+- `desk/VENDORED.md` lists every package in the desk's bundled renderer with
+  its version and licence. Tests fail when the lockfile, the bundle's
+  contents or the committed bundle disagree with it, or when the bundle
+  grows past 500,000 bytes, and CI rebuilds the bundle and fails if it
+  differs from the committed one. The bundle's zod 3 is in the range of
+  advisory GHSA-mrhx-c7xc-m3w5; `VENDORED.md` says why the advisory's input
+  does not reach the renderer.
 - In the desk's MCP App, the view saves each decision on the server with
   `desk_sync` as the researcher makes it, and ratifies with `desk_finish`;
   both are app-only tools the model cannot call. A decision the desk cannot
