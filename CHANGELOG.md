@@ -210,6 +210,7 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   through `record_desk_decisions` and the record read back with
   `get_decision_record`. The skill never records a decision for the
   researcher.
+- The README, AGENTS.md and GEMINI.md describe the ratification desk.
 - In the desk's MCP App, the view saves each decision on the server with
   `desk_sync` as the researcher makes it, and ratifies with `desk_finish`;
   both are app-only tools the model cannot call. A decision the desk cannot

@@ -17,6 +17,7 @@ follow this fallback chain:
 
 1. **MCP tools present** (tool names contain `ai-anthropology`): use them.
    The `build_network`, `analyze_network`, `view_network`, and `export_network` tools turn coded records into a network of codes and read it without Gephi; export GEXF when the user wants the full Gephi instrument.
+   Codebook ratification and rulings on where two coding passes disagree go through `build_ratification_desk` where the client can show a page; the researcher decides there, never you. Without a page, present the codebook as one table and call `ratify_codebook` with what the researcher approved.
    If your agent supports MCP but the server is not registered, the user can
    add it (same uvx command everywhere):
 
