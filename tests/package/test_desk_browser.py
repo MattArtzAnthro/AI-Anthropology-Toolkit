@@ -339,7 +339,7 @@ class TestStandalonePage(unittest.TestCase):
         with sync_playwright() as p:
             browser = p.chromium.launch()
             try:
-                for width in (320, 1100):
+                for width in (240, 320, 1100):
                     with self.subTest(width=width):
                         tab = browser.new_page(viewport={"width": width, "height": 700})
                         tab.route("**/*", lambda route: route.fulfill(status=200, content_type="text/css", body=""))

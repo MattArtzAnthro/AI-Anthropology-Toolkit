@@ -181,7 +181,8 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   view reads; a host that passes on only the text still works, since the
   text carries the same JSON. A host that does not answer within 30
   seconds gets a notice instead of a frozen view, and a finished desk keeps
-  showing its ratification instead of reopening cards.
+  showing its ratification instead of reopening cards. The desk's column now
+  narrows with the window, so a desk fits a phone down to 240 pixels wide.
 - In the desk's MCP App, the view saves each decision on the server with
   `desk_sync` as the researcher makes it, and ratifies with `desk_finish`;
   both are app-only tools the model cannot call. A decision the desk cannot
