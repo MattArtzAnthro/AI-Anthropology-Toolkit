@@ -23,6 +23,16 @@ from tests.package.desk_helpers import load
 DESK_URI = "ui://ai-anthropology/ratification-desk"
 
 
+def desk_sync(*args):
+    """What desk_sync sends the view: its structured content."""
+    return server.desk_sync(*args).structured_content
+
+
+def desk_finish(desk_id):
+    """What desk_finish sends the view: its structured content."""
+    return server.desk_finish(desk_id).structured_content
+
+
 class DeskCase(unittest.TestCase):
     def setUp(self):
         self._dir = tempfile.TemporaryDirectory()
@@ -456,7 +466,7 @@ class AppCase(DeskCase):
 
     def open_view(self, desk_id):
         self.desk_id = desk_id
-        self.messages = server.desk_sync(desk_id)["a2ui"]
+        self.messages = desk_sync(desk_id)["a2ui"]
         self.found = surf.components(self.messages)
         self.data = surf.data_model(self.messages)
 
@@ -466,7 +476,7 @@ class AppCase(DeskCase):
             surf.set_path(self.data, f"/cards/{n}/{key}" if n is not None else f"/exclusivity/{key}", value)
         card = surf.card_component(self.found, card_id) if n is not None else card_id
         action_name, context = surf.fire(self.found, self.data, surf.button(self.found, card, name))
-        out = server.desk_sync(self.desk_id, {"name": action_name, "context": context})
+        out = desk_sync(self.desk_id, {"name": action_name, "context": context})
         self.assertEqual((set(out), out["desk_id"]), ({"desk_id", "saved", "a2ui"}, self.desk_id))
         self.assertEqual(a2ui.validate([*self.messages, *out["a2ui"]]), [])
         self.messages = [*self.messages, *out["a2ui"]]
@@ -498,6 +508,32 @@ class TestAppOnlyTools(AppCase):
         visible_only_to_the_app = {n for n, t in tools.items() if (t.meta or {}).get("ui", {}).get("visibility") == ["app"]}
         self.assertEqual(visible_only_to_the_app, {"desk_sync", "desk_finish"})
 
+    def test_r7_11_the_view_receives_structured_content_from_its_tools(self):
+        """R7.11: the view reads each app-only tool's answer from structuredContent, as a host
+        receives it through the MCP layer, and its text carries the same JSON."""
+        self.codebook_view()
+
+        def over_the_wire(name, args):
+            res = asyncio.run(server.mcp.call_tool(name, args))
+            self.assertFalse(res.is_error)
+            self.assertIsNotNone(res.structured_content, name)
+            self.assertEqual(json.loads(res.content[0].text), res.structured_content)
+            return res.structured_content
+
+        loaded = over_the_wire("desk_sync", {"desk_id": self.desk_id})
+        self.assertEqual(set(loaded), {"desk_id", "saved", "finished", "a2ui"})
+        self.assertEqual(a2ui.validate(loaded["a2ui"]), [])
+        n = len(self.data["cards"])
+        for i, card in enumerate(self.data["cards"]):
+            surf.set_path(self.data, f"/cards/{i}/action", ["adopt"])
+            name, context = surf.fire(self.found, self.data, surf.button(self.found, surf.card_component(self.found, card["card_id"]), "save_decision"))
+            saved = over_the_wire("desk_sync", {"desk_id": self.desk_id, "action": {"name": name, "context": context}})
+            self.assertEqual((set(saved), saved["saved"]), ({"desk_id", "saved", "a2ui"}, i + 1))
+        self.assertEqual(n, len(self.saved()["decisions"]))
+        over_the_wire("desk_sync", {"desk_id": self.desk_id, "action": {"name": "answer_exclusive", "context": {"exclusive": ["no"]}}})
+        outcome = over_the_wire("desk_finish", {"desk_id": self.desk_id})
+        self.assertRegex(outcome["ratification_id"], r"^ratification-[0-9a-f]{8}$")
+
     def test_a_save_is_kept_on_the_server_one_decision_at_a_time(self):
         self.codebook_view()
         self.assertEqual(self.saved(), {"decisions": {}, "exclusive": None})  # opening the view holds the desk, saving nothing
@@ -524,14 +560,14 @@ class TestAppOnlyTools(AppCase):
                                 ({"context": {}}, r"^An action is \{name, context\}, as the desk's Save control sends it\.$"),
                                 ({"name": "save_decision", "context": "code-01"}, "^An action is"), ("x", "^An action is")):
             with self.subTest(action), self.assertRaisesRegex(ValueError, message):
-                server.desk_sync(self.desk_id, action)
+                desk_sync(self.desk_id, action)
         self.assertEqual(self.saved(), {"decisions": {}, "exclusive": None})  # opening the view holds the desk, saving nothing
 
     def test_r7_9_reopening_restores_every_saved_decision(self):
         self.rulings_view()
         self.press("chunk-7", codes=["Food access"])           # departs: the rule question stays open
         self.press("chunk-9", codes=["Land tenure", "Municipal relations"])
-        reopened = server.desk_sync(self.desk_id)
+        reopened = desk_sync(self.desk_id)
         self.assertEqual(set(reopened), {"desk_id", "saved", "finished", "a2ui"})
         self.assertIsNone(reopened["finished"])
         self.assertEqual((reopened["desk_id"], reopened["saved"]), (self.desk_id, 2))
@@ -555,7 +591,7 @@ class TestAppOnlyTools(AppCase):
     def test_an_exclusivity_answer_saved_alone_is_restored(self):
         self.codebook_view()
         self.press("exclusivity", name="answer_exclusive", answer=["no"])
-        status = surf.data_model(server.desk_sync(self.desk_id)["a2ui"])["status"]
+        status = surf.data_model(desk_sync(self.desk_id)["a2ui"])["status"]
         self.assertEqual(status["exclusivity"], {"open": False, "done": True, "result": "Not mutually exclusive"})
         self.assertTrue(status["cards"][0]["open"])
 
@@ -564,7 +600,7 @@ class TestAppOnlyTools(AppCase):
         decisions = {"chunk-98": {"codes": ["Food access"]}, "chunk-99": {"none_apply": True}}
         self.store.save_artifact(self.desk_id, "saved.json", json.dumps({"decisions": decisions, "exclusive": None}))
         with self.assertRaisesRegex(ValueError, "^The saved decisions name cards this desk lacks: chunk-98, chunk-99.$"):
-            server.desk_sync(self.desk_id)
+            desk_sync(self.desk_id)
 
     def test_restoring_nothing_is_the_desk_as_built(self):
         desk = gate.load_desk(self.store, self.rulings()[1].structured_content["desk_id"])
@@ -589,14 +625,14 @@ class TestAppOnlyTools(AppCase):
         for card in stored["cards"]:
             self.press(card["card_id"], action=["adopt"])
         with self.assertRaisesRegex(ValueError, "mutually exclusive"):
-            server.desk_finish(self.desk_id)
+            desk_finish(self.desk_id)
         self.assertEqual(self.jobs("ratification"), [])
         self.press("exclusivity", name="answer_exclusive", answer=["no"])
-        outcome = server.desk_finish(self.desk_id)
+        outcome = desk_finish(self.desk_id)
         self.assertEqual(self.jobs("ratification"), [outcome["ratification_id"]])
         decided = [e for e in record.read(self.store, self.desk_id) if e["decided_by"] == "researcher"]
         self.assertEqual({e["surface"] for e in decided}, {"app"})
-        self.assertEqual(server.desk_finish(self.desk_id), outcome)  # Ratify pressed twice
+        self.assertEqual(desk_finish(self.desk_id), outcome)  # Ratify pressed twice
         with self.assertRaisesRegex(ValueError, "finished"):
             self.press("code-01", action=["delete"])
 
@@ -624,10 +660,10 @@ class TestAppOnlyTools(AppCase):
         doc = {"schema": "aat/desk-decisions@1", "desk_id": desk_id, "card_checksum": stored["card_checksum"],
                "exclusive": False, "decisions": {c["card_id"]: {"action": "adopt"} for c in stored["cards"]}}
         outcome = server.record_desk_decisions(desk_id, doc, "chat")
-        loaded = server.desk_sync(desk_id)
+        loaded = desk_sync(desk_id)
         self.assertEqual(loaded["finished"], outcome)
         self.assertIsNone(self.store.load_artifact(desk_id, "saved.json"))
-        self.assertIsNone(server.desk_sync(self.codebook_view_id())["finished"])
+        self.assertIsNone(desk_sync(self.codebook_view_id())["finished"])
 
     def codebook_view_id(self):
         self.codebook_view()
@@ -655,11 +691,11 @@ class TestAppOnlyTools(AppCase):
             self.press(card["card_id"], action=["adopt"])
         self.press("exclusivity", name="answer_exclusive", answer=["no"])
         with mock.patch.object(record, "append", side_effect=OSError("disk full")), self.assertRaises(OSError):
-            server.desk_finish(self.desk_id)
+            desk_finish(self.desk_id)
         with self.assertRaisesRegex(ValueError, r"^Ratify was interrupted before it finished\. Press Ratify again to complete it; "
                                                 r"the decisions cannot change until it does\.$"):
             self.press("code-01", action=["delete"])
-        outcome = server.desk_finish(self.desk_id)
+        outcome = desk_finish(self.desk_id)
         self.assertEqual(self.jobs("ratification"), [outcome["ratification_id"]])
 
     def test_saves_and_ratify_take_turns(self):
@@ -680,11 +716,11 @@ class TestAppOnlyTools(AppCase):
         for card_id in context:
             context[card_id]["decision"]["action"] = ["adopt"]
         with mock.patch.object(server, "_saved", side_effect=slow):
-            first = threading.Thread(target=server.desk_sync, name="first",
+            first = threading.Thread(target=desk_sync, name="first",
                                      args=(self.desk_id, {"name": "save_decision", "context": context["code-01"]}))
             first.start()
             started.wait(2)
-            second = threading.Thread(target=server.desk_sync, name="second",
+            second = threading.Thread(target=desk_sync, name="second",
                                       args=(self.desk_id, {"name": "save_decision", "context": context["code-02"]}))
             second.start()
             release.set()
@@ -697,7 +733,7 @@ class TestAppOnlyTools(AppCase):
         for damaged in ({"decisions": {}}, {"decisions": {"code-01": "adopt"}, "exclusive": None}, ["x"], {"decisions": [], "exclusive": None},
                         {"decisions": {}, "exclusive": "no"}):
             self.store.save_artifact(self.desk_id, "saved.json", json.dumps(damaged))
-            for call in (lambda: server.desk_sync(self.desk_id), lambda: server.desk_finish(self.desk_id)):
+            for call in (lambda: desk_sync(self.desk_id), lambda: desk_finish(self.desk_id)):
                 with self.subTest(damaged), self.assertRaisesRegex(
                     ValueError, f"^The decisions saved for {self.desk_id} are damaged; build the desk again to decide it\\.$"):
                     call()
@@ -705,7 +741,7 @@ class TestAppOnlyTools(AppCase):
     def test_ratify_with_nothing_decided_names_what_is_open(self):
         self.codebook_view()
         with self.assertRaisesRegex(ValueError, r"(?s)^These decisions cannot be applied:\n- code-01.*no decision.*mutually exclusive"):
-            server.desk_finish(self.desk_id)
+            desk_finish(self.desk_id)
         self.assertEqual(self.jobs("ratification"), [])
 
     def test_restoring_a_finished_desk_shows_every_decision_done(self):
@@ -713,8 +749,8 @@ class TestAppOnlyTools(AppCase):
         for card in stored["cards"]:
             self.press(card["card_id"], action=["adopt"])
         self.press("exclusivity", name="answer_exclusive", answer=["yes"])
-        outcome = server.desk_finish(self.desk_id)
-        loaded = server.desk_sync(self.desk_id)
+        outcome = desk_finish(self.desk_id)
+        loaded = desk_sync(self.desk_id)
         self.assertEqual(loaded["finished"], outcome)
         status = surf.data_model(loaded["a2ui"])["status"]
         self.assertEqual(status["progress"]["left"], 0)
@@ -722,7 +758,7 @@ class TestAppOnlyTools(AppCase):
     def test_a_rulings_desk_takes_no_exclusivity_answer(self):
         self.rulings_view()
         with self.assertRaisesRegex(ValueError, "'answer_exclusive' is not an action that records a decision on a rulings desk"):
-            server.desk_sync(self.desk_id, {"name": "answer_exclusive", "context": {"exclusive": ["yes"]}})
+            desk_sync(self.desk_id, {"name": "answer_exclusive", "context": {"exclusive": ["yes"]}})
 
     def test_r5_5_app_route_and_json_route_give_identical_results(self):
         ruled = {"chunk-7": {"codes": ["Food access"], "is_rule": True, "rule_text": "Selling below cost is food access."},
@@ -738,7 +774,7 @@ class TestAppOnlyTools(AppCase):
         self.press("chunk-9", codes=["Land tenure", "Municipal relations"])
         self.press("chunk-11", name="exclude_chunk", reason="Not about the garden.")
         self.press("chunk-12", codes=[surf.NO_CODE], is_rule=["no"])
-        app = server.desk_finish(self.desk_id)
+        app = desk_finish(self.desk_id)
         json_id = by_json.structured_content["desk_id"]
         doc = {"schema": "aat/desk-decisions@1", "desk_id": json_id, "card_checksum": self.payload(by_json)["card_checksum"],
                "exclusive": None, "decisions": ruled}

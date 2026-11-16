@@ -358,6 +358,494 @@ class TestStandalonePage(unittest.TestCase):
                 browser.close()
 
 
+# A host for the desk's own view: it delivers the build tool's result, then answers
+# the view's tools/call requests by calling the server's tool in Python (see DeskView).
+DESK_HOST = """<!doctype html>
+<meta charset="utf-8">
+<iframe id="view" style="width:900px;height:1600px;border:0"></iframe>
+<script>
+const RESULT = __RESULT__;
+const frame = document.getElementById("view");
+window.hostLog = [];
+window.calls = [];
+window.addEventListener("message", async (ev) => {
+  const m = ev.data;
+  if (!m || m.jsonrpc !== "2.0") return;
+  window.hostLog.push(m.method || "response");
+  const reply = (msg) => frame.contentWindow.postMessage(Object.assign({ jsonrpc: "2.0" }, msg), "*");
+  if (m.method === "ui/initialize") {
+    reply({ id: m.id, result: { protocolVersion: "2026-01-26", hostContext: { theme: "light" } } });
+  } else if (m.method === "ui/notifications/initialized") {
+    reply({ method: "ui/notifications/tool-result", params: RESULT });
+  } else if (m.method === "tools/call") {
+    window.calls.push(m.params);
+    if (window.silent) return;  // a host that never answers
+    if (window.rpcError) return reply({ id: m.id, error: { code: -32603, message: window.rpcError } });
+    reply({ id: m.id, result: await window.callTool(m.params.name, m.params.arguments || {}) });
+  }
+});
+frame.srcdoc = __SHELL__;
+</script>
+"""
+
+APP_ONLY = ("desk_sync", "desk_finish")
+
+
+def mcp_result(server, name, args):
+    """A tools/call result as a host receives it: through server.mcp.call_tool, serialised
+    the way it goes over the wire, a refusal as the isError result the SDK sends.
+
+    Runs in a thread of its own, since Playwright's sync API holds this one's event loop.
+    """
+    from concurrent.futures import ThreadPoolExecutor
+
+    import anyio
+    from mcp.server.mcpserver.exceptions import ToolError
+
+    def call():
+        try:
+            res = anyio.run(server.mcp.call_tool, name, args)
+        except ToolError as exc:
+            return {"content": [{"type": "text", "text": str(exc)}], "isError": True}
+        return res.model_dump(by_alias=True, exclude_none=True, mode="json")
+
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        return pool.submit(call).result()
+
+
+@unittest.skipIf(SKIP_REASON, SKIP_REASON or "")
+class DeskView(unittest.TestCase):
+    """The desk in its MCP App shell, with a job store behind its app-only tools."""
+
+    def setUp(self):
+        import tempfile
+        from unittest import mock
+
+        from ai_anthro_toolkit.jobs import JobStore
+        from ai_anthro_toolkit.mcp import server
+        from tests.package.desk_helpers import load
+
+        self.server, self.load = server, load
+        self._dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self._dir.cleanup)
+        self.store = JobStore(Path(self._dir.name))
+        patcher = mock.patch.object(server, "_jobs", self.store)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        assert sync_playwright is not None  # the class is skipped otherwise
+        self._pw = sync_playwright().start()
+        self.addCleanup(self._pw.stop)
+        self.browser = self._pw.chromium.launch()
+        self.addCleanup(self.browser.close)
+
+    def call_tool(self, name, args):
+        """What the host returns for the view's tools/call: only app-only tools are offered,
+        and each answers as the MCP layer answers a host, not as the Python function returns."""
+        if name not in APP_ONLY:
+            return {"content": [{"type": "text", "text": f"{name} is not offered to the view."}], "isError": True}
+        return mcp_result(self.server, name, args)
+
+    def build(self, **kw):
+        result = self.server.build_ratification_desk(**kw)
+        self.desk_id = result.structured_content["desk_id"]
+        return {"content": [{"type": "text", "text": result.content[0].text}], "structuredContent": result.structured_content}
+
+    def open_view(self, result):
+        from ai_anthro_toolkit.desk import page as desk_page
+
+        page = self.browser.new_page(viewport={"width": 1000, "height": 1700})
+        self.errors = _watch(page)
+        page.expose_function("callTool", self.call_tool)
+        page.set_content(DESK_HOST.replace("__RESULT__", _js(result)).replace("__SHELL__", _js(desk_page.app_shell())))
+        view = page.frame_locator("#view")
+        view.locator("aat-decision-card article").first.wait_for(timeout=5000)
+        page.wait_for_function("window.calls.length >= 1")
+        self.wait_idle(page)
+        return page, view
+
+    def wait_idle(self, page):
+        page.wait_for_function("document.getElementById('view').contentDocument.body.dataset.busy !== 'true'")
+
+    def open_card(self, view):
+        return view.locator("article.aat-card:not(.aat-card--done)").first
+
+    def save(self, page, view, label="Save decision"):
+        before = page.evaluate("window.calls.length")
+        self.open_card(view).get_by_role("button", name=label).click()
+        page.wait_for_function(f"window.calls.length > {before}")
+        self.wait_idle(page)
+        return page.evaluate("window.calls[window.calls.length - 1]")
+
+    def saved(self):
+        return json.loads(self.store.load_artifact(self.desk_id, "saved.json"))
+
+    def codebook_view(self):
+        return self.open_view(self.build(stage="codebook", codebook=self.load("codebook"), cases=self.load("cases")))
+
+    def rulings_view(self, rid=None, **kw):
+        rid = rid or self.server.ratify_codebook(codebook=self.load("codebook"))["ratification_id"]
+        jobs = []
+        for name in ("coding_a", "coding_b"):
+            job = self.store.create("coding", {"ratification_id": rid, "mode": "delegated"})
+            self.store.save_artifact(job, "result.json", json.dumps(self.load(name)))
+            self.store.complete(job)
+            jobs.append(job)
+        result = self.build(stage="rulings", coding_job_ids=jobs, proposals=self.load("proposals"), **kw)
+        self.cards = self.store.read(self.desk_id)["payload"]["cards"]
+        return self.open_view(result)
+
+
+class TestDeskViewActions(DeskView):
+    def test_r7_11_actions_become_app_only_tool_calls(self):
+        """R7.11: in the MCP App the desk opens through desk_sync, each Save goes to
+        desk_sync as the renderer sends it, and Ratify goes to desk_finish; nothing else."""
+        page, view = self.codebook_view()
+        self.assertEqual(page.evaluate("window.calls[0]"), {"name": "desk_sync", "arguments": {"desk_id": self.desk_id}})
+        self.assertEqual(self.saved(), {"decisions": {}, "exclusive": None})
+        n = len(self.load("codebook")) + 1  # every code, and the exclusivity question
+        self.assertEqual(view.locator(".aat-tally__text").inner_text(), f"{n} of {n} decisions need you")
+        self.open_card(view).locator("input[value=adopt]").check()
+        call = self.save(page, view)
+        self.assertEqual(view.locator(".aat-tally__text").inner_text(), f"{n - 1} of {n} decisions need you")
+        self.assertRegex(view.locator("ol.aat-progress").get_attribute("aria-label"), rf"^.+: 1 of {n} decided$")
+        self.assertEqual(call["name"], "desk_sync")
+        self.assertEqual(call["arguments"]["action"]["name"], "save_decision")
+        self.assertEqual(call["arguments"]["action"]["context"]["card_id"], "code-01")
+        self.assertEqual(call["arguments"]["action"]["context"]["decision"]["action"], ["adopt"])
+        self.assertEqual(self.saved()["decisions"], {"code-01": {"action": "adopt"}})
+        done = view.locator("article.aat-card--done")
+        self.assertEqual(done.count(), 1)
+        self.assertIn("Adopted", done.inner_text())
+        codebook = self.load("codebook")
+        self.assertEqual(self.open_card(view).locator(".aat-card__title").inner_text(), codebook[1]["code_label"])
+        for _ in codebook[1:]:
+            self.open_card(view).locator("input[value=adopt]").check()
+            self.save(page, view)
+        self.open_card(view).locator("input[value=no]").check()
+        call = self.save(page, view, "Save answer")
+        self.assertEqual(call["arguments"]["action"], {"name": "answer_exclusive", "context": {"exclusive": ["no"]}})
+        self.assertEqual(view.locator(".aat-tally__text").inner_text(), "Every decision is made. Ratify when you are ready.")
+        before = page.evaluate("window.calls.length")
+        view.get_by_role("button", name="Ratify the codebook").click()
+        page.wait_for_function(f"window.calls.length > {before}")
+        self.wait_idle(page)
+        self.assertEqual(page.evaluate("window.calls[window.calls.length - 1]"),
+                         {"name": "desk_finish", "arguments": {"desk_id": self.desk_id}})
+        finished = json.loads(self.store.load_artifact(self.desk_id, "finished.json"))["outcome"]
+        notice = view.locator(".aat-notice--done")
+        self.assertIn(finished["ratification_id"], notice.inner_text())
+        self.assertEqual({c["name"] for c in page.evaluate("window.calls")}, set(APP_ONLY))
+        self.assertEqual(self.errors, [])
+
+    def test_a_refused_save_shows_a_notice_and_saves_nothing(self):
+        page, view = self.codebook_view()
+        self.save(page, view)  # nothing chosen
+        refusal = view.locator(".aat-notice--refusal")
+        self.assertIn("Choose what to do with code-01 before saving.", refusal.inner_text())
+        self.assertEqual(self.saved()["decisions"], {})
+        self.open_card(view).locator("input[value=adopt]").check()
+        self.save(page, view)
+        self.assertEqual(view.locator(".aat-notice--refusal").count(), 0)
+
+    def test_change_reopens_a_done_card(self):
+        page, view = self.codebook_view()
+        self.open_card(view).locator("input[value=adopt]").check()
+        self.save(page, view)
+        view.locator("article.aat-card--done").get_by_role("button", name="Change").click()
+        self.assertEqual(view.locator("article.aat-card:not(.aat-card--done)").count(), 1)  # the card it closed
+        self.assertEqual(self.open_card(view).locator(".aat-card__title").inner_text(), self.load("codebook")[0]["code_label"])
+        self.assertEqual(view.locator("article.aat-card--done").count(), 0)
+        self.open_card(view).locator("input[value=delete]").check()
+        self.save(page, view)
+        self.assertEqual(self.saved()["decisions"], {"code-01": {"action": "delete"}})
+
+    def decide_all(self, page, view, exclusive="no"):
+        for _ in self.load("codebook"):
+            self.open_card(view).locator("input[value=adopt]").check()
+            self.save(page, view)
+        self.open_card(view).locator(f"input[value={exclusive}]").check()
+        self.save(page, view, "Save answer")
+
+    def test_change_reopens_the_exclusivity_question(self):
+        page, view = self.codebook_view()
+        self.decide_all(page, view, "no")
+        done = view.locator("article.aat-card--done").filter(has_text="mutually exclusive")
+        done.get_by_role("button", name="Change").click()
+        self.assertEqual(view.locator("article.aat-card:not(.aat-card--done)").count(), 1)
+        self.open_card(view).locator("input[value=yes]").check()
+        self.save(page, view, "Save answer")
+        self.assertIs(self.saved()["exclusive"], True)
+
+    def test_a_second_click_while_saving_sends_nothing(self):
+        page, view = self.codebook_view()
+        self.open_card(view).locator("input[value=adopt]").check()
+        before = page.evaluate("window.calls.length")
+        page.evaluate("window.silent = true")
+        button = self.open_card(view).get_by_role("button", name="Save decision")
+        button.click()
+        button.click()
+        page.wait_for_function(f"window.calls.length > {before}")
+        page.wait_for_timeout(300)
+        self.assertEqual(page.evaluate("window.calls.length"), before + 1)
+
+    def test_a_finished_desk_keeps_saying_where_it_was_recorded(self):
+        """Reopened after Ratify, the view shows the ratification, and Change reopens nothing."""
+        page, view = self.codebook_view()
+        self.decide_all(page, view)
+        view.get_by_role("button", name="Ratify the codebook").click()
+        view.locator(".aat-notice--done").wait_for(timeout=5000)
+        rid = json.loads(self.store.load_artifact(self.desk_id, "finished.json"))["outcome"]["ratification_id"]
+        page.close()
+        page, again = self.open_view(self.build_result())
+        notice = again.locator(".aat-notice--done")
+        self.assertIn(rid, notice.inner_text())
+        calls = page.evaluate("window.calls.length")
+        again.locator("article.aat-card--done").first.get_by_role("button", name="Change").click()
+        self.assertEqual(again.locator("article.aat-card:not(.aat-card--done)").count(), 0)
+        self.assertIn(rid, again.locator(".aat-notice--done").inner_text())
+        self.assertEqual(again.locator(".aat-notice--refusal").count(), 0)
+        self.assertEqual(page.evaluate("window.calls.length"), calls)
+
+    def test_a_host_that_passes_on_only_text_still_saves(self):
+        """The view reads the same JSON from the text when a host drops structuredContent."""
+        def text_only(name, args):
+            out = mcp_result(self.server, name, args)
+            out.pop("structuredContent", None)
+            return out
+
+        self.call_tool = text_only
+        page, view = self.codebook_view()
+        self.open_card(view).locator("input[value=adopt]").check()
+        self.save(page, view)
+        self.assertEqual(self.saved()["decisions"], {"code-01": {"action": "adopt"}})
+        self.assertEqual(view.locator("article.aat-card--done").count(), 1)
+        self.assertEqual(view.locator(".aat-notice--refusal").count(), 0)
+
+    def build_result(self):
+        """The build result for this desk, as a host delivers it to a new view."""
+        from ai_anthro_toolkit.desk import a2ui, gate
+
+        result = {"content": [], "structuredContent": {**self.store.read(self.desk_id)["payload"], "desk_id": self.desk_id}}
+        result["structuredContent"]["a2ui"] = a2ui.surface(gate.load_desk(self.store, self.desk_id))
+        return result
+
+    def test_r7_9_reopen_restores_saved_decisions(self):
+        """R7.9: a desk reopened in a new view shows the decisions saved in the last one."""
+        page, view = self.codebook_view()
+        self.open_card(view).locator("input[value=adopt]").check()
+        self.save(page, view)
+        page.close()
+        _, again = self.open_view(self.build_result())
+        done = again.locator("article.aat-card--done")
+        self.assertEqual(done.count(), 1)
+        self.assertIn("Adopted", done.inner_text())
+        self.assertEqual(self.open_card(again).locator(".aat-card__title").inner_text(), self.load("codebook")[1]["code_label"])
+
+    def test_r7_9_reopen_restores_every_decision_and_the_answer(self):
+        page, view = self.codebook_view()
+        self.decide_all(page, view, "yes")
+        page.close()
+        _, again = self.open_view(self.build_result())
+        n = len(self.load("codebook")) + 1
+        self.assertEqual(again.locator("article.aat-card--done").count(), n)
+        self.assertEqual(again.locator("article.aat-card:not(.aat-card--done)").count(), 0)
+        self.assertEqual(again.locator(".aat-tally__text").inner_text(), "Every decision is made. Ratify when you are ready.")
+
+
+class TestRulingsView(DeskView):
+    def depart(self, view):
+        """Rule the open card with a code its proposal does not name; returns the card."""
+        card = self.cards[0]
+        other = next(code for code in self.store.read(self.desk_id)["payload"]["codes"] if code not in card["proposal"]["codes"])
+        self.open_card(view).locator(f'input[value="{other}"]').check()
+        return card, other
+
+    def test_r3_2_proposal_appears_after_ruling(self):
+        """R3.2: under blind-first no proposal is on screen until the ruling on its card is saved."""
+        page, view = self.rulings_view()
+        rationale = self.cards[0]["proposal"]["rationale"]
+        self.assertNotIn(rationale, view.locator("main").inner_text())
+        self.assertEqual(view.locator(".aat-prov--model").count(), 0)
+        self.depart(view)
+        self.save(page, view, "Save ruling")
+        self.assertIn(rationale, view.locator(".aat-prov--model").inner_text())
+        self.assertNotIn(self.cards[1]["proposal"]["rationale"], view.locator("main").inner_text())
+
+    def test_r3_6_differing_ruling_shows_rule_question(self):
+        """R3.6: a ruling that departs from its proposal keeps the card open with the rule
+        question, and a ruling that states a rule is recorded as one."""
+        page, view = self.rulings_view()
+        card, other = self.depart(view)
+        self.save(page, view, "Save ruling")
+        open_card = self.open_card(view)
+        self.assertEqual(open_card.locator(".aat-id").inner_text(), card["card_id"])
+        self.assertIn("Does this ruling state a rule?", open_card.inner_text())
+        open_card.locator("input[value=yes]").check()
+        open_card.locator("textarea").first.fill("Selling below cost counts as food access.")
+        self.save(page, view, "Save ruling")
+        decision = self.saved()["decisions"][card["card_id"]]
+        self.assertEqual((decision["codes"], decision["is_rule"]), ([other], True))
+        self.assertEqual(decision["rule_text"], "Selling below cost counts as food access.")
+        self.assertIn("states a rule", view.locator("article.aat-card--done").first.inner_text())
+
+    def test_r3_3_exclusive_desk_allows_one_code(self):
+        """R3.3: on a desk whose codes are mutually exclusive the ruling takes one code,
+        and No code applies is not offered."""
+        codebook_desk = self.server.build_ratification_desk(stage="codebook", codebook=self.load("codebook"), cases=self.load("cases"))
+        stored = self.store.read(codebook_desk.structured_content["desk_id"])["payload"]
+        doc = {"schema": "aat/desk-decisions@1", "desk_id": codebook_desk.structured_content["desk_id"],
+               "card_checksum": stored["card_checksum"], "exclusive": True,
+               "decisions": {c["card_id"]: {"action": "adopt"} for c in stored["cards"]}}
+        rid = self.server.record_desk_decisions(doc["desk_id"], doc, "page")["ratification_id"]
+        page, view = self.rulings_view(rid)
+        inputs = self.ruling(view).locator("input")
+        self.assertEqual(set(inputs.evaluate_all("els => els.map(e => e.type)")), {"radio"})
+        self.assertNotIn("(no code applies)", inputs.evaluate_all("els => els.map(e => e.value)"))
+        inputs.nth(0).check()
+        inputs.nth(1).check()
+        self.assertEqual(inputs.evaluate_all("els => els.filter(e => e.checked).length"), 1)
+        chosen = inputs.nth(1).get_attribute("value")
+        self.save(page, view, "Save ruling")
+        self.assertEqual(self.saved()["decisions"][self.cards[0]["card_id"]]["codes"], [chosen])
+
+    def ruling(self, view):
+        return self.open_card(view).locator("fieldset").filter(has=view.locator("legend", has_text="Your ruling"))
+
+    def test_r3_3_a_desk_not_exclusive_takes_several_codes(self):
+        """The contrast: where codes may overlap the ruling takes several, and No code applies is offered."""
+        page, view = self.rulings_view()
+        inputs = self.ruling(view).locator("input")
+        self.assertEqual(set(inputs.evaluate_all("els => els.map(e => e.type)")), {"checkbox"})
+        self.assertIn("(no code applies)", inputs.evaluate_all("els => els.map(e => e.value)"))
+
+    def test_r7_9_a_ruling_awaiting_its_rule_answer_reopens_on_the_question(self):
+        page, view = self.rulings_view()
+        card, _ = self.depart(view)
+        self.save(page, view, "Save ruling")
+        page.close()
+        from ai_anthro_toolkit.desk import a2ui, gate
+
+        result = {"content": [], "structuredContent": {**self.store.read(self.desk_id)["payload"], "desk_id": self.desk_id}}
+        result["structuredContent"]["a2ui"] = a2ui.surface(gate.load_desk(self.store, self.desk_id))
+        _, again = self.open_view(result)
+        open_card = self.open_card(again)
+        self.assertEqual(open_card.locator(".aat-id").inner_text(), card["card_id"])
+        self.assertIn("Does this ruling state a rule?", open_card.inner_text())
+
+
+class TestViewNotices(DeskView):
+    def test_a_message_the_renderer_rejects_shows_a_notice(self):
+        bad = [{"version": "v1.0", "createSurface": {"surfaceId": "s", "catalogId": CATALOG_ID}},
+               {"version": "v1.0", "updateComponents": {"surfaceId": "s", "components": [
+                   {"id": "root", "component": "Gauge"}]}}]
+        from ai_anthro_toolkit.desk import page as desk_page
+
+        page = self.browser.new_page()
+        page.expose_function("callTool", self.call_tool)
+        page.set_content(DESK_HOST.replace("__RESULT__", _js({"content": [], "structuredContent": {"a2ui": bad}}))
+                         .replace("__SHELL__", _js(desk_page.app_shell())))
+        refusal = page.frame_locator("#view").locator(".aat-notice--refusal")
+        refusal.wait_for(timeout=5000)
+        self.assertIn("Gauge", refusal.inner_text())
+
+    def test_the_view_shows_the_desk_title(self):
+        page, view = self.open_view(self.build(stage="codebook", codebook=self.load("codebook"), cases=self.load("cases"),
+                                               title="Garden study"))
+        self.assertEqual(view.locator("#desk-title").inner_text(), "Garden study")
+        self.assertEqual(view.locator("#desk-kind").text_content(), "Codebook desk")
+
+    def test_the_view_has_one_colophon(self):
+        page, view = self.codebook_view()
+        self.assertEqual(view.locator("footer.aat-byline").count(), 1)
+
+    def test_a_refused_open_draws_the_desk_and_says_it_cannot_save(self):
+        def refuse_open(name, args):
+            if name == "desk_sync" and "action" not in args:
+                return {"content": [{"type": "text", "text": "Saving is turned off here."}], "isError": True}
+            return mcp_result(self.server, name, args)
+
+        self.call_tool = refuse_open
+        page, view = self.codebook_view()
+        self.assertEqual(self.open_card(view).locator(".aat-card__title").inner_text(), self.load("codebook")[0]["code_label"])
+        refusal = view.locator(".aat-notice--refusal")
+        self.assertIn("Decisions cannot be saved in this view.", refusal.inner_text())
+        self.assertIn("Saving is turned off here.", refusal.inner_text())
+
+    def test_a_host_error_shows_its_message(self):
+        page, view = self.codebook_view()
+        page.evaluate("window.rpcError = 'The host refused the call.'")
+        self.open_card(view).locator("input[value=adopt]").check()
+        self.save(page, view)
+        self.assertIn("The host refused the call.", view.locator(".aat-notice--refusal").inner_text())
+        self.assertEqual(self.saved()["decisions"], {})
+
+    def test_a_host_that_never_answers_frees_the_view(self):
+        """The view gives up on a silent host, says so, and takes the next decision."""
+        page, view = self.codebook_view()
+        view.locator("body").evaluate("() => { window.DeskApp.settings.timeoutMs = 300; }")
+        page.evaluate("window.silent = true")
+        self.open_card(view).locator("input[value=adopt]").check()
+        self.save(page, view)
+        self.assertIn("The host did not answer.", view.locator(".aat-notice--refusal").inner_text())
+        page.evaluate("window.silent = false")
+        self.save(page, view)
+        self.assertEqual(self.saved()["decisions"], {"code-01": {"action": "adopt"}})
+        self.assertEqual(view.locator(".aat-notice--refusal").count(), 0)
+
+
+@unittest.skipIf(SKIP_REASON, SKIP_REASON or "")
+class TestCatalogMarkup(unittest.TestCase):
+    def test_r7_11_components_the_server_does_not_send_draw_their_markup(self):
+        """Step, Status, Notice and Tally draw the design system's markup in the bundle."""
+        from ai_anthro_toolkit.desk import page as desk_page
+        from tests.package.test_desk_a2ui import CORPUS
+
+        batch = dict(CORPUS)["the components the server does not send"]
+        assert sync_playwright is not None
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            try:
+                tab = browser.new_page()
+                tab.set_content(desk_page.app_shell())
+                self.assertTrue(tab.evaluate("b => window.DeskApp.render(b)", batch))
+                self.assertEqual(tab.locator(".aat-step--done .aat-step__label").inner_text(), "Choose")
+                self.assertEqual(tab.locator(".aat-step--done .aat-status--model").inner_text(), "Model draft")
+                notice = tab.locator(".aat-notice--refusal[role=alert]")
+                self.assertEqual(notice.locator(".aat-notice__title").inner_text(), "Can't ratify yet.")
+                self.assertIn("2 codes have no decision.", notice.inner_text())
+                self.assertEqual(notice.get_by_role("button").inner_text(), "Go")
+                self.assertEqual(tab.locator(".aat-tally .aat-tally__text").inner_text(), "Done.")
+                self.assertEqual(tab.locator(".aat-tally").get_by_role("button").count(), 0)  # nothing left to go to
+            finally:
+                browser.close()
+
+
+@unittest.skipIf(SKIP_REASON, SKIP_REASON or "")
+class TestOneColophon(unittest.TestCase):
+    def test_r8_4_each_page_shows_the_brand_colophon_once(self):
+        """The desk's Byline draws nothing: the page around it carries the colophon from
+        brand, once, on the standalone page and in the MCP App shell alike."""
+        from ai_anthro_toolkit import __version__, brand
+        from ai_anthro_toolkit.desk import page as desk_page
+        from tests.package.desk_helpers import codebook_desk
+
+        want = brand.byline_html(__version__, full=True)
+        shape = """el => [...el.children].map(n => [n.tagName, n.className, n.getAttribute('href'), n.textContent.trim()])"""
+        assert sync_playwright is not None
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            try:
+                tab = browser.new_page()
+                tab.set_content(desk_page.render_page(codebook_desk()) + f"<template id=want>{want}</template>")
+                tab.locator("aat-byline").wait_for(state="attached", timeout=5000)
+                self.assertEqual(tab.locator("footer.aat-byline").count(), 1)
+                self.assertEqual(tab.locator("aat-byline").inner_html().replace("<!---->", "").strip(), "")
+                expected = tab.evaluate(f"() => ({shape})(document.getElementById('want').content.querySelector('footer'))")
+                self.assertEqual(tab.locator("footer.aat-byline").evaluate(shape), expected)
+            finally:
+                browser.close()
+
+
 # The colophon's other children that share a row with the description.
 _BESIDE_ABOUT = """() => {
   const about = document.querySelector('.aat-byline__about').getBoundingClientRect();

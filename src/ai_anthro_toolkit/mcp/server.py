@@ -1648,7 +1648,7 @@ def _dry_run(desk: dict, decisions: dict) -> None:
 def desk_sync(desk_id: Annotated[str, Field(description="The desk shown in the view.")],
               action: Annotated[dict | None, Field(
                   description="The A2UI action a Save control sent: {name, context}. "
-                              "Omit to load the desk as saved.")] = None) -> dict:
+                              "Omit to load the desk as saved.")] = None) -> CallToolResult:
     """The desk's view saves one decision, or loads the desk with its saved decisions.
 
     Called only by the ratification desk's view, when the researcher presses a
@@ -1658,7 +1658,7 @@ def desk_sync(desk_id: Annotated[str, Field(description="The desk shown in the v
     proposal once that ruling is saved. Without an action, returns the whole desk
     with every saved decision restored.
     """
-    return _sync(desk_id, action)
+    return _for_the_view(_sync(desk_id, action))
 
 
 def _sync(desk_id: str, action: dict | None) -> dict:
@@ -1705,7 +1705,7 @@ def _sync_held(desk_id: str, action: dict | None) -> dict:
 
 
 @_tool(annotations=_LOCAL_WRITE, meta={"ui": {"resourceUri": DESK_URI, "visibility": ["app"]}})
-def desk_finish(desk_id: Annotated[str, Field(description="The desk shown in the view.")]) -> dict:
+def desk_finish(desk_id: Annotated[str, Field(description="The desk shown in the view.")]) -> CallToolResult:
     """The desk's view ratifies: applies every decision saved in it through the import gate.
 
     Called only by the ratification desk's view, when the researcher presses
@@ -1713,7 +1713,14 @@ def desk_finish(desk_id: Annotated[str, Field(description="The desk shown in the
     any card or question is undecided. Returns the outcome, with the
     ratification_id to pass to start_coding_job.
     """
-    return _finish(desk_id)
+    return _for_the_view(_finish(desk_id))
+
+
+def _for_the_view(out: dict[str, Any]) -> CallToolResult:
+    """An app-only tool's answer: the view reads structuredContent; the text carries the
+    same JSON for a host that passes on only the text."""
+    return CallToolResult(content=[TextContent(type="text", text=json.dumps(out))],
+                          structured_content=out)
 
 
 def _finish(desk_id: str) -> dict:

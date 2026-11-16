@@ -169,6 +169,19 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   components from the toolkit design system (`design/system`, linked). The
   `view_network` fallback text, the network-analyst agent and the
   networks-of-codes reference say the same in place of "monochrome chrome".
+- The desk's view draws every component in the toolkit's catalog (decision
+  cards, choices, text fields, passages, provenance, progress, tally,
+  notices, steps, statuses and code tags) in the design system's markup and
+  styles. Before this the bundled renderer knew only the passage, so it
+  refused the desks the server sends. In the MCP App the view opens the desk
+  through `desk_sync`, sends each Save to it and Ratify to `desk_finish`,
+  reopens a done card with Change, fills the header with the desk's title,
+  and shows a notice when a save is refused or a message cannot be drawn.
+  `desk_sync` and `desk_finish` now return structured content, which the
+  view reads; a host that passes on only the text still works, since the
+  text carries the same JSON. A host that does not answer within 30
+  seconds gets a notice instead of a frozen view, and a finished desk keeps
+  showing its ratification instead of reopening cards.
 - In the desk's MCP App, the view saves each decision on the server with
   `desk_sync` as the researcher makes it, and ratifies with `desk_finish`;
   both are app-only tools the model cannot call. A decision the desk cannot

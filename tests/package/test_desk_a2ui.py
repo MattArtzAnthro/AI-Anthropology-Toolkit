@@ -370,6 +370,19 @@ _THEMED = [
     PASSAGE,
 ]
 
+def _desk_messages(stage: str) -> list[dict]:
+    """A desk as the server sends it: its surface, and for rulings a saved ruling's update."""
+    from ai_anthro_toolkit.desk import a2ui
+    from tests.package.desk_helpers import codebook_desk, rulings_desk
+
+    if stage == "codebook":
+        return a2ui.surface(codebook_desk())
+    desk = rulings_desk()
+    card = desk["cards"][0]
+    ruled = [code for code in desk["codes"] if code not in card["proposal"]["codes"]][:1]
+    return a2ui.surface(desk) + a2ui.after_decision(desk, {"decisions": {card["card_id"]: {"codes": ruled}}}, card["card_id"])
+
+
 # Batches the renderer and the validator must judge alike: (name, messages).
 CORPUS = [
     ("a desk of both catalogs", _surface(ROOT, PASSAGE)),
@@ -409,7 +422,32 @@ CORPUS = [
     ("a surface created twice", [_surface(ROOT)[0], *_surface(ROOT, PASSAGE)]),
     ("an update with no surface", _surface(ROOT, PASSAGE)[1:]),
     ("a message of the wrong version", [dict(_surface(ROOT)[0], version="v0.9")]),
+    ("a codebook desk", _desk_messages("codebook")),
+    ("a rulings desk with a saved ruling", _desk_messages("rulings")),
+    ("the components the server does not send", _surface(
+        dict(ROOT, children=["st", "n", "s"]),
+        {"id": "st", "component": "Step", "n": 1, "label": "Choose", "done": True, "children": ["s2"]},
+        {"id": "s2", "component": "Status", "tone": "model", "text": "Model draft"},
+        {"id": "n", "component": "Notice", "tone": "refusal", "title": "Can't ratify yet.", "text": "2 codes have no decision.",
+         "children": ["nb"]},
+        {"id": "nb", "component": "Button", "catalogId": _B, "child": "nbl", "action": {"event": {"name": "go"}}},
+        {"id": "nbl", "component": "Text", "catalogId": _B, "text": "Go"},
+        {"id": "s", "component": "Tally", "left": 0, "total": 3, "doneText": "Done.", "next": {"event": {"name": "next"}}})),
+    ("a code tone out of range", _surface(ROOT, {"id": "p", "component": "CodeTag", "text": "Trust", "tone": 7})),
+    ("a card state outside its words", _surface(ROOT, {"id": "p", "component": "DecisionCard", "title": "T", "state": "maybe"})),
+    ("a byline with no version", _surface(ROOT, {"id": "p", "component": "Byline", "version": ""})),
 ]
+
+# The batches both checks must refuse; every other batch in CORPUS must pass both.
+REFUSED = {
+    "a tab naming a missing child", "a cycle", "a component containing itself", "an unknown component",
+    "a toolkit component in the basic catalog", "a basic component in the toolkit catalog",
+    "a missing required property", "an undeclared property", "a layout weight on a toolkit component",
+    "a wrongly typed property", "a hyphenated id", "an id starting with a digit", "a duplicate id", "no root",
+    "a dangling child", "an orphan", "an update after delete", "a surface created twice",
+    "an update with no surface", "a message of the wrong version", "a code tone out of range",
+    "a card state outside its words", "a byline with no version",
+}
 
 
 class TestRendererAgrees(unittest.TestCase):
@@ -422,7 +460,7 @@ class TestRendererAgrees(unittest.TestCase):
             with self.subTest(case=name):
                 problems = _validate(batch)
                 self.assertEqual(
-                    problems == [], renderer_error is None,
+                    (problems == [], renderer_error is None), (name not in REFUSED,) * 2,
                     f"validator: {problems or 'valid'}; renderer: {renderer_error or 'valid'}",
                 )
 
@@ -430,6 +468,14 @@ class TestRendererAgrees(unittest.TestCase):
         """The agreement check proves something only if some batches fail and some pass."""
         outcomes = {_validate(batch) == [] for _, batch in CORPUS}
         self.assertEqual(outcomes, {True, False})
+        self.assertLessEqual(REFUSED, {name for name, _ in CORPUS})
+
+    def test_r7_11_toolkit_apis_name_every_catalog_component(self):
+        """The bundled renderer knows every component the catalog declares, and no other."""
+        node = _node_or_skip(self)
+        shapes = json.loads(_node(node, ["--input-type=module", "-e", _API_SHAPES]))
+        catalog = json.loads((DESK / "catalog.json").read_text(encoding="utf-8"))
+        self.assertEqual(set(shapes), set(catalog["components"]))
 
     def test_r1_8_catalog_matches_the_renderer_schemas(self):
         """Each toolkit component the renderer knows takes exactly the properties
