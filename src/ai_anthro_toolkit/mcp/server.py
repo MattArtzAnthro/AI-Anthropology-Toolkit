@@ -58,7 +58,6 @@ from ai_anthro_toolkit.datasources import search_crossref as _crossref
 from ai_anthro_toolkit.datasources import search_openalex as _openalex
 from ai_anthro_toolkit.datasources import search_pubmed as _pubmed
 from ai_anthro_toolkit.desk import a2ui as _a2ui
-from ai_anthro_toolkit.desk import apply as _desk_apply
 from ai_anthro_toolkit.desk import cards as _desk_cards
 from ai_anthro_toolkit.desk import decisions as _desk_decisions
 from ai_anthro_toolkit.desk import gate as _desk_gate
@@ -1632,18 +1631,6 @@ def _saved(desk_id: str) -> dict:
     return saved
 
 
-def _dry_run(desk: dict, decisions: dict) -> None:
-    """A codebook desk's actions applied to its codebook, with the codes not yet decided
-    kept as they are, so a clash between decisions is refused when it is saved."""
-    source = _load_records(desk["desk_id"], "codebook.json") or []
-    every = {card["card_id"]: decisions.get(card["card_id"], {"action": "adopt"})
-             for card in desk["cards"]}
-    try:
-        _desk_apply.apply_actions(source, desk["cards"], every)
-    except ValueError as exc:
-        raise ValueError(f"This decision cannot be saved:\n- {exc}") from exc
-
-
 @_tool(annotations=_LOCAL_WRITE, meta={"ui": {"resourceUri": DESK_URI, "visibility": ["app"]}})
 def desk_sync(desk_id: Annotated[str, Field(description="The desk shown in the view.")],
               action: Annotated[dict | None, Field(
@@ -1675,7 +1662,7 @@ def _sync_held(desk_id: str, action: dict | None) -> dict:
             _jobs.save_artifact(desk_id, _SAVED, json.dumps(saved))  # the view holds the desk
         return {"desk_id": desk_id, "saved": len(saved["decisions"]),
                 "finished": finished["outcome"] if finished else None,
-                "a2ui": _a2ui.restore(desk, saved)}
+                "document": _document(desk_id, desk, saved), "a2ui": _a2ui.restore(desk, saved)}
     if finished is not None:
         raise ValueError(f"{desk_id} is finished; its decisions can no longer change.")
     if _jobs.load_artifact(desk_id, "finishing.json") is not None:
@@ -1689,19 +1676,19 @@ def _sync_held(desk_id: str, action: dict | None) -> dict:
         candidate = dict(saved, exclusive=decision["exclusive"])
     else:
         candidate = dict(saved, decisions={**saved["decisions"], card_id: decision})
-    chosen = _desk_decisions.Decisions(desk_id=desk_id, card_checksum=desk["card_checksum"],
-                                       exclusive=candidate["exclusive"],
-                                       decisions=candidate["decisions"])
-    # Every saved decision, not only this one: a save can break another (a merge into a
-    # code this save deletes).
-    problems = _desk_decisions.validate(desk, chosen, complete=False)
-    if problems:
-        raise ValueError(_desk_gate.problem_lines("This decision cannot be saved:", problems))
-    if desk["stage"] == "codebook":
-        _dry_run(desk, candidate["decisions"])
+    codebook = (_load_records(desk_id, "codebook.json") or []) if desk["stage"] == "codebook" else None
+    _desk_gate.check_save(desk, candidate, codebook)
     _jobs.save_artifact(desk_id, _SAVED, json.dumps(candidate))
     return {"desk_id": desk_id, "saved": len(candidate["decisions"]),
+            "document": _document(desk_id, desk, candidate),
             "a2ui": _a2ui.after_decision(desk, candidate, card_id)}
+
+
+def _document(desk_id: str, desk: dict, saved: dict) -> dict:
+    """The decisions document for what the view has saved: what its Copy control copies
+    and what Ratify applies."""
+    return {"schema": _desk_decisions.SCHEMA, "desk_id": desk_id, "card_checksum": desk["card_checksum"],
+            "exclusive": saved["exclusive"], "decisions": saved["decisions"]}
 
 
 @_tool(annotations=_LOCAL_WRITE, meta={"ui": {"resourceUri": DESK_URI, "visibility": ["app"]}})
@@ -1726,11 +1713,7 @@ def _for_the_view(out: dict[str, Any]) -> CallToolResult:
 def _finish(desk_id: str) -> dict:
     with _desk_lock:
         desk = _desk_gate.load_desk(_jobs, desk_id)
-        saved = _saved(desk_id)
-        doc = {"schema": _desk_decisions.SCHEMA, "desk_id": desk_id,
-               "card_checksum": desk["card_checksum"], "exclusive": saved["exclusive"],
-               "decisions": saved["decisions"]}
-        return _desk_gate.apply(_jobs, desk_id, doc, "app")
+        return _desk_gate.apply(_jobs, desk_id, _document(desk_id, desk, _saved(desk_id)), "app")
 
 
 def main() -> None:

@@ -14,7 +14,7 @@ from unittest import mock
 from mcp.server.mcpserver.exceptions import ToolError
 
 from ai_anthro_toolkit import brand, design
-from ai_anthro_toolkit.desk import a2ui, cards, gate, page, record
+from ai_anthro_toolkit.desk import a2ui, cards, decisions, gate, page, record
 from ai_anthro_toolkit.jobs import JobStore
 from ai_anthro_toolkit.mcp import server
 from tests.package import test_desk_surface as surf
@@ -477,7 +477,8 @@ class AppCase(DeskCase):
         card = surf.card_component(self.found, card_id) if n is not None else card_id
         action_name, context = surf.fire(self.found, self.data, surf.button(self.found, card, name))
         out = desk_sync(self.desk_id, {"name": action_name, "context": context})
-        self.assertEqual((set(out), out["desk_id"]), ({"desk_id", "saved", "a2ui"}, self.desk_id))
+        self.assertEqual((set(out), out["desk_id"]), ({"desk_id", "saved", "document", "a2ui"}, self.desk_id))
+        self.assertEqual(out["document"], self.document())
         self.assertEqual(a2ui.validate([*self.messages, *out["a2ui"]]), [])
         self.messages = [*self.messages, *out["a2ui"]]
         self.found = surf.components(self.messages)
@@ -486,6 +487,13 @@ class AppCase(DeskCase):
 
     def saved(self):
         return json.loads(self.store.load_artifact(self.desk_id, "saved.json") or "null")
+
+    def document(self):
+        """The decisions document for what is saved: what Copy decisions as JSON copies (R7.3)."""
+        saved = self.saved()
+        return {"schema": "aat/desk-decisions@1", "desk_id": self.desk_id,
+                "card_checksum": self.store.read(self.desk_id)["payload"]["card_checksum"],
+                "exclusive": saved["exclusive"], "decisions": saved["decisions"]}
 
 
 class TestAppOnlyTools(AppCase):
@@ -521,14 +529,14 @@ class TestAppOnlyTools(AppCase):
             return res.structured_content
 
         loaded = over_the_wire("desk_sync", {"desk_id": self.desk_id})
-        self.assertEqual(set(loaded), {"desk_id", "saved", "finished", "a2ui"})
+        self.assertEqual(set(loaded), {"desk_id", "saved", "finished", "document", "a2ui"})
         self.assertEqual(a2ui.validate(loaded["a2ui"]), [])
         n = len(self.data["cards"])
         for i, card in enumerate(self.data["cards"]):
             surf.set_path(self.data, f"/cards/{i}/action", ["adopt"])
             name, context = surf.fire(self.found, self.data, surf.button(self.found, surf.card_component(self.found, card["card_id"]), "save_decision"))
             saved = over_the_wire("desk_sync", {"desk_id": self.desk_id, "action": {"name": name, "context": context}})
-            self.assertEqual((set(saved), saved["saved"]), ({"desk_id", "saved", "a2ui"}, i + 1))
+            self.assertEqual((set(saved), saved["saved"]), ({"desk_id", "saved", "document", "a2ui"}, i + 1))
         self.assertEqual(n, len(self.saved()["decisions"]))
         over_the_wire("desk_sync", {"desk_id": self.desk_id, "action": {"name": "answer_exclusive", "context": {"exclusive": ["no"]}}})
         outcome = over_the_wire("desk_finish", {"desk_id": self.desk_id})
@@ -568,7 +576,8 @@ class TestAppOnlyTools(AppCase):
         self.press("chunk-7", codes=["Food access"])           # departs: the rule question stays open
         self.press("chunk-9", codes=["Land tenure", "Municipal relations"])
         reopened = desk_sync(self.desk_id)
-        self.assertEqual(set(reopened), {"desk_id", "saved", "finished", "a2ui"})
+        self.assertEqual(set(reopened), {"desk_id", "saved", "finished", "document", "a2ui"})
+        self.assertEqual(reopened["document"], self.document())
         self.assertIsNone(reopened["finished"])
         self.assertEqual((reopened["desk_id"], reopened["saved"]), (self.desk_id, 2))
         restored = reopened["a2ui"]
@@ -587,6 +596,16 @@ class TestAppOnlyTools(AppCase):
         for chunk, released in (("7", True), ("9", True), ("11", False), ("12", False)):
             with self.subTest(chunk):
                 self.assertEqual(load("proposals")[chunk]["rationale"] in shown, released)
+
+    def test_r7_3_the_document_the_view_holds_is_a_complete_decisions_document(self):
+        """R7.3: what Copy decisions as JSON copies in the app, once everything is decided,
+        reads as a decisions document and passes the import gate's full check."""
+        self.codebook_view()
+        for card in self.store.read(self.desk_id)["payload"]["cards"]:
+            self.press(card["card_id"], action=["adopt"])
+        out = self.press("exclusivity", name="answer_exclusive", answer=["no"])
+        doc = decisions.parse(out["document"])
+        self.assertEqual(decisions.validate(gate.load_desk(self.store, self.desk_id), doc, complete=True), [])
 
     def test_an_exclusivity_answer_saved_alone_is_restored(self):
         self.codebook_view()
@@ -988,6 +1007,7 @@ class TestRegistration(DeskCase):
         html = Path(result.structured_content["page"]).read_text(encoding="utf-8")
         self.assertNotIn(self._dir.name, html)
         self.assertIsNone(re.search(r"/Users/[A-Za-z]|/home/[A-Za-z]|file://", html))
+
 
 
 if __name__ == "__main__":

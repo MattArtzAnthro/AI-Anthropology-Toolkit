@@ -30,7 +30,7 @@ from ai_anthro_toolkit.desk import decisions as desk_decisions
 from ai_anthro_toolkit.desk import record
 from ai_anthro_toolkit.jobs import JobStore
 
-__all__ = ["SURFACES", "apply", "load_desk", "next_version", "problem_lines"]
+__all__ = ["SURFACES", "apply", "check_save", "load_desk", "next_version", "problem_lines"]
 
 SURFACES = ("app", "page", "chat")
 Outcome = dict[str, Any]
@@ -96,6 +96,33 @@ def problem_lines(heading: str, problems: list[desk_decisions.Problem]) -> str:
         for p in problems
     ]
     return heading + "\n" + "\n".join(f"- {line}" for line in lines)
+
+
+_SAVE = "This decision cannot be saved:"
+
+
+def check_save(desk: Mapping[str, Any], saved: Mapping[str, Any], codebook: list[dict[str, Any]] | None) -> None:
+    """Refuse what a desk would hold after one more decision is saved (``saved``: its
+    ``decisions`` and ``exclusive``), as ``desk_sync`` saves it. Every saved decision is
+    checked, not only the newest, since a save can break another (a merge into a code this
+    save deletes). On a codebook desk the actions are then applied to ``codebook`` with
+    the undecided codes adopted, so a label two decisions both bring is refused when it is
+    saved. The standalone page runs the same checks (``desk/app/src/local.js``).
+    """
+    chosen = desk_decisions.Decisions(
+        desk_id=desk["desk_id"], card_checksum=desk_cards.checksum(desk["cards"]),
+        exclusive=saved["exclusive"], decisions=saved["decisions"],
+    )
+    problems = desk_decisions.validate(desk, chosen, complete=False)
+    if problems:
+        raise ValueError(problem_lines(_SAVE, problems))
+    if desk["stage"] == "codebook":
+        every = {card["card_id"]: saved["decisions"].get(card["card_id"], {"action": "adopt"}) for card in desk["cards"]}
+        source = codebook if codebook is not None else [{"code_label": card["code_label"]} for card in desk["cards"]]
+        try:
+            transforms.apply_actions(source, desk["cards"], every)
+        except ValueError as exc:
+            raise ValueError(f"{_SAVE}\n- {exc}") from exc
 
 
 def _refusal(problems: list[desk_decisions.Problem]) -> ValueError:

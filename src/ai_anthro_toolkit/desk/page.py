@@ -1,8 +1,9 @@
 """The desk page shell (R1.5, R1.6, R8.3, R8.6, R8.7).
 
 ``render_page(desk)`` is the standalone desk: one file holding the design system's CSS,
-the bundled A2UI renderer, and the desk's A2UI messages in a JSON block, so it opens
-offline with nothing fetched but the fonts, which fall back to system faces.
+the bundled A2UI renderer, and the desk's A2UI messages in a JSON block with what
+``a2ui.local`` gives for deciding on the page with no server, so it opens offline with
+nothing fetched but the fonts, which fall back to system faces.
 ``app_shell()`` is the same page without a desk, the MCP App resource; its desk arrives
 in a tool result. Both end with the colophon from ``brand``.
 """
@@ -70,7 +71,7 @@ def render_page(desk: Mapping[str, Any]) -> str:
     colophon (R8.7)."""
     kind = _KINDS[desk["stage"]]
     title = str(desk.get("title") or "").strip()
-    data = {"desk_id": desk["desk_id"], "stage": desk["stage"], "messages": a2ui.surface(desk)}
+    data = {"desk_id": desk["desk_id"], "stage": desk["stage"], "messages": a2ui.surface(desk), "local": a2ui.local(desk)}
     return _page(
         title=f"{title} · {kind}" if title else kind,
         kind=kind if title else "",

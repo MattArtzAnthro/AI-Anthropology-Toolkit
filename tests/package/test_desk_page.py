@@ -46,7 +46,8 @@ class TestSelfContained(unittest.TestCase):
         self.assertEqual(len(re.findall(r"(?i)</script", self.html)), 2)
         self.assertNotIn("<!--", self.html)
         [block] = data_block(self.html)
-        self.assertEqual(json.loads(block), {"desk_id": self.desk["desk_id"], "stage": "codebook", "messages": a2ui.surface(self.desk)})
+        self.assertEqual(json.loads(block), {"desk_id": self.desk["desk_id"], "stage": "codebook",
+                                             "messages": a2ui.surface(self.desk), "local": a2ui.local(self.desk)})
         self.assertIn(HOSTILE, json.dumps(json.loads(block)))
         self.assertEqual([c for c in "<>&" if c in block], [])
 

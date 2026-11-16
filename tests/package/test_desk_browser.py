@@ -793,6 +793,312 @@ class TestViewNotices(DeskView):
         self.assertEqual(view.locator(".aat-notice--refusal").count(), 0)
 
 
+class TestStandaloneDecisions(DeskView):
+    """The standalone page, opened in a browser with no server behind it (R7.2, R7.3)."""
+
+    ORIGIN = "http://localhost:8765/"  # a secure context, as a file is, so the clipboard is there
+
+    def open_page(self, context=None, built=None):
+        """The page build_ratification_desk wrote, served from an origin so that it has storage."""
+        built = built or self.build(stage="codebook", codebook=self.load("codebook"), cases=self.load("cases"))
+        html = Path(built["structuredContent"]["page"]).read_text(encoding="utf-8")
+        context = context or self.browser.new_context(viewport={"width": 1000, "height": 1600})
+        tab = context.new_page()
+        self.errors = _watch(tab)
+        tab.route("**/*", lambda route: route.fulfill(status=200, content_type="text/html", body=html)
+                  if route.request.url == self.ORIGIN else route.fulfill(status=200, content_type="text/css", body=""))
+        tab.goto(self.ORIGIN)
+        tab.locator("aat-decision-card article").first.wait_for(timeout=5000)
+        return tab
+
+    def key(self):
+        return f"aat-desk:{self.desk_id}:{self.store.read(self.desk_id)['payload']['card_checksum']}"
+
+    def decide_all(self, tab, exclusive="no"):
+        for _ in self.load("codebook"):
+            self.open_card(tab).locator("input[value=adopt]").check()
+            self.open_card(tab).get_by_role("button", name="Save decision").click()
+        self.open_card(tab).locator(f"input[value={exclusive}]").check()
+        self.open_card(tab).get_by_role("button", name="Save answer").click()
+
+    def copied(self, tab):
+        box = tab.locator("#desk-notices textarea")
+        box.wait_for(timeout=5000)
+        return json.loads(box.input_value())
+
+    def test_r7_2_decision_survives_reload_outside_app(self):
+        """R7.2: with no host, each decision saves in the browser and a reload restores it."""
+        tab = self.open_page()
+        self.open_card(tab).locator("input[value=adopt]").check()
+        self.open_card(tab).get_by_role("button", name="Save decision").click()
+        self.assertEqual(tab.locator("article.aat-card--done").count(), 1)
+        stored = json.loads(tab.evaluate("k => localStorage.getItem(k)", self.key()))
+        self.assertEqual(stored, {"decisions": {"code-01": {"action": "adopt"}}, "exclusive": None})
+        tab.reload()
+        tab.locator("article.aat-card--done").wait_for(timeout=5000)
+        self.assertIn("Adopted", tab.locator("article.aat-card--done").inner_text())
+        self.assertEqual(self.open_card(tab).locator(".aat-card__title").inner_text(), self.load("codebook")[1]["code_label"])
+        self.assertEqual(self.store.load_artifact(self.desk_id, "saved.json"), None)  # nothing reached the server
+        self.assertEqual(self.errors, [])
+
+    def test_r7_2_a_refused_decision_saves_nothing(self):
+        tab = self.open_page()
+        self.open_card(tab).get_by_role("button", name="Save decision").click()
+        self.assertIn("Choose what to do with code-01 before saving.", tab.locator(".aat-notice--refusal").inner_text())
+        self.assertIsNone(tab.evaluate("k => localStorage.getItem(k)", self.key()))
+
+    def test_r7_2_blocked_storage_keeps_decisions_in_memory_with_a_notice(self):
+        """R7.2: where the browser refuses storage the decisions stay on the page, and it says so."""
+        context = self.browser.new_context()
+        context.add_init_script("Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('blocked', 'SecurityError'); } });")
+        tab = self.open_page(context)
+        notice = tab.locator(".aat-notice", has_text="This browser is not keeping the decisions.")
+        self.assertIn("Copy them as JSON", notice.inner_text())
+        self.open_card(tab).locator("input[value=adopt]").check()
+        self.open_card(tab).get_by_role("button", name="Save decision").click()
+        self.assertEqual(tab.locator("article.aat-card--done").count(), 1)
+        self.assertEqual(notice.count(), 1)
+        tab.get_by_role("button", name="Copy decisions as JSON").click()
+        self.assertEqual(self.copied(tab)["decisions"], {"code-01": {"action": "adopt"}})
+
+    def test_r7_2_a_ruling_releases_its_proposal_on_the_page(self):
+        """R3.2 on the standalone page: the proposal shows only after its ruling is saved."""
+        rid = self.server.ratify_codebook(codebook=self.load("codebook"))["ratification_id"]
+        jobs = []
+        for name in ("coding_a", "coding_b"):
+            job = self.store.create("coding", {"ratification_id": rid, "mode": "delegated"})
+            self.store.save_artifact(job, "result.json", json.dumps(self.load(name)))
+            self.store.complete(job)
+            jobs.append(job)
+        tab = self.open_page(built=self.build(stage="rulings", coding_job_ids=jobs, proposals=self.load("proposals")))
+        cards = self.store.read(self.desk_id)["payload"]["cards"]
+        self.assertEqual(tab.locator(".aat-prov--model").count(), 0)
+        other = next(c for c in self.store.read(self.desk_id)["payload"]["codes"] if c not in cards[0]["proposal"]["codes"])
+        self.open_card(tab).locator(f'input[value="{other}"]').check()
+        self.open_card(tab).get_by_role("button", name="Save ruling").click()
+        self.assertIn(cards[0]["proposal"]["rationale"], tab.locator(".aat-prov--model").inner_text())
+        self.assertIn("Does this ruling state a rule?", self.open_card(tab).inner_text())
+        self.assertNotIn(cards[1]["proposal"]["rationale"], tab.locator("main").inner_text())
+
+    def test_r7_3_copied_json_accepted_by_record_desk_decisions(self):
+        """R7.3: the document the page copies is one record_desk_decisions ratifies."""
+        context = self.browser.new_context()
+        context.grant_permissions(["clipboard-read", "clipboard-write"], origin=self.ORIGIN)
+        tab = self.open_page(context)
+        tab.get_by_role("button", name="Ratify the codebook").click()
+        self.assertIn(f"{len(self.load('codebook')) + 1} decisions are still open.", tab.locator(".aat-notice--refusal").inner_text())
+        self.decide_all(tab)
+        tab.get_by_role("button", name="Copy decisions as JSON").click()
+        doc = self.copied(tab)
+        self.assertEqual(json.loads(tab.evaluate("navigator.clipboard.readText()")), doc)
+        self.assertEqual(tab.locator("#desk-notices .aat-notice__title").inner_text(), "The decisions are copied as JSON.")
+        outcome = self.server.record_desk_decisions(self.desk_id, doc, "page")
+        self.assertRegex(outcome["ratification_id"], r"^ratification-[0-9a-f]{8}$")
+        self.assertEqual(self.errors, [])
+
+    def test_r7_3_ratify_on_the_page_gives_the_decisions_to_record(self):
+        tab = self.open_page()
+        self.decide_all(tab)
+        tab.get_by_role("button", name="Ratify the codebook").click()
+        doc = self.copied(tab)
+        self.assertIn("record_desk_decisions", tab.locator("#desk-notices").inner_text())
+        self.assertEqual(set(doc["decisions"]), {c["card_id"] for c in self.store.read(self.desk_id)["payload"]["cards"]})
+        self.assertIs(doc["exclusive"], False)
+
+    def test_r7_3_where_the_clipboard_is_refused_the_json_is_there_to_copy(self):
+        context = self.browser.new_context()
+        context.add_init_script("navigator.clipboard.writeText = () => Promise.reject(new Error('denied'));")
+        tab = self.open_page(context)
+        tab.get_by_role("button", name="Copy decisions as JSON").click()
+        self.assertEqual(self.copied(tab)["desk_id"], self.desk_id)
+        self.assertEqual(tab.locator("#desk-notices .aat-notice__title").inner_text(), "Copy the decisions below.")
+
+    def rulings_page(self):
+        rid = self.server.ratify_codebook(codebook=self.load("codebook"))["ratification_id"]
+        jobs = []
+        for name in ("coding_a", "coding_b"):
+            job = self.store.create("coding", {"ratification_id": rid, "mode": "delegated"})
+            self.store.save_artifact(job, "result.json", json.dumps(self.load(name)))
+            self.store.complete(job)
+            jobs.append(job)
+        tab = self.open_page(built=self.build(stage="rulings", coding_job_ids=jobs, proposals=self.load("proposals")))
+        return tab, self.store.read(self.desk_id)["payload"]
+
+    def stored(self, tab):
+        return tab.evaluate("k => localStorage.getItem(k)", self.key())
+
+    def reopened(self, tab, kept, key=None):
+        """The page reloaded with ``kept`` as what this browser holds for it."""
+        tab.evaluate("([k, v]) => localStorage.setItem(k, v)", [key or self.key(), kept])
+        tab.reload()
+        tab.locator("aat-decision-card article").first.wait_for(timeout=5000)
+        return tab
+
+    def test_r7_2_the_page_refuses_what_the_server_would_refuse(self):
+        """R7.2: a save the server would refuse is refused on the page, in its words, and kept nowhere."""
+        tab = self.open_page()
+        label = self.load("codebook")[0]["code_label"]
+        self.open_card(tab).locator("input[value=merge]").check()
+        self.open_card(tab).get_by_role("button", name="Save decision").click()
+        refusal = tab.locator(".aat-notice--refusal")
+        self.assertIn("This decision was not saved.", refusal.inner_text())
+        self.assertIn(f"code-01: {label} is merged into '', which is not a code in this codebook.", refusal.inner_text())
+        self.open_card(tab).locator("input[value=reword]").check()
+        self.open_card(tab).get_by_role("button", name="Save decision").click()
+        self.assertIn(f"code-01: The reword of {label} has an empty definition.", refusal.inner_text())
+        self.assertEqual(tab.locator("article.aat-card--done").count(), 0)
+        self.assertIsNone(self.stored(tab))
+        self.assertEqual(self.errors, [])
+
+    def test_r7_2_an_exclusion_without_a_reason_is_refused_on_the_page(self):
+        tab, desk = self.rulings_page()
+        self.open_card(tab).get_by_role("button", name="Exclude this chunk").click()
+        self.assertIn(f"{desk['cards'][0]['card_id']}: An exclusion needs a reason.", tab.locator(".aat-notice--refusal").inner_text())
+        self.assertIsNone(self.stored(tab))
+        self.open_card(tab).get_by_label("Reason for excluding").fill("Interviewer talking.")
+        self.open_card(tab).get_by_role("button", name="Exclude this chunk").click()
+        self.assertEqual(tab.locator("article.aat-card--done").count(), 1)
+        self.assertEqual(tab.locator(".aat-notice--refusal").count(), 0)
+
+    def test_r7_2_a_changed_decision_is_the_one_a_reload_restores(self):
+        tab = self.open_page()
+        self.open_card(tab).locator("input[value=adopt]").check()
+        self.open_card(tab).get_by_role("button", name="Save decision").click()
+        tab.locator("article.aat-card--done").get_by_role("button", name="Change").click()
+        self.open_card(tab).locator("input[value=delete]").check()
+        self.open_card(tab).get_by_role("button", name="Save decision").click()
+        tab.reload()
+        tab.locator("article.aat-card--done").wait_for(timeout=5000)
+        self.assertIn("Deleted", tab.locator("article.aat-card--done").inner_text())
+        self.assertEqual(json.loads(self.stored(tab))["decisions"], {"code-01": {"action": "delete"}})
+
+    def test_r7_2_a_reloaded_rulings_page_shows_its_released_proposal(self):
+        """A departing ruling's card stays open with its proposal and the rule question,
+        and a reload brings both back."""
+        tab, desk = self.rulings_page()
+        first = desk["cards"][0]
+        other = next(c for c in desk["codes"] if c not in first["proposal"]["codes"])
+        self.open_card(tab).locator(f'input[value="{other}"]').check()
+        self.open_card(tab).get_by_role("button", name="Save ruling").click()
+        self.assertIn("Does this ruling state a rule?", self.open_card(tab).inner_text())
+        tab.reload()
+        tab.locator(".aat-prov--model").wait_for(timeout=5000)
+        self.assertIn(first["proposal"]["rationale"], tab.locator(".aat-prov--model").inner_text())
+        self.assertIn("Does this ruling state a rule?", self.open_card(tab).inner_text())
+        self.assertNotIn(desk["cards"][1]["proposal"]["rationale"], tab.locator("main").inner_text())
+
+    def test_r7_2_what_the_browser_kept_is_checked_before_it_is_restored(self):
+        """Damaged storage, and decisions the server would refuse, restore nothing and say so."""
+        tab = self.open_page()
+        for kept, says in (("not json", ""), ("[1]", "not a set of decisions"),
+                           ('{"decisions": []}', "not a set of decisions"),
+                           ('{"decisions": {"code-01": "adopt"}}', "not a set of decisions"),
+                           ('{"decisions": {}, "exclusive": "yes"}', "not a set of decisions"),
+                           ('{"decisions": {"code-01": {"action": "merge", "target": "Shared labour"}}}', "cannot be merged into itself"),
+                           ('{"decisions": {"code-99": {"action": "adopt"}}}', "code-99 is not a card on this desk.")):
+            with self.subTest(kept=kept):
+                self.reopened(tab, kept)
+                notice = tab.locator(".aat-notice--refusal")
+                self.assertIn("The decisions this browser kept could not be restored.", notice.inner_text())
+                self.assertIn(says, notice.inner_text())
+                self.assertEqual(tab.locator("article.aat-card--done").count(), 0)
+
+    def test_r7_2_decisions_kept_for_other_cards_are_not_restored(self):
+        """What the browser kept for this desk with other cards (another checksum) stays unused."""
+        tab = self.open_page()
+        self.reopened(tab, '{"decisions": {"code-01": {"action": "adopt"}}, "exclusive": null}',
+                      key=f"aat-desk:{self.desk_id}:{'0' * 64}")
+        self.assertEqual(tab.locator("article.aat-card--done").count(), 0)
+        self.assertEqual(tab.locator(".aat-notice").count(), 0)
+
+    def test_r7_2_storage_that_refuses_writes_keeps_decisions_in_memory(self):
+        context = self.browser.new_context()
+        context.add_init_script("Storage.prototype.setItem = function () { throw new DOMException('full', 'QuotaExceededError'); };")
+        tab = self.open_page(context)
+        self.assertEqual(tab.locator(".aat-notice").count(), 0)
+        self.open_card(tab).locator("input[value=adopt]").check()
+        self.open_card(tab).get_by_role("button", name="Save decision").click()
+        self.assertEqual(tab.locator("article.aat-card--done").count(), 1)
+        self.assertEqual(tab.locator(".aat-notice", has_text="This browser is not keeping the decisions.").count(), 1)
+
+    def test_r7_2_the_storage_notice_outlasts_other_notices(self):
+        context = self.browser.new_context()
+        context.add_init_script("Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('blocked', 'SecurityError'); } });")
+        tab = self.open_page(context)
+        self.open_card(tab).get_by_role("button", name="Save decision").click()  # refused
+        self.assertEqual(tab.locator(".aat-notice--refusal").count(), 1)
+        self.open_card(tab).locator("input[value=adopt]").check()
+        self.open_card(tab).get_by_role("button", name="Save decision").click()
+        self.assertEqual(tab.locator(".aat-notice--refusal").count(), 0)
+        self.assertEqual(tab.locator(".aat-notice", has_text="This browser is not keeping the decisions.").count(), 1)
+
+    def test_r7_3_copy_with_nothing_decided_gives_an_empty_document(self):
+        tab = self.open_page()
+        tab.get_by_role("button", name="Copy decisions as JSON").click()
+        doc = self.copied(tab)
+        self.assertEqual(doc["decisions"], {})
+        self.assertIsNone(doc["exclusive"])
+
+    def test_r7_3_ratify_counts_one_open_decision_in_the_singular(self):
+        tab = self.open_page()
+        for _ in self.load("codebook"):
+            self.open_card(tab).locator("input[value=adopt]").check()
+            self.open_card(tab).get_by_role("button", name="Save decision").click()
+        tab.get_by_role("button", name="Ratify the codebook").click()
+        self.assertIn("1 decision is still open.", tab.locator(".aat-notice--refusal").inner_text())
+
+    def test_r7_2_the_page_framed_by_another_page_still_decides_on_its_own(self):
+        """A page with its decisions in it decides standalone even inside a frame, where
+        window.parent is not itself: no host message is sent or awaited."""
+        built = self.build(stage="codebook", codebook=self.load("codebook"), cases=self.load("cases"))
+        html = Path(built["structuredContent"]["page"]).read_text(encoding="utf-8")
+        tab = self.browser.new_context(viewport={"width": 1000, "height": 1600}).new_page()
+        tab.route("**/*", lambda route: route.fulfill(status=200, content_type="text/html", body=(
+            html if route.request.url == self.ORIGIN + "desk.html" else '<iframe src="desk.html" style="width:1000px;height:1500px"></iframe>'))
+            if route.request.url.startswith(self.ORIGIN) else route.fulfill(status=200, content_type="text/css", body=""))
+        tab.goto(self.ORIGIN)
+        frame = tab.frame_locator("iframe")
+        frame.locator("aat-decision-card article").first.wait_for(timeout=5000)
+        self.open_card(frame).locator("input[value=adopt]").check()
+        self.open_card(frame).get_by_role("button", name="Save decision").click()
+        self.assertEqual(frame.locator("article.aat-card--done").count(), 1)
+        stored = tab.frames[1].evaluate("k => localStorage.getItem(k)", self.key())
+        self.assertEqual(json.loads(stored)["decisions"], {"code-01": {"action": "adopt"}})
+
+    def test_r7_3_copy_in_the_app_when_the_desk_did_not_load_copies_nothing(self):
+        """Where the host refused the view's load, there is no saved document to copy."""
+        from ai_anthro_toolkit.desk import page as desk_page
+
+        result = self.build(stage="codebook", codebook=self.load("codebook"), cases=self.load("cases"))
+        page = self.browser.new_page(viewport={"width": 1000, "height": 1700})
+        page.expose_function("callTool", self.call_tool)
+        host = DESK_HOST.replace("window.calls = [];", "window.calls = []; window.rpcError = 'The server is down.';")
+        page.set_content(host.replace("__RESULT__", _js(result)).replace("__SHELL__", _js(desk_page.app_shell())))
+        view = page.frame_locator("#view")
+        view.locator("aat-decision-card article").first.wait_for(timeout=5000)
+        page.wait_for_function("window.calls.length >= 1")
+        self.wait_idle(page)
+        view.get_by_role("button", name="Copy decisions as JSON").click()
+        self.assertIn("There are no decisions to copy.", view.locator(".aat-notice--refusal").last.inner_text())
+        self.assertEqual(view.locator("#desk-notices textarea").count(), 0)
+
+    def test_r7_3_copy_in_the_app_copies_what_the_server_saved(self):
+        """R7.3 in the MCP App: Copy gives the decisions saved on the server, without a tool call."""
+        page, view = self.codebook_view()
+        self.open_card(view).locator("input[value=adopt]").check()
+        self.save(page, view)
+        calls = page.evaluate("window.calls.length")
+        view.get_by_role("button", name="Copy decisions as JSON").click()
+        box = view.locator("#desk-notices textarea")
+        box.wait_for(timeout=5000)
+        saved = self.saved()
+        self.assertEqual(json.loads(box.input_value()), {
+            "schema": "aat/desk-decisions@1", "desk_id": self.desk_id,
+            "card_checksum": self.store.read(self.desk_id)["payload"]["card_checksum"],
+            "exclusive": saved["exclusive"], "decisions": saved["decisions"]})
+        self.assertEqual(page.evaluate("window.calls.length"), calls)
+
+
 @unittest.skipIf(SKIP_REASON, SKIP_REASON or "")
 class TestCatalogMarkup(unittest.TestCase):
     def test_r7_11_components_the_server_does_not_send_draw_their_markup(self):

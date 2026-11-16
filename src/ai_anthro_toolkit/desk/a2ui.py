@@ -26,9 +26,10 @@ from referencing.jsonschema import DRAFT202012
 
 from ai_anthro_toolkit import __version__
 from ai_anthro_toolkit.desk import BASIC_CATALOG_ID, CATALOG_ID
+from ai_anthro_toolkit.desk.cards import checksum
 from ai_anthro_toolkit.desk.decisions import differs
 
-__all__ = ["NO_CODE", "after_decision", "catalog_problems", "decision_from_action", "restore", "surface", "validate"]
+__all__ = ["NO_CODE", "after_decision", "catalog_problems", "decision_from_action", "local", "restore", "surface", "validate"]
 
 _BASE = "https://a2ui.org/specification/v1_0/"
 # Where the message schema looks for "the" catalog. Each check loads one catalog here.
@@ -670,6 +671,42 @@ def restore(desk: Mapping[str, Any], saved: Mapping[str, Any]) -> list[Message]:
         status = _status(desk, saved, None)
         messages.append({"version": _VERSION, "updateDataModel": {"surfaceId": sid, "path": "/status", "value": status}})
     return messages
+
+
+def local(desk: Mapping[str, Any]) -> dict[str, Any]:
+    """What the standalone page needs to take decisions with no server behind it (R7.2):
+    the card checksum its decisions document names, each card's proposed codes for telling
+    whether a ruling departs, what the save checks read (each codebook card's label; a
+    rulings desk's codes and whether they are mutually exclusive), and, on a rulings desk,
+    each card with a proposal as ``after_decision`` draws it once its ruling is saved,
+    with and without the rule question. The page shows a proposal only after its ruling
+    is saved, as the MCP App view does, but the file itself carries every proposal.
+    """
+    _check_stage(desk)
+    release: dict[str, dict[str, list[Component]]] = {}
+    if desk["stage"] == "rulings":
+        _rulings_codes(desk)
+        for n, card in enumerate(desk["cards"]):
+            if card["proposal"] is not None:
+                release[card["card_id"]] = {
+                    "plain": _ruling_card(n, card, desk, proposal=True, rule=False),
+                    "rule": _ruling_card(n, card, desk, proposal=True, rule=True),
+                }
+    codebook = desk["stage"] == "codebook"
+    out: dict[str, Any] = {
+        "desk_id": desk["desk_id"],
+        "stage": desk["stage"],
+        "card_checksum": checksum(desk["cards"]),
+        "cards": [
+            {"card_id": card["card_id"], **({"code_label": card["code_label"]} if codebook else {}),
+             "proposal": None if card.get("proposal") is None else list(card["proposal"]["codes"])}
+            for card in desk["cards"]
+        ],
+        "release": release,
+    }
+    if not codebook:
+        out.update(codes=list(desk["codes"]), exclusive=bool(desk["exclusive"]))
+    return out
 
 
 # ── Reading what the view sends ────────────────────────────────────────────────

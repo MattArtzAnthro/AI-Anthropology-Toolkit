@@ -183,6 +183,19 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   seconds gets a notice instead of a frozen view, and a finished desk keeps
   showing its ratification instead of reopening cards. The desk's column now
   narrows with the window, so a desk fits a phone down to 240 pixels wide.
+- The standalone desk page works with no server behind it. It reads each
+  decision as the server would and checks it as the server checks a save,
+  refusing in the server's words what the server would refuse (a merge into
+  a code that is not there, a split into one part, an exclusion with no
+  reason). It keeps each decision in the browser so a reload restores it,
+  checking what was kept before restoring it, and, where the browser will
+  not keep it, holds it on the page and says so. A ruling's proposal appears
+  only once that ruling is saved. Every surface has "Copy decisions as
+  JSON", which copies the decisions document and also shows it, for a frame
+  or file that refuses the clipboard; on the page, Ratify gives the
+  decisions to pass to `record_desk_decisions`, or says how many are still
+  open. `desk_sync` returns the decisions document with each answer, so the
+  MCP App view copies what the server holds.
 - In the desk's MCP App, the view saves each decision on the server with
   `desk_sync` as the researcher makes it, and ratifies with `desk_finish`;
   both are app-only tools the model cannot call. A decision the desk cannot
