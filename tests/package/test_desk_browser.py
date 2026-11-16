@@ -450,13 +450,13 @@ class DeskView(unittest.TestCase):
         self.desk_id = result.structured_content["desk_id"]
         return {"content": [{"type": "text", "text": result.content[0].text}], "structuredContent": result.structured_content}
 
-    def open_view(self, result):
+    def open_view(self, result, host=DESK_HOST):
         from ai_anthro_toolkit.desk import page as desk_page
 
         page = self.browser.new_page(viewport={"width": 1000, "height": 1700})
         self.errors = _watch(page)
         page.expose_function("callTool", self.call_tool)
-        page.set_content(DESK_HOST.replace("__RESULT__", _js(result)).replace("__SHELL__", _js(desk_page.app_shell())))
+        page.set_content(host.replace("__RESULT__", _js(result)).replace("__SHELL__", _js(desk_page.app_shell())))
         view = page.frame_locator("#view")
         view.locator("aat-decision-card article").first.wait_for(timeout=5000)
         page.wait_for_function("window.calls.length >= 1")
@@ -493,6 +493,75 @@ class DeskView(unittest.TestCase):
         result = self.build(stage="rulings", coding_job_ids=jobs, proposals=self.load("proposals"), **kw)
         self.cards = self.store.read(self.desk_id)["payload"]["cards"]
         return self.open_view(result)
+
+
+def sizing_host(height):
+    """DESK_HOST as Claude Desktop sizes an inline view: the frame starts at `height` and
+    takes whatever height the view reports in ui/notifications/size-changed."""
+    return (
+        DESK_HOST.replace("height:1600px", f"height:{height}px")
+        .replace("window.calls = [];", "window.calls = []; window.sizes = [];")
+        .replace(
+            '  if (m.method === "ui/initialize") {',
+            '  if (m.method === "ui/notifications/size-changed") {\n'
+            '    window.sizes.push(m.params); frame.style.height = m.params.height + "px"; return;\n'
+            "  }\n"
+            '  if (m.method === "ui/initialize") {',
+        )
+    )
+
+
+# The frame's height, the view's full content height, and how far the view has scrolled.
+FRAME = """() => { const f = document.getElementById('view'); const d = f.contentDocument;
+  return { frame: f.clientHeight, content: d.documentElement.scrollHeight, scrolled: f.contentWindow.scrollY,
+           sizes: window.sizes.length }; }"""
+
+
+class TestFrameSize(DeskView):
+    """In the MCP App the view reports its height, so the host shows the whole desk
+    instead of a short default frame the researcher has to scroll inside."""
+
+    def settled(self, page):
+        """Wait until the frame has taken the last height the view reported."""
+        page.wait_for_function(
+            "window.sizes.length > 0 && document.getElementById('view').clientHeight"
+            " === window.sizes[window.sizes.length - 1].height",
+            timeout=5000,
+        )
+        page.wait_for_timeout(200)  # let any report the new frame size causes arrive
+        return page.evaluate(FRAME)
+
+    def test_a_short_frame_grows_to_hold_the_whole_desk(self):
+        page, _view = self.open_view(
+            self.build(stage="codebook", codebook=self.load("codebook"), cases=self.load("cases")),
+            host=sizing_host(300),
+        )
+        size = self.settled(page)
+        self.assertGreater(size["frame"], 300)
+        self.assertLessEqual(size["content"], size["frame"], "the view still scrolls inside its frame")
+        self.assertEqual(size["scrolled"], 0)
+        self.assertEqual(self.errors, [])
+
+    def test_a_tall_frame_shrinks_to_the_desk(self):
+        page, _view = self.open_view(
+            self.build(stage="codebook", codebook=self.load("codebook"), cases=self.load("cases")),
+            host=sizing_host(6000),
+        )
+        size = self.settled(page)
+        self.assertLess(size["frame"], 6000, "the view reported the frame's height, not its own")
+        self.assertLessEqual(size["content"], size["frame"])
+
+    def test_the_frame_follows_the_desk_as_it_changes(self):
+        page, view = self.open_view(
+            self.build(stage="codebook", codebook=self.load("codebook"), cases=self.load("cases")),
+            host=sizing_host(300),
+        )
+        before = self.settled(page)
+        self.save(page, view)
+        page.wait_for_function(f"window.sizes.length > {before['sizes']}", timeout=5000)
+        after = self.settled(page)
+        self.assertNotEqual(after["frame"], before["frame"])
+        self.assertLessEqual(after["content"], after["frame"])
 
 
 class TestDeskViewActions(DeskView):

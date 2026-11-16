@@ -369,6 +369,31 @@ if (block) {
     const theme = result && result.hostContext && result.hostContext.theme;
     if (theme) document.documentElement.dataset.theme = theme;
     notify('ui/notifications/initialized');
+    reportHeight();
+    const watch = new ResizeObserver(reportHeight);
+    watch.observe(document.documentElement);
+    watch.observe(document.body);
+  });
+}
+
+// A host sizes an inline view from ui/notifications/size-changed; without it the desk
+// sits in a short default frame. Report the content's own height, measured with the
+// root at fit-content so a frame taller than the desk can shrink to it.
+let reported = 0;
+let measuring = false;
+function reportHeight() {
+  if (measuring) return;
+  measuring = true;
+  requestAnimationFrame(() => {
+    measuring = false;
+    const root = document.documentElement;
+    const kept = root.style.height;
+    root.style.height = 'fit-content';
+    const height = Math.ceil(root.getBoundingClientRect().height);
+    root.style.height = kept;
+    if (height === reported) return;
+    reported = height;
+    notify('ui/notifications/size-changed', { height });
   });
 }
 

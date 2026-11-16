@@ -50,6 +50,12 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
+### Unreleased
+- The ratification desk's view reports its height to the host
+  (`ui/notifications/size-changed`), so Claude Desktop and other MCP Apps
+  hosts show the whole desk instead of a short frame scrolled inside, and the
+  frame follows the desk as cards open and close.
+
 ### 3.11.0 — 2026-11-16
 - **A design system for every screen the toolkit shows.** Its tokens and
   stylesheet ship as package data in `ai_anthro_toolkit/design/`: the Harbor
