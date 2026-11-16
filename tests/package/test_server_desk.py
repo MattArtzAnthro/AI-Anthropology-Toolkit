@@ -1010,5 +1010,33 @@ class TestRegistration(DeskCase):
 
 
 
+# What reading or writing a hosted artifact's database looks like in the desk's code: the
+# artifact runtime's own object, and the database calls and names that R7.1 withdrew.
+_ARTIFACT_DB = re.compile(r"window\.claude|window\.storage|ArtifactData|\b(?:read|write)_db\b|artifact[_ -]?(?:db|database)", re.I)
+
+
+class TestWithdrawnArtifactDatabase(unittest.TestCase):
+    def files(self):
+        desk = Path(page.__file__).parent
+        found = [p for p in desk.rglob("*") if p.suffix in {".py", ".js", ".mjs", ".html"} and "node_modules" not in p.parts]
+        return [*found, Path(server.__file__)]
+
+    def test_r7_1_no_artifact_database_path(self):
+        """R7.1 is withdrawn: decisions are saved on the server through the MCP App (R7.6-R7.9)
+        or in the browser (R7.2), and no desk module, page or bundle reads or writes an
+        artifact's database."""
+        files = self.files()
+        self.assertIn("desk-app.js", {p.name for p in files})
+        for path in files:
+            with self.subTest(path.name):
+                self.assertIsNone(_ARTIFACT_DB.search(path.read_text(encoding="utf-8")))
+
+    def test_the_guard_finds_an_artifact_database_call(self):
+        for line in ("await window.claude.db.set('d', x)", "window.storage.get(key)", "write_db(collection)",
+                     "the artifact database", "ArtifactData"):
+            with self.subTest(line):
+                self.assertIsNotNone(_ARTIFACT_DB.search(line))
+
+
 if __name__ == "__main__":
     unittest.main()
