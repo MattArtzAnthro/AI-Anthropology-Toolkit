@@ -203,6 +203,13 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   differs from the committed one. The bundle's zod 3 is in the range of
   advisory GHSA-mrhx-c7xc-m3w5; `VENDORED.md` says why the advisory's input
   does not reach the renderer.
+- The qualitative-analysis skill offers the ratification desk: for a
+  codebook, `build_ratification_desk` with `stage="codebook"`, keeping one
+  table and `ratify_codebook` where no page can be shown; where two coding
+  passes disagree, `stage="rulings"`, with rulings stated in chat recorded
+  through `record_desk_decisions` and the record read back with
+  `get_decision_record`. The skill never records a decision for the
+  researcher.
 - In the desk's MCP App, the view saves each decision on the server with
   `desk_sync` as the researcher makes it, and ratifies with `desk_finish`;
   both are app-only tools the model cannot call. A decision the desk cannot

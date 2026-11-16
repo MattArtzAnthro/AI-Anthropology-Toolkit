@@ -1220,6 +1220,24 @@ class TestRepoDocs(unittest.TestCase):
         self.assertIn("unittest", combined, "CI workflow does not run the validation suite")
 
 
+class TestRatificationDesk(unittest.TestCase):
+    def test_r7_10_skill_offers_desk_with_chat_fallback(self):
+        """R7.10: at codebook ratification and at disagreement rulings the skill offers the
+        desk where the host can show a page, keeps the chat table as the fallback, and
+        leaves every decision to the researcher."""
+        body = _flat(SKILLS_DIR / "qualitative-analysis" / "SKILL.md")
+        for stage in ("codebook", "rulings"):
+            with self.subTest(stage=stage):
+                offer = re.search(rf'build_ratification_desk` with `stage="{stage}"`(.{{0,900}})', body)
+                self.assertIsNotNone(offer, f"the skill does not offer the {stage} desk")
+                assert offer is not None
+                self.assertIn("one table", offer.group(1), f"the {stage} desk is offered without the chat fallback")
+        self.assertIn("ratify_codebook", body)
+        self.assertIn("record_desk_decisions", body)
+        self.assertIn("get_decision_record", body)
+        self.assertIn("Never record a decision for the researcher", body)
+
+
 class TestRivalInterpretations(unittest.TestCase):
     """The rules that make this skill a test rather than a critique.
 

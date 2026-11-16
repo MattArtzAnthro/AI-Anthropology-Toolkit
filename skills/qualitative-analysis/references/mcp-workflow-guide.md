@@ -17,7 +17,9 @@ Are Absent" below.
 | Segment a transcript | `chunk_transcript` (fully local — no data leaves the machine) |
 | Browse or select lenses | `list_lenses`, `get_lens` |
 | Build a codebook from literature | `start_codebook_job` → (delegated: `get_next_batch`/`submit_batch` loop) → `get_job_result` |
+| Ratify a codebook | `build_ratification_desk` with `stage="codebook"` (the researcher decides in the desk), or one table in chat → `ratify_codebook` |
 | Code chunks against a codebook | `start_coding_job` → (delegated loop) → `get_job_result` |
+| Rule on where two coding passes disagree | `build_ratification_desk` with `stage="rulings"` and both job ids; decisions from the standalone page or chat → `record_desk_decisions`; then `get_decision_record` |
 | Build themes from coded data | `build_themes` (two-step in delegated mode: fetch prompt, complete it, resubmit) |
 | Compare lenses on the same data | one coding job per lens, then `compare_lenses` |
 | Collect source material | `search_openalex` / `search_crossref` / `search_google_scholar` and the other data-collection tools |

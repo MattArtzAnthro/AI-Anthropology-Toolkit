@@ -163,10 +163,20 @@ drift; codes without examples cannot be applied consistently.
   projects. Consolidate semantic near-duplicates before coding begins.
 - Version the codebook. Analysis decisions must be traceable to the codebook
   version in force when they were made.
-- **Ratification is a gate.** A machine-generated codebook is a proposal.
-  Present it as one table and ask one confirm-or-revise question before any
-  coding pass runs — not code by code, which produces a researcher who stops
-  reading, and not silently, which produces an analysis nobody decided.
+- **Ratification is a gate.** A machine-generated codebook is a proposal,
+  and the researcher ratifies it before any coding pass runs — not silently,
+  which produces an analysis nobody decided. Where the host can show a page,
+  offer the ratification desk: `build_ratification_desk` with
+  `stage="codebook"` sets each code beside the passages it was drawn from,
+  and the researcher adopts, rewords, merges, splits, or deletes it there. If
+  no desk appears, give them the page the tool names to open in a browser.
+  Where no page can be shown, or they would rather decide in chat, present
+  the codebook as one table and ask one confirm-or-revise question — not
+  code by code in chat, which produces a researcher who stops reading — and
+  call `ratify_codebook` with what they approved. Either route gives the
+  `ratification_id` that `start_coding_job` takes. Never record a decision
+  for the researcher: decisions made on the standalone page reach the server
+  only when they hand them to you for `record_desk_decisions`.
 - **Ask once, at ratification, whether codes here are mutually exclusive.**
   Some traditions hold that they are; grounded theory and several
   interpretive traditions deliberately keep codes that overlap. The answer
@@ -197,6 +207,17 @@ catch are the ones you cannot see by reading.
   the same five-part structure.
 - Record co-occurrences: codes that repeatedly appear together are theme
   candidates.
+- **Where two coding passes disagree, the researcher rules.** After two
+  coding jobs over the same chunks under one ratification, offer the desk:
+  `build_ratification_desk` with `stage="rulings"` and both job ids makes
+  each disagreement a card. Under blind-first, the default, the model's
+  proposal shows only after the researcher's own ruling, and a ruling that
+  departs from it asks whether it states a rule, which amends the codebook.
+  Where no page can be shown, present the disagreements as one table in
+  chat and pass the rulings they make to `record_desk_decisions` with the
+  surface `chat`. Afterwards `get_decision_record` gives the record behind
+  the ratification, with a draft methods paragraph counted from it, for the
+  researcher to revise.
 - **Run the standing checks over the coded data before building themes**,
   unasked, the same way. Three of what they surface are worth pausing on: a
   code discovered during coding that never entered the codebook, a code in
