@@ -14,7 +14,7 @@ The colophon every toolkit page ends with: the toolkit and its author, linked to
 ```html
 <footer class="aat-byline"><a href="https://www.mattartz.me" target="_blank" rel="noopener"><b>AI Anthropology Toolkit</b> by Matt Artz</a>
   <span class="aat-byline__sep" aria-hidden="true">·</span>
-  <span class="aat-id">v3.11.0</span>
+  <span class="aat-id">v3.11.1</span>
   <a href="https://www.mattartz.me" target="_blank" rel="noopener">Website</a>
   <a href="https://github.com/MattArtzAnthro/AI-Anthropology-Toolkit" target="_blank" rel="noopener">Toolkit on GitHub</a>
   <a href="https://doi.org/10.5281/zenodo.16728812" target="_blank" rel="noopener">Cite (DOI)</a>

@@ -6,6 +6,10 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 
 ## Codex Plugin
 
+### 1.38.1 — 2026-11-16
+- Installs the MCP server as `ai-anthropology-toolkit[data,api]==3.11.1`,
+  whose ratification desk sizes its frame to the desk in MCP Apps hosts.
+
 ### 1.38.0 — 2026-11-16
 - Installs the MCP server as `ai-anthropology-toolkit[data,api]==3.11.0`,
   which adds the ratification desk (see the package entry). The mirrored
@@ -50,7 +54,7 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
-### Unreleased
+### 3.11.1 — 2026-11-16
 - The ratification desk's view reports its height to the host
   (`ui/notifications/size-changed`), so Claude Desktop and other MCP Apps
   hosts show the whole desk instead of a short frame scrolled inside, and the
@@ -693,6 +697,11 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.38.1 — 2026-11-16
+- Registers the MCP server as `ai-anthropology-toolkit[data,api]==3.11.1`,
+  whose ratification desk sizes its frame to the desk in Claude Desktop and
+  other MCP Apps hosts.
 
 ### 1.38.0 — 2026-11-16
 - Registers the MCP server as `ai-anthropology-toolkit[data,api]==3.11.0`,
