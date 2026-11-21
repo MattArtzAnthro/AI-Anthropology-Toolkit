@@ -16,6 +16,7 @@ description: >
   uncertainty. Do NOT use for coding data or building themes (use
   qualitative-analysis), settling what a specific paper argues and in what
   order (use paper-planning), or drafting prose (use research-writing).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Ethnographic Generalization

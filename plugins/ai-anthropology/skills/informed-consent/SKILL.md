@@ -15,6 +15,7 @@ description: >
   populations and contexts. Do NOT use for full IRB protocol narratives or
   data management plans (use irb-protocol skill) or methodology selection
   (use methodology-selection skill).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Informed Consent Design

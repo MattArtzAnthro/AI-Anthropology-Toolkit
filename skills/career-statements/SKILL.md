@@ -13,6 +13,7 @@ description: >
   career stages. Do NOT use for CVs, cover letters, or job talks (use
   job-materials skill), course syllabi or assignments (use teaching-materials
   skill), or grant proposals (use grant-proposal skill).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Career Statements for Anthropologists

@@ -12,6 +12,7 @@ description: >
   across genres: journal articles, dissertation proposals, grant applications
   (NSF, Wenner-Gren, Fulbright), and applied/consulting projects. If someone is
   working on any pre-fieldwork intellectual framing task, this skill applies.
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Research Question Development & Refinement

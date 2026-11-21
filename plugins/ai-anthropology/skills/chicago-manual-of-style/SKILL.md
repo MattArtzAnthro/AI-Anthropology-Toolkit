@@ -16,6 +16,7 @@ description: >
   screening sources (use literature-review), checking citations in a
   typeset proof (use proof-review), or masking self-citations for blind
   review (use review-anonymization).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Chicago Style for Anthropologists

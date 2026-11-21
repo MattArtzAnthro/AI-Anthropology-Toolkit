@@ -16,6 +16,7 @@ description: >
   research-question), writing the article or chapter prose (use
   research-writing), or collecting non-scholarly data (use
   digital-computational-methods).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Literature Review & Evidence Synthesis

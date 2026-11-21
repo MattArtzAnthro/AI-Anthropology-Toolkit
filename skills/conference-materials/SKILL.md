@@ -15,6 +15,7 @@ description: >
   oral delivery preparation. Do NOT use for job talks (use job-materials
   skill), public talks for non-academic audiences (use public-engagement
   skill), or full paper writing (use research-writing skill).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Conference Materials for Anthropology

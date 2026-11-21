@@ -14,6 +14,7 @@ description: >
   without a committee audience (use grant-proposal skill), journal articles or
   thesis chapters (use research-writing skill), or research question
   development outside a prospectus context (use research-question skill).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Dissertation Prospectus Writing

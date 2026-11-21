@@ -14,6 +14,7 @@ description: >
   decision to build has already been made (use tool-building), for choosing a
   research method (use methodology-selection), or for picking a computational
   technique (use digital-computational-methods).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Repeated Work

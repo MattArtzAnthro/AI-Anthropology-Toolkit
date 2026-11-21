@@ -17,6 +17,7 @@ description: >
   op-eds and public writing (use public-engagement), academic job
   materials (use job-materials), or executing the analysis itself (use
   qualitative-analysis).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Applied Practice & Client Deliverables

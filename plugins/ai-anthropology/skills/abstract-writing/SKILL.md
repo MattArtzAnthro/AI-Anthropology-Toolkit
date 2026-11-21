@@ -16,6 +16,7 @@ description: >
   drafting the manuscript or its sections (use research-writing), for
   deciding what the paper argues (use paper-planning), or for funder
   summaries (use grant-proposal).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Abstract, Title, and Keywords for Anthropology Submissions

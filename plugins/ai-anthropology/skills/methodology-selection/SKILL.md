@@ -15,6 +15,7 @@ description: >
   specific funder (use grant-proposal skill), or designing specific
   instruments like interview guides (use fieldwork-methods skill). This skill
   handles the upstream design decision of which methods and why.
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Methodology Selection

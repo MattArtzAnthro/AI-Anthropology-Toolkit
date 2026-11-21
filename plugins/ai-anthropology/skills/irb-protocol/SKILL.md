@@ -15,6 +15,7 @@ description: >
   plan writing (use research-plan skill), or grant proposals (use
   grant-proposal skill). This skill handles writing IRB-ready protocol
   narratives and associated documents.
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # IRB & Ethics Protocol Writing

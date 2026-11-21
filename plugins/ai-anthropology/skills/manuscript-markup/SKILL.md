@@ -16,6 +16,7 @@ description: >
   to a journal decision letter (use academic-review), for drafting prose
   (use research-writing), or for an argument that keeps
   breaking in the same place (use paper-planning).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Manuscript Markup

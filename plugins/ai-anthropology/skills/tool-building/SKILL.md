@@ -17,6 +17,7 @@ description: >
   digital-computational-methods), running codebooks and coding passes
   (use qualitative-analysis), or working out what a paper argues (use
   paper-planning).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Tool Building

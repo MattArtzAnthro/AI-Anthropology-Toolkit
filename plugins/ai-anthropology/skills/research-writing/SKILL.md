@@ -15,6 +15,7 @@ description: >
   (use review-anonymization), conference abstracts or presentations (use
   conference-materials skill), grant proposals (use grant-proposal skill), or
   public-facing writing (use public-engagement skill).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Research Writing for Anthropology

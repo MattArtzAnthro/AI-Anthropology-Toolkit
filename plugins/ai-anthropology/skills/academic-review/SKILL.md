@@ -14,6 +14,7 @@ description: >
   (use grant-proposal skill) or student work feedback (use teaching-materials
   skill). This skill handles peer review as a professional scholarly practice
   and revision as a strategic engagement with reviewer critique.
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Academic Peer Review

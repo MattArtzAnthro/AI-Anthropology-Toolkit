@@ -15,6 +15,7 @@ description: >
   reviews (use academic-review), for working out what a paper argues before
   drafting (use paper-planning), or for prose and craft problems (use
   research-writing).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Rival Interpretations

@@ -16,6 +16,7 @@ description: >
   instruments (use fieldwork-methods skill), method selection (use
   methodology-selection skill), or writing up findings (use research-writing
   skill).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Qualitative Analysis & Coding
