@@ -14,6 +14,7 @@ description: >
   for offline fieldwork instruments (use fieldwork-methods), broad
   method-stance alignment (use methodology-selection), or executing
   qualitative coding (use qualitative-analysis).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Digital & Computational Methods

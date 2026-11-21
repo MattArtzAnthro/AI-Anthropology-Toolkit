@@ -15,6 +15,7 @@ description: >
   pre-fieldwork research questions (use research-question), drafting or
   revising prose (use research-writing), finding or synthesizing sources
   (use literature-review), or answering reviewers (use academic-review).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Paper Planning

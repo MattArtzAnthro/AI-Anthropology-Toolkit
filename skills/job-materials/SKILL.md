@@ -13,6 +13,7 @@ description: >
   use for research/teaching/diversity statements (use career-statements skill),
   conference presentations (use conference-materials skill), or grant proposals
   (use grant-proposal skill).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Job Application Materials for Anthropologists

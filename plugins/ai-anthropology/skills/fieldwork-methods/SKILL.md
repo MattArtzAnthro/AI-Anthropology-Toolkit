@@ -15,6 +15,7 @@ description: >
   IRB protocol narratives (use irb-protocol skill), consent documents (use
   informed-consent skill), or methodology selection (use methodology-selection
   skill).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Fieldwork Methods & Data Collection

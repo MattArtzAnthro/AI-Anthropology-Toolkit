@@ -16,6 +16,7 @@ description: >
   or irb-protocol), for a typeset proof (use proof-review), for editor
   comments in a returned file (use manuscript-markup), or for drafting
   prose (use research-writing).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Review Anonymization

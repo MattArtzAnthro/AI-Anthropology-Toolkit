@@ -16,6 +16,7 @@ description: >
   Do NOT use for comments and tracked changes in a returned .docx (use
   manuscript-markup), for a reviewer report or rebuttal (use
   academic-review), or for drafting prose (use research-writing).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Proof Review

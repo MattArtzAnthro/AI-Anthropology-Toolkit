@@ -14,6 +14,7 @@ description: >
   from academic to accessible language. Do NOT use for academic conference
   presentations (use conference-materials skill), peer-reviewed article writing,
   or grant proposals (use grant-proposal skill).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Public Engagement & Communication

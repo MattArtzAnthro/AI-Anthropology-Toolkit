@@ -15,6 +15,7 @@ description: >
   or chapters (use research-writing skill), research plan writing without a
   specific funder (use research-plan skill), or IRB/ethics protocols and
   consent documents (use irb-protocol or informed-consent skill).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Anthropology Grant Proposal Writing

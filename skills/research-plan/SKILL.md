@@ -15,6 +15,7 @@ description: >
   grant-proposal skill), dissertation prospectuses for a committee defense
   (use dissertation-prospectus skill), or research question development
   without a full plan context (use research-question skill).
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Research Plan Writing

@@ -14,6 +14,7 @@ description: >
   subfields and course levels. Do NOT use for teaching statements or philosophy
   documents (use career-statements skill), conference presentations (use
   conference-materials skill), or curriculum-level program design.
+license: PolyForm-Noncommercial-1.0.0
 ---
 
 # Teaching Materials for Anthropology
