@@ -6,6 +6,11 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 
 ## Codex Plugin
 
+### 1.38.2 — 2026-11-21
+- Every skill the plugin mirrors declares its licence in its frontmatter
+  (`license: PolyForm-Noncommercial-1.0.0`), matching `LICENSE` and the
+  plugin manifest.
+
 ### 1.38.1 — 2026-11-16
 - Installs the MCP server as `ai-anthropology-toolkit[data,api]==3.11.1`,
   whose ratification desk sizes its frame to the desk in MCP Apps hosts.
@@ -697,6 +702,11 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.38.2 — 2026-11-21
+- Every skill declares its licence in its frontmatter
+  (`license: PolyForm-Noncommercial-1.0.0`), matching `LICENSE` and the
+  plugin manifest.
 
 ### 1.38.1 — 2026-11-16
 - Registers the MCP server as `ai-anthropology-toolkit[data,api]==3.11.1`,
