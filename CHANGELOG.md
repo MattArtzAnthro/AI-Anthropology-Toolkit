@@ -703,6 +703,11 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 
 ## Claude Code Plugin
 
+### 1.38.3 — 2026-11-23
+- The marketplace owner's email is the GitHub noreply address.
+- A repository test requires every skill's `license` to match
+  `pyproject.toml` and `plugin.json` and to be the last frontmatter key.
+
 ### 1.38.2 — 2026-11-21
 - Every skill declares its licence in its frontmatter
   (`license: PolyForm-Noncommercial-1.0.0`), matching `LICENSE` and the

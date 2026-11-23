@@ -185,6 +185,37 @@ class TestSkills(unittest.TestCase):
                 f"{d.name}: description is {len(desc)} chars (limit 1024)",
             )
 
+    def test_every_skill_declares_the_repository_licence(self):
+        """Each SKILL.md names the licence the repository ships under.
+
+        A skill copied out of the plugin travels without LICENSE or the
+        manifests, so its frontmatter is the only place it carries its terms.
+        The value must match pyproject.toml and plugin.json, and the key is the
+        last one in the frontmatter, where a new skill's author will see it.
+        """
+        match = re.search(
+            r'^license\s*=\s*"([^"]+)"',
+            (REPO / "pyproject.toml").read_text(encoding="utf-8"),
+            re.MULTILINE,
+        )
+        if match is None:
+            self.fail("pyproject.toml declares no license")
+        expected = match.group(1)
+        manifest = json.loads(
+            (REPO / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest.get("license"), expected,
+                         "plugin.json and pyproject.toml disagree on the licence")
+        for d in skill_dirs():
+            fields, _ = parse_frontmatter(d / "SKILL.md")
+            self.assertEqual(fields.get("license"), expected,
+                             f"{d.name}/SKILL.md: license must be {expected}")
+            text = (d / "SKILL.md").read_text(encoding="utf-8")
+            block = text[3:text.index("\n---", 3)]
+            keys = [line.split(":", 1)[0] for line in block.splitlines()
+                    if line and not line[0].isspace() and ":" in line]
+            self.assertEqual(keys[-1], "license",
+                             f"{d.name}/SKILL.md: license is not the last frontmatter key")
+
     def test_skills_readme_lists_every_skill(self):
         """The catalog in skills/README.md had no enforcement and drifted.
 
