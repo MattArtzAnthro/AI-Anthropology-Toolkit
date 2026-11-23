@@ -13,6 +13,7 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from ai_anthro_toolkit.crosslens import codebook_checksum
 from ai_anthro_toolkit.jobs import JobStore
@@ -21,6 +22,12 @@ from ai_anthro_toolkit.mcp import server
 VECTORS = Path(__file__).resolve().parents[2] / "formal" / "vectors.json"
 CODEBOOKS = {1: [{"code_label": "trust", "definition": "Relying on others."}],
              2: [{"code_label": "risk", "definition": "Exposure to harm."}]}
+def _files(job):
+    """The job's files and their contents: a refusal must leave them as they were."""
+    folder = Path(server._jobs.root) / job
+    return {f.name: f.read_bytes() for f in folder.iterdir() if f.name != ".lock"}
+
+
 LABEL = json.dumps([{"label": "trust", "definition": "d", "extraction_type": "emergent"}])
 
 
@@ -40,16 +47,16 @@ def _submit_case(case, kind):
             [{"label": "TRUST", "definition": "d", "frequency": len(done)}]))
     server._jobs.update(job, status="complete" if case["complete"] else "in_progress")
     response = LABEL if kind == "codebook" else "trust"
+    before = _files(job)
     try:
         server.submit_batch(job, [{"id": str(x), "response": response} for x in case["submit"]])
     except ValueError:
-        return {"refused": True}
+        return {"refused": True} if _files(job) == before else {"refused": True, "wrote": True}
     got = {"refused": False,
            "done": sorted(json.loads(server._jobs.load_artifact(job, "done_ids.json") or "[]")),
            "complete": server._jobs.read(job)["status"] == "complete"}
     if kind == "codebook":
-        entries = json.loads(server._jobs.load_artifact(job, "entries.json") or "[]")
-        got["counted"] = sum(e["frequency"] for e in entries)
+        got["counted"] = sum(e["frequency"] for e in server._codebook_entries(job))
     return got
 
 
@@ -71,10 +78,11 @@ def _ratify_case(case):
     if case["held"] is not None:
         server._jobs.save_artifact(job, "ratification.json", json.dumps(
             {"checksum": codebook_checksum(CODEBOOKS[case["held"]]), "codes": 1}))
+    before = _files(job)
     try:
         out = server.ratify_codebook(codebook_job_id=job)
     except ValueError:
-        return {"refused": True}
+        return {"refused": True} if _files(job) == before else {"refused": True, "wrote": True}
     return {"refused": False, "checksum": out["checksum"]}
 
 
@@ -146,6 +154,27 @@ class TestFormalConformance(unittest.TestCase):
         planted_ratify["refused"], planted_ratify["held_after"] = False, 1
         self.assertEqual(len(mismatches([planted_submit], [])), 2)  # coding and codebook
         self.assertEqual(len(mismatches([], [planted_ratify])), 1)
+
+    def test_packet_ids_match_the_model(self):
+        # Packets.lean packet_ids_distinct, packet_ids_keep_distinct_ids
+        cases = json.loads(VECTORS.read_text(encoding="utf-8"))["packets"]
+        self.assertGreater(len(cases), 10)
+        self.assertTrue(any(len(set(c["chunk_ids"])) < len(c["chunk_ids"]) for c in cases))
+        for case in cases:
+            chunks = [{"chunk_id": i, "text": "t"} for i in case["chunk_ids"]]
+            self.assertEqual(server._packet_ids(chunks), case["packets"], case)
+
+    def test_a_refusal_that_writes_is_caught(self):
+        submit, ratify = load_vectors()
+        refused = [c for c in submit if c["refused"]][:5]
+        real = server._submit_held
+
+        def writes_then_refuses(job_id, results):
+            server._jobs.update(job_id, status="complete")
+            return real(job_id, results)
+
+        with mock.patch.object(server, "_submit_held", writes_then_refuses):
+            self.assertTrue(mismatches(refused, []))
 
 
 if __name__ == "__main__":

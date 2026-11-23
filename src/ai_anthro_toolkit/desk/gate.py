@@ -173,9 +173,15 @@ def _commit(store: JobStore, desk_id: str, plan: _Plan, digest: str, pending: An
         store.save_artifact(desk_id, "finishing.json", json.dumps({"digest": digest, "ratification_id": rid}))
     if plan.mint is not None:
         held = {"checksum": plan.outcome["checksum"], "codes": len(plan.mint), "note": "", **plan.held}
-        store.save_artifact(rid, "result.json", json.dumps(plan.mint))
-        store.save_artifact(rid, "ratification.json", json.dumps(held))
-        store.complete(rid)
+        with store.locked(rid):
+            # Sent again after an interruption: the ratification was already usable, and a
+            # rulings desk built on it since then stays on its list.
+            earlier = _json(store, rid, "ratification.json")
+            if earlier and earlier.get("desks"):
+                held["desks"] = earlier["desks"]
+            store.save_artifact(rid, "result.json", json.dumps(plan.mint))
+            store.save_artifact(rid, "ratification.json", json.dumps(held))
+            store.complete(rid)
     if plan.resolved is not None:
         store.save_artifact(desk_id, "result.json", json.dumps(plan.resolved))
     plan.entries[-1]["detail"]["ratification_id"] = rid

@@ -184,7 +184,9 @@ theorem new_counts_resend_once :
 theorem old_takes_after_complete :
     (oldSubmit (oldSubmit job3 [0, 1, 2]) [1]).counted = [0, 1, 2, 1] := by decide
 
-/-- Two chunks sharing an id: every packet answered, yet the count never reaches the queue. -/
+/-- Two chunks sharing an id (as `chunk_transcript` gives two interviews): every packet
+answered, yet the count never reaches the queue. New jobs no longer issue such a queue
+(`Packets.packet_ids_distinct`); one already in the store now completes. -/
 theorem old_duplicate_ids_never_complete :
     (oldSubmit ⟨[3, 3], true, [], [], false⟩ [3]).complete = false := by decide
 

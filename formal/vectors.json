@@ -512,4 +512,24 @@
 {"kind": "ratification", "status": "failed", "result": 1, "held": null, "refused": true},
 {"kind": "ratification", "status": "failed", "result": 1, "held": 1, "refused": true},
 {"kind": "ratification", "status": "failed", "result": 1, "held": 2, "refused": true}
+], "packets": [
+{"chunk_ids": [], "packets": []},
+{"chunk_ids": [1], "packets": ["1"]},
+{"chunk_ids": [1, 1], "packets": ["0:1", "1:1"]},
+{"chunk_ids": [1, 1, 1], "packets": ["0:1", "1:1", "2:1"]},
+{"chunk_ids": [1, 1, 2], "packets": ["0:1", "1:1", "2:2"]},
+{"chunk_ids": [1, 1, 3], "packets": ["0:1", "1:1", "2:3"]},
+{"chunk_ids": [1, 2], "packets": ["1", "2"]},
+{"chunk_ids": [1, 2, 1], "packets": ["0:1", "1:2", "2:1"]},
+{"chunk_ids": [1, 2, 2], "packets": ["0:1", "1:2", "2:2"]},
+{"chunk_ids": [1, 2, 3], "packets": ["1", "2", "3"]},
+{"chunk_ids": [2], "packets": ["2"]},
+{"chunk_ids": [2, 1], "packets": ["2", "1"]},
+{"chunk_ids": [2, 1, 1], "packets": ["0:2", "1:1", "2:1"]},
+{"chunk_ids": [2, 1, 2], "packets": ["0:2", "1:1", "2:2"]},
+{"chunk_ids": [2, 1, 3], "packets": ["2", "1", "3"]},
+{"chunk_ids": [2, 2], "packets": ["0:2", "1:2"]},
+{"chunk_ids": [2, 2, 1], "packets": ["0:2", "1:2", "2:1"]},
+{"chunk_ids": [2, 2, 2], "packets": ["0:2", "1:2", "2:2"]},
+{"chunk_ids": [2, 2, 3], "packets": ["0:2", "1:2", "2:3"]}
 ]}

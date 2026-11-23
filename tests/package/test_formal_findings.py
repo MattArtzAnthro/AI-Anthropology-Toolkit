@@ -93,8 +93,7 @@ class TestSubmitBatch(StoreBase):
         server.submit_batch(job, [{"id": first, "response": _code("trust")}])
         out = server.submit_batch(job, [{"id": first, "response": _code("trust")}])
         self.assertEqual(out["already_submitted"], [first])
-        entries = json.loads(server._jobs.load_artifact(job, "entries.json"))
-        self.assertEqual([(e["label"], e["frequency"]) for e in entries], [("TRUST", 1)])
+        self.assertEqual([(e["label"], e["frequency"]) for e in server._codebook_entries(job)], [("TRUST", 1)])
 
     def test_a_complete_job_takes_no_more_batches(self):
         # old_takes_after_complete / new_complete_is_final
@@ -106,16 +105,42 @@ class TestSubmitBatch(StoreBase):
             server.submit_batch(job, [{"id": packets[0]["id"], "response": _code("risk")}])
         self.assertEqual(server._jobs.load_artifact(job, "result.json"), before)
 
-    def test_chunks_sharing_an_id_are_refused_at_the_start(self):
-        # old_duplicate_ids_never_complete: such a job could never finish
+    def test_interviews_chunked_separately_are_coded_chunk_by_chunk(self):
+        # old_duplicate_ids_never_complete: chunk_transcript numbers each transcript's chunks
+        # from 1, so two interviews share chunk IDs. Each chunk now gets a packet of its own.
         rid = server.ratify_codebook(codebook=CODEBOOK)["ratification_id"]
-        chunks = [{"chunk_id": "c0", "text": "a"}, {"chunk_id": "c0", "text": "b"}]
-        with self.assertRaisesRegex(ValueError, "c0"):
-            server.start_coding_job(chunks, ratification_id=rid, llm_mode="delegated")
-        # an index used as an ID clashes with a chunk_id too
-        with self.assertRaisesRegex(ValueError, "1"):
-            server.start_coding_job([{"chunk_id": "1", "text": "a"}, {"text": "b"}],
-                                    ratification_id=rid, llm_mode="delegated")
+        chunks = [{"chunk_id": n, "text": f"{who} {n}", "source_file": who}
+                  for who in ("ana.txt", "ben.txt") for n in (1, 2)]
+        job = server.start_coding_job(chunks, ratification_id=rid, llm_mode="delegated")["job_id"]
+        packets = server.get_next_batch(job, 10)["packets"]
+        self.assertEqual(len({p["id"] for p in packets}), 4)
+        answers = ["trust", "risk", "NO_CODES", "trust, risk"]
+        server.submit_batch(job, [{"id": p["id"], "response": a} for p, a in zip(packets, answers)])
+        result = server.get_job_result(job)
+        self.assertTrue(result["ready"])
+        self.assertEqual([(r["source_file"], r["chunk_id"], r["Deductive_Codes"]) for r in result["records"]],
+                         [("ana.txt", 1, "trust"), ("ana.txt", 2, "risk"), ("ben.txt", 1, ""),
+                          ("ben.txt", 2, "trust, risk")])
+        with mock.patch.dict(os.environ, {"AAT_MODE": "api"}), \
+                mock.patch.object(server, "_run_api_job", lambda job_id, worker: None):
+            self.assertEqual(server.start_coding_job(chunks, ratification_id=rid)["mode"], "api")
+
+    def test_a_batch_resent_after_a_failed_refinement_is_counted_once(self):
+        # tla: Count no-ledger CountedOnce FAIL, current PASS. Refinement can fail (an
+        # embedding model that cannot be downloaded raises OSError) after the merge is kept.
+        job = self.codebook_job()
+        packets = server.get_next_batch(job, 10)["packets"]
+        batch = [{"id": p["id"], "response": _code("trust")} for p in packets]
+        real = server._codebook.refine_codebook
+        with mock.patch.object(server._codebook, "refine_codebook", side_effect=OSError("offline")):
+            for _ in range(2):
+                with self.assertRaises(OSError):
+                    server.submit_batch(job, batch)
+        with mock.patch.object(server._codebook, "refine_codebook", real):
+            out = server.submit_batch(job, batch)
+        self.assertEqual(out["remaining"], 0)
+        self.assertEqual(server.get_job_status(job)["status"], "complete")
+        self.assertEqual([(e["label"], e["frequency"]) for e in server._codebook_entries(job)], [("TRUST", 2)])
 
     def test_two_batches_at_once_keep_every_code(self):
         # tla: Submit unlocked DoneHasCodes FAIL, current PASS. Slow the store's writes so the
@@ -200,6 +225,50 @@ class TestDeskLists(StoreBase):
                 t.join()
         held = json.loads(server._jobs.load_artifact(rid, "ratification.json"))
         self.assertEqual(sorted(held["desks"]), sorted(built))
+
+
+class TestDeskResend(StoreBase):
+    def test_resending_an_interrupted_finish_keeps_desks_built_on_its_ratification(self):
+        # tla: DeskList resend-rewrites DesksKept FAIL, current PASS
+        from ai_anthro_toolkit.desk import gate
+        built = server._build_desk("codebook", "t", "", desk_helpers.load("codebook"),
+                                   desk_helpers.load("cases"), None, None, True).structured_content
+        desk_id = built["desk_id"]
+        desk = server._jobs.read(desk_id)["payload"]
+        doc = {"schema": "aat/desk-decisions@1", "desk_id": desk_id, "card_checksum": desk["card_checksum"],
+               "exclusive": False, "decisions": {c["card_id"]: {"action": "adopt"} for c in desk["cards"]}}
+        with mock.patch.object(gate.record, "append", side_effect=OSError("disk full")):
+            with self.assertRaises(OSError):
+                server.record_desk_decisions(desk_id, doc, "chat")
+        rid = json.loads(server._jobs.load_artifact(desk_id, "finishing.json") or "{}")["ratification_id"]
+        codes = [r["code_label"] for r in json.loads(server._jobs.load_artifact(rid, "result.json") or "[]")]
+        passes = []
+        for answer in (codes[0], "NO_CODES"):
+            coding = server.start_coding_job(CHUNKS[:2], ratification_id=rid, llm_mode="delegated")["job_id"]
+            server.submit_batch(coding, [{"id": c["chunk_id"], "response": answer} for c in CHUNKS[:2]])
+            passes.append(coding)
+        rulings = server._build_desk("rulings", "", "", None, None, passes, None, True).structured_content["desk_id"]
+        self.assertEqual(server.record_desk_decisions(desk_id, doc, "chat")["ratification_id"], rid)
+        held = json.loads(server._jobs.load_artifact(rid, "ratification.json") or "{}")
+        self.assertEqual(held["desks"], [rulings])
+
+
+class TestJobLock(StoreBase):
+    def test_one_folder_reached_by_two_spellings_is_one_lock(self):
+        # On a case-insensitive disk two roots can name one folder; nesting their locks in one
+        # thread must not wait on itself.
+        job = self.coding_job()
+        other = JobStore(self._tmp.upper() if Path(self._tmp.upper()).exists() else self._tmp + "/.")
+        finished = threading.Event()
+
+        def nested():
+            with server._jobs.locked(job), other.locked(job):
+                finished.set()
+
+        worker = threading.Thread(target=nested, daemon=True)
+        worker.start()
+        worker.join(5)
+        self.assertTrue(finished.is_set(), "the second spelling of the folder waited on the first")
 
 
 def _finish_in_another_process(root, desk_id, doc, answers, both_decided):

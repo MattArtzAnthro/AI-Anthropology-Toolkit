@@ -9,10 +9,12 @@ or two server processes, work on one job or desk at once.
 | Model | Code | What it proves or checks |
 |---|---|---|
 | `AatModel/Submit.lean` | `server.submit_batch`, `server._submit_held` | A job reported complete has an answer for every packet it issued; only issued packets are recorded; no codebook packet is counted twice; a complete job and an api-mode job take no batches |
+| `AatModel/Packets.lean` | `server._packet_ids`, `start_coding_job` | Every chunk gets a packet and no two packets share an ID, even when chunks of several interviews share chunk IDs; IDs that are already different are kept |
 | `AatModel/Ratify.lean` | `server.ratify_codebook`, `server.start_coding_job` | Only a finished codebook job is ratified by its ID; a ratification holds the checksum of the result it names; once a `ratification_id` holds a checksum it holds it for ever |
 | `tla/Submit.tla` | `submit_batch` under `JobStore.locked` | Two batches at once on one job: every packet recorded as answered keeps its codes |
 | `tla/Desk.tla` | `desk.gate.apply` under `JobStore.locked` | Two callers finishing one desk, in one process or two, with crashes and retries: the decision record names the ratification the desk finished as, and every caller is told that one |
-| `tla/DeskList.tla` | `build_ratification_desk`, `ratify_codebook` | Rulings desks built at once on one ratification all stay on its list of desks |
+| `tla/Count.tla` | the codebook branch of `submit_batch` (`ledger.json`) | A batch that fails after its codes were merged (refinement raises, the process dies) and is sent again is counted once |
+| `tla/DeskList.tla` | `build_ratification_desk`, `ratify_codebook`, `desk.gate._commit` | Rulings desks built at once on one ratification, while it is ratified again or an interrupted desk finish that minted it is sent again, all stay on its list of desks |
 
 Each Lean file keeps the rule as it was before the fix beside the rule as fixed. For every hole a
 theorem shows the old rule let it through and another shows the fixed rule stops it. Each TLA+
@@ -34,10 +36,12 @@ the scripts delete it.
 
 ## How the code is held to the models
 
-`lake exe vectors` prints `vectors.json`, the fixed rules' verdict on every small case (512).
+`lake exe vectors` prints `vectors.json`, the fixed rules' verdict on every small case (512
+submit and ratify cases, and the packet IDs for 19 lists of chunk IDs).
 `tests/package/test_formal_conformance.py` runs the real `submit_batch` (on a coding job and a
-codebook job) and `ratify_codebook` on each case and requires the same verdict. It fails on an
-empty file and carries a planted fault. `lean.sh` fails when the committed `vectors.json` differs
+codebook job), `ratify_codebook` and `_packet_ids` on each case and requires the same verdict;
+a refused case must also leave every file of the job as it was. It fails on an empty file and
+carries two planted faults: a flipped verdict and a refusal that writes. `lean.sh` fails when the committed `vectors.json` differs
 from what the model prints. `tests/package/test_formal_findings.py` holds one test per defect the
 models found, each naming its theorem or TLC row.
 
@@ -52,8 +56,21 @@ models describe; a push that changes one of those files runs the provers.
 |---|---|
 | `Submit current NeverBothEnd`, `Desk current NeverFinished`, `DeskList current NeverBuilt` | Probes: the states are reachable |
 | `Submit unlocked *`, `DeskList unlocked DesksKept` | The rule before `JobStore.locked`: a parallel call loses the other's write |
+| `DeskList resend-rewrites DesksKept` | The rule before: a desk finish sent again wrote its plan's empty list of desks |
+| `Count no-ledger CountedOnce` | The rule before `ledger.json`: the packets merged were read from `done_ids.json`, written last, so each resend after a failure merged again |
 | `Desk two-processes *`, `Desk two-same-digest` | The rule before: `_desk_lock` held within one process only |
 | `Desk current NoOrphan` | Limit: a crash between minting a ratification and writing `finishing.json` leaves a ratification job nothing names. It holds no ratification record, so coding refuses it |
+
+## Known limits
+
+- `flock` waits without a timeout: a call holding a codebook job's lock through a slow
+  refinement (an embedding model being downloaded) holds back every `submit_batch` on that job.
+- `flock` on a network file system (SMB, NFS) may not exclude other hosts; the job store is
+  assumed to be on a local disk.
+- `analyze_network` reads a network's `graph.json`, lays it out and writes it back without the
+  lock; two calls at once keep the later layout. Not modeled.
+- Each Lean model takes one call as one step. Failures part-way through a call are covered by
+  the TLA+ models (`Count.tla`, `Desk.tla`), not by the proofs.
 
 ## What is taken as given
 

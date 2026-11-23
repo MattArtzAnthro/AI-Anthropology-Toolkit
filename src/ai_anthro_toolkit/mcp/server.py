@@ -649,6 +649,32 @@ def get_artifact_checks(
 
 # --------------------------------------------------------------- jobs
 
+def _packet_ids(chunks: list[dict]) -> list[str]:
+    """One packet ID per chunk, all different. A chunk's ID is its chunk_id, or its position
+    when it has none. chunk_transcript numbers each transcript's chunks from 1, so chunks of
+    several interviews share IDs; then every ID carries its chunk's position as well."""
+    ids = [str(c.get("chunk_id", i)) for i, c in enumerate(chunks)]
+    if len(set(ids)) == len(ids):
+        return ids
+    return [f"{i}:{pid}" for i, pid in enumerate(ids)]
+
+
+def _codebook_ledger(job_id: str, done_ids: set[str]) -> tuple[list[dict], set[str]]:
+    """A delegated codebook job's merged codes and the packets merged into them, kept in one
+    file (ledger.json) and so written in one step: a batch whose refinement then fails, and
+    is sent again, is not merged twice. A job from before the ledger has merged exactly its
+    done_ids."""
+    ledger = _load_records(job_id, "ledger.json")
+    if ledger is not None:
+        return ledger["entries"], set(ledger["counted"])
+    return _load_records(job_id, "entries.json") or [], set(done_ids)
+
+
+def _codebook_entries(job_id: str) -> list[dict]:
+    """The codes a delegated codebook job has merged so far."""
+    return _codebook_ledger(job_id, set(_load_records(job_id, "done_ids.json") or []))[0]
+
+
 def _queue_packets(job_id: str, packets: list[dict]) -> None:
     _jobs.save_artifact(job_id, "queue.json", json.dumps(packets))
     _jobs.update(job_id, total=len(packets))
@@ -847,11 +873,6 @@ def start_coding_job(chunks: list[dict],
             "ratification_id. Do not code with content nobody approved.")
     if mode == "delegated" and approach == "hybrid":
         approach = "deductive"  # inductive discovery requires api mode for now
-    ids = [str(c.get("chunk_id", i)) for i, c in enumerate(chunks)]
-    repeated = sorted({pid for pid in ids if ids.count(pid) > 1})
-    if repeated:
-        raise ValueError(f"More than one chunk has the ID {', '.join(repeated)} (a chunk with no "
-                         "chunk_id takes its position as its ID). Give each chunk its own chunk_id.")
     records = list(codebook)
     valid_codes = list(_coding.normalize_codebook(codebook).keys())
     lens_context = _coding.build_lens_context(lens_key, research_context)
@@ -880,11 +901,11 @@ def start_coding_job(chunks: list[dict],
                 "next": "poll get_job_status, then get_job_result"}
 
     packets = [{
-        "id": str(c.get("chunk_id", i)),
+        "id": pid,
         "purpose": "code_chunk",
         "prompt": _coding.render_coding_prompt(c.get("text", ""), records,
                                                lens_context),
-    } for i, c in enumerate(chunks)]
+    } for pid, c in zip(_packet_ids(chunks), chunks)]
     _queue_packets(job_id, packets)
     return {"job_id": job_id, "mode": "delegated", "packets": len(packets),
             "next": "loop get_next_batch -> submit_batch, then get_job_result"}
@@ -966,9 +987,11 @@ def _submit_held(job_id: str, results: list[dict]) -> dict:
                 rejected.append({"id": pid, "invalid_codes": dropped})
         _jobs.save_artifact(job_id, "partial.json", json.dumps(list(coded.values())))
         chunks = _load_records(job_id, "chunks.json") or []
+        # The packet issued for each chunk, by position (jobs from before _packet_ids
+        # issued the chunk_id even when it repeated).
+        pids = [p["id"] for p in queue] if len(queue) == len(chunks) else _packet_ids(chunks)
         out = []
-        for i, c in enumerate(chunks):
-            pid = str(c.get("chunk_id", i))
+        for pid, c in zip(pids, chunks):
             entry = dict(c)
             codes = coded.get(pid, {}).get("codes", [])
             entry["Deductive_Codes"] = ", ".join(codes)
@@ -980,13 +1003,15 @@ def _submit_held(job_id: str, results: list[dict]) -> dict:
         _save_provenance(job_id, _checks.CLASS_CODED, valid,
                          state["payload"].get("ratification_id", ""))
     elif kind == "codebook":
-        merged = {e["label"]: CodeEntry(**e) for e in
-                  (_load_records(job_id, "entries.json") or [])}
+        kept, counted = _codebook_ledger(job_id, done_ids)
+        merged = {e["label"]: CodeEntry(**e) for e in kept}
         for item in results:
             pid = str(item.get("id"))
-            if pid in done_ids:  # sent again: its codes are already counted
+            done_ids.add(pid)
+            if pid in counted:  # sent again: its codes are already counted
                 already.append(pid)
                 continue
+            counted.add(pid)
             doc_name = pid.split("::")[0]
             parsed = _codebook.parse_json_response(str(item.get("response", "")))
             for code in parsed:
@@ -1006,8 +1031,11 @@ def _submit_held(job_id: str, results: list[dict]) -> dict:
                 merged[label] = code_entry
             done_ids.add(pid)
             accepted.append({"id": pid, "codes_parsed": len(parsed)})
-        _jobs.save_artifact(job_id, "entries.json", json.dumps(
-            [e.to_dict() for e in merged.values()]))
+        entries = [e.to_dict() for e in merged.values()]
+        # One write keeps the merge and the packets merged into it together; entries.json is
+        # the copy the checks CLI reads.
+        _jobs.save_artifact(job_id, "ledger.json", json.dumps({"counted": sorted(counted), "entries": entries}))
+        _jobs.save_artifact(job_id, "entries.json", json.dumps(entries))
         if issued <= done_ids:
             lens_key = state["payload"]["lens_key"]
             # Deterministic refinement only (llm=None): the delegated model

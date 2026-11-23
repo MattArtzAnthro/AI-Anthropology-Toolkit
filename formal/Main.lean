@@ -49,9 +49,29 @@ def ratifyCases : List String := Id.run do
           out := out ++ [s!"\{\"kind\": \"{kindName k}\", \"status\": \"{statusName st}\", \"result\": {optNat r}, \"held\": {optNat h}, {v}}"]
   return out
 
+def idLists : List (List Nat) := Id.run do
+  let mut out := [[]]
+  for a in [1, 2] do
+    out := out ++ [[a]]
+    for b in [1, 2] do
+      out := out ++ [[a, b]]
+      for c in [1, 2, 3] do
+        out := out ++ [[a, b, c]]
+  return out
+
+def pidName : Packets.PacketId → String
+  | .plain i => s!"\"{i}\""
+  | .placed p i => s!"\"{p}:{i}\""
+
+def packetCases : List String :=
+  idLists.map fun ids =>
+    s!"\{\"chunk_ids\": {jsonList ids}, \"packets\": [{", ".intercalate ((Packets.packetIds ids).map pidName)}]}"
+
 def main : IO Unit := do
   IO.println "{\"submit\": ["
   IO.println (",\n".intercalate submitCases)
   IO.println "], \"ratify\": ["
   IO.println (",\n".intercalate ratifyCases)
+  IO.println "], \"packets\": ["
+  IO.println (",\n".intercalate packetCases)
   IO.println "]}"

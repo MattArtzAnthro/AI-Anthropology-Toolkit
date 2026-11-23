@@ -25,3 +25,8 @@ import AatModel
 #print axioms AatModel.Ratify.old_ratification_drifts
 #print axioms AatModel.Ratify.new_refuses_drift
 #print axioms AatModel.Ratify.new_refuses_rebinding
+#print axioms AatModel.Packets.packet_ids_one_per_chunk
+#print axioms AatModel.Packets.placed_nodup
+#print axioms AatModel.Packets.packet_ids_distinct
+#print axioms AatModel.Packets.packet_ids_keep_distinct_ids
+#print axioms AatModel.Packets.old_ids_collide

@@ -93,7 +93,11 @@ class JobStore:
         Re-entrant within a thread. Refuses an ID the store did not issue.
         """
         d = self._dir(job_id)
-        key = str(d.resolve())
+        # The folder itself, not its spelling: on a case-insensitive disk, or through a
+        # symlink, two roots can name one folder, and a thread nesting both must not wait on
+        # its own file lock.
+        st = d.stat()
+        key = f"{st.st_dev}:{st.st_ino}"
         with _guard:
             lock = _locks.setdefault(key, threading.RLock())
         with lock:

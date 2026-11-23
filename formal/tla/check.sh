@@ -61,11 +61,20 @@ dk two-processes    FALSE  FALSE  0       ToldWhatHolds        FAIL  # old: a ca
 dk two-same-digest  FALSE  TRUE   0       RecordNamesFinished  FAIL  # old: even the same decisions mint two ratifications
 
 # ---- DeskList: rulings desks built on one ratification, and re-ratifying it
-dl() { run DeskList "$1" "Locked = $2" "$3" "$4"; }
-#  name      locked property   expect
-dl current   TRUE   DesksKept  PASS
-dl current   TRUE   NeverBuilt FAIL  # probe: desks are built
-dl unlocked  FALSE  DesksKept  FAIL  # a desk dropped from the ratification's list, and its rulings from the record
+dl() { run DeskList "$1" "Locked = $2 ResendKeeps = $3" "$4" "$5"; }
+#  name               locked keeps  property    expect
+dl current            TRUE   TRUE   DesksKept   PASS
+dl current            TRUE   TRUE   NeverBuilt  FAIL  # probe: desks are built
+dl unlocked           FALSE  TRUE   DesksKept   FAIL  # a desk dropped from the ratification's list, and its rulings from the record
+dl resend-rewrites    TRUE   FALSE  DesksKept   FAIL  # an interrupted desk finish sent again emptied the list
+
+# ---- Count: a codebook batch sent again after it failed past the merge
+ct() { run Count "$1" "Ledger = $2 MaxFailures = $3" "$4" "$5"; }
+#  name       ledger failures property     expect
+ct current    TRUE   3        CountedOnce  PASS
+ct current    TRUE   3        NeverDone    FAIL  # probe: the job finishes after failures
+ct no-ledger  FALSE  3        CountedOnce  FAIL  # merged again on each resend: a code's frequency climbs
+ct no-ledger  FALSE  0        CountedOnce  PASS  # without a failure the old order counts once
 
 if [[ $bad -ne 0 ]]; then echo "tla: FAILED: a row differs from its expected result" >&2; exit 1; fi
 echo "tla: ok"
