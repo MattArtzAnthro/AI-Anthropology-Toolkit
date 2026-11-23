@@ -59,6 +59,38 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
+### Unreleased
+- **Formal models of the job store** (`formal/`): Lean 4 proofs of what
+  `submit_batch` accepts and when a job is complete, and of what
+  `ratify_codebook` ratifies; TLA+ models of parallel batches, of finishing a
+  desk from two callers with crashes, and of desks built at once on one
+  ratification. `tests/package/test_formal_conformance.py` holds the server to
+  the proved rules on 512 cases, and the gate fails when a model changed since
+  the provers last passed (`formal/stamp.py --check`).
+- `submit_batch` refuses, writing nothing, a batch naming a packet the job
+  did not issue. Before, such IDs counted toward completion: a job could
+  report complete, and its result be served, with chunks never coded.
+- `submit_batch` refuses a job that is already complete and an api-mode job.
+  Before, a late batch rewrote a finished codebook, and a batch sent to an
+  api job marked it complete while its worker still ran.
+- A codebook packet sent again is listed under `already_submitted` and not
+  counted twice, so a retry no longer lifts a code over `min_frequency`.
+- `start_coding_job` refuses chunks that share an ID; such a job could never
+  complete.
+- Parallel `submit_batch` calls on one job no longer lose each other's
+  packets: a chunk could be recorded as answered with its codes gone and be
+  reported as `No_Codes`. Every read-change-write on a job now holds the job's
+  lock (`JobStore.locked`, a thread lock plus `flock`, so it also holds across
+  server processes sharing the job store).
+- `ratify_codebook` ratifies only a finished codebook job, and refuses to
+  ratify one again as a different codebook: a `ratification_id` names one
+  codebook, so coding jobs and rulings desks bound to it cannot drift.
+- Rulings desks built at the same time on one ratification all stay on its
+  list of desks, and their rulings in the decision record.
+- Two server processes cannot both finish one desk. Before, both callers were
+  told the desk was ratified, as different ratifications, and the decision
+  record could name the one the desk did not hold.
+
 ### 3.11.1 — 2026-11-16
 - The ratification desk's view reports its height to the host
   (`ui/notifications/size-changed`), so Claude Desktop and other MCP Apps

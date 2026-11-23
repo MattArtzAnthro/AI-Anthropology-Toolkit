@@ -12,7 +12,7 @@ cd "$(git rev-parse --show-toplevel)"
 
 # Fewer tests than this means discovery broke or tests were deleted. Raise it
 # when the suite grows; lowering it is a decision to explain in the commit.
-MIN_TESTS=1259
+MIN_TESTS=1276
 
 PY=.venv/bin/python
 if [ ! -x "$PY" ]; then
@@ -38,6 +38,9 @@ export AAT_SKIP_LIVE_SCRAPERS=1 PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1
 "$PY" -m ruff check .
 "$PY" -m mypy
 "$PY" -m bandit -q -c pyproject.toml -r src
+# The formal models (formal/) were proved exactly as they are now: a changed model, script or
+# vectors.json fails here until formal/check.sh has passed on it and rewritten the stamp.
+"$PY" formal/stamp.py --check
 
 LOG="$COV_DIR/unittest.log"
 if ! "$PY" -m unittest discover -s tests -t . >"$LOG" 2>&1; then

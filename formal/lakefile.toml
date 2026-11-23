@@ -1,0 +1,10 @@
+name = "aatmodel"
+version = "0.1.0"
+defaultTargets = ["AatModel"]
+
+[[lean_lib]]
+name = "AatModel"
+
+[[lean_exe]]
+name = "vectors"
+root = "Main"

@@ -1,0 +1,27 @@
+import AatModel
+#print axioms AatModel.Submit.mem_addAll
+#print axioms AatModel.Submit.addAll_eq
+#print axioms AatModel.Submit.nodup_addAll
+#print axioms AatModel.Submit.new_complete_is_honest
+#print axioms AatModel.Submit.new_only_issued
+#print axioms AatModel.Submit.new_counts_once
+#print axioms AatModel.Submit.new_complete_is_final
+#print axioms AatModel.Submit.new_refuses_api_jobs
+#print axioms AatModel.Submit.old_completes_with_unanswered
+#print axioms AatModel.Submit.new_refuses_unissued
+#print axioms AatModel.Submit.old_completes_api_job
+#print axioms AatModel.Submit.old_counts_twice
+#print axioms AatModel.Submit.new_counts_resend_once
+#print axioms AatModel.Submit.old_takes_after_complete
+#print axioms AatModel.Submit.old_duplicate_ids_never_complete
+#print axioms AatModel.Submit.new_duplicate_ids_complete
+#print axioms AatModel.Ratify.new_ratifies_only_finished_codebooks
+#print axioms AatModel.Ratify.bound_initially
+#print axioms AatModel.Ratify.new_step_keeps_bound
+#print axioms AatModel.Ratify.new_held_never_changes
+#print axioms AatModel.Ratify.bound_start_ok
+#print axioms AatModel.Ratify.old_ratifies_coding_job
+#print axioms AatModel.Ratify.new_refuses_coding_job
+#print axioms AatModel.Ratify.old_ratification_drifts
+#print axioms AatModel.Ratify.new_refuses_drift
+#print axioms AatModel.Ratify.new_refuses_rebinding

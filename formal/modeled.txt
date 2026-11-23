@@ -1,0 +1,5 @@
+# Code files the models describe. A push that changes one runs formal/check.sh.
+src/ai_anthro_toolkit/mcp/server.py
+src/ai_anthro_toolkit/jobs.py
+src/ai_anthro_toolkit/desk/gate.py
+src/ai_anthro_toolkit/desk/record.py

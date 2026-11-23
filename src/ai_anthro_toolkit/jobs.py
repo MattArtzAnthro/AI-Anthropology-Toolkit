@@ -10,9 +10,17 @@ import json
 import os
 import re
 import tempfile
+import threading
 import time
 import uuid
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
+
+try:
+    import fcntl
+except ImportError:  # Windows: the lock then holds within one process only
+    fcntl = None  # type: ignore[assignment]
 
 DEFAULT_ROOT = Path.home() / ".ai-anthro-toolkit" / "jobs"
 
@@ -22,6 +30,13 @@ _JOB_ID = re.compile(r"[a-z][a-z_]*-[0-9a-f]{8}")
 _ID_HELP = ("Job IDs look like coding-1a2b3c4d and come back from "
             "start_codebook_job, start_coding_job, or ratify_codebook; pass "
             "the one those returned.")
+
+
+# One re-entrant lock per job folder, shared by every JobStore in the process, and a count of
+# how deeply the thread holding it has entered, so the file lock is taken once.
+_guard = threading.Lock()
+_locks: dict[str, threading.RLock] = {}
+_depth = threading.local()
 
 
 class UnknownJobError(ValueError):
@@ -67,6 +82,34 @@ class JobStore:
                 f"No job {job_id!r} in this server's job store "
                 f"({self.root}). {_ID_HELP}")
         return d
+
+    @contextmanager
+    def locked(self, job_id: str) -> Iterator[None]:
+        """Hold the job for one read-change-write, against other threads and other server
+        processes that share this job store.
+
+        mcp 2.x runs each sync tool in a worker thread, so two calls on one job can
+        interleave their reads and writes, and a second host's server can share the store.
+        Re-entrant within a thread. Refuses an ID the store did not issue.
+        """
+        d = self._dir(job_id)
+        key = str(d.resolve())
+        with _guard:
+            lock = _locks.setdefault(key, threading.RLock())
+        with lock:
+            held: dict[str, int] = _depth.__dict__.setdefault("held", {})
+            held[key] = held.get(key, 0) + 1
+            fh = None
+            try:
+                if held[key] == 1 and fcntl is not None:
+                    fh = open(d / ".lock", "a", encoding="utf-8")  # noqa: SIM115
+                    fcntl.flock(fh, fcntl.LOCK_EX)
+                yield
+            finally:
+                held[key] -= 1
+                if fh is not None:
+                    fcntl.flock(fh, fcntl.LOCK_UN)
+                    fh.close()
 
     def create(self, kind: str, payload: dict) -> str:
         job_id = f"{kind}-{uuid.uuid4().hex[:8]}"

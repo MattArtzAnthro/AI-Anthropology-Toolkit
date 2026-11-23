@@ -1,0 +1,24 @@
+{
+ "files": {
+  "formal/.gitignore": "fde850d24186b6e99c8c0debd641fb3ab85198b109eb66f71a1fea02bd6ea1b3",
+  "formal/AatModel.lean": "9b8a6f1decc6aa0a7a595e8a18910bd54283fe9e60e7bf596d7c851bdcfc5340",
+  "formal/AatModel/Ratify.lean": "baefa88dded54adb99fdafdbb8b13ef2903d5d634013b5e2677cfc39494b46b2",
+  "formal/AatModel/Submit.lean": "99505802f3d431b7bf0ce7b4c91ecc1ec404e6eb0762b1148abc9f6137797245",
+  "formal/Main.lean": "4f32624fe0a5e43d04e2fdcd9d6c477aa68d39ab180e46dcb75e8aacc235dc43",
+  "formal/README.md": "5a11f3320ca0abd977c3bb664b87a2aa36cea79abe3cf16d29ce6425212c94c2",
+  "formal/axioms.lean": "681abe28d6768cbc80b5ac43b7140ad3e4e35d2f796dedbdea69ec18f8386b21",
+  "formal/check.sh": "8da565d0deea3999df32522dc4dd12f80ba4e8453aa19a0d7df2fddd9e8fa509",
+  "formal/lake-manifest.json": "6ad3c97a625e17ee30ff5cdb07914b708059e2ba62443355d3973ad6af59b53d",
+  "formal/lakefile.toml": "fb5f0fd43c1d29b8d7bae6f2a3261b600cd88d164a63fa6c6748ee7aa5534441",
+  "formal/lean-toolchain": "582a63f8f9c5128067b688778c1051cf1464c3ca9d57b9325025c051c29b774a",
+  "formal/lean.sh": "c960f33830d599bba046b854090245330a03b2db4ffd295eebca7d61a2109519",
+  "formal/modeled.txt": "723ac4830847fc761da6d0b7942dcb7a95ffc44bf2bedd6254e4628b9c2bdc2b",
+  "formal/stamp.py": "69f21e89c6867dc4386096d15ee1c15d701b06b8f02771ffc4f5ff90cab05a58",
+  "formal/tla/Desk.tla": "4d0bdb5ac1ee9bc7b13296e169ff2107be36435c57a5cc2e4845e603a18331f5",
+  "formal/tla/DeskList.tla": "a4018ad9bb1fa72e93947818af76e8f0e2d7e8efb96ddb4f43db5c4a1ebda312",
+  "formal/tla/Submit.tla": "c0dfd114f7e8f4321f193dee680248dbf5ad50ae0a6c222bfa2c177560f11913",
+  "formal/tla/check.sh": "e1a496eaa6a68a5a02ec99b7f29f1fc45cbeb8bb37557120a3dfa44e3313283b",
+  "formal/vectors.json": "6916a495438adc7fce75dbf8ecdcc129e4f9d335ca6c6fed99efe418569e1284"
+ },
+ "version": 1
+}

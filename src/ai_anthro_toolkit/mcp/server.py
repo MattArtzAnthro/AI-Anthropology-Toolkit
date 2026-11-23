@@ -758,8 +758,9 @@ def ratify_codebook(codebook: list[dict] | None = None,
     obligation under the toolkit's Friction by Design conventions.
     """
     if codebook_job_id:
+        job = _job_of_kind(codebook_job_id, "codebook")
         records = _load_records(codebook_job_id, "result.json")
-        if records is None:
+        if records is None or job.get("status") != "complete":
             raise ValueError(
                 f"Codebook job '{codebook_job_id}' has no result yet — "
                 "ratification applies to a finished codebook the researcher "
@@ -775,11 +776,19 @@ def ratify_codebook(codebook: list[dict] | None = None,
 
     checksum = _codebook_checksum(records)
     held = {"checksum": checksum, "codes": len(records), "note": note, "method": "table", "version": "1.0"}
-    # Ratifying a codebook job again keeps the desks already built on it.
-    earlier = _load_records(ratification_id, "ratification.json") if codebook_job_id else None
-    if earlier and earlier.get("desks"):
-        held["desks"] = earlier["desks"]
-    _jobs.save_artifact(ratification_id, "ratification.json", json.dumps(held))
+    with _jobs.locked(ratification_id):  # a desk built on it at the same time adds to its desks
+        # Ratifying a codebook job again keeps the desks already built on it, and must name the
+        # same codebook: coding jobs and desks hold this ID as the codebook they ran under.
+        earlier = _load_records(ratification_id, "ratification.json") if codebook_job_id else None
+        if earlier and earlier.get("checksum") not in (None, checksum):
+            raise ValueError(
+                f"'{ratification_id}' is already ratified as a different codebook (checksum "
+                f"{earlier['checksum']}, now {checksum}); a ratification_id names one codebook. "
+                "Ratify the revised codebook by passing its records as `codebook`, which gives "
+                "it a ratification_id of its own.")
+        if earlier and earlier.get("desks"):
+            held["desks"] = earlier["desks"]
+        _jobs.save_artifact(ratification_id, "ratification.json", json.dumps(held))
     return {"ratification_id": ratification_id, "checksum": checksum,
             "codes": len(records), "note": note,
             "next": "pass ratification_id to start_coding_job"}
@@ -838,6 +847,11 @@ def start_coding_job(chunks: list[dict],
             "ratification_id. Do not code with content nobody approved.")
     if mode == "delegated" and approach == "hybrid":
         approach = "deductive"  # inductive discovery requires api mode for now
+    ids = [str(c.get("chunk_id", i)) for i, c in enumerate(chunks)]
+    repeated = sorted({pid for pid in ids if ids.count(pid) > 1})
+    if repeated:
+        raise ValueError(f"More than one chunk has the ID {', '.join(repeated)} (a chunk with no "
+                         "chunk_id takes its position as its ID). Give each chunk its own chunk_id.")
     records = list(codebook)
     valid_codes = list(_coding.normalize_codebook(codebook).keys())
     lens_context = _coding.build_lens_context(lens_key, research_context)
@@ -903,14 +917,37 @@ def submit_batch(job_id: JobId,
 
     Coding responses are parsed and every code is validated against the
     codebook (invalid codes are rejected, not silently remapped). Codebook
-    responses are parsed as code JSON and accumulated. Returns acceptance
-    details and remaining count.
+    responses are parsed as code JSON and accumulated; a packet already
+    submitted is listed under `already_submitted` and not counted again.
+    Refuses, writing nothing, a batch naming any packet the job did not
+    issue, a job that is already complete, and an api-mode job. Returns
+    acceptance details and remaining count.
     """
+    with _jobs.locked(job_id):  # parallel calls on one job would lose each other's packets
+        return _submit_held(job_id, results)
+
+
+def _submit_held(job_id: str, results: list[dict]) -> dict:
     state = _jobs.read(job_id)
     kind = state["kind"]
+    if kind not in ("coding", "codebook"):
+        raise ValueError(f"Unknown job kind '{kind}'")
+    if state["payload"].get("mode", "delegated") != "delegated":
+        raise ValueError(f"{job_id} runs in api mode: its worker does the work, so it takes no "
+                         "batches. Poll get_job_status, then get_job_result.")
+    if state.get("status") == "complete":
+        raise ValueError(f"{job_id} is already complete; nothing more can be submitted to it. "
+                         "get_job_result has its result.")
+    queue = _load_records(job_id, "queue.json") or []
+    issued = {p["id"] for p in queue}
+    unissued = [str(item.get("id")) for item in results if str(item.get("id")) not in issued]
+    if unissued:
+        raise ValueError(f"{job_id} issued no packets {', '.join(unissued)}; submit only IDs "
+                         "get_next_batch returned. Nothing in this batch was recorded.")
     done_ids = set(_load_records(job_id, "done_ids.json") or [])
     accepted: list[dict] = []
     rejected: list[dict] = []
+    already: list[str] = []
 
     if kind == "coding":
         valid = state["payload"]["valid_codes"]
@@ -947,6 +984,9 @@ def submit_batch(job_id: JobId,
                   (_load_records(job_id, "entries.json") or [])}
         for item in results:
             pid = str(item.get("id"))
+            if pid in done_ids:  # sent again: its codes are already counted
+                already.append(pid)
+                continue
             doc_name = pid.split("::")[0]
             parsed = _codebook.parse_json_response(str(item.get("response", "")))
             for code in parsed:
@@ -968,8 +1008,7 @@ def submit_batch(job_id: JobId,
             accepted.append({"id": pid, "codes_parsed": len(parsed)})
         _jobs.save_artifact(job_id, "entries.json", json.dumps(
             [e.to_dict() for e in merged.values()]))
-        queue = _load_records(job_id, "queue.json") or []
-        if len(done_ids) >= len(queue):
+        if issued <= done_ids:
             lens_key = state["payload"]["lens_key"]
             # Deterministic refinement only (llm=None): the delegated model
             # already did the interpretive extraction work.
@@ -984,16 +1023,15 @@ def submit_batch(job_id: JobId,
                              [r["code_label"] for r in built],
                              similarity_method=report.get("similarity_method", ""))
             _jobs.save_artifact(job_id, "quality.json", json.dumps(report))
-    else:
-        raise ValueError(f"Unknown job kind '{kind}'")
 
     _jobs.save_artifact(job_id, "done_ids.json", json.dumps(sorted(done_ids)))
-    queue = _load_records(job_id, "queue.json") or []
-    remaining = len(queue) - len(done_ids)
+    remaining = len(issued - done_ids)  # complete when every issued packet is answered
     _jobs.update(job_id, processed=len(done_ids),
-                 status="complete" if remaining <= 0 else "in_progress")
-    return {"accepted": accepted, "rejected": rejected,
-            "remaining": max(0, remaining)}
+                 status="complete" if remaining == 0 else "in_progress")
+    answer: dict[str, Any] = {"accepted": accepted, "rejected": rejected, "remaining": remaining}
+    if already:
+        answer["already_submitted"] = already
+    return answer
 
 
 @_tool(annotations=_LOCAL_READ)
@@ -1508,9 +1546,10 @@ def _build_desk(stage: str, title: str, codebook_job_id: str, codebook: list[dic
         dict(entry, surface="server", decided_by="machine", note="")
         for entry in [{"card_id": "desk", "action": "build", "detail": built}, *entries]])
     if stage == "rulings":
-        held = _load_records(payload["ratification_id"], "ratification.json")
-        held["desks"] = [*_listed_desks(held, payload["ratification_id"]), desk_id]
-        _jobs.save_artifact(payload["ratification_id"], "ratification.json", json.dumps(held))
+        with _jobs.locked(payload["ratification_id"]):  # another desk may be added at once
+            held = _load_records(payload["ratification_id"], "ratification.json")
+            held["desks"] = [*_listed_desks(held, payload["ratification_id"]), desk_id]
+            _jobs.save_artifact(payload["ratification_id"], "ratification.json", json.dumps(held))
     kind = "code" if stage == "codebook" else "disagreement"
     count = len(payload["cards"])
     text = (f"Desk {desk_id} built: {count} {kind}{'' if count == 1 else 's'} to decide. "
@@ -1554,7 +1593,7 @@ def record_desk_decisions(
     if surface not in ("chat", "page"):
         raise ValueError(f"surface is 'chat' or 'page', not {surface!r}; decisions made in the "
                          "desk's MCP App are recorded by the desk itself.")
-    with _desk_lock:
+    with _jobs.locked(desk_id):
         _desk_gate.load_desk(_jobs, desk_id)  # refuses an ID that is not a desk before reading it
         if _jobs.load_artifact(desk_id, _SAVED) is not None:
             raise ValueError(
@@ -1614,8 +1653,8 @@ def _decision_record(ratification_id: str, desk_id: str) -> dict:
 _SAVED = "saved.json"
 _NOTHING_SAVED: dict[str, Any] = {"decisions": {}, "exclusive": None}
 # Saving reads, changes and writes saved.json, and finishing reads it and writes the
-# outcome; each runs whole, one at a time, so no save is lost or lands mid-finish.
-_desk_lock = threading.RLock()
+# outcome; each runs whole under the desk's job lock, one at a time across threads and across
+# server processes sharing the job store, so no save is lost or lands mid-finish.
 
 
 def _saved(desk_id: str) -> dict:
@@ -1649,7 +1688,7 @@ def desk_sync(desk_id: Annotated[str, Field(description="The desk shown in the v
 
 
 def _sync(desk_id: str, action: dict | None) -> dict:
-    with _desk_lock:
+    with _jobs.locked(desk_id):
         return _sync_held(desk_id, action)
 
 
@@ -1711,7 +1750,7 @@ def _for_the_view(out: dict[str, Any]) -> CallToolResult:
 
 
 def _finish(desk_id: str) -> dict:
-    with _desk_lock:
+    with _jobs.locked(desk_id):
         desk = _desk_gate.load_desk(_jobs, desk_id)
         return _desk_gate.apply(_jobs, desk_id, _document(desk_id, desk, _saved(desk_id)), "app")
 
