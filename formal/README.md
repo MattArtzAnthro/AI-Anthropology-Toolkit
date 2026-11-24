@@ -13,7 +13,7 @@ or two server processes, work on one job or desk at once.
 | `AatModel/Ratify.lean` | `server.ratify_codebook`, `server.start_coding_job` | Only a finished codebook job is ratified by its ID; a ratification holds the checksum of the result it names; once a `ratification_id` holds a checksum it holds it for ever |
 | `tla/Submit.tla` | `submit_batch` under `JobStore.locked` | Two batches at once on one job: every packet recorded as answered keeps its codes |
 | `tla/Desk.tla` | `desk.gate.apply` under `JobStore.locked` | Two callers finishing one desk, in one process or two, with crashes and retries: the decision record names the ratification the desk finished as, every caller is told that one, and no ratification job is made that the desk does not name |
-| `tla/Count.tla` | the codebook branch of `submit_batch` (`ledger.json`, its write order) | A batch that fails after its codes were merged (refinement raises, the process dies between writes) and is sent again is counted once; with an earlier release sharing the job store and submitting between this release's calls, every packet answered keeps its codes, and none is counted twice unless a process died between writing `entries.json` and `done_ids.json`, or the earlier release's own refinement raised between its two writes |
+| `tla/Count.tla` | the codebook branch of `submit_batch` (`ledger.json`, its write order) | A batch that fails after its codes were merged (refinement raises, the process dies between writes) and is sent again is counted once; with an earlier release sharing the job store and submitting between this release's calls, every packet answered keeps its codes, and none is counted twice unless a process died between writing `entries.json` and `done_ids.json`, or the earlier release's own refinement raised between its two writes. Only a job an earlier release started is shared: no earlier release opens one this release starts (`one-release`) |
 | `tla/DeskView.tla` | `desk_sync`, `desk_finish`, `record_desk_decisions` | A desk whose finish from the conversation was interrupted, and which is then opened in its view, can still be finished; so can one an earlier release left held by its view; and the view's own interrupted Ratify is completed only in the view, so the record names the surface the decisions were made on |
 | `tla/DeskList.tla` | `build_ratification_desk`, `ratify_codebook`, `desk.gate._commit` | Rulings desks built at once on one ratification, while it is ratified again or an interrupted desk finish that minted it is sent again, all stay on its list of desks |
 
@@ -70,8 +70,8 @@ models describe; a push that changes one of those files runs the provers.
 | `Count stale-to-done CountedOnce` | `done_ids.json` written after refinement: a stale ledger's own packet, merged by a batch whose refinement then failed, is merged again |
 | `Count union Kept`, `Count union-first Kept` | The second fix (`fix2Submit`), with or without the new write order: the process dies between writing `ledger.json` and `entries.json`, an earlier release submits, and the packet the ledger counted is taken as merged with its codes in no file |
 | `Count union-resent CountedOnce` | The second fix: an earlier release is served a packet whose refinement failed here after merging, and counts it again |
-| `Count earlier-fails CountedOnce` | Limit: the earlier release writes `entries.json`, refines, then writes `done_ids.json`; when its refinement raises, its packet is merged and unrecorded, and is served and merged again, as with that release alone. Codes are never lost (`earlier-fails Kept` passes) |
-| `Count dies-w2 CountedOnce` | Limit: the process dies between writing `entries.json` and `done_ids.json`, and an earlier release submits before this release runs again. Those two files are the earlier release's own record, and it has the same window between its two writes |
+| `Count earlier-fails CountedOnce` | Limit: the earlier release writes `entries.json`, refines, then writes `done_ids.json`; when its refinement raises, its packet is merged and unrecorded, and is served and merged again, as with that release alone. Codes are never lost (`earlier-fails Kept` passes). Only on a job an earlier release started |
+| `Count dies-w2 CountedOnce` | Limit: the process dies between writing `entries.json` and `done_ids.json`, and an earlier release submits before this release runs again. Those two files are the earlier release's own record, and it has the same window between its two writes. Only on a job an earlier release started |
 | `DeskView old NotStuck` | The rule before: the view took a desk whose finish from the conversation was pending, and then neither surface could finish it |
 | `DeskView view-waits-only NotStuck` (legacy) | The view no longer takes such a desk, but a desk an earlier release left that way needs the conversation to be able to complete its own finish |
 | `DeskView any-pending ViewKeeps` | A rule letting the conversation complete any pending finish: it completed the view's own interrupted Ratify, and the record named the conversation |
@@ -80,11 +80,24 @@ models describe; a push that changes one of those files runs the provers.
 
 ## Known limits
 
-- An earlier release takes no lock and does not know `ledger.json`. Two calls on one job at the
-  same moment, one from each release, can still lose a batch; a packet it merged and failed to
-  record (its refinement raised, or its process died between its two writes) is counted twice
-  when sent again; and it counts again a packet its own caller resends. Upgrade every host that
-  shares a job store.
+- A job this release starts has an ID of twelve hex digits and lives in `<root>/locked/`, where
+  no earlier release opens it: 3.10 and 3.11 refuse the ID before touching a file, and earlier
+  releases look only at `<root>/<id>` (`TestEarlierReleasesFenced`). So it is `Count`'s
+  `one-release` case. A job an earlier release started (eight hex digits, at `<root>/<id>`) can
+  still be opened by both, and that release takes no lock and does not know `ledger.json`: two
+  calls on it at the same moment, one from each release, can lose a batch; a packet that release
+  merged and failed to record (its refinement raised, or its process died between its two
+  writes) is counted twice when sent again; and it counts again a packet its own caller resends.
+  Finish such a job on one release, or upgrade every host that shares a job store.
+- A ratification an earlier release made, or one this release makes from a codebook job an
+  earlier release started (the ratification takes the codebook job's ID), stays in that form.
+  New coding jobs and rulings desks built here on it read it, and a desk built here adds itself
+  to its list of desks; an earlier release changes that list without a lock, so a desk built on
+  it there at the same moment can drop one from the list (`DeskList.tla`'s rule before). Ratify
+  again on this release to give new work a ratification of its own.
+- A release before 3.10 opens `<root>/<string>` for any string it is given, so handed
+  `locked/<id>` rather than the bare ID (the path a desk page is written to shows it), it opens
+  a job this release started, without a lock. The tools return and take bare IDs.
 - A job store on a network share mounted with locking turned off (`nolock`, `local_lock`)
   takes `flock` on each host alone, and nothing on the share can tell. On a local disk, and on
   NFS or SMB with locking, the lock holds across hosts.

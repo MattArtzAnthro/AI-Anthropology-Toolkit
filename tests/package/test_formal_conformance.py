@@ -37,7 +37,7 @@ CODEBOOKS = {1: [{"code_label": "trust", "definition": "Relying on others."}],
              2: [{"code_label": "risk", "definition": "Exposure to harm."}]}
 def _files(job):
     """The job's files and their contents: a refusal must leave them as they were."""
-    folder = Path(server._jobs.root) / job
+    folder = server._jobs._dir(job)
     return {f.name: f.read_bytes() for f in folder.iterdir() if f.name != ".lock"}
 
 

@@ -85,11 +85,20 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   holds when the batch failed after its codes were merged (an embedding model
   that cannot be downloaded): the merge and the packets merged into it are now
   one file, `ledger.json`, written in one step. A host still on an earlier
-  release that submits to the same job does not write `ledger.json`; the next
-  batch here keeps the codes it merged. A batch's packets are recorded as
+  release that submits to a job that release started does not write
+  `ledger.json`; the next batch here keeps the codes it merged. A batch's packets are recorded as
   answered before refinement runs, so one whose refinement raised is not
   served again to such a host; `get_next_batch` then says every packet is
   answered, and `submit_batch` with an empty list builds the codebook.
+- No earlier release can open a job this release starts by its ID, so none
+  can write to it. New jobs get IDs of twelve hex digits (`coding-1a2b3c4d5e6f`) and
+  live in the job store's `locked/` folder: 3.10 and 3.11 refuse the ID, and
+  earlier releases find no job. Those releases take no lock and do not know
+  `ledger.json`, so a job shared with one could lose a batch sent at the same
+  moment, or count a packet twice after a failure. A host still on an
+  earlier release cannot open these jobs; upgrade every host that shares a
+  job store. Jobs an earlier release started (eight hex digits) are still
+  read and finished here, among them a desk finish it was interrupted in.
 - Delegated coding of several interviews completes, and its records reach
   the rulings desk, `compare_lenses` and the lens network. `chunk_transcript`
   numbers each transcript's chunks from 1, so chunks of several interviews

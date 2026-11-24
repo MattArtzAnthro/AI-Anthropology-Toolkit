@@ -79,9 +79,9 @@ ct current          TRUE   TRUE  FALSE TRUE  any     TRUE  FALSE 3     NeverDone
 ct one-release      TRUE   TRUE  FALSE TRUE  none    TRUE  TRUE  3     CountedOnce  PASS
 ct one-release      TRUE   TRUE  FALSE TRUE  none    TRUE  TRUE  3     Kept         PASS
 ct dies-w2          TRUE   TRUE  FALSE TRUE  any     TRUE  TRUE  3     Kept         PASS
-ct dies-w2          TRUE   TRUE  FALSE TRUE  any     TRUE  TRUE  3     CountedOnce  FAIL  # residual: dies after entries.json, before done_ids.json, and an earlier release submits next (its own files' window)
+ct dies-w2          TRUE   TRUE  FALSE TRUE  any     TRUE  TRUE  3     CountedOnce  FAIL  # residual: dies after entries.json, before done_ids.json, and an earlier release submits next (its own files' window); only a job an earlier release started
 ct earlier-fails    TRUE   TRUE  FALSE TRUE  any     TRUE  FALSE 3     Kept         PASS  TRUE
-ct earlier-fails    TRUE   TRUE  FALSE TRUE  any     TRUE  FALSE 3     CountedOnce  FAIL  TRUE  # residual: the earlier release's own refinement raised after it merged; its packet, unrecorded, is served and merged again (as with that release alone)
+ct earlier-fails    TRUE   TRUE  FALSE TRUE  any     TRUE  FALSE 3     CountedOnce  FAIL  TRUE  # residual: the earlier release's own refinement raised after it merged; its packet, unrecorded, is served and merged again (as with that release alone); only a job an earlier release started
 ct no-ledger        FALSE  FALSE FALSE FALSE none    FALSE FALSE 3     CountedOnce  FAIL  # merged again on each resend: a code's frequency climbs
 ct no-ledger        FALSE  FALSE FALSE FALSE none    FALSE FALSE 0     CountedOnce  PASS  # without a failure the old order counts once
 ct ledger-only      TRUE   FALSE FALSE FALSE other   FALSE FALSE 0     Kept         FAIL  # the earlier release's packet: answered, its codes lost

@@ -4,7 +4,7 @@
 decisions against the desk they name and returns every problem, each naming its card, so
 the gate can refuse a document whole and say everything that is wrong at once.
 
-    {"schema": "aat/desk-decisions@1", "desk_id": "desk-1a2b3c4d", "card_checksum": "…",
+    {"schema": "aat/desk-decisions@1", "desk_id": "desk-1a2b3c4d5e6f", "card_checksum": "…",
      "exclusive": true,
      "decisions": {"code-01": {"action": "reword", "definition": "…", "note": "…"},
                    "chunk-12": {"codes": ["…"], "is_rule": true, "rule_text": "…"},

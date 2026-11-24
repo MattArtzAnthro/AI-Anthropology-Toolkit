@@ -34,10 +34,17 @@ _POLL = 0.05
 
 DEFAULT_ROOT = Path.home() / ".ai-anthro-toolkit" / "jobs"
 
-# What create() issues: a lowercase kind, a hyphen, eight hex digits. Anything
-# else came from a typo or an invention, and must not become a path.
-_JOB_ID = re.compile(r"[a-z][a-z_]*-[0-9a-f]{8}")
-_ID_HELP = ("Job IDs look like coding-1a2b3c4d and come back from "
+# What new_id() issues: a lowercase kind, a hyphen, twelve hex digits; the job lives in the
+# folder NEW_JOBS under the root. Releases before this one kept every job at <root>/<id> and
+# issued eight hex digits, and 3.10 and 3.11 refuse any other ID before they touch a file; so
+# no earlier release can open a job this release starts. Those releases take no lock and do
+# not know ledger.json, and a job both write to can lose a batch or count a packet twice.
+# Their own jobs, eight hex digits at <root>/<id>, are still read. Anything else came from a
+# typo or an invention, and must not become a path.
+_JOB_ID = re.compile(r"[a-z][a-z_]*-(?:[0-9a-f]{12}|[0-9a-f]{8})")
+_NEW_ID = re.compile(r"[a-z][a-z_]*-[0-9a-f]{12}")
+NEW_JOBS = "locked"
+_ID_HELP = ("Job IDs look like coding-1a2b3c4d5e6f and come back from "
             "start_codebook_job, start_coding_job, or ratify_codebook; pass "
             "the one those returned.")
 
@@ -123,6 +130,12 @@ class JobStore:
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
 
+    def _path(self, job_id: str) -> Path:
+        """Where the job lives, or would: <root>/locked/<id> for this release's IDs."""
+        if not isinstance(job_id, str) or not _JOB_ID.fullmatch(job_id):
+            raise ValueError(f"{job_id!r} is not a job ID. {_ID_HELP}")
+        return self.root / NEW_JOBS / job_id if _NEW_ID.fullmatch(job_id) else self.root / job_id
+
     def _dir(self, job_id: str, create: bool = False) -> Path:
         """The job's directory, refusing IDs this store did not issue.
 
@@ -130,9 +143,7 @@ class JobStore:
         behind and surface a bare FileNotFoundError, and an ID containing
         "../" reached outside the root.
         """
-        if not isinstance(job_id, str) or not _JOB_ID.fullmatch(job_id):
-            raise ValueError(f"{job_id!r} is not a job ID. {_ID_HELP}")
-        d = self.root / job_id
+        d = self._path(job_id)
         if create:
             d.mkdir(parents=True, exist_ok=True)
         elif not (d / "job.json").is_file():
@@ -181,13 +192,22 @@ class JobStore:
     @staticmethod
     def new_id(kind: str) -> str:
         """An ID for a job of this kind, to name before create() makes it."""
-        return f"{kind}-{uuid.uuid4().hex[:8]}"
+        return f"{kind}-{uuid.uuid4().hex[:12]}"
 
     def create(self, kind: str, payload: dict, job_id: str | None = None) -> str:
-        """Make a job, under `job_id` (from new_id) if given; a job that exists is kept."""
+        """Make a job, under `job_id` (from new_id) if given; a job that exists is kept.
+
+        A job that exists is kept in either form: an interrupted desk finish an earlier release
+        started names a ratification it made under eight hex digits. A new job is made only
+        under an ID new_id issues: one in an earlier release's form would be one it can open.
+        """
         job_id = job_id or self.new_id(kind)
         if not job_id.startswith(f"{kind}-"):
             raise ValueError(f"{job_id!r} is not an ID for a {kind} job.")
+        if (self._path(job_id) / "job.json").is_file():
+            return job_id
+        if not _NEW_ID.fullmatch(job_id):
+            raise ValueError(f"{job_id!r} is not an ID for a {kind} job, as new_id issues them.")
         d = self._dir(job_id, create=True)
         if (d / "job.json").is_file():
             return job_id

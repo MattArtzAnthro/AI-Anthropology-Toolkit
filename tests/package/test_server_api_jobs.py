@@ -374,7 +374,7 @@ class TestJobStoreConcurrency(unittest.TestCase):
         finally:
             stop.set()
             t.join()
-        self.assertEqual([p for p in os.listdir(os.path.join(tmp, job_id))
+        self.assertEqual([p for p in os.listdir(os.path.join(tmp, "locked", job_id))
                           if p.endswith(".tmp")], [])
 
 

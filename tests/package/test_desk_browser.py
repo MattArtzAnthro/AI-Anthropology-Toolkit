@@ -962,7 +962,7 @@ class TestStandaloneDecisions(DeskView):
         self.assertEqual(json.loads(tab.evaluate("navigator.clipboard.readText()")), doc)
         self.assertEqual(tab.locator("#desk-notices .aat-notice__title").inner_text(), "The decisions are copied as JSON.")
         outcome = self.server.record_desk_decisions(self.desk_id, doc, "page")
-        self.assertRegex(outcome["ratification_id"], r"^ratification-[0-9a-f]{8}$")
+        self.assertRegex(outcome["ratification_id"], r"^ratification-[0-9a-f]{12}$")
         self.assertEqual(self.errors, [])
 
     def test_r7_3_ratify_on_the_page_gives_the_decisions_to_record(self):

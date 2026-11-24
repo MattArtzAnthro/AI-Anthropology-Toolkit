@@ -6,7 +6,7 @@
   "formal/AatModel/Ratify.lean": "baefa88dded54adb99fdafdbb8b13ef2903d5d634013b5e2677cfc39494b46b2",
   "formal/AatModel/Submit.lean": "5b0dbd92f9d20511323b4dd01b1b5830eacb734a10e7018b6e3ce4a8836ae05f",
   "formal/Main.lean": "cba35e5d0e5281ad096a60ae4196310ab7b9b816fb718535588d54b2977d7eca",
-  "formal/README.md": "04d4d4ce25c09718c41112d9ca3c3319df992ebdac6b6ea9866fbd229c50d4f7",
+  "formal/README.md": "51dc4a0f0d000756a53e86b0b3c21ceeaf340b7e72f365c5f28dc8d7c6deea0d",
   "formal/axioms.lean": "a9dfca4f893637d40359f6ff35b0a5d5dafa4a3ccd3ca4796da5a10a82437087",
   "formal/check.sh": "8da565d0deea3999df32522dc4dd12f80ba4e8453aa19a0d7df2fddd9e8fa509",
   "formal/lake-manifest.json": "6ad3c97a625e17ee30ff5cdb07914b708059e2ba62443355d3973ad6af59b53d",
@@ -15,12 +15,12 @@
   "formal/lean.sh": "c960f33830d599bba046b854090245330a03b2db4ffd295eebca7d61a2109519",
   "formal/modeled.txt": "723ac4830847fc761da6d0b7942dcb7a95ffc44bf2bedd6254e4628b9c2bdc2b",
   "formal/stamp.py": "69f21e89c6867dc4386096d15ee1c15d701b06b8f02771ffc4f5ff90cab05a58",
-  "formal/tla/Count.tla": "c09df3a8b96e1984ab585fda296de87481a036ab654d3fea3872c32ce7ef06ef",
+  "formal/tla/Count.tla": "853956b352a84792ddea72754fc8d7ff9818b100b702cec1ef2aa844646bf742",
   "formal/tla/Desk.tla": "d8e2f6cd3173a52fc4a090d42545f11f8e18a3d2941b08beca20f55447f9a3fc",
   "formal/tla/DeskList.tla": "002a2a4efe916000b47bc30e0577d5de546949458f1a80db250f17fccf0fa36a",
   "formal/tla/DeskView.tla": "115d7bb4610099a92819a3c5a6996d78960176cf203a9cd819f92f6e3cc07e17",
   "formal/tla/Submit.tla": "c0dfd114f7e8f4321f193dee680248dbf5ad50ae0a6c222bfa2c177560f11913",
-  "formal/tla/check.sh": "1e7e872ecd3c9ca98e83f2dfa592e390a14146945d063110e70c0aaa76ac1f36",
+  "formal/tla/check.sh": "5d309e15c5d8a5441e1c0621ee11a5408988e0b0397f665edcff2894a9e4cc58",
   "formal/vectors.json": "06640c620e7254aa994ff22fe826dcedffdd3e1eab01999364b57fefdf3922af"
  },
  "version": 1

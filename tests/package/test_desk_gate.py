@@ -36,7 +36,7 @@ class GateCase(unittest.TestCase):
         self.store = JobStore(Path(self._dir.name))
 
     def jobs(self, kind):
-        return sorted(p.name for p in Path(self._dir.name).glob(f"{kind}-*"))
+        return sorted(p.name for p in Path(self._dir.name).glob(f"locked/{kind}-*"))
 
     def codebook_desk(self, **changes):
         desk = codebook_desk(**changes)

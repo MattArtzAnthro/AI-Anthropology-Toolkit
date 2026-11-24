@@ -45,7 +45,7 @@ class DeskCase(unittest.TestCase):
         self.cases = load("cases")
 
     def jobs(self, kind):
-        return sorted(p.name for p in Path(self._dir.name).iterdir() if p.name.startswith(f"{kind}-"))
+        return sorted(p.name for p in Path(self._dir.name).glob(f"locked/{kind}-*"))
 
     def codebook_job(self, records=None):
         job_id = self.store.create("codebook", {"lens_key": "", "mode": "delegated"})
@@ -540,7 +540,7 @@ class TestAppOnlyTools(AppCase):
         self.assertEqual(n, len(self.saved()["decisions"]))
         over_the_wire("desk_sync", {"desk_id": self.desk_id, "action": {"name": "answer_exclusive", "context": {"exclusive": ["no"]}}})
         outcome = over_the_wire("desk_finish", {"desk_id": self.desk_id})
-        self.assertRegex(outcome["ratification_id"], r"^ratification-[0-9a-f]{8}$")
+        self.assertRegex(outcome["ratification_id"], r"^ratification-[0-9a-f]{12}$")
 
     def test_a_save_is_kept_on_the_server_one_decision_at_a_time(self):
         self.codebook_view()

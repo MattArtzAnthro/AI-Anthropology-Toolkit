@@ -164,11 +164,11 @@ LlmMode = Annotated[Literal["", "delegated", "api"], Field(
 YearFrom = Annotated[int, Field(description="Earliest publication year; 0 for no lower bound.")]
 YearTo = Annotated[int, Field(description="Latest publication year; 0 for no upper bound.")]
 JobId = Annotated[str, Field(
-    description="An ID a start_* tool or ratify_codebook returned, e.g. coding-1a2b3c4d.")]
+    description="An ID a start_* tool or ratify_codebook returned, e.g. coding-1a2b3c4d5e6f.")]
 LensKey = Annotated[str, Field(
     description="A lens key from list_lenses, e.g. 'interpretive'; empty for none.")]
 NetworkId = Annotated[str, Field(
-    description="The network_id build_network returned, e.g. network-1a2b3c4d.")]
+    description="The network_id build_network returned, e.g. network-1a2b3c4d5e6f.")]
 GraphArg = Annotated[dict | None, Field(
     description="A graph dict, for networks built outside this server. "
                 "Prefer network_id.")]
@@ -826,7 +826,7 @@ def start_codebook_job(documents: Annotated[dict[str, str], Field(
 def ratify_codebook(codebook: list[dict] | None = None,
                     codebook_job_id: Annotated[str, Field(
                         description="A completed codebook job's ID, e.g. "
-                                    "codebook-1a2b3c4d.")] = "",
+                                    "codebook-1a2b3c4d5e6f.")] = "",
                     note: str = "") -> dict:
     """Record the researcher's ratification of a codebook, enabling coding.
 

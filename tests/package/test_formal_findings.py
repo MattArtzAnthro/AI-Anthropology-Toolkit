@@ -10,6 +10,7 @@ import errno
 import json
 import multiprocessing
 import os
+import re
 import shutil
 import subprocess  # noqa: S404
 import sys
@@ -53,6 +54,16 @@ class StoreBase(unittest.TestCase):
     def codebook_job(self, docs=None):
         docs = docs or {"d1": "alpha " * 40, "d2": "beta " * 40}
         return server.start_codebook_job(docs, "interpretive", llm_mode="delegated", min_frequency=2)["job_id"]
+
+    def earlier_job(self, job):
+        """`job` moved to where an earlier release keeps its jobs: eight hex digits, at
+        <root>/<id>. Only such a job can an earlier release open, and so share with this one."""
+        kind, digits = job.rsplit("-", 1)
+        old = f"{kind}-{digits[:8]}"
+        os.rename(server._jobs._dir(job), Path(self._tmp) / old)
+        state = server._jobs.read(old)
+        (Path(self._tmp) / old / "job.json").write_text(json.dumps({**state, "job_id": old}))
+        return old
 
 
 class TestSubmitBatch(StoreBase):
@@ -360,7 +371,7 @@ class TestJobLock(StoreBase):
     def test_a_call_waits_for_another_process_only_so_long(self):
         from ai_anthro_toolkit import jobs
         job = self.coding_job()
-        lock = Path(self._tmp) / job / ".lock"
+        lock = server._jobs._dir(job) / ".lock"
         script = ("import fcntl, sys\n"
                   f"fh = open({str(lock)!r}, 'a')\n"
                   "fcntl.flock(fh, fcntl.LOCK_EX)\n"
@@ -507,7 +518,7 @@ class TestEarlierReleases(StoreBase):
     def test_a_codebook_job_shared_with_an_earlier_release_keeps_every_code(self):
         # fix1_loses_stale_ledger: an earlier release merges a packet into entries.json without
         # ledger.json; the next batch here started from the stale ledger and lost that code.
-        job = self.codebook_job({"d1": "alpha " * 40, "d2": "beta " * 40, "d3": "gamma " * 40})
+        job = self.earlier_job(self.codebook_job({"d1": "alpha " * 40, "d2": "beta " * 40, "d3": "gamma " * 40}))
         ids = [p["id"] for p in server.get_next_batch(job, 10)["packets"]]
         self.assertEqual(len(ids), 3)
         server.submit_batch(job, [{"id": ids[0], "response": _code("alpha")}])
@@ -542,7 +553,7 @@ class TestEarlierReleases(StoreBase):
         # fix2_takes_unwritten_as_merged / new_merges_unwritten; tla: Count union Kept FAIL, current
         # Kept PASS. The call dies after ledger.json and before entries.json; an earlier release
         # then answers another packet; sent again, ALPHA was taken as merged and was in no file.
-        job = self.codebook_job({"d1": "alpha " * 40, "d2": "beta " * 40, "d3": "gamma " * 40})
+        job = self.earlier_job(self.codebook_job({"d1": "alpha " * 40, "d2": "beta " * 40, "d3": "gamma " * 40}))
         ids = [p["id"] for p in server.get_next_batch(job, 10)["packets"]]
         real = JobStore.save_artifact
 
@@ -565,7 +576,7 @@ class TestEarlierReleases(StoreBase):
         # batch (an embedding model that cannot be downloaded). Its packets are recorded as
         # answered before refinement, so an earlier release's get_next_batch, which serves the
         # packets done_ids.json lacks, does not serve them again to be merged twice.
-        job = self.codebook_job()
+        job = self.earlier_job(self.codebook_job())
         ids = [p["id"] for p in server.get_next_batch(job, 10)["packets"]]
         server.submit_batch(job, [{"id": ids[0], "response": _code("alpha")}])
         with mock.patch.object(server._codebook, "refine_codebook", side_effect=RuntimeError("no model")):
@@ -642,7 +653,7 @@ class TestEarlierReleases(StoreBase):
     def _repeated_ids_job(self):
         """A coding job an earlier release started on two interviews: one packet ID per chunk_id,
         so both chunks numbered 1 were issued as packet 1."""
-        job = self.coding_job([{"chunk_id": "x", "text": "placeholder"}])
+        job = self.earlier_job(self.coding_job([{"chunk_id": "x", "text": "placeholder"}]))
         chunks = [{"chunk_id": 1, "text": f"{who} one", "source_file": who} for who in ("ana.txt", "ben.txt")]
         server._jobs.save_artifact(job, "chunks.json", json.dumps(chunks))
         server._jobs.save_artifact(job, "queue.json", json.dumps([{"id": "1", "prompt": "p"}] * 2))
@@ -662,7 +673,7 @@ class TestEarlierReleases(StoreBase):
     def test_an_old_job_marked_complete_too_early_can_be_finished(self):
         # fix1_stuck_on_unissued_done / new_drops_unissued_done: an earlier release counted
         # IDs it never issued as answered and marked the job complete with chunks uncoded.
-        job = self.coding_job()
+        job = self.earlier_job(self.coding_job())
         server.submit_batch(job, [{"id": "c0", "response": "trust"}])
         server._jobs.save_artifact(job, "done_ids.json", json.dumps(["c0", "zz1", "zz2", "zz3"]))
         server._jobs.update(job, status="complete", processed=4)
@@ -681,7 +692,7 @@ class TestEarlierReleases(StoreBase):
             server.submit_batch(job, [{"id": "c0", "response": "risk"}])
 
     def test_a_codebook_job_completed_too_early_is_not_ratified(self):
-        job = self.codebook_job()
+        job = self.earlier_job(self.codebook_job())
         first = server.get_next_batch(job, 10)["packets"][0]["id"]
         server.submit_batch(job, [{"id": first, "response": _code("trust")}])
         server._jobs.save_artifact(job, "result.json", json.dumps([{"code_label": "TRUST", "definition": "d"}]))
@@ -704,8 +715,8 @@ class TestDeskNoOrphan(StoreBase):
         return desk_id, doc
 
     def _ratifications(self):
-        return sorted(p.name for p in Path(self._tmp).iterdir()
-                      if p.name.startswith("ratification-") and (p / "job.json").is_file())
+        return sorted(p.name for p in Path(self._tmp).glob("locked/ratification-*")
+                      if (p / "job.json").is_file())
 
     def _dies_writing(self, target):
         real = JobStore.save_artifact
@@ -939,6 +950,77 @@ class TestSeveralInterviewsDownstream(StoreBase):
             "a": server.get_job_result(first)["records"], "b": server.get_job_result(second)["records"]})
         self.assertEqual({n["key"]: n["attributes"]["chunks"] for n in graph["nodes"]}, {"a": 4, "b": 4})
 
+
+
+# What 3.10.0 to 3.11.1 accept as a job ID, refusing anything else before they touch a file
+# (jobs.py _JOB_ID in those releases); before 3.10.0 any ID was opened as <root>/<id>.
+# New jobs live in <root>/locked/, a name fixed on disk: renamed, it would strand them.
+EARLIER_ID = re.compile(r"[a-z][a-z_]*-[0-9a-f]{8}")
+
+
+class TestEarlierReleasesFenced(StoreBase):
+    """No earlier release can open a job this release starts. They take no lock and do not know
+    ledger.json; a job they shared could lose a batch or count a packet twice (tla: Count
+    dies-w2 and earlier-fails CountedOnce FAIL). A job only this release opens is Count's
+    one-release row, which passes."""
+
+    def jobs_of_every_kind(self):
+        rid = server.ratify_codebook(codebook=CODEBOOK)["ratification_id"]
+        coding = server.start_coding_job(CHUNKS, ratification_id=rid, llm_mode="delegated")["job_id"]
+        net = server.build_network([{"Deductive_Codes": "trust; risk", "chunk_id": "c0"}])["network_id"]
+        return [self.codebook_job(), rid, coding, net]
+
+    def test_no_earlier_release_can_open_a_job_this_release_starts(self):
+        for job in self.jobs_of_every_kind():
+            with self.subTest(job=job):
+                self.assertIsNone(EARLIER_ID.fullmatch(job))  # 3.10.0 to 3.11.1 refuse it
+                self.assertFalse((Path(self._tmp) / job / "job.json").exists())  # before 3.10.0
+                self.assertTrue((server._jobs._dir(job) / "job.json").is_file())
+
+    def test_a_job_an_earlier_release_started_is_still_read_and_finished(self):
+        job = self.earlier_job(self.coding_job())
+        self.assertTrue(EARLIER_ID.fullmatch(job))
+        self.assertTrue((Path(self._tmp) / job / "job.json").is_file())
+        packets = server.get_next_batch(job, 10)["packets"]
+        out = server.submit_batch(job, [{"id": p["id"], "response": "trust"} for p in packets])
+        self.assertEqual(out["remaining"], 0)
+        self.assertEqual(server.get_job_status(job)["status"], "complete")
+
+    def test_a_job_is_never_made_under_an_id_an_earlier_release_can_open(self):
+        for old, refusal in (("coding-1a2b3c4d", "as new_id issues them"), ("coding-1a2b", "not a job ID")):
+            with self.subTest(job_id=old), self.assertRaisesRegex(ValueError, refusal):
+                server._jobs.create("coding", {}, job_id=old)
+            self.assertFalse((Path(self._tmp) / old).exists())
+
+    def test_a_desk_finish_an_earlier_release_started_can_be_finished(self):
+        # 3.10 and 3.11 made the ratification job, then finishing.json naming it, both under
+        # eight hex digits. Sent again here, the finish completes as that ratification.
+        from ai_anthro_toolkit.desk import decisions, gate
+        built = server._build_desk("codebook", "t", "", desk_helpers.load("codebook"),
+                                   desk_helpers.load("cases"), None, None, True).structured_content
+        desk_id = built["desk_id"]
+        desk = server._jobs.read(desk_id)["payload"]
+        doc = {"schema": "aat/desk-decisions@1", "desk_id": desk_id, "card_checksum": desk["card_checksum"],
+               "exclusive": False, "decisions": {c["card_id"]: {"action": "adopt"} for c in desk["cards"]}}
+        with mock.patch.object(gate.record, "append", side_effect=OSError("disk full")):
+            with self.assertRaises(OSError):
+                server.record_desk_decisions(desk_id, doc, "chat")
+        pending = json.loads(server._jobs.load_artifact(desk_id, "finishing.json"))
+        rid = self.earlier_job(pending["ratification_id"])
+        desk_id = self.earlier_job(desk_id)
+        doc["desk_id"] = desk_id
+        server._jobs.save_artifact(desk_id, "finishing.json", json.dumps(
+            {"digest": gate._digest(decisions.parse(doc)), "ratification_id": rid}))
+        out = server.record_desk_decisions(desk_id, doc, "chat")
+        self.assertEqual(out["ratification_id"], rid)
+        self.assertEqual(list(Path(self._tmp).glob("locked/ratification-*")), [])
+
+    def test_what_a_release_before_3_10_leaves_behind_is_not_a_job(self):
+        # Asked about a job it cannot see, such a release makes an empty <root>/<id> folder.
+        job = self.coding_job()
+        (Path(self._tmp) / job).mkdir(exist_ok=True)
+        self.assertEqual(server.get_job_status(job)["status"], "in_progress")
+        self.assertEqual(server._jobs._dir(job).parent.name, "locked")
 
 
 if __name__ == "__main__":

@@ -30,7 +30,7 @@ class TestJobStoreIds(unittest.TestCase):
 
     def test_created_ids_round_trip(self):
         job_id = self.store.create("coding", {"total": 2})
-        self.assertRegex(job_id, r"^coding-[0-9a-f]{8}$")
+        self.assertRegex(job_id, r"^coding-[0-9a-f]{12}$")
         self.assertEqual(self.store.status(job_id)["total"], 2)
         self.store.save_artifact(job_id, "result.json", "[]")
         self.assertEqual(self.store.load_artifact(job_id, "result.json"), "[]")
@@ -48,11 +48,13 @@ class TestJobStoreIds(unittest.TestCase):
     def test_malformed_id_is_refused_before_touching_disk(self):
         for bad in ("../escaped", "coding-typo123", "", "coding-1234567", "/etc/x",
                     "coding-0badc0de/../../x", "coding-0BADC0DE", "coding-0badc0de0",
-                    "Coding-0badc0de", "_x-0badc0de", "coding-0badc0de\n", None, 123):
+                    "Coding-0badc0de", "_x-0badc0de", "coding-0badc0de\n", None, 123,
+                    "coding-0badc0de0ba", "coding-0badc0de0badc", "coding-0BADC0DE0BAD",
+                    "locked/coding-0badc0de0bad", "coding-0badc0de0bad/.."):
             with self.subTest(job_id=bad):
                 with self.assertRaises(ValueError) as ctx:
                     self.store.status(bad)
-                self.assertIn("coding-1a2b3c4d", str(ctx.exception))
+                self.assertIn("coding-1a2b3c4d5e6f", str(ctx.exception))
         self.assertEqual(sorted(p.name for p in self._tmp.iterdir()), ["jobs"])
         self.assertEqual(list(self.root.iterdir()), [])
 
@@ -175,7 +177,7 @@ class TestServerJobResults(unittest.TestCase):
 
     def test_coding_with_a_ratification_that_holds_no_records_is_refused(self):
         rid = server.ratify_codebook(codebook=self.CODEBOOK)["ratification_id"]
-        (Path(self._tmp) / rid / "result.json").unlink()
+        (server._jobs._dir(rid) / "result.json").unlink()
         with self.assertRaises(ValueError) as ctx:
             server.start_coding_job(self.CHUNKS, ratification_id=rid, llm_mode="delegated")
         self.assertIn("holds no codebook records", str(ctx.exception))

@@ -20,6 +20,7 @@
 \* the ledger counted are taken as merged too.
 \* Refinement may raise at any call. CrashW1: the process may die between the ledger.json and
 \* entries.json writes; CrashW2: between the entries.json and done_ids.json writes.
+\* An earlier release can open only a job it started: one this release starts is Earlier = "none".
 EXTENDS Naturals
 CONSTANTS Ledger, StaleCheck, Union, DoneFirst, Earlier, EarlierFails, CrashW1, CrashW2, MaxFailures
 P == {1, 2}
