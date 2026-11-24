@@ -62,12 +62,16 @@ dk two-processes    FALSE  FALSE  TRUE  0       ToldWhatHolds        FAIL  # old
 dk two-same-digest  FALSE  TRUE   TRUE  0       RecordNamesFinished  FAIL  # old: even the same decisions mint two ratifications
 
 # ---- DeskList: rulings desks built on one ratification, and re-ratifying it
-dl() { run DeskList "$1" "Locked = $2 ResendKeeps = $3" "$4" "$5"; }
-#  name               locked keeps  property    expect
-dl current            TRUE   TRUE   DesksKept   PASS
-dl current            TRUE   TRUE   NeverBuilt  FAIL  # probe: desks are built
-dl unlocked           FALSE  TRUE   DesksKept   FAIL  # a desk dropped from the ratification's list, and its rulings from the record
-dl resend-rewrites    TRUE   FALSE  DesksKept   FAIL  # an interrupted desk finish sent again emptied the list
+dl() { run DeskList "$1" "Locked = $2 ResendKeeps = $3 Separate = $4 Earlier = $5" "$6" "$7"; }
+#  name               locked keeps  separate earlier property    expect
+dl current            TRUE   TRUE   TRUE     TRUE    DesksKept   PASS
+dl current            TRUE   TRUE   TRUE     TRUE    NeverBuilt  FAIL  # probe: desks are built
+dl current            TRUE   TRUE   TRUE     TRUE    EarlierKept FAIL  # limit: an earlier release's unlocked desk, written between a resend's read and write here
+dl separate-unlocked  FALSE  TRUE   TRUE     TRUE    DesksKept   FAIL  # desks.json alone is not enough: two desks built here still need the lock
+dl one-file           TRUE   TRUE   FALSE    FALSE   DesksKept   PASS  # one file is enough among this release's own writers
+dl one-file-earlier   TRUE   TRUE   FALSE    TRUE    DesksKept   FAIL  # an earlier release, unlocked, wrote back a list without a desk built here
+dl unlocked           FALSE  TRUE   FALSE    FALSE   DesksKept   FAIL  # a desk dropped from the ratification's list, and its rulings from the record
+dl resend-rewrites    TRUE   FALSE  FALSE    FALSE   DesksKept   FAIL  # an interrupted desk finish sent again emptied the list
 
 # ---- Count: a codebook batch sent again after it failed past the merge, and an earlier release
 # sharing the job (DoneFirst: done_ids.json is written before refinement; W1/W2: may die between writes)

@@ -98,7 +98,11 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   moment, or count a packet twice after a failure. A host still on an
   earlier release cannot open these jobs; upgrade every host that shares a
   job store. Jobs an earlier release started (eight hex digits) are still
-  read and finished here, among them a desk finish it was interrupted in.
+  read and finished here, among them a desk finish it was interrupted in. A
+  codebook job an earlier release started is ratified in a new job (each
+  time; its record names the codebook job), and the
+  rulings desks this release builds on a ratification are listed in
+  `desks.json`, which earlier releases do not rewrite.
 - Delegated coding of several interviews completes, and its records reach
   the rulings desk, `compare_lenses` and the lens network. `chunk_transcript`
   numbers each transcript's chunks from 1, so chunks of several interviews
@@ -127,7 +131,10 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   desks, `JobStore.update`, and `analyze_network` on a stored network. A call
   waits for the lock at most two minutes and is then refused with nothing
   recorded; a job store on a file system that takes no file locks is refused
-  with a request to keep it on a local disk.
+  with a request to keep it on a local disk. On Linux, so is one on a share
+  whose locks stay on one host (NFS `nolock` or `local_lock=flock|all`, CIFS
+  `nobrl`), read from `/proc/self/mountinfo`; set `AAT_JOBS_ONE_HOST=1` for
+  the server when no other host uses the job store.
 - `ratify_codebook` ratifies only a finished codebook job, and refuses to
   ratify one again as a different codebook: a `ratification_id` names one
   codebook, so coding jobs and rulings desks bound to it cannot drift.

@@ -184,7 +184,8 @@ def _commit(store: JobStore, desk_id: str, plan: _Plan, digest: str, pending: An
         held = {"checksum": plan.outcome["checksum"], "codes": len(plan.mint), "note": "", **plan.held}
         with store.locked(rid):
             # Sent again after an interruption: the ratification was already usable, and a
-            # rulings desk built on it since then stays on its list.
+            # rulings desk an earlier release built on it since then stays on its list (this
+            # release lists its own in desks.json, which this write leaves alone).
             earlier = _json(store, rid, "ratification.json")
             if earlier and earlier.get("desks"):
                 held["desks"] = earlier["desks"]

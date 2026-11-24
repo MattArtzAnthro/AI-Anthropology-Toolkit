@@ -236,8 +236,7 @@ class TestDeskLists(StoreBase):
                 t.start()
             for t in calls:
                 t.join()
-        held = json.loads(server._jobs.load_artifact(rid, "ratification.json"))
-        self.assertEqual(sorted(held["desks"]), sorted(built))
+        self.assertEqual(sorted(server._desk_record.desks(server._jobs, rid)), sorted(built))
 
 
 class TestDeskResend(StoreBase):
@@ -262,8 +261,7 @@ class TestDeskResend(StoreBase):
             passes.append(coding)
         rulings = server._build_desk("rulings", "", "", None, None, passes, None, True).structured_content["desk_id"]
         self.assertEqual(server.record_desk_decisions(desk_id, doc, "chat")["ratification_id"], rid)
-        held = json.loads(server._jobs.load_artifact(rid, "ratification.json") or "{}")
-        self.assertEqual(held["desks"], [rulings])
+        self.assertEqual(server._desk_record.desks(server._jobs, rid), [rulings])
 
 
 class TestJobLock(StoreBase):
@@ -390,6 +388,91 @@ class TestJobLock(StoreBase):
             other.stdout.close()
         with server._jobs.locked(job):  # released with the other process
             pass
+
+    def mounts(self, *lines):
+        info = Path(self._tmp) / "mountinfo"
+        info.write_text("".join(line + "\n" for line in lines))
+        patcher = mock.patch("ai_anthro_toolkit.jobs._MOUNTINFO", info, create=True)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_a_share_whose_locks_stay_on_this_host_is_refused(self):
+        # flock on such a share is taken on each host alone: two hosts would both hold the job.
+        root = os.path.realpath(self._tmp)
+        job = server._jobs.create("coding", {})
+        for fstype, options, named in (("nfs", "rw,vers=3,nolock,addr=10.0.0.2", "nolock"),
+                                       ("nfs4", "rw,vers=4.2,local_lock=flock,addr=10.0.0.2", "local_lock=flock"),
+                                       ("nfs", "rw,local_lock=all", "local_lock=all"),
+                                       ("cifs", "rw,nobrl,vers=3.0", "nobrl")):
+            with self.subTest(fstype=fstype, options=options):
+                self.mounts("a line that is not a mount", "22 1 0:21 / / rw,relatime - ext4 /dev/sda1 rw",
+                            f"40 22 0:40 / {root} rw,relatime - {fstype} server:/jobs {options}")
+                with self.assertRaisesRegex(RuntimeError, "keeps file locks on this host alone") as ctx:
+                    with server._jobs.locked(job):
+                        self.fail("the job was held")
+                self.assertIn(f"mounted with {named})", str(ctx.exception))
+
+    def test_the_mount_on_top_and_below_the_root_decides(self):
+        # An automount lists autofs, then the nfs share mounted over it on the same point; the
+        # share is the one the job store is on. A share mounted at <root>/locked holds the jobs.
+        root = os.path.realpath(self._tmp)
+        job = server._jobs.create("coding", {})
+        for lines in ([f"40 22 0:40 / {root} rw - autofs systemd-1 rw,fd=50",
+                       f"41 40 0:41 / {root} rw - nfs server:/jobs rw,vers=3,nolock,local_lock=all"],
+                      [f"40 22 0:40 / {root} rw - ext4 /dev/sdb1 rw",
+                       f"41 40 0:41 / {root}/locked rw - nfs server:/jobs rw,nolock"]):
+            with self.subTest(lines=lines):
+                self.mounts(*lines)
+                with self.assertRaisesRegex(RuntimeError, "nolock"), server._jobs.locked(job):
+                    self.fail("the job was held")
+
+    def test_a_job_store_used_from_one_host_may_keep_its_locks_there(self):
+        root = os.path.realpath(self._tmp)
+        job = server._jobs.create("coding", {})
+        self.mounts(f"40 22 0:40 / {root} rw - nfs server:/home rw,nolock")
+        with mock.patch.dict(os.environ, {"AAT_JOBS_ONE_HOST": "1"}), server._jobs.locked(job):
+            pass
+        with self.assertRaisesRegex(RuntimeError, "AAT_JOBS_ONE_HOST=1"), server._jobs.locked(job):
+            self.fail("the job was held")
+
+    def test_a_mount_point_that_is_not_utf8_does_not_stop_the_lock(self):
+        root = os.path.realpath(self._tmp)
+        job = server._jobs.create("coding", {})
+        info = Path(self._tmp) / "mountinfo"
+        info.write_bytes(b"40 22 0:40 / /media/caf\xe9 rw - vfat /dev/sdc1 rw\n"
+                         + f"41 22 0:41 / {root} rw - ext4 /dev/sdb1 rw\n".encode())
+        with mock.patch("ai_anthro_toolkit.jobs._MOUNTINFO", info, create=True), server._jobs.locked(job):
+            pass
+
+    def test_a_share_with_its_locks_sent_to_the_server_is_used(self):
+        root = os.path.realpath(self._tmp)
+        job = server._jobs.create("coding", {})
+        for line in (f"40 22 0:40 / {root} rw - nfs4 server:/jobs rw,vers=4.2,local_lock=none",
+                     f"40 22 0:40 / {root} rw - cifs //server/jobs rw,vers=3.0",
+                     f"40 22 0:40 / {root}/elsewhere rw - nfs server:/x rw,nolock",
+                     "40 22 0:40 / / rw - nfs server:/x rw,nolock\n"
+                     f"41 40 0:41 / {root} rw - ext4 /dev/sdb1 rw",
+                     f"40 22 0:40 / {root} rw - nfs server:/x rw,nolock\n"
+                     f"41 40 0:41 / {root} rw - ext4 /dev/sdb1 rw"):
+            with self.subTest(line=line):
+                self.mounts(*line.split("\n"))
+                with server._jobs.locked(job):
+                    pass
+
+    def test_a_mount_point_with_a_space_is_read_as_the_kernel_writes_it(self):
+        root = Path(self._tmp) / "job store"
+        store = JobStore(root)
+        job = store.create("coding", {})
+        escaped = os.path.realpath(root).replace(" ", "\\040")
+        self.mounts(f"40 22 0:40 / {escaped} rw - nfs server:/x rw,nolock")
+        with self.assertRaisesRegex(RuntimeError, "nolock"), store.locked(job):
+            self.fail("the job was held")
+
+    def test_without_mountinfo_the_lock_is_taken(self):
+        job = server._jobs.create("coding", {})
+        with mock.patch("ai_anthro_toolkit.jobs._MOUNTINFO", Path(self._tmp) / "absent", create=True):
+            with server._jobs.locked(job):
+                pass
 
     def test_a_file_system_without_locks_is_named(self):
         # A network share mounted without lock support refuses flock (ENOLCK); the call says
@@ -1011,9 +1094,65 @@ class TestEarlierReleasesFenced(StoreBase):
         doc["desk_id"] = desk_id
         server._jobs.save_artifact(desk_id, "finishing.json", json.dumps(
             {"digest": gate._digest(decisions.parse(doc)), "ratification_id": rid}))
+        held = json.loads(server._jobs.load_artifact(rid, "ratification.json"))  # 3.11 lists a desk
+        server._jobs.save_artifact(rid, "ratification.json", json.dumps(dict(held, desks=["desk-0a1b2c3d"])))
         out = server.record_desk_decisions(desk_id, doc, "chat")
         self.assertEqual(out["ratification_id"], rid)
+        kept = json.loads(server._jobs.load_artifact(rid, "ratification.json"))["desks"]
+        self.assertEqual(kept, ["desk-0a1b2c3d"])  # the earlier release's own list, as it wrote it
         self.assertEqual(list(Path(self._tmp).glob("locked/ratification-*")), [])
+
+    def test_a_desk_built_here_survives_an_earlier_release_rewriting_its_ratification(self):
+        # tla: DeskList current DesksKept PASS, one-file-earlier FAIL.
+        # 3.11 reads, changes and writes ratification.json with no lock (ratifying again, or
+        # adding a desk of its own). Done while a desk is built here on a ratification an
+        # earlier release made, it wrote back a list without this desk, and the decision record
+        # lost the desk's rulings.
+        rid = self.earlier_job(server.ratify_codebook(codebook=CODEBOOK)["ratification_id"])
+        passes = []
+        for answer in ("trust", "NO_CODES"):
+            coding = server.start_coding_job(CHUNKS[:2], ratification_id=rid, llm_mode="delegated")["job_id"]
+            server.submit_batch(coding, [{"id": c["chunk_id"], "response": answer} for c in CHUNKS[:2]])
+            passes.append(coding)
+        stale = json.loads(server._jobs.load_artifact(rid, "ratification.json"))  # 3.11 reads
+        built = server._build_desk("rulings", "", "", None, None, passes, None, True).structured_content
+        (Path(self._tmp) / rid / "ratification.json").write_text(json.dumps(stale))  # 3.11 writes
+        record = server._decision_record(rid, "")["record"]
+        self.assertIn(built["desk_id"], {entry["desk_id"] for entry in record})
+
+    def test_a_codebook_job_an_earlier_release_started_is_ratified_in_a_job_of_its_own(self):
+        # Its ratification.json is one 3.11 reads, changes and writes without a lock.
+        job = self.earlier_job(self.codebook_job())
+        server.submit_batch(job, [{"id": p["id"], "response": _code("trust")}
+                                  for p in server.get_next_batch(job, 10)["packets"]])
+        before = {f.name: f.read_bytes() for f in (Path(self._tmp) / job).iterdir()}
+        out = server.ratify_codebook(codebook_job_id=job)
+        self.assertRegex(out["ratification_id"], r"^ratification-[0-9a-f]{12}$")
+        self.assertEqual({f.name: f.read_bytes() for f in (Path(self._tmp) / job).iterdir()}, before)
+        coding = server.start_coding_job(CHUNKS, ratification_id=out["ratification_id"], llm_mode="delegated")
+        self.assertEqual(coding["packets"], len(CHUNKS))
+        held = json.loads(server._jobs.load_artifact(out["ratification_id"], "ratification.json"))
+        self.assertEqual(held["codebook_job_id"], job)
+        self.assertEqual(server._decision_record(out["ratification_id"], "")["record"], [])
+        again = server.ratify_codebook(codebook_job_id=job)["ratification_id"]
+        self.assertNotEqual(again, out["ratification_id"])  # each its own; the folder still untouched
+        self.assertEqual({f.name: f.read_bytes() for f in (Path(self._tmp) / job).iterdir()}, before)
+
+    def test_a_damaged_list_of_desks_is_refused_with_advice_that_works(self):
+        rid = server.ratify_codebook(codebook=CODEBOOK)["ratification_id"]
+        passes = []
+        for answer in ("trust", "NO_CODES"):
+            coding = server.start_coding_job(CHUNKS[:2], ratification_id=rid, llm_mode="delegated")["job_id"]
+            server.submit_batch(coding, [{"id": c["chunk_id"], "response": answer} for c in CHUNKS[:2]])
+            passes.append(coding)
+        for damaged in ("null", "{not json", '["desk-1", 2]'):
+            with self.subTest(damaged=damaged):
+                server._jobs.save_artifact(rid, "desks.json", damaged)
+                with self.assertRaisesRegex(ValueError, "desks.json must hold a list of desk IDs.*ratify"):
+                    server._build_desk("rulings", "", "", None, None, passes, None, True)
+                with self.assertRaisesRegex(ValueError, "desks.json must hold a list of desk IDs"):
+                    server._decision_record(rid, "")
+                self.assertEqual(list(Path(self._tmp).glob("locked/desk-*")), [])
 
     def test_what_a_release_before_3_10_leaves_behind_is_not_a_job(self):
         # Asked about a job it cannot see, such a release makes an empty <root>/<id> folder.

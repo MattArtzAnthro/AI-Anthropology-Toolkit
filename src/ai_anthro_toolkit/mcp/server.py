@@ -850,6 +850,7 @@ def ratify_codebook(codebook: list[dict] | None = None,
     the researcher — not answering it for them — is the caller's
     obligation under the toolkit's Friction by Design conventions.
     """
+    fresh = False  # a ratification of its own, made from a codebook job an earlier release started
     if codebook_job_id:
         _job_of_kind(codebook_job_id, "codebook")  # refuses a job of another kind
         records = _load_records(codebook_job_id, "result.json")
@@ -858,20 +859,23 @@ def ratify_codebook(codebook: list[dict] | None = None,
                 f"Codebook job '{codebook_job_id}' has no result yet — "
                 "ratification applies to a finished codebook the researcher "
                 "has seen, not a job in progress.")
-        ratification_id = codebook_job_id
+        # A codebook job an earlier release started is ratified in a job of its own: that
+        # release reads, changes and writes its ratification.json without a lock.
+        fresh = not _jobs.is_new(codebook_job_id)
+        ratification_id = _new_ratification(records) if fresh else codebook_job_id
     elif codebook:
         records = list(codebook)
-        ratification_id = _jobs.create("ratification", {"codes": len(records)})
-        _jobs.save_artifact(ratification_id, "result.json", json.dumps(records))
-        _jobs.complete(ratification_id)
+        ratification_id = _new_ratification(records)
     else:
         raise ValueError("Provide codebook records or a codebook_job_id.")
 
     checksum = _codebook_checksum(records)
     held = {"checksum": checksum, "codes": len(records), "note": note, "method": "table", "version": "1.0"}
-    with _jobs.locked(ratification_id):  # a desk built on it at the same time adds to its desks
-        # Ratifying a codebook job again keeps the desks already built on it, and must name the
-        # same codebook: coding jobs and desks hold this ID as the codebook they ran under.
+    if fresh:
+        held["codebook_job_id"] = codebook_job_id
+    with _jobs.locked(ratification_id):  # against ratifying it again, or a desk finish resent
+        # Ratifying a codebook job again must name the same codebook: coding jobs and desks
+        # hold this ID as the codebook they ran under. Its desks are in desks.json, untouched.
         earlier = _load_records(ratification_id, "ratification.json") if codebook_job_id else None
         if earlier and earlier.get("checksum") not in (None, checksum):
             raise ValueError(
@@ -879,12 +883,17 @@ def ratify_codebook(codebook: list[dict] | None = None,
                 f"{earlier['checksum']}, now {checksum}); a ratification_id names one codebook. "
                 "Ratify the revised codebook by passing its records as `codebook`, which gives "
                 "it a ratification_id of its own.")
-        if earlier and earlier.get("desks"):
-            held["desks"] = earlier["desks"]
         _jobs.save_artifact(ratification_id, "ratification.json", json.dumps(held))
     return {"ratification_id": ratification_id, "checksum": checksum,
             "codes": len(records), "note": note,
             "next": "pass ratification_id to start_coding_job"}
+
+
+def _new_ratification(records: list[dict]) -> str:
+    ratification_id = _jobs.create("ratification", {"codes": len(records)})
+    _jobs.save_artifact(ratification_id, "result.json", json.dumps(records))
+    _jobs.complete(ratification_id)
+    return ratification_id
 
 
 @_tool(annotations=_JOB_WRITE)
@@ -1520,14 +1529,6 @@ def _unused(stage: str, **given: object) -> None:
         raise ValueError(f"A {stage} desk does not take {', '.join(named)}.")
 
 
-def _listed_desks(held: dict, ratification_id: str) -> list[str]:
-    desks = held.get("desks", [])
-    if not isinstance(desks, list) or not all(isinstance(d, str) for d in desks):
-        raise ValueError(f"{ratification_id}'s list of desks is damaged; ratify the "
-                         "codebook again before building a desk on it.")
-    return desks
-
-
 def _codebook_desk(codebook_job_id: str, codebook: list[dict] | None,
                    cases: dict | None) -> tuple[dict, list[dict], list[dict]]:
     """A codebook desk's payload, its source records, and the machine's record entries."""
@@ -1580,7 +1581,7 @@ def _rulings_desk(coding_job_ids: list[str] | None,
     codebook = _load_records(in_force, "result.json")
     if not held or not codebook:
         raise ValueError(f"The ratification in force, {in_force}, holds no codebook.")
-    _listed_desks(held, in_force)
+    _desk_record.desks(_jobs, in_force)  # refuses a damaged list before anything is built
     built = _desk_cards.rulings_cards(coded[0], coded[1], codebook, proposals)
     payload = {"stage": "rulings", "cards": built,
                "codes": [str(r["code_label"]).strip() for r in codebook],
@@ -1665,9 +1666,7 @@ def _build_desk(stage: str, title: str, codebook_job_id: str, codebook: list[dic
         for entry in [{"card_id": "desk", "action": "build", "detail": built}, *entries]])
     if stage == "rulings":
         with _jobs.locked(payload["ratification_id"]):  # another desk may be added at once
-            held = _load_records(payload["ratification_id"], "ratification.json")
-            held["desks"] = [*_listed_desks(held, payload["ratification_id"]), desk_id]
-            _jobs.save_artifact(payload["ratification_id"], "ratification.json", json.dumps(held))
+            _desk_record.add_desk(_jobs, payload["ratification_id"], desk_id)
     kind = "code" if stage == "codebook" else "disagreement"
     count = len(payload["cards"])
     text = (f"Desk {desk_id} built: {count} {kind}{'' if count == 1 else 's'} to decide. "

@@ -63,8 +63,7 @@ class GateCase(unittest.TestCase):
         payload.update(card_checksum=cards.checksum(desk["cards"]), ratification_id=in_force, agreed=8)
         desk_id = self.store.create("desk", payload)
         # The builder (task 14) lists a rulings desk under the ratification in force.
-        held = json.loads(self.store.load_artifact(in_force, "ratification.json"))
-        self.store.save_artifact(in_force, "ratification.json", json.dumps(dict(held, desks=[*held.get("desks", []), desk_id])))
+        record.add_desk(self.store, in_force, desk_id)
         return desk_id, desk["cards"]
 
     def assert_nothing_written(self, desk_id, ratifications=()):

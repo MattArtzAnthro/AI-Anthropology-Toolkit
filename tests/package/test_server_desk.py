@@ -268,7 +268,8 @@ class TestRulingsDesk(DeskCase):
         _, result = self.rulings(ratification_id=job_id)
         server.ratify_codebook(codebook_job_id=job_id, note="looked again")
         held = json.loads(self.store.load_artifact(job_id, "ratification.json"))
-        self.assertEqual((held["desks"], held["note"]), ([result.structured_content["desk_id"]], "looked again"))
+        self.assertEqual((record.desks(self.store, job_id), held["note"]),
+                         ([result.structured_content["desk_id"]], "looked again"))
 
     def test_a_ratification_without_its_codebook_is_refused(self):
         rid = self.ratified()
@@ -321,8 +322,7 @@ class TestRulingsDesk(DeskCase):
         self.assertIs(stored["exclusive"], False)  # a table ratification never asked
         coded = len(load("coding_a"))
         self.assertEqual((coded, len(stored["cards"]), stored["agreed"]), (12, 4, 8))
-        self.assertEqual(json.loads(self.store.load_artifact(rid, "ratification.json"))["desks"],
-                         [result.structured_content["desk_id"]])
+        self.assertEqual(record.desks(self.store, rid), [result.structured_content["desk_id"]])
 
     def test_exclusivity_comes_from_the_ratification_in_force(self):
         rid = self.ratified()
@@ -330,8 +330,7 @@ class TestRulingsDesk(DeskCase):
         self.store.save_artifact(rid, "ratification.json", json.dumps(dict(held, exclusive=True, desks=["desk-00000000"])))
         _, result = self.rulings(ratification_id=rid)
         self.assertIs(self.payload(result)["exclusive"], True)
-        self.assertEqual(json.loads(self.store.load_artifact(rid, "ratification.json"))["desks"],
-                         ["desk-00000000", result.structured_content["desk_id"]])
+        self.assertEqual(record.desks(self.store, rid), ["desk-00000000", result.structured_content["desk_id"]])
 
     def test_the_gate_finishes_a_rulings_desk_the_tool_built(self):
         rid, result = self.rulings(proposals=load("proposals"))
@@ -948,7 +947,7 @@ class TestTableRatification(DeskCase):
         self.rulings(ratification_id=rid)
         server.ratify_codebook(codebook_job_id=job_id)
         held = json.loads(self.store.load_artifact(rid, "ratification.json"))
-        self.assertEqual((held["method"], held["version"], len(held["desks"])), ("table", "1.0", 1))
+        self.assertEqual((held["method"], held["version"], len(record.desks(self.store, rid))), ("table", "1.0", 1))
 
 
 class TestPagesHostsBuild(DeskCase):

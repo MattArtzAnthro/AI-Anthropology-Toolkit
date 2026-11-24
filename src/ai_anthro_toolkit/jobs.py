@@ -62,6 +62,53 @@ def _busy(job_id: str) -> str:
             "downloads). Nothing was recorded; try again when it has finished.")
 
 
+# Where Linux lists each mount with its options, and the options under which a network file
+# system takes flock on this host alone: NFS without the lock protocol, or with locks kept
+# local, and CIFS without byte-range locks sent to the server.
+_MOUNTINFO = Path("/proc/self/mountinfo")
+_LOCAL_LOCKS = {"nfs": {"nolock", "local_lock=flock", "local_lock=all"},
+                "nfs4": {"nolock", "local_lock=flock", "local_lock=all"},
+                "cifs": {"nobrl"}, "smb3": {"nobrl"}}
+# Set to 1 when the job store is used from this host only: then locks kept on this host hold.
+ONE_HOST = "AAT_JOBS_ONE_HOST"
+
+
+def _unescape(field: str) -> str:
+    return re.sub(r"\\([0-7]{3})", lambda m: chr(int(m.group(1), 8)), field)
+
+
+def _host_only_locks(folder: Path) -> list[str]:
+    """The options that keep file locks on this host, when `folder` is on a share mounted with
+    them; empty when it is not, or the system does not say (no /proc/self/mountinfo). Only NFS
+    and CIFS are recognised. A mount point that is not UTF-8 is read as os.path reads it."""
+    try:
+        lines = _MOUNTINFO.read_text(encoding="utf-8", errors="surrogateescape").splitlines()
+    except OSError:
+        return []
+    target = os.path.realpath(folder)
+    best: tuple[str, str, list[str]] | None = None
+    for line in lines:
+        left, sep, right = line.partition(" - ")
+        fields, rest = left.split(), right.split()
+        if not sep or len(fields) < 6 or len(rest) < 3:
+            continue
+        mount = _unescape(fields[4])
+        inside = target == mount or target.startswith(mount.rstrip("/") + "/")
+        # The longest mount point holds the folder; of two on one point, the later line is the
+        # mount on top (an automount's nfs over its autofs, a disk mounted over a share).
+        if inside and (best is None or len(mount) >= len(best[0])):
+            best = (mount, rest[0], fields[5].split(",") + rest[2].split(","))
+    if best is None:
+        return []
+    return sorted({o for o in best[2] if o in _LOCAL_LOCKS.get(best[1], set())})
+
+
+def _no_locks(root: Path, why: str, also: str = "") -> RuntimeError:
+    return RuntimeError(
+        f"The job store at {root} is on a file system that {why}, so two calls could "
+        f"overwrite each other's work. Keep the job store on a local disk.{also}")
+
+
 def _try_lock(fh, root: Path) -> bool:
     """Take the job's file lock without waiting; False when another process holds it."""
     try:
@@ -74,10 +121,8 @@ def _try_lock(fh, root: Path) -> bool:
         if exc.errno in (errno.EAGAIN, errno.EWOULDBLOCK, errno.EACCES, errno.EDEADLK):
             return False
         if exc.errno in (errno.ENOLCK, errno.ENOTSUP, errno.EOPNOTSUPP):
-            raise RuntimeError(
-                f"The job store at {root} is on a file system that takes no file locks (a "
-                "network share mounted without locking), so two calls could overwrite each "
-                "other's work. Keep the job store on a local disk.") from exc
+            raise _no_locks(root, "takes no file locks (a network share mounted without "
+                                  "locking)") from exc
         raise
     return True
 
@@ -180,6 +225,11 @@ class JobStore:
         fh = None
         try:
             if held[key] == 1 and (fcntl is not None or msvcrt is not None):
+                local = [] if os.environ.get(ONE_HOST) == "1" else _host_only_locks(d)
+                if local:
+                    raise _no_locks(self.root, "keeps file locks on this host alone (a network "
+                                               f"share mounted with {', '.join(local)})",
+                                    f" If no other host uses it, set {ONE_HOST}=1 for the server.")
                 fh = _lock_file(d / ".lock", job_id, self.root, deadline)
             yield
         finally:
@@ -188,6 +238,11 @@ class JobStore:
                 _unlock(fh)
                 fh.close()
             lock.release()
+
+    @staticmethod
+    def is_new(job_id: str) -> bool:
+        """Whether this release issued the ID, so no earlier release can open the job."""
+        return bool(_NEW_ID.fullmatch(job_id))
 
     @staticmethod
     def new_id(kind: str) -> str:
@@ -209,8 +264,6 @@ class JobStore:
         if not _NEW_ID.fullmatch(job_id):
             raise ValueError(f"{job_id!r} is not an ID for a {kind} job, as new_id issues them.")
         d = self._dir(job_id, create=True)
-        if (d / "job.json").is_file():
-            return job_id
         _write_atomic(d / "job.json", json.dumps({
             "job_id": job_id,
             "kind": kind,

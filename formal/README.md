@@ -15,7 +15,7 @@ or two server processes, work on one job or desk at once.
 | `tla/Desk.tla` | `desk.gate.apply` under `JobStore.locked` | Two callers finishing one desk, in one process or two, with crashes and retries: the decision record names the ratification the desk finished as, every caller is told that one, and no ratification job is made that the desk does not name |
 | `tla/Count.tla` | the codebook branch of `submit_batch` (`ledger.json`, its write order) | A batch that fails after its codes were merged (refinement raises, the process dies between writes) and is sent again is counted once; with an earlier release sharing the job store and submitting between this release's calls, every packet answered keeps its codes, and none is counted twice unless a process died between writing `entries.json` and `done_ids.json`, or the earlier release's own refinement raised between its two writes. Only a job an earlier release started is shared: no earlier release opens one this release starts (`one-release`) |
 | `tla/DeskView.tla` | `desk_sync`, `desk_finish`, `record_desk_decisions` | A desk whose finish from the conversation was interrupted, and which is then opened in its view, can still be finished; so can one an earlier release left held by its view; and the view's own interrupted Ratify is completed only in the view, so the record names the surface the decisions were made on |
-| `tla/DeskList.tla` | `build_ratification_desk`, `ratify_codebook`, `desk.gate._commit` | Rulings desks built at once on one ratification, while it is ratified again or an interrupted desk finish that minted it is sent again, all stay on its list of desks |
+| `tla/DeskList.tla` | `build_ratification_desk`, `ratify_codebook`, `desk.gate._commit`, `desk.record.add_desk` | Rulings desks built at once on one ratification, while it is ratified again, an interrupted desk finish that minted it is sent again, or an earlier release builds a desk on it without a lock, all stay on its lists of desks |
 
 Each Lean file keeps the rule as it was before the fix beside the rule as fixed. For every hole a
 theorem shows the old rule let it through and another shows the fixed rule stops it.
@@ -65,6 +65,9 @@ models describe; a push that changes one of those files runs the provers.
 | `Submit current NeverBothEnd`, `Desk current NeverFinished`, `DeskList current NeverBuilt`, `Count current NeverDone`, `DeskView current NeverFinished` | Probes: the states are reachable |
 | `Submit unlocked *`, `DeskList unlocked DesksKept` | The rule before `JobStore.locked`: a parallel call loses the other's write |
 | `DeskList resend-rewrites DesksKept` | The rule before: a desk finish sent again wrote its plan's empty list of desks |
+| `DeskList one-file-earlier DesksKept` | The rule before: desks built here were listed in `ratification.json`, which an earlier release rewrites without a lock |
+| `DeskList separate-unlocked DesksKept` | A probe: `desks.json` alone is not enough; two desks built here at once still need the lock |
+| `DeskList current EarlierKept` | Limit: a desk an earlier release adds, without a lock, while this release completes that release's interrupted desk finish |
 | `Count no-ledger CountedOnce` | The rule before `ledger.json`: the packets merged were read from `done_ids.json`, written last, so each resend after a failure merged again |
 | `Count ledger-only Kept` | The first fix: a ledger an earlier release left out of date was read as the merge, and the packet that release merged lost its codes |
 | `Count stale-to-done CountedOnce` | `done_ids.json` written after refinement: a stale ledger's own packet, merged by a batch whose refinement then failed, is merged again |
@@ -89,18 +92,25 @@ models describe; a push that changes one of those files runs the provers.
   merged and failed to record (its refinement raised, or its process died between its two
   writes) is counted twice when sent again; and it counts again a packet its own caller resends.
   Finish such a job on one release, or upgrade every host that shares a job store.
-- A ratification an earlier release made, or one this release makes from a codebook job an
-  earlier release started (the ratification takes the codebook job's ID), stays in that form.
-  New coding jobs and rulings desks built here on it read it, and a desk built here adds itself
-  to its list of desks; an earlier release changes that list without a lock, so a desk built on
-  it there at the same moment can drop one from the list (`DeskList.tla`'s rule before). Ratify
-  again on this release to give new work a ratification of its own.
-- A release before 3.10 opens `<root>/<string>` for any string it is given, so handed
-  `locked/<id>` rather than the bare ID (the path a desk page is written to shows it), it opens
-  a job this release started, without a lock. The tools return and take bare IDs.
-- A job store on a network share mounted with locking turned off (`nolock`, `local_lock`)
-  takes `flock` on each host alone, and nothing on the share can tell. On a local disk, and on
-  NFS or SMB with locking, the lock holds across hosts.
+- A ratification an earlier release made is read here, and coding jobs and rulings desks can be
+  built on it. This release lists the desks it builds in `desks.json`, which no earlier release
+  opens, so an earlier release rewriting `ratification.json` cannot drop one. A codebook job an
+  earlier release started is ratified in a new job (its `ratification.json` names the codebook
+  job), not in its own folder. Two things remain between releases: an earlier release's decision
+  record reads only `ratification.json`, so it lacks the desks built here; and a desk finish an
+  earlier release started and this one completes rewrites that ratification's
+  `ratification.json`, so a desk that release adds at that moment, without a lock, can be dropped
+  (`DeskList current EarlierKept`).
+- A release before 3.10 opens `<root>/<string>` for any string it is given. Handed a path
+  (`locked/<id>`, or an absolute one) instead of a job ID, it opens a job this release started,
+  without a lock. Every tool returns and takes bare IDs; only a path pasted by hand reaches it.
+- A job store on an NFS or CIFS share whose file locks stay on one host is refused on Linux,
+  which lists each mount's options (`nolock` or `local_lock=flock|all` on NFS, `nobrl` on CIFS),
+  unless `AAT_JOBS_ONE_HOST=1` says no other host uses it. Other shares that can keep locks on
+  one host (Lustre `localflock`, FUSE mounts such as sshfs, 9p, virtiofs, older CIFS clients
+  without flock support) are not recognised, and macOS and Windows do not report mount options;
+  there, `flock` on such a share holds on each host alone. On a local disk, and on NFS or SMB
+  with locking, the lock holds across hosts.
 - A call waits for a job's lock at most `jobs.LOCK_TIMEOUT` (two minutes) and is then refused,
   with nothing recorded; a codebook's last batch can hold its job that long while an embedding
   model downloads.

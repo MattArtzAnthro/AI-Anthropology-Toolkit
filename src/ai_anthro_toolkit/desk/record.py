@@ -26,7 +26,12 @@ from typing import Any
 
 from ai_anthro_toolkit.jobs import JobStore
 
-__all__ = ["ACTIONS", "SURFACES", "append", "read", "read_lineage"]
+__all__ = ["ACTIONS", "DESKS", "SURFACES", "add_desk", "append", "desks", "read", "read_lineage"]
+
+# The rulings desks this release builds on a ratification. Earlier releases listed them under
+# "desks" in ratification.json, which they read, change and write without a lock; this file
+# they never open, so a desk listed here cannot be dropped by one of them.
+DESKS = "desks.json"
 
 Entry = dict[str, Any]
 RECORD = "record.jsonl"
@@ -92,6 +97,39 @@ def append(
     return written
 
 
+def _desk_list(ratification_id: str, name: str, value: Any) -> list[str]:
+    if not isinstance(value, list) or not all(isinstance(d, str) for d in value):
+        raise ValueError(f"{ratification_id}'s list of desks is damaged: {name} must hold a list "
+                         "of desk IDs. Restore it from a copy, or ratify the codebook again and "
+                         "code under the new ratification_id.")
+    return value
+
+
+def _own_desks(store: JobStore, ratification_id: str) -> list[str]:
+    text = store.load_artifact(ratification_id, DESKS)
+    try:
+        value = json.loads(text) if text is not None else []
+    except json.JSONDecodeError:
+        value = None
+    return _desk_list(ratification_id, DESKS, value)
+
+
+def desks(store: JobStore, ratification_id: str) -> list[str]:
+    """The rulings desks built on a ratification: those an earlier release listed in
+    ratification.json, then those listed in desks.json, each once."""
+    held = json.loads(store.load_artifact(ratification_id, "ratification.json") or "{}")
+    listed = [*_desk_list(ratification_id, "ratification.json", held.get("desks", [])),
+              *_own_desks(store, ratification_id)]
+    return list(dict.fromkeys(listed))
+
+
+def add_desk(store: JobStore, ratification_id: str, desk_id: str) -> None:
+    """List a rulings desk under its ratification. Hold the ratification's lock."""
+    desks(store, ratification_id)  # refuses a damaged list
+    store.save_artifact(ratification_id, DESKS,
+                        json.dumps([*_own_desks(store, ratification_id), desk_id]))
+
+
 def _ratification(store: JobStore, ratification_id: str) -> dict[str, Any]:
     text = store.load_artifact(ratification_id, "ratification.json")
     if text is None:
@@ -104,19 +142,17 @@ def read_lineage(store: JobStore, ratification_id: str) -> list[Entry]:
     """The entries behind a ratification: from the first ratification in its chain to this
     one, each one's desk and then the rulings desks built under it, each desk read once.
     A ratification made from a table, with no desk, contributes nothing."""
-    chain = []
-    seen = set()
+    chain: list[tuple[str, dict[str, Any]]] = []
     current: str | None = ratification_id
     while current:
-        if current in seen:
+        if current in (rid for rid, _ in chain):
             raise ValueError(f"The ratification chain behind {ratification_id} loops at {current}.")
-        seen.add(current)
         record = _ratification(store, current)
-        chain.append(record)
+        chain.append((current, record))
         current = record.get("parent")
-    desks: list[str] = []
-    for record in reversed(chain):
-        for desk_id in [record.get("desk_id"), *record.get("desks", [])]:
-            if desk_id and desk_id not in desks:
-                desks.append(desk_id)
-    return [entry for desk_id in desks for entry in read(store, desk_id)]
+    behind: list[str] = []
+    for rid, record in reversed(chain):
+        for desk_id in [record.get("desk_id"), *desks(store, rid)]:
+            if desk_id and desk_id not in behind:
+                behind.append(desk_id)
+    return [entry for desk_id in behind for entry in read(store, desk_id)]
