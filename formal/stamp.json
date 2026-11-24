@@ -2,12 +2,12 @@
  "files": {
   "formal/.gitignore": "fde850d24186b6e99c8c0debd641fb3ab85198b109eb66f71a1fea02bd6ea1b3",
   "formal/AatModel.lean": "22dccf32b6fca20fcae0739ce352ba4a924a65a43f1de8ebbee3bc0e96d98853",
-  "formal/AatModel/Packets.lean": "acf8fea2aaf95d27d4d735285b66c5eca88af2d1781877c87aadaf22cfce8ccd",
+  "formal/AatModel/Packets.lean": "7abc77ade1cb6b2552a67fc66b48de2b7c174f6475ba8412c8fd2d32e9061512",
   "formal/AatModel/Ratify.lean": "baefa88dded54adb99fdafdbb8b13ef2903d5d634013b5e2677cfc39494b46b2",
-  "formal/AatModel/Submit.lean": "0829faf1b2135d330af7ccc4bf54dd719d6851481edfc2a094ba6738d32cee65",
-  "formal/Main.lean": "d0b39c917ca4549c3f6424b6362d6624aa428768dce6ceb7392b20642aad40bc",
-  "formal/README.md": "36ddff70e4e91c784dd55997cf8d1f3e1eed6a79f8a6241256174030ba932bea",
-  "formal/axioms.lean": "04e49e4cf22104ac53a53d1f45b9aa0d83d7ee53c3a4c26e16df12fa1bafc9af",
+  "formal/AatModel/Submit.lean": "5b0dbd92f9d20511323b4dd01b1b5830eacb734a10e7018b6e3ce4a8836ae05f",
+  "formal/Main.lean": "cba35e5d0e5281ad096a60ae4196310ab7b9b816fb718535588d54b2977d7eca",
+  "formal/README.md": "04d4d4ce25c09718c41112d9ca3c3319df992ebdac6b6ea9866fbd229c50d4f7",
+  "formal/axioms.lean": "a9dfca4f893637d40359f6ff35b0a5d5dafa4a3ccd3ca4796da5a10a82437087",
   "formal/check.sh": "8da565d0deea3999df32522dc4dd12f80ba4e8453aa19a0d7df2fddd9e8fa509",
   "formal/lake-manifest.json": "6ad3c97a625e17ee30ff5cdb07914b708059e2ba62443355d3973ad6af59b53d",
   "formal/lakefile.toml": "fb5f0fd43c1d29b8d7bae6f2a3261b600cd88d164a63fa6c6748ee7aa5534441",
@@ -15,13 +15,13 @@
   "formal/lean.sh": "c960f33830d599bba046b854090245330a03b2db4ffd295eebca7d61a2109519",
   "formal/modeled.txt": "723ac4830847fc761da6d0b7942dcb7a95ffc44bf2bedd6254e4628b9c2bdc2b",
   "formal/stamp.py": "69f21e89c6867dc4386096d15ee1c15d701b06b8f02771ffc4f5ff90cab05a58",
-  "formal/tla/Count.tla": "1ede8329e1ad44514bf2dd4cf966463c197e206f917553a0c5f68c8698d6448c",
-  "formal/tla/Desk.tla": "4d0bdb5ac1ee9bc7b13296e169ff2107be36435c57a5cc2e4845e603a18331f5",
+  "formal/tla/Count.tla": "c09df3a8b96e1984ab585fda296de87481a036ab654d3fea3872c32ce7ef06ef",
+  "formal/tla/Desk.tla": "d8e2f6cd3173a52fc4a090d42545f11f8e18a3d2941b08beca20f55447f9a3fc",
   "formal/tla/DeskList.tla": "002a2a4efe916000b47bc30e0577d5de546949458f1a80db250f17fccf0fa36a",
   "formal/tla/DeskView.tla": "115d7bb4610099a92819a3c5a6996d78960176cf203a9cd819f92f6e3cc07e17",
   "formal/tla/Submit.tla": "c0dfd114f7e8f4321f193dee680248dbf5ad50ae0a6c222bfa2c177560f11913",
-  "formal/tla/check.sh": "15e207b35c5cbd1108a528f930846ab96ee521df461fedd7d0c9d76439da8106",
-  "formal/vectors.json": "8a3343e01db726fbab169d8330bb815bda0bf0f09720eee876dcc891cb225cea"
+  "formal/tla/check.sh": "1e7e872ecd3c9ca98e83f2dfa592e390a14146945d063110e70c0aaa76ac1f36",
+  "formal/vectors.json": "06640c620e7254aa994ff22fe826dcedffdd3e1eab01999364b57fefdf3922af"
  },
  "version": 1
 }

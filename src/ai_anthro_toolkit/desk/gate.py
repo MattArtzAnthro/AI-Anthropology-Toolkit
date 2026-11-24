@@ -4,8 +4,8 @@ at a desk enter the analysis, whichever surface they were made on.
 ``apply`` works in two steps. It first checks the desk and the whole decisions document and
 works out everything it will write, naming every problem at once and writing nothing on a
 refusal. Then it writes, in an order that a second call with the same decisions can resume
-if the first is interrupted: ``finishing.json`` (the document's digest and the ratification
-it mints), the ratification, the desk's resolved records, the decision record (appended
+if the first is interrupted: ``finishing.json`` (the document's digest and the ID of the
+ratification it mints), the ratification, the desk's resolved records, the decision record (appended
 once, as one batch), and ``finished.json``, which holds the digest and the outcome, so the
 same decisions sent again return the same outcome and write nothing (R5.6). The digest is
 taken over the document as sent, so decisions that differ only in a note's spacing count
@@ -175,9 +175,12 @@ def _commit(store: JobStore, desk_id: str, plan: _Plan, digest: str, pending: An
     if pending:
         rid = pending["ratification_id"]
     else:
-        rid = store.create("ratification", {"codes": len(plan.mint)}) if plan.mint is not None else str(plan.in_force)
+        rid = store.new_id("ratification") if plan.mint is not None else str(plan.in_force)
         store.save_artifact(desk_id, "finishing.json", json.dumps({"digest": digest, "ratification_id": rid}))
     if plan.mint is not None:
+        # Made only once finishing.json names it, so an interrupted finish leaves no
+        # ratification job that nothing names; sent again, it makes the one named.
+        store.create("ratification", {"codes": len(plan.mint)}, job_id=rid)
         held = {"checksum": plan.outcome["checksum"], "codes": len(plan.mint), "note": "", **plan.held}
         with store.locked(rid):
             # Sent again after an interruption: the ratification was already usable, and a

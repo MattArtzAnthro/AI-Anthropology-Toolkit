@@ -11,13 +11,16 @@ that counts every answered packet is this release's own: its entries.json holds 
 packets only, as when a call died after writing ledger.json and before entries.json, so a
 server that read entries.json instead would count wrongly. A ledger that lacks an answered packet
 is out of date: an earlier release, which writes entries.json but not ledger.json, merged since,
-and its entries.json holds every packet answered or counted.
+and entries.json is seeded with the packets done_ids.json records, as that release writes them
+when neither of its two writes fails (formal/tla/Count.tla checks the failures); a packet the
+ledger counted beyond them died here before reaching entries.json.
 `formal/check.sh` regenerates the file and fails if the committed copy differs.
 
     python3 -m unittest tests.package.test_formal_conformance -v
 """
 
 import copy
+import hashlib
 import json
 import shutil
 import tempfile
@@ -58,9 +61,7 @@ def _submit_case(case, kind):
     server._jobs.save_artifact(job, "done_ids.json", json.dumps(done))
     ledger = case["ledger"]
     if kind == "codebook":
-        counted = {str(c) for c in ledger or []}
-        current = ledger is not None and set(done) <= counted
-        merged = len(set(done)) if current else len(set(done) | counted)
+        merged = len(set(done))
         if merged:
             server._jobs.save_artifact(job, "entries.json", json.dumps(_trust(merged)))
         if ledger is not None:
@@ -183,17 +184,51 @@ class TestFormalConformance(unittest.TestCase):
         self.assertEqual(len(mismatches([], [planted_ratify])), 1)
 
     def test_packet_ids_match_the_model(self):
-        # Packets.lean packet_ids_distinct, packet_ids_keep_distinct_ids
+        # Packets.lean packet_ids_distinct, packet_ids_keep_distinct_ids, packet_ids_name_the_chunk.
+        # A packet is written: the chunk ID; "<source>#<id>"; "<id>~<first 12 hex digits of the
+        # text's SHA-256>"; and a repeat of a name "/<n>" for its n-th chunk.
         cases = json.loads(VECTORS.read_text(encoding="utf-8"))["packets"]
         self.assertGreater(len(cases), 10)
-        ids = [[i for _, i in c["chunks"]] for c in cases]
-        self.assertTrue(any(len(set(i)) < len(i) for i in ids))
-        self.assertTrue(any("#" in p for c in cases for p in c["packets"]))  # named by source
-        self.assertTrue(any(":" in p for c in cases for p in c["packets"]))  # placed
+        self.assertTrue(any(len({i for _, i, _ in c["chunks"]}) < len(c["chunks"]) for c in cases))
+        kinds = {p[0] for c in cases for p in c["packets"]}
+        self.assertEqual(kinds, {"plain", "sourced", "sourced_text", "content"})
+        self.assertTrue(any(p[-1] > 0 for c in cases for p in c["packets"] if p[0] != "plain"))
+
+        def text(t):
+            return f"text {t}"
+
+        def written(p):
+            if p[0] == "plain":
+                return str(p[1])
+            def digest(t):
+                return hashlib.sha256(text(t).encode()).hexdigest()[:12]
+            name = {"sourced": lambda: f"s{p[1]}#{p[2]}",
+                    "sourced_text": lambda: f"s{p[1]}#{p[2]}~{digest(p[3])}",
+                    "content": lambda: f"{p[1]}~{digest(p[2])}"}[p[0]]()
+            return name if p[-1] == 0 else f"{name}/{p[-1] + 1}"
+
         for case in cases:
-            chunks = [{"chunk_id": i, "text": "t", **({"source_file": f"s{src}"} if src else {})}
-                      for src, i in case["chunks"]]
-            self.assertEqual(server._packet_ids(chunks), case["packets"], case)
+            chunks = [{"chunk_id": i, "text": text(t), **({"source_file": f"s{src}"} if src else {})}
+                      for src, i, t in case["chunks"]]
+            self.assertEqual(server._packet_ids(chunks), [written(p) for p in case["packets"]], case)
+
+    def test_packet_ids_are_written_as_documented(self):
+        # The written form, fixed apart from the code: SHA-256 of "yes" begins 8a798890fe93.
+        bare = [{"chunk_id": 1, "text": "yes"}, {"chunk_id": 1, "text": "no"}]
+        self.assertEqual(server._packet_ids(bare), ["1~8a798890fe93", "1~9390298f3fb0"])
+        same = [{"chunk_id": 1, "text": "yes", "source_file": "t.txt"}] * 2 + [
+            {"chunk_id": 2, "text": "no", "source_file": "t.txt"}, {"chunk_id": 1, "text": "no", "source_file": "u.txt"}]
+        self.assertEqual(server._packet_ids(same),
+                         ["t.txt#1~8a798890fe93", "t.txt#1~8a798890fe93/2", "t.txt#2", "u.txt#1"])
+
+    def test_ids_that_collide_as_strings_fall_back_to_positions(self):
+        # Not modelled: the server numbers chunks by their written name; a numbered name that
+        # another chunk's own name spells ("s#1~<digest of x>/2") leaves every chunk its position.
+        x = hashlib.sha256(b"x").hexdigest()[:12]
+        chunks = [{"chunk_id": "1", "text": "x", "source_file": "s"},
+                  {"chunk_id": "1", "text": "x", "source_file": "s"},
+                  {"chunk_id": f"1~{x}/2", "text": "y", "source_file": "s"}]
+        self.assertEqual(server._packet_ids(chunks), ["0:1", "1:1", f"2:1~{x}/2"])
 
     def test_each_earlier_rule_is_caught(self):
         # The rules Submit.lean keeps as fix1Submit, each planted in the server, on the cases
@@ -212,11 +247,14 @@ class TestFormalConformance(unittest.TestCase):
             counted = set(ledger["counted"]) if ledger else set()
             return server._load_records(job_id, "entries.json") or [], counted | set(done_ids)
 
-        def stale_to_done(job_id, done_ids):  # stale ledger, but the ledger's count dropped
+        def union(job_id, done_ids):  # fix2_takes_unwritten_as_merged
             ledger = server._load_records(job_id, "ledger.json")
-            if ledger is not None and done_ids <= set(ledger["counted"]):
-                return ledger["entries"], set(ledger["counted"])
-            return server._load_records(job_id, "entries.json") or [], set(done_ids)
+            if ledger is None:
+                return server._load_records(job_id, "entries.json") or [], set(done_ids)
+            counted = set(ledger["counted"])
+            if done_ids <= counted:
+                return ledger["entries"], counted
+            return server._load_records(job_id, "entries.json") or [], counted | done_ids
 
         def complete_is_final(job_id, results):  # fix1_stuck_on_early_complete
             if server._jobs.read(job_id).get("status") == "complete":
@@ -226,7 +264,7 @@ class TestFormalConformance(unittest.TestCase):
         ledgered = [c for c in submit if c["ledger"] is not None and c["delegated"] and len(c["queue"]) >= 2][:120]
         plants = [
             ("ledger only", "_codebook_ledger", ledger_only, ledgered),
-            ("stale to done", "_codebook_ledger", stale_to_done, ledgered),
+            ("counted and answered", "_codebook_ledger", union, ledgered),
             ("entries only", "_codebook_ledger", entries_only, ledgered),
             ("repeated queue taken", "_issued", lambda job_id: server._load_records(job_id, "queue.json") or [],
              [c for c in submit if len(set(c["queue"])) < len(c["queue"])]),

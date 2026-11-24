@@ -6,10 +6,12 @@ covers its rule for every input or every order of steps; the test holds the code
     python3 -m unittest tests.package.test_formal_findings -v
 """
 
+import errno
 import json
 import multiprocessing
 import os
 import shutil
+import subprocess  # noqa: S404
 import sys
 import tempfile
 import threading
@@ -328,23 +330,122 @@ class TestJobLock(StoreBase):
                 t.join()
         self.assertEqual(most[0], 1)
 
+    def test_a_call_waits_for_the_lock_only_so_long(self):
+        # A call held up behind a slow one (a refinement downloading an embedding model) is
+        # refused after LOCK_TIMEOUT, with nothing recorded, rather than waiting for ever.
+        from ai_anthro_toolkit import jobs
+        job = self.coding_job()
+        holding, release = threading.Event(), threading.Event()
+
+        def hold():
+            with server._jobs.locked(job):
+                holding.set()
+                release.wait(5)
+
+        holder = threading.Thread(target=hold, daemon=True)
+        holder.start()
+        holding.wait(5)
+        try:
+            with mock.patch.object(jobs, "LOCK_TIMEOUT", 0.2):
+                started = time.monotonic()
+                with self.assertRaisesRegex(RuntimeError, "try again"):
+                    server.submit_batch(job, [{"id": "c0", "response": "trust"}])
+                self.assertLess(time.monotonic() - started, 2)
+        finally:
+            release.set()
+            holder.join(5)
+        self.assertIsNone(server._jobs.load_artifact(job, "done_ids.json"))
+
+    @unittest.skipIf(sys.platform == "win32", "flock")
+    def test_a_call_waits_for_another_process_only_so_long(self):
+        from ai_anthro_toolkit import jobs
+        job = self.coding_job()
+        lock = Path(self._tmp) / job / ".lock"
+        script = ("import fcntl, sys\n"
+                  f"fh = open({str(lock)!r}, 'a')\n"
+                  "fcntl.flock(fh, fcntl.LOCK_EX)\n"
+                  "print('held', flush=True)\n"
+                  "sys.stdin.read()\n")
+        other = subprocess.Popen([sys.executable, "-c", script], stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE, text=True)
+        try:
+            self.assertEqual(other.stdout.readline().strip(), "held")
+            with mock.patch.object(jobs, "LOCK_TIMEOUT", 0.3), self.assertRaisesRegex(RuntimeError, "try again"):
+                with server._jobs.locked(job):
+                    pass
+        finally:
+            other.stdin.close()
+            other.wait(5)
+            other.stdout.close()
+        with server._jobs.locked(job):  # released with the other process
+            pass
+
+    def test_a_file_system_without_locks_is_named(self):
+        # A network share mounted without lock support refuses flock (ENOLCK); the call says
+        # where the job store is and what to do, rather than relaying the bare errno.
+        from ai_anthro_toolkit import jobs
+        if jobs.fcntl is None:
+            self.skipTest("flock")
+        job = self.coding_job()
+        for code in (errno.ENOLCK, errno.ENOTSUP, errno.EOPNOTSUPP):
+            with self.subTest(errno.errorcode[code]):
+                with mock.patch.object(jobs.fcntl, "flock", side_effect=OSError(code, "no locks")):
+                    with self.assertRaisesRegex(RuntimeError, "local disk") as caught:
+                        with server._jobs.locked(job):
+                            pass
+                self.assertIn(str(self._tmp), str(caught.exception))
+        # Any other failure is relayed as it is, not taken for a held lock or a lockless disk.
+        with mock.patch.object(jobs.fcntl, "flock", side_effect=OSError(errno.EIO, "I/O error")):
+            with self.assertRaises(OSError) as caught:
+                with server._jobs.locked(job):
+                    pass
+        self.assertEqual(caught.exception.errno, errno.EIO)
+        with server._jobs.locked(job):  # nothing was left held
+            pass
+
+    def test_windows_holds_against_other_processes(self):
+        # Without fcntl the lock is msvcrt's byte-range lock on the job's .lock file, which
+        # Windows enforces across processes (and over SMB, on the server).
+        from ai_anthro_toolkit import jobs
+        job = self.coding_job()
+        calls = []
+
+        class FakeMsvcrt:
+            LK_NBLCK, LK_UNLCK = 2, 0
+            busy = 2  # another process holds it for two tries
+
+            @classmethod
+            def locking(cls, fd, mode, nbytes):
+                calls.append((mode, nbytes))
+                if mode == cls.LK_NBLCK and cls.busy:
+                    cls.busy -= 1
+                    raise OSError(errno.EACCES, "locked")
+
+        with mock.patch.object(jobs, "fcntl", None), mock.patch.object(jobs, "msvcrt", FakeMsvcrt):
+            with server._jobs.locked(job):
+                self.assertEqual(calls, [(2, 1)] * 3)
+            self.assertEqual(calls[-1], (0, 1))
+            FakeMsvcrt.busy = 10**6
+            with mock.patch.object(jobs, "LOCK_TIMEOUT", 0.2), self.assertRaisesRegex(RuntimeError, "try again"):
+                with server._jobs.locked(job):
+                    pass
 
 def _finish_in_another_process(root, desk_id, doc, answers, both_decided):
     store = JobStore(root)
-    real = store.create
+    real = store.new_id
 
-    def slow(kind, payload):
+    def slow(kind):
         # Both callers have decided to mint before either writes: the overlap the TLC trace
         # needs. When the job lock keeps the other caller out, the wait times out and this
         # caller goes on alone.
-        made = real(kind, payload)
+        made = real(kind)
         try:
             both_decided.wait(3)
         except threading.BrokenBarrierError:
             pass
         return made
 
-    store.create = slow  # type: ignore[method-assign]
+    store.new_id = slow  # type: ignore[method-assign]
     server._jobs = store
     try:
         answers.put(server.record_desk_decisions(desk_id, doc, "chat")["ratification_id"])
@@ -437,6 +538,107 @@ class TestEarlierReleases(StoreBase):
         self.assertEqual(sorted((e["label"], e["frequency"]) for e in server._codebook_entries(job)),
                          [("ALPHA", 1), ("BETA", 1)])
 
+    def test_a_batch_that_died_before_entries_keeps_its_codes_when_an_earlier_release_ran_since(self):
+        # fix2_takes_unwritten_as_merged / new_merges_unwritten; tla: Count union Kept FAIL, current
+        # Kept PASS. The call dies after ledger.json and before entries.json; an earlier release
+        # then answers another packet; sent again, ALPHA was taken as merged and was in no file.
+        job = self.codebook_job({"d1": "alpha " * 40, "d2": "beta " * 40, "d3": "gamma " * 40})
+        ids = [p["id"] for p in server.get_next_batch(job, 10)["packets"]]
+        real = JobStore.save_artifact
+
+        def dies_at_entries(store, job_id, name, content):
+            if name == "entries.json":
+                raise OSError("disk full")
+            return real(store, job_id, name, content)
+
+        with mock.patch.object(JobStore, "save_artifact", dies_at_entries):
+            with self.assertRaises(OSError):
+                server.submit_batch(job, [{"id": ids[0], "response": _code("alpha")}])
+        _earlier_release_submit(job, ids[1], "BETA")
+        server.submit_batch(job, [{"id": ids[0], "response": _code("alpha")}])
+        server.submit_batch(job, [{"id": ids[2], "response": _code("gamma")}])
+        self.assertEqual(sorted((e["label"], e["frequency"]) for e in server._codebook_entries(job)),
+                         [("ALPHA", 1), ("BETA", 1), ("GAMMA", 1)])
+
+    def test_a_batch_whose_refinement_failed_is_not_served_to_an_earlier_release(self):
+        # tla: Count union-resent CountedOnce FAIL, current PASS. Refinement raises on the last
+        # batch (an embedding model that cannot be downloaded). Its packets are recorded as
+        # answered before refinement, so an earlier release's get_next_batch, which serves the
+        # packets done_ids.json lacks, does not serve them again to be merged twice.
+        job = self.codebook_job()
+        ids = [p["id"] for p in server.get_next_batch(job, 10)["packets"]]
+        server.submit_batch(job, [{"id": ids[0], "response": _code("alpha")}])
+        with mock.patch.object(server._codebook, "refine_codebook", side_effect=RuntimeError("no model")):
+            with self.assertRaisesRegex(RuntimeError, "no model"):
+                server.submit_batch(job, [{"id": ids[1], "response": _code("beta")}])
+        done = set(json.loads(server._jobs.load_artifact(job, "done_ids.json")))
+        queue = json.loads(server._jobs.load_artifact(job, "queue.json"))
+        self.assertEqual([p["id"] for p in queue if p["id"] not in done], [])
+        self.assertEqual(server.get_job_status(job)["status"], "in_progress")
+        self.assertFalse(server.get_job_result(job)["ready"])
+
+    def test_a_codebook_whose_refinement_failed_is_built_by_an_empty_batch(self):
+        # Every packet answered, the codebook not built: get_next_batch says so, and
+        # submit_batch with no results builds it without counting anything again.
+        job = self.codebook_job()
+        ids = [p["id"] for p in server.get_next_batch(job, 10)["packets"]]
+        with mock.patch.object(server._codebook, "refine_codebook", side_effect=RuntimeError("no model")):
+            with self.assertRaises(RuntimeError):
+                server.submit_batch(job, [{"id": i, "response": _code("alpha")} for i in ids])
+        nxt = server.get_next_batch(job, 10)
+        self.assertEqual((nxt["packets"], nxt["done"]), ([], False))
+        self.assertIn("submit_batch with an empty list", nxt["note"])
+        out = server.submit_batch(job, [])
+        self.assertEqual(out["remaining"], 0)
+        self.assertEqual(server.get_job_status(job)["status"], "complete")
+        self.assertTrue(server.get_job_result(job)["ready"])
+        self.assertEqual([(e["label"], e["frequency"]) for e in server._codebook_entries(job)], [("ALPHA", 2)])
+        self.assertTrue(server.get_next_batch(job, 10)["done"])
+
+    def test_a_job_with_no_packets_gets_no_note_to_finish_it(self):
+        # Nothing failed: a delegated job with nothing to answer, or before its packets are
+        # queued, is not told its last batch failed.
+        job = server._jobs.create("codebook", {"mode": "delegated"})
+        nxt = server.get_next_batch(job)
+        self.assertEqual((nxt["packets"], nxt["done"], "note" in nxt), ([], True, False))
+
+    def test_a_coding_job_that_died_before_its_status_is_finished_by_an_empty_batch(self):
+        job = self.coding_job()
+        packets = server.get_next_batch(job, 10)["packets"]
+        with mock.patch.object(server._jobs, "update", side_effect=OSError("the process died")):
+            with self.assertRaises(OSError):
+                server.submit_batch(job, [{"id": p["id"], "response": "trust"} for p in packets])
+        nxt = server.get_next_batch(job, 10)
+        self.assertEqual((nxt["packets"], nxt["done"]), ([], False))
+        self.assertIn("submit_batch with an empty list", nxt["note"])
+        self.assertEqual(server.submit_batch(job, [])["remaining"], 0)
+        self.assertEqual(server.get_job_status(job)["status"], "complete")
+        self.assertEqual([r["Deductive_Codes"] for r in server.get_job_result(job)["records"]],
+                         ["trust"] * len(packets))
+
+    def test_a_codebook_batch_that_failed_writing_done_ids_is_counted_once(self):
+        # tla: Count one-release (CrashW2): entries.json written, done_ids.json not (disk full).
+        job = self.codebook_job({"d1": "alpha " * 40, "d2": "beta " * 40})
+        ids = [p["id"] for p in server.get_next_batch(job, 10)["packets"]]
+        real = JobStore.save_artifact
+
+        def fails_at_done(store, job_id, name, content):
+            if name == "done_ids.json":
+                raise OSError("disk full")
+            return real(store, job_id, name, content)
+
+        with mock.patch.object(JobStore, "save_artifact", fails_at_done), self.assertRaises(OSError):
+            server.submit_batch(job, [{"id": ids[0], "response": _code("alpha")}])
+        server.submit_batch(job, [{"id": ids[0], "response": _code("alpha")}])
+        server.submit_batch(job, [{"id": ids[1], "response": _code("beta")}])
+        self.assertEqual(sorted((e["label"], e["frequency"]) for e in server._codebook_entries(job)),
+                         [("ALPHA", 1), ("BETA", 1)])
+
+    def test_an_api_job_gets_no_note_to_finish_it(self):
+        job = server._jobs.create("coding", {"mode": "api"})
+        nxt = server.get_next_batch(job)
+        self.assertEqual((nxt["packets"], nxt["done"], "note" in nxt), ([], True, False))
+
     def _repeated_ids_job(self):
         """A coding job an earlier release started on two interviews: one packet ID per chunk_id,
         so both chunks numbered 1 were issued as packet 1."""
@@ -486,6 +688,63 @@ class TestEarlierReleases(StoreBase):
         server._jobs.update(job, status="complete")
         with self.assertRaisesRegex(ValueError, "no result yet"):
             server.ratify_codebook(codebook_job_id=job)
+
+
+class TestDeskNoOrphan(StoreBase):
+    """tla: Desk mint-first NoOrphan FAIL, current NoOrphan PASS: a finish interrupted before
+    finishing.json names its ratification leaves no ratification job behind."""
+
+    def _desk(self):
+        built = server._build_desk("codebook", "t", "", desk_helpers.load("codebook"),
+                                   desk_helpers.load("cases"), None, None, True).structured_content
+        desk_id = built["desk_id"]
+        desk = server._jobs.read(desk_id)["payload"]
+        doc = {"schema": "aat/desk-decisions@1", "desk_id": desk_id, "card_checksum": desk["card_checksum"],
+               "exclusive": False, "decisions": {c["card_id"]: {"action": "adopt"} for c in desk["cards"]}}
+        return desk_id, doc
+
+    def _ratifications(self):
+        return sorted(p.name for p in Path(self._tmp).iterdir()
+                      if p.name.startswith("ratification-") and (p / "job.json").is_file())
+
+    def _dies_writing(self, target):
+        real = JobStore.save_artifact
+
+        def dies(store, job_id, name, content):
+            if name == target:
+                raise OSError("the process died")
+            return real(store, job_id, name, content)
+        return mock.patch.object(JobStore, "save_artifact", dies)
+
+    def test_dying_before_finishing_json_leaves_no_ratification(self):
+        desk_id, doc = self._desk()
+        before = self._ratifications()
+        with self._dies_writing("finishing.json"), self.assertRaises(OSError):
+            server.record_desk_decisions(desk_id, doc, "chat")
+        self.assertEqual(self._ratifications(), before)
+        rid = server.record_desk_decisions(desk_id, doc, "chat")["ratification_id"]
+        self.assertEqual(self._ratifications(), sorted(before + [rid]))
+
+    def test_dying_after_finishing_json_creates_the_ratification_it_names(self):
+        desk_id, doc = self._desk()
+        before = self._ratifications()
+        with mock.patch.object(JobStore, "create", side_effect=OSError("the process died")), \
+                self.assertRaises(OSError):
+            server.record_desk_decisions(desk_id, doc, "chat")
+        self.assertEqual(self._ratifications(), before)
+        named = json.loads(server._jobs.load_artifact(desk_id, "finishing.json"))["ratification_id"]
+        rid = server.record_desk_decisions(desk_id, doc, "chat")["ratification_id"]
+        self.assertEqual(rid, named)
+        self.assertEqual(self._ratifications(), sorted(before + [rid]))
+        self.assertEqual(server._jobs.read(rid)["kind"], "ratification")
+
+    def test_a_named_job_is_made_once_and_only_of_its_kind(self):
+        rid = JobStore.new_id("ratification")
+        self.assertEqual(server._jobs.create("ratification", {"codes": 1}, job_id=rid), rid)
+        self.assertEqual(server._jobs.create("ratification", {"codes": 9}, job_id=rid), rid)
+        self.assertEqual(server._jobs.read(rid)["payload"], {"codes": 1})
+        with self.assertRaisesRegex(ValueError, "not an ID for a desk job"):
+            server._jobs.create("desk", {}, job_id=rid)
 
 
 class TestDeskInterruptedThenViewed(StoreBase):
@@ -600,6 +859,43 @@ class TestSeveralInterviewsDownstream(StoreBase):
         graph = network.build_network([], kind="lens_agreement", results_by_lens={
             "a": server.get_job_result(first)["records"], "b": server.get_job_result(job)["records"]})
         self.assertEqual([e["size"] for e in graph["edges"]], [3.0])  # 3 of 4 chunks share a code
+
+    def test_passes_without_source_files_match_chunk_to_chunk(self):
+        # Packets.lean packet_ids_name_the_chunk, order_kept_without_sources: chunks passed with
+        # no source_file are named by their text, so the order of the interviews does not pair
+        # ana's chunk 1 with ben's.
+        bare = [{k: v for k, v in c.items() if k != "source_file"} for c in self.CHUNKS]
+        rid = server.ratify_codebook(codebook=CODEBOOK)["ratification_id"]
+        passes = []
+        for chunks, answers in ((bare, ["trust", "risk", "trust", "risk"]),
+                                (bare[2:] + bare[:2], ["risk", "risk", "trust", "risk"])):
+            job = server.start_coding_job(chunks, ratification_id=rid, llm_mode="delegated")["job_id"]
+            packets = server.get_next_batch(job, 10)["packets"]
+            server.submit_batch(job, [{"id": p["id"], "response": a} for p, a in zip(packets, answers)])
+            passes.append(job)
+        first, second = ([r["packet_id"] for r in server.get_job_result(j)["records"]] for j in passes)
+        self.assertEqual(sorted(first), sorted(second))
+        self.assertTrue(all("~" in pid for pid in first))  # named by text, not by position
+        desk = server._build_desk("rulings", "", "", None, None, passes, None, True).structured_content
+        cards = server._jobs.read(desk["desk_id"])["payload"]["cards"]
+        self.assertEqual([c["text"] for c in cards], ["ben.txt says 1"])
+
+    def test_interviews_whose_files_share_a_name_match_chunk_to_chunk(self):
+        # Packets.lean name_perm, same_file_name_kept: chunk_transcript keeps a file's base
+        # name, so P01/transcript.txt and P02/transcript.txt are both transcript.txt; their
+        # chunks are then named by their text too, not numbered by order.
+        rid = server.ratify_codebook(codebook=CODEBOOK)["ratification_id"]
+        p01, p02 = ([{"chunk_id": 1, "text": said, "source_file": "transcript.txt"}]  # as chunk_transcript gives
+                    for said in ("Ana: I trust the clinic.", "Ben: The clinic is a risk."))
+        passes = []
+        for chunks, answers in ((p01 + p02, ["trust", "risk"]), (p02 + p01, ["trust", "risk"])):
+            job = server.start_coding_job(chunks, ratification_id=rid, llm_mode="delegated")["job_id"]
+            packets = server.get_next_batch(job, 10)["packets"]
+            server.submit_batch(job, [{"id": p["id"], "response": a} for p, a in zip(packets, answers)])
+            passes.append(job)
+        desk = server._build_desk("rulings", "", "", None, None, passes, None, True).structured_content
+        cards = server._jobs.read(desk["desk_id"])["payload"]["cards"]
+        self.assertEqual(sorted(c["text"] for c in cards), sorted(c["text"] for c in p01 + p02))
 
     def test_records_coded_in_api_mode_carry_their_packet_ids(self):
         rid = server.ratify_codebook(codebook=CODEBOOK)["ratification_id"]

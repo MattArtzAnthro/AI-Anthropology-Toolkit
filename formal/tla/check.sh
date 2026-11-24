@@ -47,18 +47,19 @@ sb unlocked  FALSE  DoneHasCodes  FAIL  # a packet marked answered with its code
 sb unlocked  FALSE  BothKept      FAIL  # one batch dropped from done_ids or partial
 
 # ---- Desk: finishing one desk from two callers, with crashes
-dk() { run Desk "$1" "Shared = $2 SameDigest = $3 MaxCrashes = $4" "$5" "$6"; }
-#  name             shared same   crashes property             expect
-dk current          TRUE   FALSE  2       RecordNamesFinished  PASS
-dk current          TRUE   FALSE  2       ToldWhatHolds        PASS
-dk current          TRUE   TRUE   2       RecordNamesFinished  PASS
-dk current          TRUE   TRUE   2       ToldWhatHolds        PASS
-dk current          TRUE   FALSE  0       NeverFinished        FAIL  # probe: a desk finishes
-dk current          TRUE   FALSE  1       NoOrphan             FAIL  # residual: a crash after minting leaves an unused ratification job
-dk current          TRUE   FALSE  0       NoOrphan             PASS  # without a crash, one ratification per desk
-dk two-processes    FALSE  FALSE  0       RecordNamesFinished  FAIL  # old: _desk_lock is per process; the record names another ratification
-dk two-processes    FALSE  FALSE  0       ToldWhatHolds        FAIL  # old: a caller is told a ratification the desk does not hold
-dk two-same-digest  FALSE  TRUE   0       RecordNamesFinished  FAIL  # old: even the same decisions mint two ratifications
+dk() { run Desk "$1" "Shared = $2 SameDigest = $3 NameFirst = $4 MaxCrashes = $5" "$6" "$7"; }
+#  name             shared same   first crashes property             expect
+dk current          TRUE   FALSE  TRUE  2       RecordNamesFinished  PASS
+dk current          TRUE   FALSE  TRUE  2       ToldWhatHolds        PASS
+dk current          TRUE   TRUE   TRUE  2       RecordNamesFinished  PASS
+dk current          TRUE   TRUE   TRUE  2       ToldWhatHolds        PASS
+dk current          TRUE   FALSE  TRUE  0       NeverFinished        FAIL  # probe: a desk finishes
+dk current          TRUE   FALSE  TRUE  2       NoOrphan             PASS  # a crash before finishing.json names it creates no ratification job
+dk mint-first       TRUE   FALSE  FALSE 1       NoOrphan             FAIL  # the rule before: a crash after minting left an unused ratification job
+dk mint-first       TRUE   FALSE  FALSE 0       NoOrphan             PASS  # without a crash, the rule before minted one per desk too
+dk two-processes    FALSE  FALSE  TRUE  0       RecordNamesFinished  FAIL  # old: _desk_lock is per process; the record names another ratification
+dk two-processes    FALSE  FALSE  TRUE  0       ToldWhatHolds        FAIL  # old: a caller is told a ratification the desk does not hold
+dk two-same-digest  FALSE  TRUE   TRUE  0       RecordNamesFinished  FAIL  # old: even the same decisions mint two ratifications
 
 # ---- DeskList: rulings desks built on one ratification, and re-ratifying it
 dl() { run DeskList "$1" "Locked = $2 ResendKeeps = $3" "$4" "$5"; }
@@ -69,23 +70,25 @@ dl unlocked           FALSE  TRUE   DesksKept   FAIL  # a desk dropped from the 
 dl resend-rewrites    TRUE   FALSE  DesksKept   FAIL  # an interrupted desk finish sent again emptied the list
 
 # ---- Count: a codebook batch sent again after it failed past the merge, and an earlier release
-# ---- submitting to the same job
-ct() { run Count "$1" "Ledger = $2 StaleCheck = $3 Union = $4 Earlier = \"$5\" FailBetween = $6 MaxFailures = $7" "$8" "$9"; }
-#  name            ledger stale union earlier between failures property     expect
-ct current         TRUE   TRUE  TRUE  other   FALSE   3        CountedOnce  PASS
-ct current         TRUE   TRUE  TRUE  other   FALSE   3        Kept         PASS
-ct current         TRUE   TRUE  TRUE  other   FALSE   3        NeverDone    FAIL  # probe: the job finishes after failures
-ct one-release     TRUE   TRUE  TRUE  none    TRUE    3        CountedOnce  PASS
-ct one-release     TRUE   TRUE  TRUE  none    TRUE    3        Kept         PASS
-ct between         TRUE   TRUE  TRUE  other   TRUE    3        CountedOnce  PASS
-ct between         TRUE   TRUE  TRUE  other   TRUE    3        Kept         FAIL  # residual: dies between ledger.json and entries.json, then an earlier release submits
-ct earlier-resent  TRUE   TRUE  TRUE  any     FALSE   3        Kept         PASS
-ct earlier-resent  TRUE   TRUE  TRUE  any     FALSE   3        CountedOnce  FAIL  # residual: the earlier release merges a packet it is sent again (as it always did)
-ct earlier-resent  TRUE   TRUE  TRUE  any     FALSE   0        CountedOnce  PASS  # without a failure, nothing it is sent was merged before
-ct no-ledger       FALSE  FALSE FALSE none    TRUE    3        CountedOnce  FAIL  # merged again on each resend: a code's frequency climbs
-ct no-ledger       FALSE  FALSE FALSE none    TRUE    0        CountedOnce  PASS  # without a failure the old order counts once
-ct ledger-only     TRUE   FALSE FALSE other   FALSE   0        Kept         FAIL  # the earlier release's packet: answered, its codes lost
-ct stale-to-done   TRUE   TRUE  FALSE other   FALSE   3        CountedOnce  FAIL  # the stale ledger's own packet merged again after a failed refinement
+# sharing the job (DoneFirst: done_ids.json is written before refinement; W1/W2: may die between writes)
+ct() { run Count "$1" "Ledger = $2 StaleCheck = $3 Union = $4 DoneFirst = $5 Earlier = \"$6\" EarlierFails = ${12:-FALSE} CrashW1 = $7 CrashW2 = $8 MaxFailures = $9" "${10}" "${11}"; }
+#  name             ledger stale union first earlier w1    w2    fails property     expect
+ct current          TRUE   TRUE  FALSE TRUE  any     TRUE  FALSE 3     CountedOnce  PASS
+ct current          TRUE   TRUE  FALSE TRUE  any     TRUE  FALSE 3     Kept         PASS
+ct current          TRUE   TRUE  FALSE TRUE  any     TRUE  FALSE 3     NeverDone    FAIL  # probe: the job finishes after failures
+ct one-release      TRUE   TRUE  FALSE TRUE  none    TRUE  TRUE  3     CountedOnce  PASS
+ct one-release      TRUE   TRUE  FALSE TRUE  none    TRUE  TRUE  3     Kept         PASS
+ct dies-w2          TRUE   TRUE  FALSE TRUE  any     TRUE  TRUE  3     Kept         PASS
+ct dies-w2          TRUE   TRUE  FALSE TRUE  any     TRUE  TRUE  3     CountedOnce  FAIL  # residual: dies after entries.json, before done_ids.json, and an earlier release submits next (its own files' window)
+ct earlier-fails    TRUE   TRUE  FALSE TRUE  any     TRUE  FALSE 3     Kept         PASS  TRUE
+ct earlier-fails    TRUE   TRUE  FALSE TRUE  any     TRUE  FALSE 3     CountedOnce  FAIL  TRUE  # residual: the earlier release's own refinement raised after it merged; its packet, unrecorded, is served and merged again (as with that release alone)
+ct no-ledger        FALSE  FALSE FALSE FALSE none    FALSE FALSE 3     CountedOnce  FAIL  # merged again on each resend: a code's frequency climbs
+ct no-ledger        FALSE  FALSE FALSE FALSE none    FALSE FALSE 0     CountedOnce  PASS  # without a failure the old order counts once
+ct ledger-only      TRUE   FALSE FALSE FALSE other   FALSE FALSE 0     Kept         FAIL  # the earlier release's packet: answered, its codes lost
+ct stale-to-done    TRUE   TRUE  FALSE FALSE other   FALSE FALSE 3     CountedOnce  FAIL  # done_ids.json after refinement: a stale ledger's own packet merged again after a failed refinement
+ct union            TRUE   TRUE  TRUE  FALSE other   TRUE  FALSE 3     Kept         FAIL  # the second fix: dies between ledger.json and entries.json, then an earlier release submits
+ct union-resent     TRUE   TRUE  TRUE  FALSE any     FALSE FALSE 3     CountedOnce  FAIL  # the second fix: an earlier release is served a packet whose refinement failed here
+ct union-first      TRUE   TRUE  TRUE  TRUE  other   TRUE  FALSE 3     Kept         FAIL  # writing done_ids.json first is not enough: the ledger's count still hides the lost packet
 
 # ---- DeskView: a desk finished from the conversation or its view, with crashes
 dv() { run DeskView "$1" "ViewWaits = $2 Resume = \"$3\" Legacy = $4 MaxCrashes = $5" "$6" "$7"; }

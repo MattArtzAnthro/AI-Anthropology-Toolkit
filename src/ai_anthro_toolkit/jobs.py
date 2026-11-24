@@ -6,6 +6,7 @@ checkpoint. Delegated-mode coding jobs also queue work packets here so the
 driving model can process them batch by batch.
 """
 
+import errno
 import json
 import os
 import re
@@ -19,8 +20,17 @@ from pathlib import Path
 
 try:
     import fcntl
-except ImportError:  # Windows: the lock then holds within one process only
+except ImportError:  # Windows: msvcrt's byte-range lock instead
     fcntl = None  # type: ignore[assignment]
+try:
+    import msvcrt
+except ImportError:
+    msvcrt = None  # type: ignore[assignment]
+
+# How long a call waits for a job another call holds before it is refused. A codebook's last
+# batch can hold its job for minutes while an embedding model downloads.
+LOCK_TIMEOUT = 120.0
+_POLL = 0.05
 
 DEFAULT_ROOT = Path.home() / ".ai-anthro-toolkit" / "jobs"
 
@@ -37,6 +47,54 @@ _ID_HELP = ("Job IDs look like coding-1a2b3c4d and come back from "
 _guard = threading.Lock()
 _locks: dict[str, threading.RLock] = {}
 _depth = threading.local()
+
+
+def _busy(job_id: str) -> str:
+    return (f"{job_id} is held by another call that has not finished in {LOCK_TIMEOUT:.0f} "
+            "seconds (a codebook's last batch can take minutes while an embedding model "
+            "downloads). Nothing was recorded; try again when it has finished.")
+
+
+def _try_lock(fh, root: Path) -> bool:
+    """Take the job's file lock without waiting; False when another process holds it."""
+    try:
+        if fcntl is not None:
+            fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        else:
+            fh.seek(0)
+            msvcrt.locking(fh.fileno(), msvcrt.LK_NBLCK, 1)
+    except OSError as exc:
+        if exc.errno in (errno.EAGAIN, errno.EWOULDBLOCK, errno.EACCES, errno.EDEADLK):
+            return False
+        if exc.errno in (errno.ENOLCK, errno.ENOTSUP, errno.EOPNOTSUPP):
+            raise RuntimeError(
+                f"The job store at {root} is on a file system that takes no file locks (a "
+                "network share mounted without locking), so two calls could overwrite each "
+                "other's work. Keep the job store on a local disk.") from exc
+        raise
+    return True
+
+
+def _lock_file(path: Path, job_id: str, root: Path, deadline: float):
+    """Open the job's lock file and take its lock, polling until `deadline`."""
+    fh = open(path, "a+", encoding="utf-8")  # noqa: SIM115
+    try:
+        while not _try_lock(fh, root):
+            if time.monotonic() >= deadline:
+                raise RuntimeError(_busy(job_id))
+            time.sleep(_POLL)
+    except BaseException:
+        fh.close()
+        raise
+    return fh
+
+
+def _unlock(fh) -> None:
+    if fcntl is not None:
+        fcntl.flock(fh, fcntl.LOCK_UN)
+    else:
+        fh.seek(0)
+        msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)
 
 
 class UnknownJobError(ValueError):
@@ -90,8 +148,10 @@ class JobStore:
 
         mcp 2.x runs each sync tool in a worker thread, so two calls on one job can
         interleave their reads and writes, and a second host's server can share the store.
-        Re-entrant within a thread. Refuses an ID the store did not issue. On Windows, which
-        has no fcntl, it holds against other threads of this process only.
+        Re-entrant within a thread. Refuses an ID the store did not issue, and refuses with a
+        RuntimeError, having changed nothing, when another call holds the job for longer than
+        LOCK_TIMEOUT seconds or the file system takes no file locks. The file lock is flock,
+        or msvcrt's on Windows.
         """
         d = self._dir(job_id)
         # The folder itself, not its spelling: on a case-insensitive disk, or through a
@@ -101,24 +161,36 @@ class JobStore:
         key = f"{st.st_dev}:{st.st_ino}"
         with _guard:
             lock = _locks.setdefault(key, threading.RLock())
-        with lock:
-            held: dict[str, int] = _depth.__dict__.setdefault("held", {})
-            held[key] = held.get(key, 0) + 1
-            fh = None
-            try:
-                if held[key] == 1 and fcntl is not None:
-                    fh = open(d / ".lock", "a", encoding="utf-8")  # noqa: SIM115
-                    fcntl.flock(fh, fcntl.LOCK_EX)
-                yield
-            finally:
-                held[key] -= 1
-                if fh is not None:
-                    fcntl.flock(fh, fcntl.LOCK_UN)
-                    fh.close()
+        deadline = time.monotonic() + LOCK_TIMEOUT
+        if not lock.acquire(timeout=LOCK_TIMEOUT):
+            raise RuntimeError(_busy(job_id))
+        held: dict[str, int] = _depth.__dict__.setdefault("held", {})
+        held[key] = held.get(key, 0) + 1
+        fh = None
+        try:
+            if held[key] == 1 and (fcntl is not None or msvcrt is not None):
+                fh = _lock_file(d / ".lock", job_id, self.root, deadline)
+            yield
+        finally:
+            held[key] -= 1
+            if fh is not None:
+                _unlock(fh)
+                fh.close()
+            lock.release()
 
-    def create(self, kind: str, payload: dict) -> str:
-        job_id = f"{kind}-{uuid.uuid4().hex[:8]}"
+    @staticmethod
+    def new_id(kind: str) -> str:
+        """An ID for a job of this kind, to name before create() makes it."""
+        return f"{kind}-{uuid.uuid4().hex[:8]}"
+
+    def create(self, kind: str, payload: dict, job_id: str | None = None) -> str:
+        """Make a job, under `job_id` (from new_id) if given; a job that exists is kept."""
+        job_id = job_id or self.new_id(kind)
+        if not job_id.startswith(f"{kind}-"):
+            raise ValueError(f"{job_id!r} is not an ID for a {kind} job.")
         d = self._dir(job_id, create=True)
+        if (d / "job.json").is_file():
+            return job_id
         _write_atomic(d / "job.json", json.dumps({
             "job_id": job_id,
             "kind": kind,

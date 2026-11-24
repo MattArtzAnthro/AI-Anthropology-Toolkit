@@ -66,7 +66,7 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   desk from two callers with crashes, of a desk finished from the conversation
   or its view, of desks built at once on one ratification, and of a codebook
   job shared with an earlier release. `tests/package/test_formal_conformance.py`
-  holds the server to the proved rules on 2,455 cases, among them jobs an
+  holds the server to the proved rules on 2,463 cases, among them jobs an
   earlier release wrote, and the gate fails when a model changed since the
   provers last passed (`formal/stamp.py --check`).
 - `submit_batch` refuses, writing nothing, a batch naming a packet the job
@@ -86,15 +86,21 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   that cannot be downloaded): the merge and the packets merged into it are now
   one file, `ledger.json`, written in one step. A host still on an earlier
   release that submits to the same job does not write `ledger.json`; the next
-  batch here keeps the codes it merged.
+  batch here keeps the codes it merged. A batch's packets are recorded as
+  answered before refinement runs, so one whose refinement raised is not
+  served again to such a host; `get_next_batch` then says every packet is
+  answered, and `submit_batch` with an empty list builds the codebook.
 - Delegated coding of several interviews completes, and its records reach
   the rulings desk, `compare_lenses` and the lens network. `chunk_transcript`
   numbers each transcript's chunks from 1, so chunks of several interviews
   shared packet IDs: one answer coded every chunk with that ID, and the job
   never completed. When chunk IDs repeat, each packet ID now names its
   chunk's source file and ID (`ana.txt#3`), so two coding passes over the
-  same interviews in a different order still match chunk to chunk; chunks
-  without a `source_file` carry their position (`3:1`). Every coded record
+  same interviews in a different order still match chunk to chunk; a chunk
+  without a `source_file` is named by its ID and a digest of its text
+  (`3~1f2e3d4c5b6a`), as is one whose source and ID another chunk shares
+  (`chunk_transcript` keeps a file's base name, so two folders'
+  `transcript.txt` meet); chunks alike in all of these are numbered (`/2`). Every coded record
   carries its `packet_id`, in
   delegated and api mode, and the rulings desk, `compare_lenses` and
   `build_network(kind="lens_agreement")` match records on it (on `chunk_id`
@@ -106,10 +112,13 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 - Parallel `submit_batch` calls on one job no longer lose each other's
   packets: a chunk could be recorded as answered with its codes gone and be
   reported as `No_Codes`. Every read-change-write on a job now holds the job's
-  lock (`JobStore.locked`, a thread lock plus `flock`, so it also holds across
-  server processes sharing the job store, except on Windows): `submit_batch`,
-  the desk's saves and finish, the ratification's list of desks,
-  `JobStore.update`, and `analyze_network` on a stored network.
+  lock (`JobStore.locked`, a thread lock plus `flock`, or `msvcrt`'s lock on
+  Windows, so it also holds across server processes sharing the job store):
+  `submit_batch`, the desk's saves and finish, the ratification's list of
+  desks, `JobStore.update`, and `analyze_network` on a stored network. A call
+  waits for the lock at most two minutes and is then refused with nothing
+  recorded; a job store on a file system that takes no file locks is refused
+  with a request to keep it on a local disk.
 - `ratify_codebook` ratifies only a finished codebook job, and refuses to
   ratify one again as a different codebook: a `ratification_id` names one
   codebook, so coding jobs and rulings desks bound to it cannot drift.
@@ -118,7 +127,9 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   built on a desk's ratification before an interrupted Ratify is sent again.
 - Two server processes cannot both finish one desk. Before, both callers were
   told the desk was ratified, as different ratifications, and the decision
-  record could name the one the desk did not hold.
+  record could name the one the desk did not hold. A desk finish interrupted
+  before it recorded its ratification no longer leaves a ratification job
+  that nothing names: the job is made once `finishing.json` names it.
 - A desk whose finish from the conversation was interrupted, and which was
   then opened in its view, can be finished: `record_desk_decisions` with the
   same decisions completes it. Before, the view held the desk, the view's

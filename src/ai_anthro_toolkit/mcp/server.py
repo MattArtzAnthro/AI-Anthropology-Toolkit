@@ -26,9 +26,11 @@ interpretive move visible to, and contestable by, the researcher.
 
 import contextlib
 import functools
+import hashlib
 import json
 import os
 import threading
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Annotated, Any, Literal
@@ -654,34 +656,53 @@ def _packet_ids(chunks: list[dict]) -> list[str]:
     """One packet ID per chunk, all different (formal/AatModel/Packets.lean). A chunk's ID is
     its chunk_id, or its position when it has none. chunk_transcript numbers each
     transcript's chunks from 1, so chunks of several interviews share IDs; then a packet ID
-    names the chunk's source_file and ID (`ana.txt#3`), which match across coding passes
-    whatever the order of the chunks, or, when a chunk has no source_file or repeats, carries
+    names the chunk, so that it matches across coding passes whatever the order of the
+    chunks: its source_file and ID (`ana.txt#3`); with a digest of its text too when another
+    chunk has that source and ID (`transcript.txt#3~1f2e3d4c5b6a`: chunk_transcript keeps a
+    file's base name, which interviews in different folders share); with no source_file its
+    ID and text (`3~1f2e3d4c5b6a`). Chunks named alike are numbered in order
+    (`3~1f2e3d4c5b6a/2`). Should a numbered name be another chunk's own, every chunk carries
     its position (`3:1`)."""
     ids = [str(c.get("chunk_id", i)) for i, c in enumerate(chunks)]
     if len(set(ids)) == len(ids):
         return ids
     sources = [str(c.get("source_file") or "") for c in chunks]
-    sourced = [f"{src}#{pid}" for src, pid in zip(sources, ids)]
-    if all(sources) and len(set(sourced)) == len(sourced):
-        return sourced
+    keys = Counter(zip(sources, ids))
+
+    def digest(c: dict) -> str:
+        return hashlib.sha256(str(c.get("text", "")).encode("utf-8")).hexdigest()[:12]
+
+    seen: dict[str, int] = {}
+    named = []
+    for src, pid, c in zip(sources, ids, chunks):
+        if not src:
+            name = f"{pid}~{digest(c)}"
+        elif keys[(src, pid)] == 1:
+            name = f"{src}#{pid}"
+        else:
+            name = f"{src}#{pid}~{digest(c)}"
+        seen[name] = seen.get(name, 0) + 1
+        named.append(name if seen[name] == 1 else f"{name}/{seen[name]}")
+    if len(set(named)) == len(named):
+        return named
     return [f"{i}:{pid}" for i, pid in enumerate(ids)]
 
 
 def _codebook_ledger(job_id: str, done_ids: set[str]) -> tuple[list[dict], set[str]]:
     """A delegated codebook job's merged codes and the packets merged into them, kept in one
-    file (ledger.json) and so written in one step: a batch whose refinement then fails, and
-    is sent again, is not merged twice. A job from before the ledger has merged exactly its
-    done_ids into entries.json. An earlier release that submits to a job after the ledger
-    was written merges into entries.json and records done_ids.json, but not the ledger,
-    which then lacks a packet recorded as answered: entries.json holds the codes, and the
-    packets merged are those answered and those the ledger counted."""
+    file (ledger.json) and so written in one step: a batch that fails after merging, and is
+    sent again, is not merged twice. A job from before the ledger has merged exactly its
+    done_ids into entries.json. An earlier release that submits to a job after the ledger was
+    written merges into entries.json and records done_ids.json, but not the ledger, which then
+    lacks a packet recorded as answered: entries.json and done_ids.json, which that release
+    writes one after the other, are read instead, and a packet the ledger counted beyond them
+    (a call that died before writing entries.json) is merged again when sent. A packet that
+    release merged and then failed to record (its refinement raised between the two writes)
+    is served and merged again, as with that release alone (formal/tla/Count.tla)."""
     ledger = _load_records(job_id, "ledger.json")
-    if ledger is None:
-        return _load_records(job_id, "entries.json") or [], set(done_ids)
-    counted = set(ledger["counted"])
-    if done_ids <= counted:
-        return ledger["entries"], counted
-    return _load_records(job_id, "entries.json") or [], counted | done_ids
+    if ledger is not None and done_ids <= set(ledger["counted"]):
+        return ledger["entries"], set(ledger["counted"])
+    return _load_records(job_id, "entries.json") or [], set(done_ids)
 
 
 def _codebook_entries(job_id: str) -> list[dict]:
@@ -975,8 +996,15 @@ def get_next_batch(job_id: JobId,
     done_ids = set(_load_records(job_id, "done_ids.json") or [])
     pending = [p for p in queue if p["id"] not in done_ids]
     batch = pending[:max(1, min(batch_size, 10))]
-    return {"job_id": job_id, "packets": batch,
-            "remaining": len(pending), "done": not pending}
+    answer = {"job_id": job_id, "packets": batch, "remaining": len(pending), "done": not pending}
+    state = _jobs.read(job_id)
+    if (queue and not pending and state.get("status") != "complete"
+            and state["payload"].get("mode", "delegated") == "delegated"):
+        answer["done"] = False
+        answer["note"] = ("Every packet is answered, but the job did not finish: its last batch "
+                          "failed after they were recorded. Call submit_batch with an empty list "
+                          "to finish it; nothing is counted again.")
+    return answer
 
 
 @_tool(annotations=_LOCAL_WRITE)
@@ -991,8 +1019,9 @@ def submit_batch(job_id: JobId,
     responses are parsed as code JSON and accumulated; a packet already
     submitted is listed under `already_submitted` and not counted again.
     Refuses, writing nothing, a batch naming any packet the job did not
-    issue, a job that is already complete, and an api-mode job. Returns
-    acceptance details and remaining count.
+    issue, a job that is already complete, and an api-mode job. An empty
+    list finishes a job whose packets are all answered but whose last batch
+    failed before it finished. Returns acceptance details and remaining count.
     """
     with _jobs.locked(job_id):  # parallel calls on one job would lose each other's packets
         return _submit_held(job_id, results)
@@ -1089,6 +1118,9 @@ def _submit_held(job_id: str, results: list[dict]) -> dict:
         # the copy the checks CLI reads.
         _jobs.save_artifact(job_id, "ledger.json", json.dumps({"counted": sorted(counted), "entries": entries}))
         _jobs.save_artifact(job_id, "entries.json", json.dumps(entries))
+        # Answered before refining: a refinement that raises leaves no packet merged but
+        # unrecorded, for an earlier release sharing the job to serve and merge again.
+        _jobs.save_artifact(job_id, "done_ids.json", json.dumps(sorted(done_ids)))
         if issued <= done_ids:
             lens_key = state["payload"]["lens_key"]
             # Deterministic refinement only (llm=None): the delegated model
@@ -1104,8 +1136,8 @@ def _submit_held(job_id: str, results: list[dict]) -> dict:
                              [r["code_label"] for r in built],
                              similarity_method=report.get("similarity_method", ""))
             _jobs.save_artifact(job_id, "quality.json", json.dumps(report))
-
-    _jobs.save_artifact(job_id, "done_ids.json", json.dumps(sorted(done_ids)))
+    if kind == "coding":
+        _jobs.save_artifact(job_id, "done_ids.json", json.dumps(sorted(done_ids)))
     remaining = len(issued - done_ids)  # complete when every issued packet is answered
     _jobs.update(job_id, processed=len(done_ids),
                  status="complete" if remaining == 0 else "in_progress")

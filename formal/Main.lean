@@ -62,31 +62,38 @@ def ratifyCases : List String := Id.run do
           out := out ++ [s!"\{\"kind\": \"{kindName k}\", \"status\": \"{statusName st}\", \"result\": {optNat r}, \"held\": {optNat h}, {v}}"]
   return out
 
-/-- Chunks as (source, id); source 0 has no source_file. -/
-def chunkLists : List (List (Nat × Nat)) := Id.run do
-  let mut out : List (List (Nat × Nat)) := [[]]
+/-- Chunks as (source, id, text); source 0 has no source_file. -/
+def chunkLists : List (List (Nat × Nat × Nat)) := Id.run do
+  let mut out : List (List (Nat × Nat × Nat)) := [[]]
   for a in [1, 2] do
-    out := out ++ [[(1, a)]]
+    out := out ++ [[(1, a, a)]]
     for b in [1, 2] do
-      out := out ++ [[(1, a), (1, b)]]
+      out := out ++ [[(1, a, a), (1, b, 10 + b)]]
       for c in [1, 2, 3] do
-        out := out ++ [[(1, a), (1, b), (1, c)]]
+        out := out ++ [[(1, a, a), (1, b, 10 + b), (1, c, 20 + c)]]
   -- two interviews, in both orders, with and without source files
-  for srcs in [[1, 1, 2, 2], [2, 2, 1, 1], [0, 0, 2, 2], [1, 1, 1, 1]] do
-    out := out ++ [srcs.zip [1, 2, 1, 2]]
+  for srcs in [[1, 1, 2, 2], [2, 2, 1, 1], [0, 0, 2, 2], [1, 1, 1, 1], [0, 0, 0, 0]] do
+    out := out ++ [(srcs.zip [1, 2, 1, 2]).zip [1, 2, 3, 4] |>.map fun ((s, i), t) => (s, i, t)]
+  out := out ++ [[(0, 2, 4), (0, 1, 3), (0, 2, 2), (0, 1, 1)]]
+  -- chunks alike in ID and text, with and without a source
+  out := out ++ [[(0, 1, 5), (0, 1, 5)], [(0, 1, 5), (0, 2, 6), (0, 1, 5)], [(3, 1, 5), (3, 1, 6)],
+                 [(3, 1, 6), (3, 1, 5)], [(3, 1, 5), (0, 1, 5), (3, 1, 5)], [(3, 1, 5), (3, 2, 6), (3, 1, 7)]]
   return out
 
-def pidName : Packets.PacketId → String
-  | .plain i => s!"\"{i}\""
-  | .sourced s i => s!"\"s{s}#{i}\""
-  | .placed p i => s!"\"{p}:{i}\""
+/-- A packet as JSON: ["plain", id], ["sourced", source, id, k],
+["sourced_text", source, id, text, k] or ["content", id, text, k]. -/
+def pidJson : Packets.PacketId → String
+  | .plain i => s!"[\"plain\", {i}]"
+  | .named (.sourced s i) k => s!"[\"sourced\", {s}, {i}, {k}]"
+  | .named (.sourcedText s i t) k => s!"[\"sourced_text\", {s}, {i}, {t}, {k}]"
+  | .named (.content i t) k => s!"[\"content\", {i}, {t}, {k}]"
 
-def jsonChunks (cs : List (Nat × Nat)) : String :=
-  "[" ++ ", ".intercalate (cs.map fun c => s!"[{c.1}, {c.2}]") ++ "]"
+def jsonChunks (cs : List (Nat × Nat × Nat)) : String :=
+  "[" ++ ", ".intercalate (cs.map fun c => s!"[{c.1}, {c.2.1}, {c.2.2}]") ++ "]"
 
 def packetCases : List String :=
   chunkLists.map fun cs =>
-    s!"\{\"chunks\": {jsonChunks cs}, \"packets\": [{", ".intercalate ((Packets.packetIds cs).map pidName)}]}"
+    s!"\{\"chunks\": {jsonChunks cs}, \"packets\": [{", ".intercalate ((Packets.packetIds cs).map pidJson)}]}"
 
 def main : IO Unit := do
   IO.println "{\"submit\": ["

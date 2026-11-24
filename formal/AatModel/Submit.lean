@@ -78,10 +78,16 @@ def fix1Submit (j : Job) (sub : List Nat) : Option Job :=
 
 As first fixed, and: a queue that repeats an id is refused; only issued ids count as answered
 (`live`); a job is taken to be complete only when every issued id is answered, so a job marked
-complete early takes its unanswered packets; and the packets merged are those counted and those
-answered (`addAll counted live`), so a packet an earlier release merged without counting it is
-not merged again. -/
-def newSubmit (j : Job) (sub : List Nat) : Option Job :=
+complete early takes its unanswered packets. The packets merged (`merged`) are those the ledger
+counted while it counts every packet answered; a ledger that lacks an answered packet is out of
+date (an earlier release merged since, into `entries.json` and then `done_ids.json`), and the
+packets merged are then those answered. -/
+def merged (j : Job) : List Nat :=
+  if (j.done.filter (fun x => x ∈ j.queue)).all (fun x => x ∈ j.counted) then j.counted
+  else addAll [] (j.done.filter (fun x => x ∈ j.queue))
+
+/-- The rule the second fix had: the packets merged are those counted and those answered. -/
+def fix2Submit (j : Job) (sub : List Nat) : Option Job :=
   if j.delegated = false then none
   else if decide j.queue.Nodup = false then none
   else if (j.complete && j.queue.all (fun q => q ∈ j.done)) = true then none
@@ -90,6 +96,18 @@ def newSubmit (j : Job) (sub : List Nat) : Option Job :=
     let live := j.done.filter (fun x => x ∈ j.queue)
     let d := addAll live sub
     let base := addAll j.counted live
+    some { j with done := d, counted := base ++ fresh base sub,
+                  complete := j.queue.all (fun q => q ∈ d) }
+
+def newSubmit (j : Job) (sub : List Nat) : Option Job :=
+  if j.delegated = false then none
+  else if decide j.queue.Nodup = false then none
+  else if (j.complete && j.queue.all (fun q => q ∈ j.done)) = true then none
+  else if sub.all (fun x => x ∈ j.queue) = false then none
+  else
+    let live := j.done.filter (fun x => x ∈ j.queue)
+    let d := addAll live sub
+    let base := merged j
     some { j with done := d, counted := base ++ fresh base sub,
                   complete := j.queue.all (fun q => q ∈ d) }
 
@@ -147,12 +165,26 @@ theorem nodup_addAll (d s : List Nat) (h : d.Nodup) : (addAll d s).Nodup := by
 
 /-! ## The fixed rule meets the specification -/
 
+/-- The packets taken as merged include every issued packet answered. -/
+theorem live_sub_merged (j : Job) (x : Nat) (hx : x ∈ j.done.filter (fun x => x ∈ j.queue)) :
+    x ∈ merged j := by
+  unfold merged
+  split
+  · rename_i hall
+    simpa using List.all_eq_true.mp hall x hx
+  · exact (mem_addAll _ _ _).mpr (Or.inr hx)
+
+theorem merged_nodup (j : Job) (hc : j.counted.Nodup) : (merged j).Nodup := by
+  unfold merged
+  split
+  · exact hc
+  · exact nodup_addAll _ _ List.nodup_nil
+
 /-- Opens an accepted call: the refusals did not fire. -/
 theorem newSubmit_some (j j' : Job) (sub : List Nat) (h : newSubmit j sub = some j') :
     sub.all (fun x => decide (x ∈ j.queue)) = true ∧
     j' = { j with done := addAll (j.done.filter (fun x => x ∈ j.queue)) sub,
-                  counted := addAll j.counted (j.done.filter (fun x => x ∈ j.queue)) ++
-                    fresh (addAll j.counted (j.done.filter (fun x => x ∈ j.queue))) sub,
+                  counted := merged j ++ fresh (merged j) sub,
                   complete := j.queue.all (fun q => q ∈ addAll (j.done.filter (fun x => x ∈ j.queue)) sub) } := by
   unfold newSubmit at h
   split at h; · contradiction
@@ -188,7 +220,7 @@ theorem new_counts_once (j j' : Job) (sub : List Nat) (hc : j.counted.Nodup)
   unfold CountedOnce
   simp only
   rw [← addAll_eq]
-  exact nodup_addAll _ _ (nodup_addAll _ _ hc)
+  exact nodup_addAll _ _ (merged_nodup j hc)
 
 /-- S5: every packet recorded as answered is merged after the call, whatever the job held
 before (an earlier release may have answered packets the ledger never counted). -/
@@ -197,9 +229,9 @@ theorem new_keeps_answered (j j' : Job) (sub : List Nat) (h : newSubmit j sub = 
   obtain ⟨_, rfl⟩ := newSubmit_some j j' sub h
   intro x hx
   simp only at hx ⊢
-  rw [← addAll_eq, mem_addAll, mem_addAll]
+  rw [← addAll_eq, mem_addAll]
   cases (mem_addAll _ _ _).mp hx with
-  | inl h => exact Or.inl (Or.inr h)
+  | inl h => exact Or.inl (live_sub_merged j x h)
   | inr h => exact Or.inr h
 
 /-- In a job this release wrote, the packets merged are the packets answered, and stay so. -/
@@ -207,9 +239,15 @@ theorem new_counted_stays_done (j j' : Job) (sub : List Nat) (hc : j.counted = j
     (hi : OnlyIssued j) (h : newSubmit j sub = some j') : j'.counted = j'.done := by
   have hl : j.done.filter (fun x => decide (x ∈ j.queue)) = j.done :=
     List.filter_eq_self.mpr (fun x hx => by simpa using hi x hx)
+  have hm : merged j = j.done := by
+    unfold merged
+    rw [hl, hc]
+    have : j.done.all (fun x => decide (x ∈ j.done)) = true :=
+      List.all_eq_true.mpr (fun x hx => by simpa using hx)
+    simp [this]
   obtain ⟨_, rfl⟩ := newSubmit_some j j' sub h
   simp only
-  rw [hl, hc, addAll_of_all_mem _ _ (fun _ hx => hx), ← addAll_eq]
+  rw [hm, hl, ← addAll_eq]
 
 /-- S4. -/
 theorem new_complete_is_final (j : Job) (sub : List Nat) (h : j.complete = true)
@@ -294,6 +332,21 @@ theorem fix1_stuck_on_unissued_done :
 theorem new_drops_unissued_done :
     (newSubmit ⟨[0, 1], true, [0, 9], [0, 9], true⟩ [1]).map (fun j' => (j'.done, j'.complete))
       = some ([0, 1], true) := by decide
+
+/-- The second fix took the packets a stale ledger counted as merged. A call that died between
+writing `ledger.json` and `entries.json` left packet 1 counted there and in neither
+`entries.json` nor `done_ids.json`; an earlier release then answered packet 2. Sent again,
+packet 1 was taken as merged already (it sits in the merged list before the call's own), so
+not merged. This shows which packets each rule takes as merged; that packet 1's codes were then in no file is `tla/Count.tla`'s (`union Kept`). -/
+theorem fix2_takes_unwritten_as_merged :
+    (fix2Submit ⟨[0, 1, 2], true, [0, 2], [0, 1], false⟩ [1]).map (·.counted) = some [0, 1, 2] := by
+  decide
+
+/-- The fixed rule takes as merged only the packets `done_ids.json` records, and merges packet 1
+when it is sent (it comes last, after the packets merged before). -/
+theorem new_merges_unwritten :
+    (newSubmit ⟨[0, 1, 2], true, [0, 2], [0, 1], false⟩ [1]).map (·.counted) = some [0, 2, 1] := by
+  decide
 
 theorem new_keeps_stale_ledger :
     (newSubmit ⟨[0, 1, 2], true, [0, 1], [0], false⟩ [2]).map
