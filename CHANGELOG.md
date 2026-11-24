@@ -6,6 +6,14 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 
 ## Codex Plugin
 
+### 1.39.0 — 2026-11-24
+- Installs the MCP server as `ai-anthropology-toolkit[data,api]==3.12.0`
+  (see the package entry): delegated jobs no longer lose a batch or count a
+  packet twice when calls run in parallel or a batch fails part-way, coding
+  several interviews completes, and a host still on an earlier release can no
+  longer write to a job this one starts. Upgrade every host that shares a job
+  store.
+
 ### 1.38.2 — 2026-11-21
 - Every skill the plugin mirrors declares its licence in its frontmatter
   (`license: PolyForm-Noncommercial-1.0.0`), matching `LICENSE` and the
@@ -59,7 +67,7 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 
 ## Package (`ai-anthropology-toolkit` on PyPI)
 
-### Unreleased
+### 3.12.0 — 2026-11-24
 - **Formal models of the job store** (`formal/`): Lean 4 proofs of what
   `submit_batch` accepts and when a job is complete, and of what
   `ratify_codebook` ratifies; TLA+ models of parallel batches, of finishing a
@@ -798,6 +806,14 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 - Notebooks and documentation remain under CC BY-NC 4.0
 
 ## Claude Code Plugin
+
+### 1.39.0 — 2026-11-24
+- Registers the MCP server as `ai-anthropology-toolkit[data,api]==3.12.0`
+  (see the package entry): delegated jobs no longer lose a batch or count a
+  packet twice when calls run in parallel or a batch fails part-way, coding
+  several interviews completes, and a host still on an earlier release can no
+  longer write to a job this one starts. Upgrade every host that shares a job
+  store.
 
 ### 1.38.3 — 2026-11-23
 - The marketplace owner's email is the GitHub noreply address.
