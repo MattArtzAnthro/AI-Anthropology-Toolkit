@@ -14,7 +14,17 @@ import AatModel
 #print axioms AatModel.Submit.new_counts_resend_once
 #print axioms AatModel.Submit.old_takes_after_complete
 #print axioms AatModel.Submit.old_duplicate_ids_never_complete
-#print axioms AatModel.Submit.new_duplicate_ids_complete
+#print axioms AatModel.Submit.addAll_of_all_mem
+#print axioms AatModel.Submit.newSubmit_some
+#print axioms AatModel.Submit.new_keeps_answered
+#print axioms AatModel.Submit.new_counted_stays_done
+#print axioms AatModel.Submit.new_refuses_repeated_queue
+#print axioms AatModel.Submit.fix1_repeated_queue_completes
+#print axioms AatModel.Submit.new_refuses_repeated_queue_example
+#print axioms AatModel.Submit.fix1_stuck_on_early_complete
+#print axioms AatModel.Submit.new_reopens_early_complete
+#print axioms AatModel.Submit.fix1_loses_stale_ledger
+#print axioms AatModel.Submit.new_keeps_stale_ledger
 #print axioms AatModel.Ratify.new_ratifies_only_finished_codebooks
 #print axioms AatModel.Ratify.bound_initially
 #print axioms AatModel.Ratify.new_step_keeps_bound
@@ -30,3 +40,8 @@ import AatModel
 #print axioms AatModel.Packets.packet_ids_distinct
 #print axioms AatModel.Packets.packet_ids_keep_distinct_ids
 #print axioms AatModel.Packets.old_ids_collide
+#print axioms AatModel.Packets.nodup_map_of_inj
+#print axioms AatModel.Packets.packet_ids_name_the_chunk
+#print axioms AatModel.Packets.order_kept
+#print axioms AatModel.Submit.fix1_stuck_on_unissued_done
+#print axioms AatModel.Submit.new_drops_unissued_done

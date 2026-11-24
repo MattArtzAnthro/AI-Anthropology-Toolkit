@@ -136,6 +136,12 @@ def _unchecked(count: int, amendments: int, prior: str) -> str:
     return f"{chunks} coded under version {prior} and {have} not been rechecked against {against}."
 
 
+def finishing_with(store: JobStore, desk_id: str, doc: Any) -> bool:
+    """Whether an interrupted finish of the desk was started with these decisions."""
+    pending = _json(store, desk_id, "finishing.json")
+    return bool(pending) and pending["digest"] == _digest(desk_decisions.parse(doc))
+
+
 def apply(store: JobStore, desk_id: str, doc: Any, surface: str) -> Outcome:
     """Apply a decisions document (``aat/desk-decisions@1``) to a desk, made on ``surface``
     (``app``, ``page`` or ``chat``), and return the outcome. Refuses, writing nothing, a

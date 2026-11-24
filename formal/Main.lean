@@ -15,19 +15,32 @@ def sublists : List Nat → List (List Nat)
 def queues : List (List Nat) := [[], [0], [0, 1], [0, 1, 2], [3, 3]]
 def batches : List (List Nat) := [[], [0], [1], [9], [0, 1], [0, 0], [0, 9], [1, 2], [3], [0, 1, 2]]
 
+/-- Ledgers a job may hold beside `done`: none (counted = done), the same, one more (a batch
+merged then failed before done_ids.json), one fewer (an earlier release answered a packet the
+ledger never counted), and one fewer with one more (both). -/
+def ledgers (q d : List Nat) : List (Option (List Nat)) :=
+  let extra := q.eraseDups.filter (· ∉ d)
+  [none, some d] ++ extra.map (fun x => some (d ++ [x]))
+    ++ d.map (fun x => some (d.erase x))
+    ++ (d.flatMap fun x => extra.map fun y => some (d.erase x ++ [y]))
+
+def jsonOpt : Option (List Nat) → String
+  | none => "null" | some l => jsonList l
+
 def submitCases : List String := Id.run do
   let mut out := []
   for q in queues do
-    for d in sublists q.eraseDups do
-      for del in [true, false] do
+    -- an earlier release may have recorded id 9, never issued, as answered
+    for (d, legacy) in (sublists q.eraseDups).map (·, false) ++ (sublists q.eraseDups).map (· ++ [9], true) do
+      for del in (if legacy then [true] else [true, false]) do
         for comp in [false, true] do
-          if comp && !(q.all (· ∈ d)) then continue
-          for s in batches do
-            let j : Submit.Job := ⟨q, del, d, d, comp⟩
-            let v := match Submit.newSubmit j s with
-              | none => "\"refused\": true"
-              | some j' => s!"\"refused\": false, \"done_after\": {jsonList j'.done}, \"counted\": {jsonList j'.counted}, \"complete_after\": {jsonBool j'.complete}"
-            out := out ++ [s!"\{\"queue\": {jsonList q}, \"delegated\": {jsonBool del}, \"done\": {jsonList d}, \"complete\": {jsonBool comp}, \"submit\": {jsonList s}, {v}}"]
+          for led in (if del && !legacy then ledgers q d else [none]) do
+            for s in batches do
+              let j : Submit.Job := ⟨q, del, d, led.getD d, comp⟩
+              let v := match Submit.newSubmit j s with
+                | none => "\"refused\": true"
+                | some j' => s!"\"refused\": false, \"done_after\": {jsonList j'.done}, \"counted\": {jsonList j'.counted}, \"complete_after\": {jsonBool j'.complete}"
+              out := out ++ [s!"\{\"queue\": {jsonList q}, \"delegated\": {jsonBool del}, \"done\": {jsonList d}, \"ledger\": {jsonOpt led}, \"complete\": {jsonBool comp}, \"submit\": {jsonList s}, {v}}"]
   return out
 
 def kindName : Ratify.Kind → String
@@ -49,23 +62,31 @@ def ratifyCases : List String := Id.run do
           out := out ++ [s!"\{\"kind\": \"{kindName k}\", \"status\": \"{statusName st}\", \"result\": {optNat r}, \"held\": {optNat h}, {v}}"]
   return out
 
-def idLists : List (List Nat) := Id.run do
-  let mut out := [[]]
+/-- Chunks as (source, id); source 0 has no source_file. -/
+def chunkLists : List (List (Nat × Nat)) := Id.run do
+  let mut out : List (List (Nat × Nat)) := [[]]
   for a in [1, 2] do
-    out := out ++ [[a]]
+    out := out ++ [[(1, a)]]
     for b in [1, 2] do
-      out := out ++ [[a, b]]
+      out := out ++ [[(1, a), (1, b)]]
       for c in [1, 2, 3] do
-        out := out ++ [[a, b, c]]
+        out := out ++ [[(1, a), (1, b), (1, c)]]
+  -- two interviews, in both orders, with and without source files
+  for srcs in [[1, 1, 2, 2], [2, 2, 1, 1], [0, 0, 2, 2], [1, 1, 1, 1]] do
+    out := out ++ [srcs.zip [1, 2, 1, 2]]
   return out
 
 def pidName : Packets.PacketId → String
   | .plain i => s!"\"{i}\""
+  | .sourced s i => s!"\"s{s}#{i}\""
   | .placed p i => s!"\"{p}:{i}\""
 
+def jsonChunks (cs : List (Nat × Nat)) : String :=
+  "[" ++ ", ".intercalate (cs.map fun c => s!"[{c.1}, {c.2}]") ++ "]"
+
 def packetCases : List String :=
-  idLists.map fun ids =>
-    s!"\{\"chunk_ids\": {jsonList ids}, \"packets\": [{", ".intercalate ((Packets.packetIds ids).map pidName)}]}"
+  chunkLists.map fun cs =>
+    s!"\{\"chunks\": {jsonChunks cs}, \"packets\": [{", ".intercalate ((Packets.packetIds cs).map pidName)}]}"
 
 def main : IO Unit := do
   IO.println "{\"submit\": ["

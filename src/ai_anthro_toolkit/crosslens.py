@@ -38,6 +38,8 @@ import hashlib
 import json
 import math
 
+from ai_anthro_toolkit.models import record_key
+
 FRICTION_THRESHOLD = 0.3
 FRICTION_TOP_N = 20
 TEXT_CAP = 500
@@ -84,7 +86,9 @@ def _ingest(results_by_lens: dict[str, list[dict]]):
 
     Returns (ded_maps, ind_maps, texts, warnings) where ded_maps/ind_maps
     map lens -> {chunk_id: code set} for chunks whose record carries an id,
-    and texts maps chunk_id -> first non-blank text seen.
+    and texts maps chunk_id -> first non-blank text seen. A record's chunk_id
+    here is its packet_id when it has one (models.record_key), so chunks of
+    several interviews that share chunk_ids stay apart.
     """
     ded_maps: dict[str, dict] = {}
     ind_maps: dict[str, dict] = {}
@@ -98,8 +102,7 @@ def _ingest(results_by_lens: dict[str, list[dict]]):
         missing = 0
         duplicates = []
         for record in records:
-            raw_id = record.get("chunk_id")
-            chunk_id = "" if raw_id is None else str(raw_id).strip()
+            chunk_id = record_key(record)  # its packet_id, when it has one
             if not chunk_id:
                 missing += 1
                 continue

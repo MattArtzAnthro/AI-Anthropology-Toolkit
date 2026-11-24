@@ -19,6 +19,7 @@ from itertools import combinations
 
 import networkx as nx
 
+from ai_anthro_toolkit.models import record_key
 from ai_anthro_toolkit.network.viewer import analyze_graph, build_app_html
 
 __all__ = ["build_network", "analyze_network", "export_network", "build_app_html", "KINDS"]
@@ -110,7 +111,7 @@ def build_network(records: list[dict], kind: str = "code_cooccurrence",
             raise ValueError("lens_agreement needs results_by_lens={lens: coded records}")
         by_lens: dict[str, dict[str, set]] = {}
         for lens, recs in results_by_lens.items():
-            by_lens[lens] = {str(r.get("chunk_id")): set(_codes_of(r)) for r in recs}
+            by_lens[lens] = {record_key(r): set(_codes_of(r)) for r in recs}
             nodes[lens] = _node(lens, kind="lens", chunks=len(by_lens[lens]))
         for a, b in combinations(sorted(by_lens), 2):
             shared = sum(1 for cid, codes in by_lens[a].items()

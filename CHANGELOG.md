@@ -63,31 +63,53 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 - **Formal models of the job store** (`formal/`): Lean 4 proofs of what
   `submit_batch` accepts and when a job is complete, and of what
   `ratify_codebook` ratifies; TLA+ models of parallel batches, of finishing a
-  desk from two callers with crashes, and of desks built at once on one
-  ratification. `tests/package/test_formal_conformance.py` holds the server to
-  the proved rules on 531 cases, and the gate fails when a model changed since
-  the provers last passed (`formal/stamp.py --check`).
+  desk from two callers with crashes, of a desk finished from the conversation
+  or its view, of desks built at once on one ratification, and of a codebook
+  job shared with an earlier release. `tests/package/test_formal_conformance.py`
+  holds the server to the proved rules on 2,455 cases, among them jobs an
+  earlier release wrote, and the gate fails when a model changed since the
+  provers last passed (`formal/stamp.py --check`).
 - `submit_batch` refuses, writing nothing, a batch naming a packet the job
   did not issue. Before, such IDs counted toward completion: a job could
   report complete, and its result be served, with chunks never coded.
 - `submit_batch` refuses a job that is already complete and an api-mode job.
   Before, a late batch rewrote a finished codebook, and a batch sent to an
-  api job marked it complete while its worker still ran.
+  api job marked it complete while its worker still ran. A job an earlier
+  release marked complete with chunks uncoded is not complete: it takes the
+  packets it still lacks, `get_next_batch` serves them, `get_job_status` and
+  `get_job_result` report it in progress, and `ratify_codebook` waits for it.
+  IDs an earlier release recorded as answered without issuing them no longer
+  count.
 - A codebook packet sent again is listed under `already_submitted` and not
   counted twice, so a retry no longer lifts a code over `min_frequency`. This
   holds when the batch failed after its codes were merged (an embedding model
   that cannot be downloaded): the merge and the packets merged into it are now
-  one file, `ledger.json`, written in one step.
-- Delegated coding of several interviews works. `chunk_transcript` numbers each
-  transcript's chunks from 1, so chunks of several interviews shared packet
-  IDs: one answer coded every chunk with that ID, and the job never completed.
-  When chunk IDs repeat, each packet ID now carries its chunk's position
-  (`3:1`).
+  one file, `ledger.json`, written in one step. A host still on an earlier
+  release that submits to the same job does not write `ledger.json`; the next
+  batch here keeps the codes it merged.
+- Delegated coding of several interviews completes, and its records reach
+  the rulings desk, `compare_lenses` and the lens network. `chunk_transcript`
+  numbers each transcript's chunks from 1, so chunks of several interviews
+  shared packet IDs: one answer coded every chunk with that ID, and the job
+  never completed. When chunk IDs repeat, each packet ID now names its
+  chunk's source file and ID (`ana.txt#3`), so two coding passes over the
+  same interviews in a different order still match chunk to chunk; chunks
+  without a `source_file` carry their position (`3:1`). Every coded record
+  carries its `packet_id`, in
+  delegated and api mode, and the rulings desk, `compare_lenses` and
+  `build_network(kind="lens_agreement")` match records on it (on `chunk_id`
+  for records without one). A rulings desk's `proposals` are keyed the same
+  way. Before, the desk refused such records ("chunk 1
+  appears more than once") and `compare_lenses` merged different chunks.
+  A coding job an earlier release started this way is refused, writing
+  nothing, with a request to start it again: its answers cannot be told apart.
 - Parallel `submit_batch` calls on one job no longer lose each other's
   packets: a chunk could be recorded as answered with its codes gone and be
   reported as `No_Codes`. Every read-change-write on a job now holds the job's
   lock (`JobStore.locked`, a thread lock plus `flock`, so it also holds across
-  server processes sharing the job store).
+  server processes sharing the job store, except on Windows): `submit_batch`,
+  the desk's saves and finish, the ratification's list of desks,
+  `JobStore.update`, and `analyze_network` on a stored network.
 - `ratify_codebook` ratifies only a finished codebook job, and refuses to
   ratify one again as a different codebook: a `ratification_id` names one
   codebook, so coding jobs and rulings desks bound to it cannot drift.
@@ -97,6 +119,13 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
 - Two server processes cannot both finish one desk. Before, both callers were
   told the desk was ratified, as different ratifications, and the decision
   record could name the one the desk did not hold.
+- A desk whose finish from the conversation was interrupted, and which was
+  then opened in its view, can be finished: `record_desk_decisions` with the
+  same decisions completes it. Before, the view held the desk, the view's
+  Ratify was refused (other decisions), and its Save was refused (a finish
+  pending), so nothing could finish it. The view no longer takes a desk whose
+  finish is pending, and says where to complete it. A Ratify interrupted in
+  the view is still completed only there.
 
 ### 3.11.1 — 2026-11-16
 - The ratification desk's view reports its height to the host

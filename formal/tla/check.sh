@@ -68,13 +68,35 @@ dl current            TRUE   TRUE   NeverBuilt  FAIL  # probe: desks are built
 dl unlocked           FALSE  TRUE   DesksKept   FAIL  # a desk dropped from the ratification's list, and its rulings from the record
 dl resend-rewrites    TRUE   FALSE  DesksKept   FAIL  # an interrupted desk finish sent again emptied the list
 
-# ---- Count: a codebook batch sent again after it failed past the merge
-ct() { run Count "$1" "Ledger = $2 MaxFailures = $3" "$4" "$5"; }
-#  name       ledger failures property     expect
-ct current    TRUE   3        CountedOnce  PASS
-ct current    TRUE   3        NeverDone    FAIL  # probe: the job finishes after failures
-ct no-ledger  FALSE  3        CountedOnce  FAIL  # merged again on each resend: a code's frequency climbs
-ct no-ledger  FALSE  0        CountedOnce  PASS  # without a failure the old order counts once
+# ---- Count: a codebook batch sent again after it failed past the merge, and an earlier release
+# ---- submitting to the same job
+ct() { run Count "$1" "Ledger = $2 StaleCheck = $3 Union = $4 Earlier = \"$5\" FailBetween = $6 MaxFailures = $7" "$8" "$9"; }
+#  name            ledger stale union earlier between failures property     expect
+ct current         TRUE   TRUE  TRUE  other   FALSE   3        CountedOnce  PASS
+ct current         TRUE   TRUE  TRUE  other   FALSE   3        Kept         PASS
+ct current         TRUE   TRUE  TRUE  other   FALSE   3        NeverDone    FAIL  # probe: the job finishes after failures
+ct one-release     TRUE   TRUE  TRUE  none    TRUE    3        CountedOnce  PASS
+ct one-release     TRUE   TRUE  TRUE  none    TRUE    3        Kept         PASS
+ct between         TRUE   TRUE  TRUE  other   TRUE    3        CountedOnce  PASS
+ct between         TRUE   TRUE  TRUE  other   TRUE    3        Kept         FAIL  # residual: dies between ledger.json and entries.json, then an earlier release submits
+ct earlier-resent  TRUE   TRUE  TRUE  any     FALSE   3        Kept         PASS
+ct earlier-resent  TRUE   TRUE  TRUE  any     FALSE   3        CountedOnce  FAIL  # residual: the earlier release merges a packet it is sent again (as it always did)
+ct earlier-resent  TRUE   TRUE  TRUE  any     FALSE   0        CountedOnce  PASS  # without a failure, nothing it is sent was merged before
+ct no-ledger       FALSE  FALSE FALSE none    TRUE    3        CountedOnce  FAIL  # merged again on each resend: a code's frequency climbs
+ct no-ledger       FALSE  FALSE FALSE none    TRUE    0        CountedOnce  PASS  # without a failure the old order counts once
+ct ledger-only     TRUE   FALSE FALSE other   FALSE   0        Kept         FAIL  # the earlier release's packet: answered, its codes lost
+ct stale-to-done   TRUE   TRUE  FALSE other   FALSE   3        CountedOnce  FAIL  # the stale ledger's own packet merged again after a failed refinement
+
+# ---- DeskView: a desk finished from the conversation or its view, with crashes
+dv() { run DeskView "$1" "ViewWaits = $2 Resume = \"$3\" Legacy = $4 MaxCrashes = $5" "$6" "$7"; }
+#  name               waits resume legacy crashes property       expect
+dv current            TRUE  own    TRUE   2       NotStuck       PASS
+dv current            TRUE  own    TRUE   2       ViewKeeps      PASS
+dv current            TRUE  own    FALSE  2       NeverFinished  FAIL  # probe: the desk finishes
+dv old                FALSE never  FALSE  2       NotStuck       FAIL  # interrupted in chat, then opened in the view: nobody can finish it
+dv view-waits-only    TRUE  never  FALSE  2       NotStuck       PASS  # new desks no longer get stuck...
+dv view-waits-only    TRUE  never  TRUE   2       NotStuck       FAIL  # ...but one an earlier release left stays stuck
+dv any-pending        TRUE  any    TRUE   2       ViewKeeps      FAIL  # the conversation completes the view's own interrupted Ratify, recorded as chat
 
 if [[ $bad -ne 0 ]]; then echo "tla: FAILED: a row differs from its expected result" >&2; exit 1; fi
 echo "tla: ok"

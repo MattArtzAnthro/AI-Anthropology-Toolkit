@@ -270,6 +270,64 @@ class TestJobLock(StoreBase):
         worker.join(5)
         self.assertTrue(finished.is_set(), "the second spelling of the folder waited on the first")
 
+    def test_two_updates_at_once_keep_both_fields(self):
+        # job.json is read, changed and written; two calls at once lost one's field.
+        from ai_anthro_toolkit import jobs
+        job = self.coding_job()
+        real = jobs._write_atomic
+
+        def slow(path, content):
+            time.sleep(0.05)
+            return real(path, content)
+
+        with mock.patch.object(jobs, "_write_atomic", slow):
+            calls = [threading.Thread(target=server._jobs.update, args=(job,), kwargs={k: 1})
+                     for k in ("first", "second")]
+            for t in calls:
+                t.start()
+            for t in calls:
+                t.join()
+        state = server._jobs.read(job)
+        self.assertEqual((state.get("first"), state.get("second")), (1, 1))
+
+    def test_analyze_network_refuses_an_unknown_network_as_view_network_does(self):
+        job = self.coding_job()
+        for network_id in (job, "network-00000000"):
+            with self.subTest(network_id):
+                viewed = server.view_network(network_id=network_id)
+                with self.assertRaises(ValueError) as analyzed:
+                    server.analyze_network(network_id=network_id)
+                self.assertEqual(str(analyzed.exception), viewed.content[0].text)
+
+    def test_two_analyses_of_one_network_take_turns(self):
+        # analyze_network reads a network's graph, lays it out and writes it back.
+        rid = server.ratify_codebook(codebook=CODEBOOK)["ratification_id"]
+        job = server.start_coding_job(CHUNKS, ratification_id=rid, llm_mode="delegated")["job_id"]
+        server.submit_batch(job, [{"id": c["chunk_id"], "response": "trust, risk"} for c in CHUNKS])
+        network_id = server.build_network(job_id=job)["network_id"]
+        real, inside, most = server._network.analyze_network, [0], [0]
+        guard = threading.Lock()
+
+        def slow(*args, **kwargs):
+            with guard:
+                inside[0] += 1
+                most[0] = max(most[0], inside[0])
+            time.sleep(0.1)
+            try:
+                return real(*args, **kwargs)
+            finally:
+                with guard:
+                    inside[0] -= 1
+
+        with mock.patch.object(server._network, "analyze_network", slow):
+            calls = [threading.Thread(target=server.analyze_network, kwargs={"network_id": network_id, "seed": s})
+                     for s in (1, 2)]
+            for t in calls:
+                t.start()
+            for t in calls:
+                t.join()
+        self.assertEqual(most[0], 1)
+
 
 def _finish_in_another_process(root, desk_id, doc, answers, both_decided):
     store = JobStore(root)
@@ -321,6 +379,270 @@ class TestDeskAcrossProcesses(StoreBase):
                   if e["action"] == "ratify"]
         self.assertEqual(record, [finished["outcome"]["ratification_id"]])
         self.assertEqual(ratified, record)
+
+
+def _earlier_release_submit(job, pid, label):
+    """What submit_batch in 3.11.1 (before ledger.json) does with one codebook packet: merge
+    its code into entries.json by label, adding one to the code's frequency (it does not ask
+    whether the packet was merged before), and record the packet in done_ids.json."""
+    entries = json.loads(server._jobs.load_artifact(job, "entries.json") or "[]")
+    doc = pid.split("::")[0]
+    same = next((e for e in entries if e["label"] == label), None)
+    if same is None:
+        entries.append({"label": label, "definition": "d", "extraction_type": "emergent", "frequency": 1,
+                        "source_documents": [doc], "examples": []})
+    else:
+        same["frequency"] += 1
+        same["source_documents"] = sorted(set(same["source_documents"]) | {doc})
+    done = json.loads(server._jobs.load_artifact(job, "done_ids.json") or "[]")
+    server._jobs.save_artifact(job, "entries.json", json.dumps(entries))
+    server._jobs.save_artifact(job, "done_ids.json", json.dumps(sorted(set(done) | {pid})))
+
+
+class TestEarlierReleases(StoreBase):
+    """Jobs an earlier release wrote, or shares. Submit.lean: new_keeps_answered,
+    new_refuses_repeated_queue, new_reopens_early_complete; tla: Count mixed-versions."""
+
+    def test_a_codebook_job_shared_with_an_earlier_release_keeps_every_code(self):
+        # fix1_loses_stale_ledger: an earlier release merges a packet into entries.json without
+        # ledger.json; the next batch here started from the stale ledger and lost that code.
+        job = self.codebook_job({"d1": "alpha " * 40, "d2": "beta " * 40, "d3": "gamma " * 40})
+        ids = [p["id"] for p in server.get_next_batch(job, 10)["packets"]]
+        self.assertEqual(len(ids), 3)
+        server.submit_batch(job, [{"id": ids[0], "response": _code("alpha")}])
+        _earlier_release_submit(job, ids[1], "ALPHA")
+        out = server.submit_batch(job, [{"id": ids[2], "response": _code("gamma")}])
+        self.assertEqual(out["remaining"], 0)
+        self.assertEqual(sorted((e["label"], e["frequency"]) for e in server._codebook_entries(job)),
+                         [("ALPHA", 2), ("GAMMA", 1)])
+
+    def test_a_codebook_batch_that_died_between_its_two_writes_is_counted_once(self):
+        # tla: Count current CountedOnce/Kept PASS. The call dies after ledger.json and before
+        # entries.json; sent again, the batch is taken from ledger.json, which a server reading
+        # entries.json instead would get wrong (it would lose ALPHA).
+        job = self.codebook_job({"d1": "alpha " * 40, "d2": "beta " * 40})
+        ids = [p["id"] for p in server.get_next_batch(job, 10)["packets"]]
+        real = JobStore.save_artifact
+
+        def dies_at_entries(store, job_id, name, content):
+            if name == "entries.json":
+                raise OSError("disk full")
+            return real(store, job_id, name, content)
+
+        with mock.patch.object(JobStore, "save_artifact", dies_at_entries):
+            with self.assertRaises(OSError):
+                server.submit_batch(job, [{"id": ids[0], "response": _code("alpha")}])
+        server.submit_batch(job, [{"id": ids[0], "response": _code("alpha")}])
+        server.submit_batch(job, [{"id": ids[1], "response": _code("beta")}])
+        self.assertEqual(sorted((e["label"], e["frequency"]) for e in server._codebook_entries(job)),
+                         [("ALPHA", 1), ("BETA", 1)])
+
+    def _repeated_ids_job(self):
+        """A coding job an earlier release started on two interviews: one packet ID per chunk_id,
+        so both chunks numbered 1 were issued as packet 1."""
+        job = self.coding_job([{"chunk_id": "x", "text": "placeholder"}])
+        chunks = [{"chunk_id": 1, "text": f"{who} one", "source_file": who} for who in ("ana.txt", "ben.txt")]
+        server._jobs.save_artifact(job, "chunks.json", json.dumps(chunks))
+        server._jobs.save_artifact(job, "queue.json", json.dumps([{"id": "1", "prompt": "p"}] * 2))
+        return job
+
+    def test_an_old_job_that_gave_two_chunks_one_packet_is_refused(self):
+        # fix1_repeated_queue_completes / new_refuses_repeated_queue: the answer to packet 1
+        # cannot be told apart, so it must not be written to both chunks.
+        job = self._repeated_ids_job()
+        with self.assertRaisesRegex(ValueError, "start the coding job again"):
+            server.get_next_batch(job)
+        with self.assertRaisesRegex(ValueError, "start the coding job again"):
+            server.submit_batch(job, [{"id": "1", "response": "trust"}])
+        self.assertIsNone(server._jobs.load_artifact(job, "result.json"))
+        self.assertEqual(server.get_job_status(job)["status"], "in_progress")
+
+    def test_an_old_job_marked_complete_too_early_can_be_finished(self):
+        # fix1_stuck_on_unissued_done / new_drops_unissued_done: an earlier release counted
+        # IDs it never issued as answered and marked the job complete with chunks uncoded.
+        job = self.coding_job()
+        server.submit_batch(job, [{"id": "c0", "response": "trust"}])
+        server._jobs.save_artifact(job, "done_ids.json", json.dumps(["c0", "zz1", "zz2", "zz3"]))
+        server._jobs.update(job, status="complete", processed=4)
+        status = server.get_job_status(job)
+        self.assertEqual((status["status"], status["processed"], status["total"]), ("in_progress", 1, 4))
+        self.assertFalse(server.get_job_result(job)["ready"])
+        packets = server.get_next_batch(job, 10)["packets"]
+        self.assertEqual([p["id"] for p in packets], ["c1", "c2", "c3"])
+        out = server.submit_batch(job, [{"id": p["id"], "response": "risk"} for p in packets])
+        self.assertEqual(out["remaining"], 0)
+        status = server.get_job_status(job)
+        self.assertEqual((status["status"], status["processed"], status["pct"]), ("complete", 4, 100.0))
+        coded = [r["Deductive_Codes"] for r in server.get_job_result(job)["records"]]
+        self.assertEqual(coded, ["trust", "risk", "risk", "risk"])
+        with self.assertRaisesRegex(ValueError, "already complete"):
+            server.submit_batch(job, [{"id": "c0", "response": "risk"}])
+
+    def test_a_codebook_job_completed_too_early_is_not_ratified(self):
+        job = self.codebook_job()
+        first = server.get_next_batch(job, 10)["packets"][0]["id"]
+        server.submit_batch(job, [{"id": first, "response": _code("trust")}])
+        server._jobs.save_artifact(job, "result.json", json.dumps([{"code_label": "TRUST", "definition": "d"}]))
+        server._jobs.update(job, status="complete")
+        with self.assertRaisesRegex(ValueError, "no result yet"):
+            server.ratify_codebook(codebook_job_id=job)
+
+
+class TestDeskInterruptedThenViewed(StoreBase):
+    """tla: DeskView old NotStuck FAIL, current NotStuck PASS."""
+
+    def _interrupted(self):
+        from ai_anthro_toolkit.desk import gate
+        built = server._build_desk("codebook", "t", "", desk_helpers.load("codebook"),
+                                   desk_helpers.load("cases"), None, None, True).structured_content
+        desk_id = built["desk_id"]
+        desk = server._jobs.read(desk_id)["payload"]
+        doc = {"schema": "aat/desk-decisions@1", "desk_id": desk_id, "card_checksum": desk["card_checksum"],
+               "exclusive": False, "decisions": {c["card_id"]: {"action": "adopt"} for c in desk["cards"]}}
+        with mock.patch.object(gate.record, "append", side_effect=OSError("disk full")):
+            with self.assertRaises(OSError):
+                server.record_desk_decisions(desk_id, doc, "chat")
+        self.assertIsNotNone(server._jobs.load_artifact(desk_id, "finishing.json"))
+        return desk_id, doc
+
+    def test_opening_the_view_after_an_interrupted_chat_finish_leaves_it_finishable(self):
+        desk_id, doc = self._interrupted()
+        server._sync(desk_id, None)  # the view opens the desk
+        self.assertIsNone(server._jobs.load_artifact(desk_id, server._SAVED))
+        out = server.record_desk_decisions(desk_id, doc, "chat")
+        self.assertTrue(out["ratification_id"])
+        self.assertIsNotNone(server._jobs.load_artifact(desk_id, "finished.json"))
+
+    def test_the_view_says_where_an_interrupted_chat_finish_completes(self):
+        desk_id, doc = self._interrupted()
+        server._sync(desk_id, None)
+        with self.assertRaisesRegex(ValueError, "from the conversation was interrupted.*record_desk_decisions"):
+            server._sync(desk_id, {"name": "save", "context": {}})
+        self.assertIsNone(server._jobs.load_artifact(desk_id, server._SAVED))
+
+    def test_a_desk_an_earlier_release_left_stuck_can_be_finished(self):
+        # The earlier view held the desk (saved.json) over the interrupted chat finish.
+        desk_id, doc = self._interrupted()
+        server._jobs.save_artifact(desk_id, server._SAVED, json.dumps(server._NOTHING_SAVED))
+        out = server.record_desk_decisions(desk_id, doc, "chat")
+        self.assertTrue(out["ratification_id"])
+
+    def test_the_conversation_cannot_complete_a_finish_the_view_started(self):
+        # tla: DeskView own-only ViewKeeps PASS, any-pending ViewKeeps FAIL
+        from ai_anthro_toolkit.desk import gate
+        built = server._build_desk("codebook", "t", "", desk_helpers.load("codebook"),
+                                   desk_helpers.load("cases"), None, None, True).structured_content
+        desk_id = built["desk_id"]
+        desk = server._jobs.read(desk_id)["payload"]
+        saved = {"decisions": {c["card_id"]: {"action": "adopt"} for c in desk["cards"]}, "exclusive": False}
+        server._jobs.save_artifact(desk_id, server._SAVED, json.dumps(saved))  # the view decided
+        with mock.patch.object(gate.record, "append", side_effect=OSError("disk full")):
+            with self.assertRaises(OSError):
+                server._finish(desk_id)  # Ratify in the view, interrupted
+        doc = server._document(desk_id, desk, saved)
+        with self.assertRaisesRegex(ValueError, "open in its view"):
+            server.record_desk_decisions(desk_id, doc, "chat")
+        out = server._finish(desk_id)
+        surfaces = {e["surface"] for e in server._desk_record.read(server._jobs, desk_id) if e["action"] == "ratify"}
+        self.assertEqual((bool(out["ratification_id"]), surfaces), (True, {"app"}))
+
+    def test_the_view_still_holds_a_desk_nobody_started_finishing(self):
+        built = server._build_desk("codebook", "t", "", desk_helpers.load("codebook"),
+                                   desk_helpers.load("cases"), None, None, True).structured_content
+        desk_id = built["desk_id"]
+        server._sync(desk_id, None)
+        desk = server._jobs.read(desk_id)["payload"]
+        doc = {"schema": "aat/desk-decisions@1", "desk_id": desk_id, "card_checksum": desk["card_checksum"],
+               "exclusive": False, "decisions": {c["card_id"]: {"action": "adopt"} for c in desk["cards"]}}
+        with self.assertRaisesRegex(ValueError, "open in its view"):
+            server.record_desk_decisions(desk_id, doc, "chat")
+
+
+class TestSeveralInterviewsDownstream(StoreBase):
+    """Packets.lean packet_ids_distinct: each coded record carries its packet ID, and the
+    rulings desk, compare_lenses and the lens network key on it."""
+
+    CHUNKS = [{"chunk_id": n, "text": f"{who} says {n}", "source_file": who}
+              for who in ("ana.txt", "ben.txt") for n in (1, 2)]
+
+    def _coded(self, rid, answers):
+        job = server.start_coding_job(self.CHUNKS, ratification_id=rid, llm_mode="delegated")["job_id"]
+        packets = server.get_next_batch(job, 10)["packets"]
+        server.submit_batch(job, [{"id": p["id"], "response": a} for p, a in zip(packets, answers)])
+        return job
+
+    def test_two_coding_passes_over_several_interviews_reach_the_rulings_desk(self):
+        rid = server.ratify_codebook(codebook=CODEBOOK)["ratification_id"]
+        first = self._coded(rid, ["trust", "risk", "trust", "risk"])
+        second = self._coded(rid, ["trust", "risk", "risk", "risk"])
+        desk = server._build_desk("rulings", "", "", None, None, [first, second], None, True).structured_content
+        cards = server._jobs.read(desk["desk_id"])["payload"]["cards"]
+        self.assertEqual([c["text"] for c in cards], ["ben.txt says 1"])
+        records = server.get_job_result(first)["records"]
+        self.assertEqual(len({r.get("packet_id") for r in records}), 4)
+
+    def test_two_passes_in_different_orders_match_chunk_to_chunk(self):
+        # Packets.lean packet_ids_name_the_chunk, order_kept
+        rid = server.ratify_codebook(codebook=CODEBOOK)["ratification_id"]
+        first = self._coded(rid, ["trust", "risk", "trust", "risk"])
+        flipped = self.CHUNKS[2:] + self.CHUNKS[:2]  # ben's interview first
+        job = server.start_coding_job(flipped, ratification_id=rid, llm_mode="delegated")["job_id"]
+        packets = server.get_next_batch(job, 10)["packets"]
+        self.assertEqual([p["id"] for p in packets], ["ben.txt#1", "ben.txt#2", "ana.txt#1", "ana.txt#2"])
+        server.submit_batch(job, [{"id": p["id"], "response": a}
+                                  for p, a in zip(packets, ["risk", "risk", "trust", "risk"])])
+        proposals = {"ben.txt#1": {"codes": ["trust"], "rationale": "first coder"}}
+        desk = server._build_desk("rulings", "", "", None, None, [first, job], proposals, True).structured_content
+        cards = server._jobs.read(desk["desk_id"])["payload"]["cards"]
+        self.assertEqual([(c["chunk_id"], c["text"], c["proposal"]["codes"]) for c in cards],
+                         [("ben.txt#1", "ben.txt says 1", ["trust"])])
+        from ai_anthro_toolkit import network
+        graph = network.build_network([], kind="lens_agreement", results_by_lens={
+            "a": server.get_job_result(first)["records"], "b": server.get_job_result(job)["records"]})
+        self.assertEqual([e["size"] for e in graph["edges"]], [3.0])  # 3 of 4 chunks share a code
+
+    def test_records_coded_in_api_mode_carry_their_packet_ids(self):
+        rid = server.ratify_codebook(codebook=CODEBOOK)["ratification_id"]
+        with mock.patch.dict(os.environ, {"AAT_MODE": "api"}), \
+                mock.patch.object(server, "_api_llm", lambda model=None: lambda *a, **k: "trust"), \
+                mock.patch.object(server, "_run_api_job", lambda job_id, worker: worker()):
+            job = server.start_coding_job(self.CHUNKS, ratification_id=rid)["job_id"]
+        records = json.loads(server._jobs.load_artifact(job, "result.json"))
+        self.assertEqual([r["packet_id"] for r in records],
+                         ["ana.txt#1", "ana.txt#2", "ben.txt#1", "ben.txt#2"])
+
+    def test_a_job_from_before_packet_ids_still_matches_a_new_one(self):
+        # Records without packet_id are matched on chunk_id, which a single interview's new
+        # job also gives as its packet IDs.
+        rid = server.ratify_codebook(codebook=CODEBOOK)["ratification_id"]
+        new = server.start_coding_job(CHUNKS, ratification_id=rid, llm_mode="delegated")["job_id"]
+        server.submit_batch(new, [{"id": c["chunk_id"], "response": "trust"} for c in CHUNKS])
+        old = [dict(r, Deductive_Codes="risk") for r in server.get_job_result(new)["records"]]
+        for r in old:
+            del r["packet_id"]
+        out = server.compare_lenses(results_by_lens={"new": server.get_job_result(new)["records"], "old": old})
+        self.assertEqual(len(out["per_chunk_agreement"]), 4)
+        self.assertEqual(out["warnings"], [])
+
+    def test_a_record_is_keyed_by_its_packet_id_then_its_chunk_id(self):
+        from ai_anthro_toolkit.models import record_key
+        self.assertEqual(record_key({"packet_id": "2:1", "chunk_id": 1}), "2:1")
+        self.assertEqual(record_key({"packet_id": " ", "chunk_id": 0}), "0")
+        self.assertEqual(record_key({"chunk_id": None}), "")
+
+    def test_compare_lenses_and_the_lens_network_keep_the_interviews_apart(self):
+        rid = server.ratify_codebook(codebook=CODEBOOK)["ratification_id"]
+        first = self._coded(rid, ["trust", "risk", "trust", "risk"])
+        second = self._coded(rid, ["trust", "risk", "risk", "risk"])
+        out = server.compare_lenses(job_ids={"a": first, "b": second})
+        kinds = {w["type"] for w in out["warnings"]}
+        self.assertFalse(kinds & {"duplicate_chunk_id", "text_mismatch"}, out["warnings"])
+        self.assertEqual(len(out["per_chunk_agreement"]), 4)
+        from ai_anthro_toolkit import network
+        graph = network.build_network([], kind="lens_agreement", results_by_lens={
+            "a": server.get_job_result(first)["records"], "b": server.get_job_result(second)["records"]})
+        self.assertEqual({n["key"]: n["attributes"]["chunks"] for n in graph["nodes"]}, {"a": 4, "b": 4})
+
 
 
 if __name__ == "__main__":

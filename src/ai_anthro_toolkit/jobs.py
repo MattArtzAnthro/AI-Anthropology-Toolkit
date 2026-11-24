@@ -90,7 +90,8 @@ class JobStore:
 
         mcp 2.x runs each sync tool in a worker thread, so two calls on one job can
         interleave their reads and writes, and a second host's server can share the store.
-        Re-entrant within a thread. Refuses an ID the store did not issue.
+        Re-entrant within a thread. Refuses an ID the store did not issue. On Windows, which
+        has no fcntl, it holds against other threads of this process only.
         """
         d = self._dir(job_id)
         # The folder itself, not its spelling: on a case-insensitive disk, or through a
@@ -133,10 +134,11 @@ class JobStore:
         return json.loads((self._dir(job_id) / "job.json").read_text(encoding="utf-8"))
 
     def update(self, job_id: str, **fields) -> dict:
-        state = self.read(job_id)
-        state.update(fields)
-        _write_atomic(self._dir(job_id) / "job.json", json.dumps(state, indent=2))
-        return state
+        with self.locked(job_id):  # read, change, write: two at once would lose a field
+            state = self.read(job_id)
+            state.update(fields)
+            _write_atomic(self._dir(job_id) / "job.json", json.dumps(state, indent=2))
+            return state
 
     def status(self, job_id: str) -> dict:
         state = self.read(job_id)

@@ -2,6 +2,16 @@
 rules (AatModel/Submit.lean `newSubmit`, AatModel/Ratify.lean `newRatify`) say on every small
 case, printed by `lake exe vectors`; these tests run the real `submit_batch` and
 `ratify_codebook` on each case and require the same verdict. They need no prover.
+
+A submit case may hold a job an earlier release wrote: a queue that repeats an id, a job marked
+complete with packets unanswered, or a ledger (`ledger.json`) that counts a packet more or one
+fewer than done_ids.json, or done_ids.json holding an id the job never issued. A ledger case is
+seeded as the files stand in that state. ledger.json holds its counted packets merged. A ledger
+that counts every answered packet is this release's own: its entries.json holds the answered
+packets only, as when a call died after writing ledger.json and before entries.json, so a
+server that read entries.json instead would count wrongly. A ledger that lacks an answered packet
+is out of date: an earlier release, which writes entries.json but not ledger.json, merged since,
+and its entries.json holds every packet answered or counted.
 `formal/check.sh` regenerates the file and fails if the committed copy differs.
 
     python3 -m unittest tests.package.test_formal_conformance -v
@@ -28,6 +38,10 @@ def _files(job):
     return {f.name: f.read_bytes() for f in folder.iterdir() if f.name != ".lock"}
 
 
+def _trust(frequency):
+    return [{"label": "TRUST", "definition": "d", "frequency": frequency}] if frequency else []
+
+
 LABEL = json.dumps([{"label": "trust", "definition": "d", "extraction_type": "emergent"}])
 
 
@@ -42,9 +56,16 @@ def _submit_case(case, kind):
     server._jobs.save_artifact(job, "chunks.json", json.dumps([{"chunk_id": i, "text": "t"} for i in ids]))
     done = [str(d) for d in case["done"]]
     server._jobs.save_artifact(job, "done_ids.json", json.dumps(done))
-    if kind == "codebook" and done:
-        server._jobs.save_artifact(job, "entries.json", json.dumps(
-            [{"label": "TRUST", "definition": "d", "frequency": len(done)}]))
+    ledger = case["ledger"]
+    if kind == "codebook":
+        counted = {str(c) for c in ledger or []}
+        current = ledger is not None and set(done) <= counted
+        merged = len(set(done)) if current else len(set(done) | counted)
+        if merged:
+            server._jobs.save_artifact(job, "entries.json", json.dumps(_trust(merged)))
+        if ledger is not None:
+            server._jobs.save_artifact(job, "ledger.json", json.dumps(
+                {"counted": [str(c) for c in ledger], "entries": _trust(len(ledger))}))
     server._jobs.update(job, status="complete" if case["complete"] else "in_progress")
     response = LABEL if kind == "codebook" else "trust"
     before = _files(job)
@@ -97,7 +118,7 @@ def load_vectors():
     data = json.loads(VECTORS.read_text(encoding="utf-8"))
     submit = []
     for raw in data["submit"]:
-        case = {k: raw[k] for k in ("queue", "delegated", "done", "complete", "submit", "refused")}
+        case = {k: raw[k] for k in ("queue", "delegated", "done", "ledger", "complete", "submit", "refused")}
         if not raw["refused"]:
             case.update(done_after=raw["done_after"], counted=raw["counted"], complete_after=raw["complete_after"])
         submit.append(case)
@@ -114,7 +135,7 @@ def mismatches(submit, ratify):
     """Every case where the server and the model disagree."""
     found = []
     for case in submit:
-        for kind in ("coding", "codebook"):
+        for kind in ("coding", "codebook") if case["ledger"] is None else ("codebook",):  # a coding job keeps no ledger
             got, want = _submit_case(case, kind), _expected_submit(case, kind)
             if got != want:
                 found.append(("submit", kind, case, got, want))
@@ -140,6 +161,12 @@ class TestFormalConformance(unittest.TestCase):
         for cases in (submit, ratify):
             self.assertGreater(len(cases), 50)  # zero cases compared is not a pass
             self.assertEqual({c["refused"] for c in cases}, {True, False})
+        accepted = [c for c in submit if not c["refused"]]
+        # the earlier-release states are reached and accepted, not only refused
+        self.assertTrue(any(c["complete"] for c in accepted))
+        self.assertTrue(any(c["ledger"] is not None and set(c["done"]) - set(c["ledger"]) for c in accepted))
+        self.assertTrue(any(c["ledger"] is not None and set(c["ledger"]) - set(c["done"]) for c in accepted))
+        self.assertTrue(any(len(set(c["queue"])) < len(c["queue"]) for c in submit))
 
     def test_server_agrees_with_the_models_on_every_case(self):
         submit, ratify = load_vectors()
@@ -159,10 +186,55 @@ class TestFormalConformance(unittest.TestCase):
         # Packets.lean packet_ids_distinct, packet_ids_keep_distinct_ids
         cases = json.loads(VECTORS.read_text(encoding="utf-8"))["packets"]
         self.assertGreater(len(cases), 10)
-        self.assertTrue(any(len(set(c["chunk_ids"])) < len(c["chunk_ids"]) for c in cases))
+        ids = [[i for _, i in c["chunks"]] for c in cases]
+        self.assertTrue(any(len(set(i)) < len(i) for i in ids))
+        self.assertTrue(any("#" in p for c in cases for p in c["packets"]))  # named by source
+        self.assertTrue(any(":" in p for c in cases for p in c["packets"]))  # placed
         for case in cases:
-            chunks = [{"chunk_id": i, "text": "t"} for i in case["chunk_ids"]]
+            chunks = [{"chunk_id": i, "text": "t", **({"source_file": f"s{src}"} if src else {})}
+                      for src, i in case["chunks"]]
             self.assertEqual(server._packet_ids(chunks), case["packets"], case)
+
+    def test_each_earlier_rule_is_caught(self):
+        # The rules Submit.lean keeps as fix1Submit, each planted in the server, on the cases
+        # that reach it: the vectors must tell every one from the fixed rule.
+        submit, _ = load_vectors()
+        real = server._submit_held
+
+        def ledger_only(job_id, done_ids):  # fix1_loses_stale_ledger
+            ledger = server._load_records(job_id, "ledger.json")
+            if ledger is None:
+                return server._load_records(job_id, "entries.json") or [], set(done_ids)
+            return ledger["entries"], set(ledger["counted"])
+
+        def entries_only(job_id, done_ids):  # never reads ledger.json's merge
+            ledger = server._load_records(job_id, "ledger.json")
+            counted = set(ledger["counted"]) if ledger else set()
+            return server._load_records(job_id, "entries.json") or [], counted | set(done_ids)
+
+        def stale_to_done(job_id, done_ids):  # stale ledger, but the ledger's count dropped
+            ledger = server._load_records(job_id, "ledger.json")
+            if ledger is not None and done_ids <= set(ledger["counted"]):
+                return ledger["entries"], set(ledger["counted"])
+            return server._load_records(job_id, "entries.json") or [], set(done_ids)
+
+        def complete_is_final(job_id, results):  # fix1_stuck_on_early_complete
+            if server._jobs.read(job_id).get("status") == "complete":
+                raise ValueError("already complete")
+            return real(job_id, results)
+
+        ledgered = [c for c in submit if c["ledger"] is not None and c["delegated"] and len(c["queue"]) >= 2][:120]
+        plants = [
+            ("ledger only", "_codebook_ledger", ledger_only, ledgered),
+            ("stale to done", "_codebook_ledger", stale_to_done, ledgered),
+            ("entries only", "_codebook_ledger", entries_only, ledgered),
+            ("repeated queue taken", "_issued", lambda job_id: server._load_records(job_id, "queue.json") or [],
+             [c for c in submit if len(set(c["queue"])) < len(c["queue"])]),
+            ("complete is final", "_submit_held", complete_is_final, [c for c in submit if c["complete"]][:80]),
+        ]
+        for name, attr, planted, cases in plants:
+            with self.subTest(name), mock.patch.object(server, attr, planted):
+                self.assertTrue(mismatches(cases, []))
 
     def test_a_refusal_that_writes_is_caught(self):
         submit, ratify = load_vectors()

@@ -24,6 +24,7 @@ the server validates every submission against the codebook — keeping each
 interpretive move visible to, and contestable by, the researcher.
 """
 
+import contextlib
 import functools
 import json
 import os
@@ -650,12 +651,19 @@ def get_artifact_checks(
 # --------------------------------------------------------------- jobs
 
 def _packet_ids(chunks: list[dict]) -> list[str]:
-    """One packet ID per chunk, all different. A chunk's ID is its chunk_id, or its position
-    when it has none. chunk_transcript numbers each transcript's chunks from 1, so chunks of
-    several interviews share IDs; then every ID carries its chunk's position as well."""
+    """One packet ID per chunk, all different (formal/AatModel/Packets.lean). A chunk's ID is
+    its chunk_id, or its position when it has none. chunk_transcript numbers each
+    transcript's chunks from 1, so chunks of several interviews share IDs; then a packet ID
+    names the chunk's source_file and ID (`ana.txt#3`), which match across coding passes
+    whatever the order of the chunks, or, when a chunk has no source_file or repeats, carries
+    its position (`3:1`)."""
     ids = [str(c.get("chunk_id", i)) for i, c in enumerate(chunks)]
     if len(set(ids)) == len(ids):
         return ids
+    sources = [str(c.get("source_file") or "") for c in chunks]
+    sourced = [f"{src}#{pid}" for src, pid in zip(sources, ids)]
+    if all(sources) and len(set(sourced)) == len(sourced):
+        return sourced
     return [f"{i}:{pid}" for i, pid in enumerate(ids)]
 
 
@@ -663,16 +671,54 @@ def _codebook_ledger(job_id: str, done_ids: set[str]) -> tuple[list[dict], set[s
     """A delegated codebook job's merged codes and the packets merged into them, kept in one
     file (ledger.json) and so written in one step: a batch whose refinement then fails, and
     is sent again, is not merged twice. A job from before the ledger has merged exactly its
-    done_ids."""
+    done_ids into entries.json. An earlier release that submits to a job after the ledger
+    was written merges into entries.json and records done_ids.json, but not the ledger,
+    which then lacks a packet recorded as answered: entries.json holds the codes, and the
+    packets merged are those answered and those the ledger counted."""
     ledger = _load_records(job_id, "ledger.json")
-    if ledger is not None:
-        return ledger["entries"], set(ledger["counted"])
-    return _load_records(job_id, "entries.json") or [], set(done_ids)
+    if ledger is None:
+        return _load_records(job_id, "entries.json") or [], set(done_ids)
+    counted = set(ledger["counted"])
+    if done_ids <= counted:
+        return ledger["entries"], counted
+    return _load_records(job_id, "entries.json") or [], counted | done_ids
 
 
 def _codebook_entries(job_id: str) -> list[dict]:
     """The codes a delegated codebook job has merged so far."""
     return _codebook_ledger(job_id, set(_load_records(job_id, "done_ids.json") or []))[0]
+
+
+def _issued(job_id: str) -> list[dict]:
+    """The packets a delegated job issued, refusing a queue that gave two packets one ID (an
+    earlier release did, for chunks of several interviews): their answers cannot be told
+    apart."""
+    queue = _load_records(job_id, "queue.json") or []
+    ids = [p["id"] for p in queue]
+    if len(set(ids)) != len(ids):
+        raise ValueError(
+            f"{job_id} was started by an earlier release that gave chunks of different "
+            "interviews the same packet ID, so their answers cannot be told apart. Nothing was "
+            "recorded; start the coding job again with the same chunks.")
+    return queue
+
+
+def _status(job_id: str) -> dict:
+    """The job's progress and state. A delegated job is complete when every packet it issued
+    is answered: an earlier release could mark one complete with packets unanswered, and
+    count IDs it never issued as answered."""
+    status = _jobs.status(job_id)
+    queue = _load_records(job_id, "queue.json")
+    if queue is None:
+        return status
+    issued = {p["id"] for p in queue}
+    answered = issued & set(_load_records(job_id, "done_ids.json") or [])
+    status["processed"] = len(answered)
+    status["total"] = len(issued)
+    status["pct"] = round(100 * len(answered) / len(issued), 1) if issued else None
+    if status["status"] == "complete" and answered != issued:
+        status["status"] = "in_progress"
+    return status
 
 
 def _queue_packets(job_id: str, packets: list[dict]) -> None:
@@ -784,9 +830,9 @@ def ratify_codebook(codebook: list[dict] | None = None,
     obligation under the toolkit's Friction by Design conventions.
     """
     if codebook_job_id:
-        job = _job_of_kind(codebook_job_id, "codebook")
+        _job_of_kind(codebook_job_id, "codebook")  # refuses a job of another kind
         records = _load_records(codebook_job_id, "result.json")
-        if records is None or job.get("status") != "complete":
+        if records is None or _status(codebook_job_id)["status"] != "complete":
             raise ValueError(
                 f"Codebook job '{codebook_job_id}' has no result yet — "
                 "ratification applies to a finished codebook the researcher "
@@ -874,6 +920,10 @@ def start_coding_job(chunks: list[dict],
     if mode == "delegated" and approach == "hybrid":
         approach = "deductive"  # inductive discovery requires api mode for now
     records = list(codebook)
+    # Each chunk carries its packet ID into the coded records, so the rulings desk,
+    # compare_lenses and the networks tell apart chunks of several interviews that share a
+    # chunk_id (chunk_transcript numbers each transcript from 1).
+    chunks = [dict(c, packet_id=pid) for pid, c in zip(_packet_ids(chunks), chunks)]
     valid_codes = list(_coding.normalize_codebook(codebook).keys())
     lens_context = _coding.build_lens_context(lens_key, research_context)
     job_id = _jobs.create("coding", {"lens_key": lens_key, "mode": mode,
@@ -905,7 +955,7 @@ def start_coding_job(chunks: list[dict],
         "purpose": "code_chunk",
         "prompt": _coding.render_coding_prompt(c.get("text", ""), records,
                                                lens_context),
-    } for pid, c in zip(_packet_ids(chunks), chunks)]
+    } for pid, c in ((c["packet_id"], c) for c in chunks)]
     _queue_packets(job_id, packets)
     return {"job_id": job_id, "mode": "delegated", "packets": len(packets),
             "next": "loop get_next_batch -> submit_batch, then get_job_result"}
@@ -921,7 +971,7 @@ def get_next_batch(job_id: JobId,
     then submit responses with submit_batch. Returns done=true when nothing
     remains.
     """
-    queue = _load_records(job_id, "queue.json") or []
+    queue = _issued(job_id)
     done_ids = set(_load_records(job_id, "done_ids.json") or [])
     pending = [p for p in queue if p["id"] not in done_ids]
     batch = pending[:max(1, min(batch_size, 10))]
@@ -956,16 +1006,19 @@ def _submit_held(job_id: str, results: list[dict]) -> dict:
     if state["payload"].get("mode", "delegated") != "delegated":
         raise ValueError(f"{job_id} runs in api mode: its worker does the work, so it takes no "
                          "batches. Poll get_job_status, then get_job_result.")
-    if state.get("status") == "complete":
+    queue = _issued(job_id)
+    issued = {p["id"] for p in queue}
+    # An earlier release recorded IDs it never issued as answered; they are not.
+    done_ids = issued & set(_load_records(job_id, "done_ids.json") or [])
+    # Complete means every issued packet is answered. An earlier release could mark a job
+    # complete with packets unanswered; such a job takes them.
+    if state.get("status") == "complete" and issued <= done_ids:
         raise ValueError(f"{job_id} is already complete; nothing more can be submitted to it. "
                          "get_job_result has its result.")
-    queue = _load_records(job_id, "queue.json") or []
-    issued = {p["id"] for p in queue}
     unissued = [str(item.get("id")) for item in results if str(item.get("id")) not in issued]
     if unissued:
         raise ValueError(f"{job_id} issued no packets {', '.join(unissued)}; submit only IDs "
                          "get_next_batch returned. Nothing in this batch was recorded.")
-    done_ids = set(_load_records(job_id, "done_ids.json") or [])
     accepted: list[dict] = []
     rejected: list[dict] = []
     already: list[str] = []
@@ -992,7 +1045,7 @@ def _submit_held(job_id: str, results: list[dict]) -> dict:
         pids = [p["id"] for p in queue] if len(queue) == len(chunks) else _packet_ids(chunks)
         out = []
         for pid, c in zip(pids, chunks):
-            entry = dict(c)
+            entry = dict(c, packet_id=pid)
             codes = coded.get(pid, {}).get("codes", [])
             entry["Deductive_Codes"] = ", ".join(codes)
             entry["Inductive_Codes"] = ""
@@ -1065,7 +1118,7 @@ def _submit_held(job_id: str, results: list[dict]) -> dict:
 @_tool(annotations=_LOCAL_READ)
 def get_job_status(job_id: JobId) -> dict:
     """Progress and state for a job (processed, total, pct, status)."""
-    status = _jobs.status(job_id)
+    status = _status(job_id)
     state = _jobs.read(job_id)
     if state.get("error"):
         status["error"] = state["error"]
@@ -1094,7 +1147,7 @@ def get_job_result(job_id: JobId,
     tally codes record by record, pass include_text=false.
     """
     result = _load_records(job_id, "result.json")
-    status = _jobs.status(job_id)
+    status = _status(job_id)
     if result is None or status["status"] != "complete":
         out = {"job_id": job_id, "ready": False, "status": status}
         error = _jobs.read(job_id).get("error")
@@ -1308,10 +1361,13 @@ def analyze_network(graph: GraphArg = None, network_id: NetworkId = "",
     Deterministic for a seed. The analyzed graph is kept under the same
     network_id; pass it to view_network or export_network.
     """
-    source, network_id = _resolve_network(graph, network_id)
-    result = _network.analyze_network(source, seed=seed,
-                                      community_resolution=community_resolution)
-    network_id = _store_network(result["graph"], network_id)
+    _, stored = _resolve_network(graph, network_id)  # refuses an unknown network as the others do
+    # A stored network is read, laid out and written back: one analysis at a time.
+    with _jobs.locked(stored) if stored else contextlib.nullcontext():
+        source, network_id = _resolve_network(graph, network_id)
+        result = _network.analyze_network(source, seed=seed,
+                                          community_resolution=community_resolution)
+        network_id = _store_network(result["graph"], network_id)
     out = {"network_id": network_id, "summary": result["summary"],
            "visual": result["visual"],
            "next": "view_network(network_id=...) or export_network(network_id=..., path=...)"}
@@ -1520,8 +1576,10 @@ def build_ratification_desk(
         coding_job_ids: Annotated[list[str] | None, Field(
             description="Rulings stage: exactly two coding job IDs, coded under one ratification.")] = None,
         proposals: Annotated[dict[str, dict] | None, Field(
-            description="Rulings stage, optional: {chunk_id: {codes, rationale}}, a proposed "
-                        "resolution per disagreement; empty codes proposes that none apply.")] = None,
+            description="Rulings stage, optional: {packet_id: {codes, rationale}}, a proposed "
+                        "resolution per disagreement, keyed by the coded records' packet_id "
+                        "(their chunk_id when they have none); empty codes proposes that none "
+                        "apply.")] = None,
         blind_first: Annotated[bool, Field(
             description="Rulings stage: hide each proposal until the researcher has ruled. "
                         "Leave on unless the researcher turns it off.")] = True,
@@ -1622,8 +1680,13 @@ def record_desk_decisions(
         raise ValueError(f"surface is 'chat' or 'page', not {surface!r}; decisions made in the "
                          "desk's MCP App are recorded by the desk itself.")
     with _jobs.locked(desk_id):
-        _desk_gate.load_desk(_jobs, desk_id)  # refuses an ID that is not a desk before reading it
-        if _jobs.load_artifact(desk_id, _SAVED) is not None:
+        # The view holds the desk, unless a finish it did not start is pending: that one is
+        # completed by its own decisions sent again (an earlier release let the view take a
+        # desk whose finish from the conversation had been interrupted).
+        desk = _desk_gate.load_desk(_jobs, desk_id)
+        if _jobs.load_artifact(desk_id, _SAVED) is not None and (
+                _jobs.load_artifact(desk_id, "finishing.json") is None
+                or _desk_gate.finishing_with(_jobs, desk_id, _document(desk_id, desk, _saved(desk_id)))):
             raise ValueError(
                 f"{desk_id} is open in its view in the conversation, which keeps each decision "
                 "as it is made. The researcher finishes it there with Ratify; it cannot be "
@@ -1725,16 +1788,24 @@ def _sync_held(desk_id: str, action: dict | None) -> dict:
     finished = _load_records(desk_id, "finished.json")
     saved = _saved(desk_id)
     if action is None:
-        if finished is None and _jobs.load_artifact(desk_id, _SAVED) is None:
-            _jobs.save_artifact(desk_id, _SAVED, json.dumps(saved))  # the view holds the desk
+        if finished is None and _jobs.load_artifact(desk_id, _SAVED) is None \
+                and _jobs.load_artifact(desk_id, "finishing.json") is None:
+            # The view holds the desk, unless a finish is under way: that is completed by
+            # sending its decisions again from where they were made.
+            _jobs.save_artifact(desk_id, _SAVED, json.dumps(saved))
         return {"desk_id": desk_id, "saved": len(saved["decisions"]),
                 "finished": finished["outcome"] if finished else None,
                 "document": _document(desk_id, desk, saved), "a2ui": _a2ui.restore(desk, saved)}
     if finished is not None:
         raise ValueError(f"{desk_id} is finished; its decisions can no longer change.")
     if _jobs.load_artifact(desk_id, "finishing.json") is not None:
-        raise ValueError("Ratify was interrupted before it finished. Press Ratify again to "
-                         "complete it; the decisions cannot change until it does.")
+        if _desk_gate.finishing_with(_jobs, desk_id, _document(desk_id, desk, saved)):
+            raise ValueError("Ratify was interrupted before it finished. Press Ratify again to "
+                             "complete it; the decisions cannot change until it does.")
+        raise ValueError("Finishing this desk from the conversation was interrupted before it "
+                         "finished. Send the same decisions again there, with "
+                         "record_desk_decisions, to complete it; nothing can be saved here "
+                         "until it is finished.")
     if not isinstance(action, dict) or not isinstance(action.get("name"), str) \
             or not isinstance(action.get("context"), dict):
         raise ValueError("An action is {name, context}, as the desk's Save control sends it.")

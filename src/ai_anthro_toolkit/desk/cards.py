@@ -6,7 +6,8 @@ A card is a plain dict, stored with the desk and never edited after the desk is 
 - Codebook card: ``card_id`` (``code-01``, ...), ``code_label``, ``definition``,
   ``inclusion``, ``exclusion``, ``cases`` (``case_id``, ``text``, ``source``, and ``kind``,
   which is ``typical`` or ``borderline``).
-- Rulings card: ``card_id`` (``chunk-<chunk_id>``), ``chunk_id``, ``text``, ``source``,
+- Rulings card: ``card_id`` (``chunk-<chunk_id>``), ``chunk_id`` (the coded record's
+  packet_id when it has one, which tells apart chunks of several interviews), ``text``, ``source``,
   ``coder_a`` and ``coder_b`` (each coder's deductive codes, in codebook order),
   ``entries`` (label to definition for those codes), and ``proposal``
   (``{codes, rationale}``, or None).
@@ -21,6 +22,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 from ai_anthro_toolkit.coding import normalize_codebook
+from ai_anthro_toolkit.models import record_key
 
 __all__ = ["checksum", "codebook_cards", "rulings_cards"]
 
@@ -90,14 +92,14 @@ def _codes(raw: Any) -> set[str]:
 
 
 def _chunks(job: Sequence[Mapping[str, Any]], name: str) -> dict[str, Mapping[str, Any]]:
-    """A coding job's records by chunk_id, refusing records it cannot place."""
-    unplaced = sum(1 for record in job if not _text(record.get("chunk_id")))
+    """A coding job's records by chunk (models.record_key), refusing records it cannot place."""
+    unplaced = sum(1 for record in job if not record_key(record))
     if unplaced:
         noun = "record" if unplaced == 1 else "records"
         raise ValueError(f"{unplaced} {noun} in the {name} coding job {'has' if unplaced == 1 else 'have'} no chunk_id.")
     chunks: dict[str, Mapping[str, Any]] = {}
     for record in job:
-        chunk_id = _text(record["chunk_id"])
+        chunk_id = record_key(record)
         if chunk_id in chunks:
             raise ValueError(f"chunk {chunk_id} appears more than once in the {name} coding job.")
         chunks[chunk_id] = record

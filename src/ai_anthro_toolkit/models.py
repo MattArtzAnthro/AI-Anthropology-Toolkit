@@ -5,6 +5,19 @@ package outputs and notebook outputs remain interchangeable.
 """
 
 from dataclasses import asdict, dataclass, field
+from typing import Any
+
+
+def record_key(record: Any) -> str:
+    """The key a coded record is matched on across coding passes: its packet_id, or its
+    chunk_id when it has none. A coding job gives each chunk a packet ID of its own; it is the
+    chunk_id unless chunks of several interviews share chunk_ids, which chunk_transcript gives
+    when each transcript is chunked on its own. Empty when the record carries neither."""
+    for field_name in ("packet_id", "chunk_id"):
+        raw = record.get(field_name)
+        if raw is not None and str(raw).strip():
+            return str(raw).strip()
+    return ""
 
 
 @dataclass
