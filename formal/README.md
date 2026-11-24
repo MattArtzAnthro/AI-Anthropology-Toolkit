@@ -67,7 +67,7 @@ models describe; a push that changes one of those files runs the provers.
 | `DeskList resend-rewrites DesksKept` | The rule before: a desk finish sent again wrote its plan's empty list of desks |
 | `DeskList one-file-earlier DesksKept` | The rule before: desks built here were listed in `ratification.json`, which an earlier release rewrites without a lock |
 | `DeskList separate-unlocked DesksKept` | A probe: `desks.json` alone is not enough; two desks built here at once still need the lock |
-| `DeskList current EarlierKept` | Limit: a desk an earlier release adds, without a lock, while this release completes that release's interrupted desk finish |
+| `DeskList rewrite-written EarlierKept` | The rule before: completing an earlier release's interrupted desk finish rewrote its `ratification.json`, dropping a desk that release added at that moment without a lock |
 | `Count no-ledger CountedOnce` | The rule before `ledger.json`: the packets merged were read from `done_ids.json`, written last, so each resend after a failure merged again |
 | `Count ledger-only Kept` | The first fix: a ledger an earlier release left out of date was read as the merge, and the packet that release merged lost its codes |
 | `Count stale-to-done CountedOnce` | `done_ids.json` written after refinement: a stale ledger's own packet, merged by a batch whose refinement then failed, is merged again |
@@ -96,11 +96,9 @@ models describe; a push that changes one of those files runs the provers.
   built on it. This release lists the desks it builds in `desks.json`, which no earlier release
   opens, so an earlier release rewriting `ratification.json` cannot drop one. A codebook job an
   earlier release started is ratified in a new job (its `ratification.json` names the codebook
-  job), not in its own folder. Two things remain between releases: an earlier release's decision
-  record reads only `ratification.json`, so it lacks the desks built here; and a desk finish an
-  earlier release started and this one completes rewrites that ratification's
-  `ratification.json`, so a desk that release adds at that moment, without a lock, can be dropped
-  (`DeskList current EarlierKept`).
+  job), not in its own folder. A desk finish an earlier release started and this one completes
+  keeps a `ratification.json` already written as it is. An earlier release's decision record
+  reads only `ratification.json`, so it lacks the desks built here.
 - A release before 3.10 opens `<root>/<string>` for any string it is given. Handed a path
   (`locked/<id>`, or an absolute one) instead of a job ID, it opens a job this release started,
   without a lock. Every tool returns and takes bare IDs; only a path pasted by hand reaches it.

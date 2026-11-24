@@ -62,11 +62,12 @@ dk two-processes    FALSE  FALSE  TRUE  0       ToldWhatHolds        FAIL  # old
 dk two-same-digest  FALSE  TRUE   TRUE  0       RecordNamesFinished  FAIL  # old: even the same decisions mint two ratifications
 
 # ---- DeskList: rulings desks built on one ratification, and re-ratifying it
-dl() { run DeskList "$1" "Locked = $2 ResendKeeps = $3 Separate = $4 Earlier = $5" "$6" "$7"; }
-#  name               locked keeps  separate earlier property    expect
-dl current            TRUE   TRUE   TRUE     TRUE    DesksKept   PASS
-dl current            TRUE   TRUE   TRUE     TRUE    NeverBuilt  FAIL  # probe: desks are built
-dl current            TRUE   TRUE   TRUE     TRUE    EarlierKept FAIL  # limit: an earlier release's unlocked desk, written between a resend's read and write here
+dl() { run DeskList "$1" "Locked = $2 ResendKeeps = $3 Separate = $4 Earlier = $5 KeepWritten = ${8:-FALSE}" "$6" "$7"; }
+#  name               locked keeps  separate earlier property    expect [keep-written]
+dl current            TRUE   TRUE   TRUE     TRUE    DesksKept   PASS  TRUE
+dl current            TRUE   TRUE   TRUE     TRUE    EarlierKept PASS  TRUE
+dl current            TRUE   TRUE   TRUE     TRUE    NeverBuilt  FAIL  TRUE  # probe: desks are built
+dl rewrite-written    TRUE   TRUE   TRUE     TRUE    EarlierKept FAIL  # the rule before: the resend rewrote the list an earlier release adds to without a lock
 dl separate-unlocked  FALSE  TRUE   TRUE     TRUE    DesksKept   FAIL  # desks.json alone is not enough: two desks built here still need the lock
 dl one-file           TRUE   TRUE   FALSE    FALSE   DesksKept   PASS  # one file is enough among this release's own writers
 dl one-file-earlier   TRUE   TRUE   FALSE    TRUE    DesksKept   FAIL  # an earlier release, unlocked, wrote back a list without a desk built here

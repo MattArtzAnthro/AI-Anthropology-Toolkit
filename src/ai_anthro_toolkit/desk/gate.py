@@ -181,16 +181,19 @@ def _commit(store: JobStore, desk_id: str, plan: _Plan, digest: str, pending: An
         # Made only once finishing.json names it, so an interrupted finish leaves no
         # ratification job that nothing names; sent again, it makes the one named.
         store.create("ratification", {"codes": len(plan.mint)}, job_id=rid)
-        held = {"checksum": plan.outcome["checksum"], "codes": len(plan.mint), "note": "", **plan.held}
         with store.locked(rid):
-            # Sent again after an interruption: the ratification was already usable, and a
-            # rulings desk an earlier release built on it since then stays on its list (this
-            # release lists its own in desks.json, which this write leaves alone).
-            earlier = _json(store, rid, "ratification.json")
-            if earlier and earlier.get("desks"):
-                held["desks"] = earlier["desks"]
-            store.save_artifact(rid, "result.json", json.dumps(plan.mint))
-            store.save_artifact(rid, "ratification.json", json.dumps(held))
+            # Sent again after an interruption, a ratification whose ratification.json was
+            # written is kept as written: it was usable from then on (coding jobs and desks may
+            # hold it), and an earlier release adds its desks to that file without a lock, so a
+            # rewrite here could drop one. ratification.json is the last of its files written.
+            written = _json(store, rid, "ratification.json")
+            if written is None:
+                held = {"checksum": plan.outcome["checksum"], "codes": len(plan.mint), "note": "", **plan.held}
+                store.save_artifact(rid, "result.json", json.dumps(plan.mint))
+                store.save_artifact(rid, "ratification.json", json.dumps(held))
+            elif written.get("checksum") != plan.outcome["checksum"]:
+                # An earlier release made it from these decisions; report the codebook in use.
+                plan.outcome.update(checksum=written.get("checksum"), codes=written.get("codes"))
             store.complete(rid)
     if plan.resolved is not None:
         store.save_artifact(desk_id, "result.json", json.dumps(plan.resolved))

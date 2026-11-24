@@ -6,7 +6,7 @@
   "formal/AatModel/Ratify.lean": "baefa88dded54adb99fdafdbb8b13ef2903d5d634013b5e2677cfc39494b46b2",
   "formal/AatModel/Submit.lean": "5b0dbd92f9d20511323b4dd01b1b5830eacb734a10e7018b6e3ce4a8836ae05f",
   "formal/Main.lean": "cba35e5d0e5281ad096a60ae4196310ab7b9b816fb718535588d54b2977d7eca",
-  "formal/README.md": "750d4d4bc97ca1668ad853dfef0d2944803abea51fe250029e5468077df47e2b",
+  "formal/README.md": "dff9a4414849407496aa81ece11b26b9d29bd2cd87c40a55a8ff244cf1c85392",
   "formal/axioms.lean": "a9dfca4f893637d40359f6ff35b0a5d5dafa4a3ccd3ca4796da5a10a82437087",
   "formal/check.sh": "8da565d0deea3999df32522dc4dd12f80ba4e8453aa19a0d7df2fddd9e8fa509",
   "formal/lake-manifest.json": "6ad3c97a625e17ee30ff5cdb07914b708059e2ba62443355d3973ad6af59b53d",
@@ -17,10 +17,10 @@
   "formal/stamp.py": "69f21e89c6867dc4386096d15ee1c15d701b06b8f02771ffc4f5ff90cab05a58",
   "formal/tla/Count.tla": "853956b352a84792ddea72754fc8d7ff9818b100b702cec1ef2aa844646bf742",
   "formal/tla/Desk.tla": "d8e2f6cd3173a52fc4a090d42545f11f8e18a3d2941b08beca20f55447f9a3fc",
-  "formal/tla/DeskList.tla": "520c13a849afbe056b1023172de01c6ad39fd6e12909e9d4710591a0ae3098ae",
+  "formal/tla/DeskList.tla": "076de167b34fce172ba2a3100c6271eb2bbf555129eabb98b8a2cb91e196e156",
   "formal/tla/DeskView.tla": "115d7bb4610099a92819a3c5a6996d78960176cf203a9cd819f92f6e3cc07e17",
   "formal/tla/Submit.tla": "c0dfd114f7e8f4321f193dee680248dbf5ad50ae0a6c222bfa2c177560f11913",
-  "formal/tla/check.sh": "b0f43c36aae9dfd350a3138f780ad4b58d0ff3c4609b566a7a282987ee27ad63",
+  "formal/tla/check.sh": "47c3d392d053749821e5cb19bf3d7a5811a3d0d8ebf93dc6cd53b42d7d2a62a1",
   "formal/vectors.json": "06640c620e7254aa994ff22fe826dcedffdd3e1eab01999364b57fefdf3922af"
  },
  "version": 1

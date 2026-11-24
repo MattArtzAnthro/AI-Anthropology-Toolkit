@@ -14,16 +14,20 @@
 \* earlier release do not write; without it, in ratification.json with everything else. With
 \* it, ratify writes ratification.json with no list (it ratifies only this release's jobs, whose
 \* desks are all in desks.json); resend keeps the list an earlier release may have written.
+\* KeepWritten: the resend leaves a ratification.json already written as it is. A desk can be
+\* built on a ratification only once that file is written (it is the last written), so the
+\* resend's list is one only when it would be kept: with KeepWritten the resend writes no list.
 \* Earlier: the earlier release builds its desk. A ratification it can open is one it made, which
 \* ratify_codebook here never rewrites (it ratifies such a codebook job in a new job), so with
 \* Separate, ratify does not act on it; the resend does, completing that release's own finish.
-CONSTANTS Locked, ResendKeeps, Separate, Earlier
+CONSTANTS Locked, ResendKeeps, Separate, Earlier, KeepWritten
 Actors == {"desk1", "desk2", "ratify", "resend", "earlier"}
 Here == {"desk1", "desk2"}
 VARIABLES desks, own, pc, seen, holder
 vars == <<desks, own, pc, seen, holder>>
 
 Off(a) == (a = "earlier" /\ ~Earlier) \/ (a = "ratify" /\ Separate /\ Earlier)
+           \/ (a = "resend" /\ KeepWritten)
 Init == desks = {} /\ own = {} /\ pc = [a \in Actors |-> IF Off(a) THEN "end" ELSE "start"]
         /\ seen = [a \in Actors |-> {}] /\ holder = "none"
 
@@ -48,8 +52,8 @@ Spec == Init /\ [][Next]_vars
 
 \* Every desk built here is listed once nobody is between reading and writing a list.
 DesksKept == \A a \in Here : pc[a] = "end" /\ (\A b \in Actors : pc[b] # "write") => a \in desks \cup own
-\* The earlier release's desk is listed too. Limit: it adds it without a lock, so the resend,
-\* reading the list under its own lock, can write back a list without it.
+\* The earlier release's desk is listed too. It adds it without a lock, so a resend that read
+\* the list under its own lock and wrote it back could drop it (without KeepWritten).
 EarlierKept == pc["earlier"] = "end" /\ Earlier /\ (\A b \in Actors : pc[b] # "write") => "earlier" \in desks
 NeverBuilt == desks \cup own = {}
 ====

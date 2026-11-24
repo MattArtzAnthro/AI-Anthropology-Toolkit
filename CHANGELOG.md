@@ -98,7 +98,8 @@ This project has three release tracks: the `ai-anthropology-toolkit` Python pack
   moment, or count a packet twice after a failure. A host still on an
   earlier release cannot open these jobs; upgrade every host that shares a
   job store. Jobs an earlier release started (eight hex digits) are still
-  read and finished here, among them a desk finish it was interrupted in. A
+  read and finished here, among them a desk finish it was interrupted in,
+  whose ratification is kept as that release wrote it. A
   codebook job an earlier release started is ratified in a new job (each
   time; its record names the codebook job), and the
   rulings desks this release builds on a ratification are listed in

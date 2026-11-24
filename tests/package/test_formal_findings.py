@@ -1075,9 +1075,9 @@ class TestEarlierReleasesFenced(StoreBase):
                 server._jobs.create("coding", {}, job_id=old)
             self.assertFalse((Path(self._tmp) / old).exists())
 
-    def test_a_desk_finish_an_earlier_release_started_can_be_finished(self):
-        # 3.10 and 3.11 made the ratification job, then finishing.json naming it, both under
-        # eight hex digits. Sent again here, the finish completes as that ratification.
+    def earlier_interrupted_finish(self):
+        """A codebook desk whose finish 3.10 or 3.11 started and was interrupted in: it made the
+        ratification job, then finishing.json naming it, both under eight hex digits."""
         from ai_anthro_toolkit.desk import decisions, gate
         built = server._build_desk("codebook", "t", "", desk_helpers.load("codebook"),
                                    desk_helpers.load("cases"), None, None, True).structured_content
@@ -1094,13 +1094,50 @@ class TestEarlierReleasesFenced(StoreBase):
         doc["desk_id"] = desk_id
         server._jobs.save_artifact(desk_id, "finishing.json", json.dumps(
             {"digest": gate._digest(decisions.parse(doc)), "ratification_id": rid}))
-        held = json.loads(server._jobs.load_artifact(rid, "ratification.json"))  # 3.11 lists a desk
+        return desk_id, doc, rid
+
+    def test_a_desk_finish_an_earlier_release_started_can_be_finished(self):
+        # Sent again here, the finish completes as that ratification, and makes no other; a
+        # desk 3.11 had already listed on it stays listed.
+        desk_id, doc, rid = self.earlier_interrupted_finish()
+        held = json.loads(server._jobs.load_artifact(rid, "ratification.json"))
         server._jobs.save_artifact(rid, "ratification.json", json.dumps(dict(held, desks=["desk-0a1b2c3d"])))
         out = server.record_desk_decisions(desk_id, doc, "chat")
         self.assertEqual(out["ratification_id"], rid)
-        kept = json.loads(server._jobs.load_artifact(rid, "ratification.json"))["desks"]
-        self.assertEqual(kept, ["desk-0a1b2c3d"])  # the earlier release's own list, as it wrote it
+        self.assertEqual(json.loads(server._jobs.load_artifact(rid, "ratification.json"))["desks"], ["desk-0a1b2c3d"])
+        self.assertEqual(server.get_job_status(rid)["status"], "complete")
         self.assertEqual(list(Path(self._tmp).glob("locked/ratification-*")), [])
+
+    def test_completing_an_earlier_finish_keeps_a_desk_that_release_adds_meanwhile(self):
+        # tla: DeskList current EarlierKept PASS, rewrite-written FAIL. 3.11 adds a desk to its
+        # ratification by reading, changing and writing ratification.json without a lock; done
+        # while the finish here held what it had read, the finish wrote back a list without it.
+        from ai_anthro_toolkit.desk import gate
+        desk_id, doc, rid = self.earlier_interrupted_finish()
+        real = gate._json
+
+        def earlier_adds_a_desk(store, job_id, name):
+            read = real(store, job_id, name)
+            if job_id == rid and name == "ratification.json":
+                path = Path(self._tmp) / rid / "ratification.json"
+                path.write_text(json.dumps(dict(json.loads(path.read_text()), desks=["desk-0a1b2c3d"])))
+            return read
+
+        with mock.patch.object(gate, "_json", earlier_adds_a_desk):
+            server.record_desk_decisions(desk_id, doc, "chat")
+        kept = json.loads(server._jobs.load_artifact(rid, "ratification.json"))
+        self.assertEqual(kept.get("desks"), ["desk-0a1b2c3d"])
+
+    def test_completing_an_earlier_finish_reports_the_codebook_it_ratified(self):
+        # Should this release work the same decisions into another codebook than 3.11 did,
+        # the ratification in use is the one written; the outcome names its checksum.
+        desk_id, doc, rid = self.earlier_interrupted_finish()
+        path = Path(self._tmp) / rid / "ratification.json"
+        path.write_text(json.dumps(dict(json.loads(path.read_text()), checksum="written-by-3.11")))
+        before = path.read_bytes()
+        out = server.record_desk_decisions(desk_id, doc, "chat")
+        self.assertEqual((out["ratification_id"], out["checksum"]), (rid, "written-by-3.11"))
+        self.assertEqual(path.read_bytes(), before)
 
     def test_a_desk_built_here_survives_an_earlier_release_rewriting_its_ratification(self):
         # tla: DeskList current DesksKept PASS, one-file-earlier FAIL.
